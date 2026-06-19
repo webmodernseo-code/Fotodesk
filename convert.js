@@ -47,7 +47,7 @@ export default function LandingPage() {
 }
 `;
 
-  fs.writeFileSync('C:/Users/monep/OneDrive/Desktop/Tous mes dossiers/PROJET WEB/fotodesk-next/src/app/page.tsx', reactCode);
+  fs.writeFileSync('C:/Users/monep/OneDrive/Desktop/Tous mes dossiers/PROJET WEB/fotodesk/src/app/page.tsx', reactCode);
   console.log('Successfully wrote page.tsx');
 } catch (error) {
   console.error(error);

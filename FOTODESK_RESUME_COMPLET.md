@@ -280,16 +280,16 @@ Le prix s'adapte automatiquement à la région via détection Geo-IP.
 
 | Fichier | Rôle |
 |---|---|
-| [layout.tsx (dashboard)](file:///c:/Users/monep/OneDrive/Desktop/Tous%20mes%20dossiers/PROJET%20WEB/fotodesk-next/src/app/dashboard/layout.tsx) | Sidebar, header, modal "Nouvelle Galerie", notifications |
-| [dashboard/page.tsx](file:///c:/Users/monep/OneDrive/Desktop/Tous%20mes%20dossiers/PROJET%20WEB/fotodesk-next/src/app/dashboard/page.tsx) | Stats + projets actifs avec filtres type |
-| [galleries/page.tsx](file:///c:/Users/monep/OneDrive/Desktop/Tous%20mes%20dossiers/PROJET%20WEB/fotodesk-next/src/app/dashboard/galleries/page.tsx) | Liste galeries avec filtres et compteurs |
-| [db.ts](file:///c:/Users/monep/OneDrive/Desktop/Tous%20mes%20dossiers/PROJET%20WEB/fotodesk-next/src/lib/db.ts) | Toute la logique de base de données simulée |
-| [mockData.ts](file:///c:/Users/monep/OneDrive/Desktop/Tous%20mes%20dossiers/PROJET%20WEB/fotodesk-next/src/lib/mockData.ts) | 4 galeries de démo + 11 médias (photos + vidéos) |
-| [affiliateDb.ts](file:///c:/Users/monep/OneDrive/Desktop/Tous%20mes%20dossiers/PROJET%20WEB/fotodesk-next/src/lib/affiliateDb.ts) | Toute la logique du système d'affiliation |
-| [FounderPortalClient.tsx](file:///c:/Users/monep/OneDrive/Desktop/Tous%20mes%20dossiers/PROJET%20WEB/fotodesk-next/src/components/FounderPortalClient.tsx) | Le portail Vault du fondateur complet |
-| [account/page.tsx](file:///c:/Users/monep/OneDrive/Desktop/Tous%20mes%20dossiers/PROJET%20WEB/fotodesk-next/src/app/dashboard/account/page.tsx) | Abonnements, tarification, 2FA, facturation |
-| [login/page.tsx](file:///c:/Users/monep/OneDrive/Desktop/Tous%20mes%20dossiers/PROJET%20WEB/fotodesk-next/src/app/login/page.tsx) | Connexion 2 étapes avec bifurcation Fondateur |
-| [TEST_CREDENTIALS.md](file:///c:/Users/monep/OneDrive/Desktop/Tous%20mes%20dossiers/PROJET%20WEB/fotodesk-next/TEST_CREDENTIALS.md) | Fichier résumé de tous les accès de test |
+| [layout.tsx (dashboard)](file:///c:/Users/monep/OneDrive/Desktop/Tous%20mes%20dossiers/PROJET%20WEB/fotodesk/src/app/dashboard/layout.tsx) | Sidebar, header, modal "Nouvelle Galerie", notifications |
+| [dashboard/page.tsx](file:///c:/Users/monep/OneDrive/Desktop/Tous%20mes%20dossiers/PROJET%20WEB/fotodesk/src/app/dashboard/page.tsx) | Stats + projets actifs avec filtres type |
+| [galleries/page.tsx](file:///c:/Users/monep/OneDrive/Desktop/Tous%20mes%20dossiers/PROJET%20WEB/fotodesk/src/app/dashboard/galleries/page.tsx) | Liste galeries avec filtres et compteurs |
+| [db.ts](file:///c:/Users/monep/OneDrive/Desktop/Tous%20mes%20dossiers/PROJET%20WEB/fotodesk/src/lib/db.ts) | Toute la logique de base de données simulée |
+| [mockData.ts](file:///c:/Users/monep/OneDrive/Desktop/Tous%20mes%20dossiers/PROJET%20WEB/fotodesk/src/lib/mockData.ts) | 4 galeries de démo + 11 médias (photos + vidéos) |
+| [affiliateDb.ts](file:///c:/Users/monep/OneDrive/Desktop/Tous%20mes%20dossiers/PROJET%20WEB/fotodesk/src/lib/affiliateDb.ts) | Toute la logique du système d'affiliation |
+| [FounderPortalClient.tsx](file:///c:/Users/monep/OneDrive/Desktop/Tous%20mes%20dossiers/PROJET%20WEB/fotodesk/src/components/FounderPortalClient.tsx) | Le portail Vault du fondateur complet |
+| [account/page.tsx](file:///c:/Users/monep/OneDrive/Desktop/Tous%20mes%20dossiers/PROJET%20WEB/fotodesk/src/app/dashboard/account/page.tsx) | Abonnements, tarification, 2FA, facturation |
+| [login/page.tsx](file:///c:/Users/monep/OneDrive/Desktop/Tous%20mes%20dossiers/PROJET%20WEB/fotodesk/src/app/login/page.tsx) | Connexion 2 étapes avec bifurcation Fondateur |
+| [TEST_CREDENTIALS.md](file:///c:/Users/monep/OneDrive/Desktop/Tous%20mes%20dossiers/PROJET%20WEB/fotodesk/TEST_CREDENTIALS.md) | Fichier résumé de tous les accès de test |
 | `public/landing.html` | Page d'accueil publique (HTML statique) |
 | `public/logo.png` | Logo FotoDesk utilisé partout |
 
