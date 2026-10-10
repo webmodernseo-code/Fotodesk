@@ -12,6 +12,7 @@ export const RegisterPage: React.FC = () => {
 
   return (
     <AuthUI
+      initialIsSignIn={false}
       signUpContent={{
         quote: {
           text: "Donnez vie à vos projets photographiques en toute simplicité.",

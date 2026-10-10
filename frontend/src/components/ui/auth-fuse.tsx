@@ -5,7 +5,7 @@ import { useState, useId, useEffect } from "react";
 import { Slot } from "@radix-ui/react-slot";
 import * as LabelPrimitive from "@radix-ui/react-label";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Eye, EyeOff, ShieldCheck, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff, ShieldCheck, ArrowLeft, CheckCircle2, AlertCircle } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { useNavigate } from "react-router-dom";
@@ -275,11 +275,25 @@ function SignUpForm() {
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [confirmEmail, setConfirmEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [emailError, setEmailError] = useState("");
+
+  const trimmedEmail = email.trim().toLowerCase();
+  const trimmedConfirm = confirmEmail.trim().toLowerCase();
+  const hasConfirm = confirmEmail.length > 0;
+  const emailsMatch = hasConfirm && trimmedEmail.length > 0 && trimmedEmail === trimmedConfirm;
+  const emailsMismatch = hasConfirm && trimmedEmail !== trimmedConfirm;
 
   const handleSignUp = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (trimmedEmail !== trimmedConfirm) {
+      setEmailError("Les deux adresses e-mail ne correspondent pas.");
+      toast.error("Veuillez vérifier vos adresses e-mail : elles ne correspondent pas.");
+      return;
+    }
+    setEmailError("");
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
@@ -324,11 +338,69 @@ function SignUpForm() {
             name="email"
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              if (emailError) setEmailError("");
+            }}
+            onCopy={(e) => {
+              e.preventDefault();
+              toast.info("La copie est désactivée afin de vous encourager à saisir manuellement votre confirmation.");
+            }}
             placeholder="contact@exemple.com"
             required
             autoComplete="email"
           />
+        </div>
+
+        <div className="grid gap-1.5">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="signup-confirm-email">Confirmer l'adresse e-mail</Label>
+            {emailsMatch && (
+              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#C89561]">
+                <CheckCircle2 className="w-3 h-3" />
+                Adresses identiques
+              </span>
+            )}
+            {emailsMismatch && (
+              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-red-400">
+                <AlertCircle className="w-3 h-3" />
+                Ne correspond pas
+              </span>
+            )}
+          </div>
+          <Input
+            id="signup-confirm-email"
+            name="confirmEmail"
+            type="email"
+            value={confirmEmail}
+            onChange={(e) => {
+              setConfirmEmail(e.target.value);
+              if (emailError) setEmailError("");
+            }}
+            onPaste={(e) => {
+              e.preventDefault();
+              toast.warning("Le copier-coller est désactivé sur ce champ pour garantir l'exactitude de votre adresse e-mail.");
+            }}
+            onCopy={(e) => e.preventDefault()}
+            onDrop={(e) => e.preventDefault()}
+            onDragOver={(e) => e.preventDefault()}
+            placeholder="Confirmez votre adresse e-mail"
+            required
+            autoComplete="off"
+            className={cn(
+              emailsMismatch && "border-red-500/60 focus-visible:border-red-500 focus-visible:ring-red-500/30",
+              emailsMatch && "border-[#C89561]/60 focus-visible:border-[#C89561]"
+            )}
+          />
+          {emailError ? (
+            <p className="text-[11px] text-red-400 flex items-center gap-1 mt-0.5">
+              <AlertCircle className="w-3 h-3 shrink-0" /> {emailError}
+            </p>
+          ) : (
+            <p className="text-[11px] text-neutral-500">
+              Saisie manuelle requise (collage bloqué) pour s'assurer que l'adresse soit parfaitement exacte.
+            </p>
+          )}
         </div>
 
         <PasswordInput
@@ -409,6 +481,7 @@ interface AuthContentProps {
 }
 
 interface AuthUIProps {
+  initialIsSignIn?: boolean;
   signInContent?: AuthContentProps;
   signUpContent?: AuthContentProps;
 }
@@ -435,8 +508,8 @@ const defaultSignUpContent = {
   }
 };
 
-export function AuthUI({ signInContent = {}, signUpContent = {} }: AuthUIProps) {
-  const [isSignIn, setIsSignIn] = useState(true);
+export function AuthUI({ initialIsSignIn = true, signInContent = {}, signUpContent = {} }: AuthUIProps) {
+  const [isSignIn, setIsSignIn] = useState(initialIsSignIn);
   const toggleForm = () => setIsSignIn((prev) => !prev);
 
   const finalSignInContent = {
