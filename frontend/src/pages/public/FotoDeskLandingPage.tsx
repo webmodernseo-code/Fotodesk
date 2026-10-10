@@ -13,9 +13,9 @@ export function FotoDeskLandingPage() {
         let content = bodyMatch ? bodyMatch[1] : html;
         // Clean out script tags
         content = content.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
-        // Replace /login with /admin/login
-        content = content.replace(/href="\/login"/g, 'href="/admin/login"');
-        content = content.replace(/href="\/register"/g, 'href="/admin/login"');
+        // Direct to /login and /register routes
+        content = content.replace(/href="\/login"/g, 'href="/login"');
+        content = content.replace(/href="\/register"/g, 'href="/register"');
         setHtmlContent(content);
       })
       .catch((err) => console.error('Error loading landing page', err));

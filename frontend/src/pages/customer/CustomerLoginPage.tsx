@@ -128,54 +128,30 @@ export const CustomerLoginPage: React.FC = () => {
 
   return (
     <div
-      // Visual structure mirrors AdminLoginPage so admin and customer
-      // landings feel like the same product: tinted logo frame above
-      // the title, "Need help?" support email below the form, "Powered
-      // by PicPeak" footer line. The .customer-surface marker class
-      // lets the global stylesheet retheme <Card>/<Input> for dark
-      // backgrounds (admin uses the dark: trigger; customer uses theme
-      // tokens).
-      className="customer-surface min-h-screen flex items-center justify-center p-4"
-      style={{ backgroundColor: 'var(--color-background, #fafafa)' }}
+      className="customer-surface min-h-screen flex items-center justify-center p-4 bg-[#090A0C] text-white selection:bg-[#5C8762] selection:text-white"
     >
       <div className="w-full max-w-md">
-        {/* Logo / header — matches AdminLoginPage. The frame and size
-            are admin-controllable via Branding → "Login pages logo"
-            settings; both toggles apply to /admin/login and
-            /customer/login exclusively (the rest of the app uses its
-            own logo_size). */}
         <div className="text-center mb-8">
-          {(() => {
-            const cls = resolveLoginLogoClasses(settingsData?.branding_login_logo_size);
-            const showFrame = settingsData?.branding_login_logo_frame_enabled !== false;
-            return showFrame ? (
-              <div
-                className={`${cls.frameOuter} mx-auto mb-6 rounded-2xl flex items-center justify-center`}
-                style={{ backgroundColor: '#eee6d2' }}
-              >
-                <img
-                  src={resolvedLogoUrl}
-                  alt={companyName}
-                  className={`${cls.frameInner} object-contain`}
-                />
-              </div>
-            ) : (
-              <img
-                src={resolvedLogoUrl}
-                alt={companyName}
-                className={`${cls.bare} object-contain mx-auto mb-6`}
-              />
-            );
-          })()}
-          <h1 className="text-3xl font-bold" style={{ color: 'var(--color-text, #171717)' }}>
-            {t('customer.login.title', 'Customer login')}
+          <a href="/" className="inline-block transition-transform hover:scale-105 mb-3">
+            <img
+              src="/logo.png"
+              alt="FotoDesk"
+              className="h-10 w-auto object-contain mx-auto drop-shadow-[0_2px_12px_rgba(92,135,98,0.3)]"
+            />
+          </a>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#5C8762]/15 text-[#8CB492] border border-[#5C8762]/30 mb-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#5C8762] animate-pulse" />
+            Espace Client
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+            {t('customer.login.title', 'Connexion Client')}
           </h1>
-          <p className="mt-2" style={{ color: 'var(--color-text, #171717)', opacity: 0.7 }}>
-            {t('customer.login.subtitle', 'Access all of your photo galleries in one place.')}
+          <p className="mt-1 text-sm text-neutral-400">
+            {t('customer.login.subtitle', 'Accédez à toutes vos galeries photos au même endroit.')}
           </p>
         </div>
 
-        <Card padding="lg">
+        <Card padding="lg" className="bg-[#10141A] border border-white/[0.08] shadow-2xl">
           <form onSubmit={handleSubmit} className="space-y-6">
             {errors.form && (
               <div
@@ -249,36 +225,29 @@ export const CustomerLoginPage: React.FC = () => {
 
             <Button
               type="submit"
-              variant="primary"
               size="lg"
               isLoading={isLoading}
-              className="w-full"
+              className="w-full bg-[#5C8762] hover:bg-[#4E7554] active:bg-[#416246] text-white font-medium shadow-[0_4px_16px_rgba(92,135,98,0.3)] hover:shadow-[0_6px_22px_rgba(92,135,98,0.45)] cursor-pointer"
             >
-              {t('customer.login.signIn', 'Sign in')}
+              {t('customer.login.signIn', 'Se connecter')}
             </Button>
           </form>
         </Card>
 
-        {/* Footer — mirrors AdminLoginPage. The support line only
-            renders once Branding has a support email (publicSettings
-            returns '' until then); a placeholder address would send
-            visitors nowhere. The "admin hint" line that used to live
-            here is gone — admins who land here on purpose can navigate
-            to /admin/login on their own. */}
+        {/* Footer */}
         <div className="text-center mt-8">
           {settingsData?.branding_support_email && (
-            <p className="text-sm" style={{ color: 'var(--color-text, #171717)', opacity: 0.7 }}>
-              {t('customer.login.needHelp', 'Need help?')}{' '}
+            <p className="text-sm text-neutral-400">
+              {t('customer.login.needHelp', 'Besoin d\'aide ?')}{' '}
               <a
                 href={`mailto:${settingsData.branding_support_email}`}
-                className="hover:underline"
-                style={{ color: 'var(--color-primary, #5C8762)' }}
+                className="text-[#7FA685] hover:underline"
               >
                 {settingsData.branding_support_email}
               </a>
             </p>
           )}
-          <PoweredBy className="text-xs mt-2" style={{ color: 'var(--color-text, #171717)', opacity: 0.5 }} />
+          <PoweredBy className="text-xs mt-2 text-neutral-500" />
         </div>
       </div>
     </div>

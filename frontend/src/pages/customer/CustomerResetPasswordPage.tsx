@@ -102,22 +102,27 @@ export const CustomerResetPasswordPage: React.FC = () => {
 
   return (
     <div
-      className="customer-surface min-h-screen flex items-center justify-center px-4 py-8"
-      style={{ backgroundColor: 'var(--color-background, #fafafa)' }}
+      className="customer-surface min-h-screen flex items-center justify-center px-4 py-8 bg-[#090A0C] text-white selection:bg-[#5C8762] selection:text-white"
     >
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <img
-            src={resolvedLogoUrl}
-            alt={companyName}
-            className="h-16 w-auto object-contain mx-auto mb-4"
-          />
-          <h1 className="text-2xl font-bold text-theme">
-            {t('customer.resetPassword.title', 'Reset your password')}
+          <a href="/" className="inline-block transition-transform hover:scale-105 mb-4">
+            <img
+              src="/logo.png"
+              alt="FotoDesk"
+              className="h-10 w-auto object-contain mx-auto drop-shadow-[0_2px_12px_rgba(92,135,98,0.3)]"
+            />
+          </a>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#5C8762]/15 text-[#8CB492] border border-[#5C8762]/30 mb-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#5C8762] animate-pulse" />
+            Espace Client
+          </div>
+          <h1 className="text-2xl font-bold text-white tracking-tight">
+            {t('customer.resetPassword.title', 'Réinitialisation du mot de passe')}
           </h1>
         </div>
 
-        <Card padding="lg">
+        <Card padding="lg" className="bg-[#10141A] border border-white/[0.08] shadow-2xl">
           {isLookingUp ? (
             <div className="flex justify-center py-8"><Loading size="lg" /></div>
           ) : lookupError || !reset ? (
@@ -175,8 +180,13 @@ export const CustomerResetPasswordPage: React.FC = () => {
                 />
               </div>
 
-              <Button type="submit" variant="primary" size="lg" isLoading={isSubmitting} className="w-full">
-                {t('customer.resetPassword.submit', 'Update password')}
+              <Button
+                type="submit"
+                size="lg"
+                isLoading={isSubmitting}
+                className="w-full bg-[#5C8762] hover:bg-[#4E7554] active:bg-[#416246] text-white font-medium shadow-[0_4px_16px_rgba(92,135,98,0.3)] hover:shadow-[0_6px_22px_rgba(92,135,98,0.45)] cursor-pointer"
+              >
+                {t('customer.resetPassword.submit', 'Mettre à jour le mot de passe')}
               </Button>
             </form>
           )}

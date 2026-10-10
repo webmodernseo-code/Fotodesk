@@ -257,7 +257,7 @@ export const AcceptInvitePage: React.FC = () => {
   // Loading state
   if (isValidating) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: 'var(--color-background, #fafafa)' }}>
+      <div className="min-h-screen flex items-center justify-center p-4 bg-[#090A0C] text-white">
         <div className="w-full max-w-md text-center">
           <Loading size="lg" text={t('acceptInvitation.validating')} />
         </div>
@@ -270,30 +270,28 @@ export const AcceptInvitePage: React.FC = () => {
     const errorMessage = (validationError as any)?.response?.data?.error || t('acceptInvitation.invalidTokenMessage');
 
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: 'var(--color-background, #fafafa)' }}>
+      <div className="min-h-screen flex items-center justify-center p-4 bg-[#090A0C] text-white">
         <div className="w-full max-w-md">
-          <Card padding="lg">
-            <div className="text-center">
-              <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-red-100 flex items-center justify-center">
-                <XCircle className="w-8 h-8 text-red-600" />
-              </div>
-              <h1 className="text-2xl font-bold text-neutral-900 mb-2">
-                {t('acceptInvitation.invalidToken')}
-              </h1>
-              <p className="text-neutral-600 mb-6">
-                {errorMessage}
-              </p>
-              <p className="text-sm text-neutral-500 mb-6">
-                {t('acceptInvitation.contactAdminMessage')}
-              </p>
-              <Button
-                variant="primary"
-                onClick={() => navigate('/admin/login')}
-              >
-                {t('acceptInvitation.goToLogin')}
-              </Button>
+          <div className="bg-[#10141A] border border-white/[0.08] shadow-2xl rounded-2xl p-8 text-center">
+            <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center">
+              <XCircle className="w-8 h-8 text-red-400" />
             </div>
-          </Card>
+            <h1 className="text-2xl font-bold text-white mb-2">
+              {t('acceptInvitation.invalidToken')}
+            </h1>
+            <p className="text-neutral-400 mb-6 text-sm">
+              {errorMessage}
+            </p>
+            <p className="text-xs text-neutral-500 mb-6">
+              {t('acceptInvitation.contactAdminMessage')}
+            </p>
+            <button
+              onClick={() => navigate('/admin/login')}
+              className="w-full py-2.5 px-4 rounded-xl font-medium text-white bg-[#5C8762] hover:bg-[#4E7554] shadow-lg shadow-[#5C8762]/20 transition-all duration-200"
+            >
+              {t('acceptInvitation.goToLogin')}
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -302,30 +300,28 @@ export const AcceptInvitePage: React.FC = () => {
   // Success state - account created
   if (acceptMutation.isSuccess) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: 'var(--color-background, #fafafa)' }}>
+      <div className="min-h-screen flex items-center justify-center p-4 bg-[#090A0C] text-white">
         <div className="w-full max-w-md">
-          <Card padding="lg">
-            <div className="text-center">
-              <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-green-100 flex items-center justify-center">
-                <CheckCircle className="w-8 h-8 text-green-600" />
-              </div>
-              <h1 className="text-2xl font-bold text-neutral-900 mb-2">
-                {t('acceptInvitation.success')}
-              </h1>
-              <p className="text-neutral-600 mb-6">
-                {t('acceptInvitation.successMessage')}
-              </p>
-              <p className="text-sm text-neutral-500 mb-6">
-                {t('acceptInvitation.redirecting', { seconds: redirectCountdown })}
-              </p>
-              <Button
-                variant="primary"
-                onClick={() => navigate('/admin/login')}
-              >
-                {t('acceptInvitation.goToLogin')}
-              </Button>
+          <div className="bg-[#10141A] border border-white/[0.08] shadow-2xl rounded-2xl p-8 text-center">
+            <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[#5C8762]/10 border border-[#5C8762]/25 flex items-center justify-center">
+              <CheckCircle className="w-8 h-8 text-[#5C8762]" />
             </div>
-          </Card>
+            <h1 className="text-2xl font-bold text-white mb-2">
+              {t('acceptInvitation.success')}
+            </h1>
+            <p className="text-neutral-400 mb-4 text-sm">
+              {t('acceptInvitation.successMessage')}
+            </p>
+            <p className="text-xs text-neutral-500 mb-6">
+              {t('acceptInvitation.redirecting', { seconds: redirectCountdown })}
+            </p>
+            <button
+              onClick={() => navigate('/admin/login')}
+              className="w-full py-2.5 px-4 rounded-xl font-medium text-white bg-[#5C8762] hover:bg-[#4E7554] shadow-lg shadow-[#5C8762]/20 transition-all duration-200"
+            >
+              {t('acceptInvitation.goToLogin')}
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -333,39 +329,39 @@ export const AcceptInvitePage: React.FC = () => {
 
   // Form state - valid invitation
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: 'var(--color-background, #fafafa)' }}>
-      <div className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-[#090A0C] text-white relative overflow-hidden">
+      {/* Background ambient halo */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[350px] bg-[#5C8762]/10 blur-[130px] rounded-full pointer-events-none" />
+
+      <div className="w-full max-w-md relative z-10 py-10">
         {/* Header */}
         <div className="text-center mb-8">
-          <div
-            className="w-[200px] h-[150px] mx-auto mb-6 rounded-2xl flex items-center justify-center"
-            style={{ backgroundColor: '#eee6d2' }}
-          >
+          <div className="inline-flex items-center justify-center mb-4">
             <img
               src="/logo.png"
               alt="FotoDesk"
-              className="w-[180px] h-[130px] object-contain"
+              className="h-14 w-auto object-contain filter drop-shadow-md"
             />
           </div>
-          <h1 className="text-3xl font-bold" style={{ color: 'var(--color-text, #171717)' }}>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
             {t('acceptInvitation.title')}
           </h1>
-          <p className="mt-2" style={{ color: 'var(--color-text, #171717)', opacity: 0.7 }}>
+          <p className="mt-2 text-sm text-neutral-400">
             {t('acceptInvitation.subtitle')}
           </p>
         </div>
 
         {/* Invitation Info Card */}
-        <Card padding="md" className="mb-6">
+        <div className="bg-[#10141A]/90 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-5 mb-5 shadow-xl">
           <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
-              <Mail className="w-5 h-5 text-primary-600" />
+            <div className="w-10 h-10 rounded-xl bg-[#5C8762]/15 border border-[#5C8762]/25 flex items-center justify-center flex-shrink-0 text-[#8CB492]">
+              <Mail className="w-5 h-5" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm text-neutral-500">{t('acceptInvitation.invitedAs')}</p>
-              <p className="font-medium text-neutral-900 truncate">{invitation.email}</p>
+              <p className="text-xs text-neutral-400">{t('acceptInvitation.invitedAs')}</p>
+              <p className="font-semibold text-white truncate text-sm mt-0.5">{invitation.email}</p>
               <div className="flex items-center gap-2 mt-2">
-                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#5C8762]/15 text-[#8CB492] border border-[#5C8762]/20">
                   <Shield className="w-3 h-3" />
                   {formatRole(invitation.role)}
                 </span>
@@ -375,14 +371,14 @@ export const AcceptInvitePage: React.FC = () => {
               </p>
             </div>
           </div>
-        </Card>
+        </div>
 
         {/* Registration Form */}
-        <Card padding="lg">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="bg-[#10141A]/95 backdrop-blur-2xl border border-white/[0.08] rounded-2xl p-6 sm:p-8 shadow-2xl">
+          <form onSubmit={handleSubmit} className="space-y-5">
             {/* Username Field */}
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-neutral-700 mb-1">
+              <label htmlFor="username" className="block text-xs font-medium text-neutral-300 mb-1.5">
                 {t('acceptInvitation.usernameLabel')}
               </label>
               <Input
@@ -392,9 +388,10 @@ export const AcceptInvitePage: React.FC = () => {
                 onChange={handleInputChange('username')}
                 error={errors.username}
                 placeholder={t('acceptInvitation.usernamePlaceholder')}
-                leftIcon={<User className="w-5 h-5 text-neutral-400" />}
+                leftIcon={<User className="w-4 h-4 text-neutral-500" />}
                 autoComplete="username"
                 autoFocus
+                className="bg-[#090A0C]/80 border-white/[0.1] text-white focus:border-[#5C8762] focus:ring-[#5C8762]"
               />
               <p className="mt-1 text-xs text-neutral-500">
                 {t('acceptInvitation.usernameHelp')}
@@ -403,7 +400,7 @@ export const AcceptInvitePage: React.FC = () => {
 
             {/* Password Field */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-neutral-700 mb-1">
+              <label htmlFor="password" className="block text-xs font-medium text-neutral-300 mb-1.5">
                 {t('acceptInvitation.passwordLabel')}
               </label>
               <div className="relative">
@@ -414,19 +411,20 @@ export const AcceptInvitePage: React.FC = () => {
                   onChange={handleInputChange('password')}
                   error={errors.password}
                   placeholder={t('acceptInvitation.passwordPlaceholder')}
-                  leftIcon={<Lock className="w-5 h-5 text-neutral-400" />}
+                  leftIcon={<Lock className="w-4 h-4 text-neutral-500" />}
                   autoComplete="new-password"
+                  className="bg-[#090A0C]/80 border-white/[0.1] text-white focus:border-[#5C8762] focus:ring-[#5C8762]"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3 text-neutral-400 hover:text-neutral-600 transition-colors"
+                  className="absolute right-3 top-3 text-neutral-400 hover:text-white transition-colors"
                   tabIndex={-1}
                 >
                   {showPassword ? (
-                    <EyeOff className="w-5 h-5" />
+                    <EyeOff className="w-4 h-4" />
                   ) : (
-                    <Eye className="w-5 h-5" />
+                    <Eye className="w-4 h-4" />
                   )}
                 </button>
               </div>
@@ -435,17 +433,17 @@ export const AcceptInvitePage: React.FC = () => {
               {formData.password && (
                 <div className="mt-3">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-neutral-500">{t('acceptInvitation.passwordStrength')}</span>
+                    <span className="text-xs text-neutral-400">{t('acceptInvitation.passwordStrength')}</span>
                     <span className={`text-xs font-medium ${
-                      passwordStrength.level <= 1 ? 'text-red-600' :
-                      passwordStrength.level === 2 ? 'text-yellow-600' :
-                      passwordStrength.level === 3 ? 'text-blue-600' :
-                      'text-green-600'
+                      passwordStrength.level <= 1 ? 'text-red-400' :
+                      passwordStrength.level === 2 ? 'text-yellow-400' :
+                      passwordStrength.level === 3 ? 'text-blue-400' :
+                      'text-emerald-400'
                     }`}>
                       {passwordStrength.label}
                     </span>
                   </div>
-                  <div className="h-1.5 bg-neutral-200 rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
                     <div
                       className={`h-full transition-all duration-300 ${passwordStrength.color}`}
                       style={{ width: `${(passwordStrength.level / 4) * 100}%` }}
@@ -456,17 +454,17 @@ export const AcceptInvitePage: React.FC = () => {
 
               {/* Password Requirements */}
               <div className="mt-3 space-y-1.5">
-                <p className="text-xs font-medium text-neutral-600">{t('acceptInvitation.requirements.title')}</p>
+                <p className="text-xs font-medium text-neutral-400">{t('acceptInvitation.requirements.title')}</p>
                 {passwordRequirements.map((req, index) => {
                   const isMet = req.test(formData.password);
                   return (
                     <div key={index} className="flex items-center gap-2">
                       {isMet ? (
-                        <CheckCircle className="w-3.5 h-3.5 text-green-500" />
+                        <CheckCircle className="w-3.5 h-3.5 text-[#5C8762]" />
                       ) : (
-                        <div className="w-3.5 h-3.5 rounded-full border border-neutral-300" />
+                        <div className="w-3.5 h-3.5 rounded-full border border-neutral-600" />
                       )}
-                      <span className={`text-xs ${isMet ? 'text-green-700' : 'text-neutral-500'}`}>
+                      <span className={`text-xs ${isMet ? 'text-[#8CB492]' : 'text-neutral-500'}`}>
                         {req.label}
                       </span>
                     </div>
@@ -477,7 +475,7 @@ export const AcceptInvitePage: React.FC = () => {
 
             {/* Confirm Password Field */}
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-neutral-700 mb-1">
+              <label htmlFor="confirmPassword" className="block text-xs font-medium text-neutral-300 mb-1.5">
                 {t('acceptInvitation.confirmPasswordLabel')}
               </label>
               <div className="relative">
@@ -488,56 +486,54 @@ export const AcceptInvitePage: React.FC = () => {
                   onChange={handleInputChange('confirmPassword')}
                   error={errors.confirmPassword}
                   placeholder={t('acceptInvitation.confirmPasswordPlaceholder')}
-                  leftIcon={<Lock className="w-5 h-5 text-neutral-400" />}
+                  leftIcon={<Lock className="w-4 h-4 text-neutral-500" />}
                   autoComplete="new-password"
+                  className="bg-[#090A0C]/80 border-white/[0.1] text-white focus:border-[#5C8762] focus:ring-[#5C8762]"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-3 text-neutral-400 hover:text-neutral-600 transition-colors"
+                  className="absolute right-3 top-3 text-neutral-400 hover:text-white transition-colors"
                   tabIndex={-1}
                 >
                   {showConfirmPassword ? (
-                    <EyeOff className="w-5 h-5" />
+                    <EyeOff className="w-4 h-4" />
                   ) : (
-                    <Eye className="w-5 h-5" />
+                    <Eye className="w-4 h-4" />
                   )}
                 </button>
               </div>
               {formData.confirmPassword && formData.password === formData.confirmPassword && (
                 <div className="flex items-center gap-1.5 mt-1.5">
-                  <CheckCircle className="w-3.5 h-3.5 text-green-500" />
-                  <span className="text-xs text-green-700">{t('acceptInvitation.passwordsMatch')}</span>
+                  <CheckCircle className="w-3.5 h-3.5 text-[#5C8762]" />
+                  <span className="text-xs text-[#8CB492]">{t('acceptInvitation.passwordsMatch')}</span>
                 </div>
               )}
             </div>
 
             {/* Submit Button */}
-            <Button
+            <button
               type="submit"
-              variant="primary"
-              size="lg"
-              isLoading={acceptMutation.isPending}
-              className="w-full"
+              disabled={acceptMutation.isPending}
+              className="w-full mt-2 py-3 px-4 rounded-xl font-medium text-white bg-[#5C8762] hover:bg-[#4E7554] shadow-lg shadow-[#5C8762]/20 transition-all duration-200 disabled:opacity-50"
             >
-              {t('acceptInvitation.createAccount')}
-            </Button>
+              {acceptMutation.isPending ? t('common.loading', 'Chargement...') : t('acceptInvitation.createAccount')}
+            </button>
           </form>
-        </Card>
+        </div>
 
         {/* Footer */}
-        <div className="text-center mt-8">
-          <p className="text-sm" style={{ color: 'var(--color-text, #171717)', opacity: 0.7 }}>
+        <div className="text-center mt-6">
+          <p className="text-xs text-neutral-400">
             {t('acceptInvitation.alreadyHaveAccount')}{' '}
             <a
               href="/admin/login"
-              className="hover:underline"
-              style={{ color: 'var(--color-primary, #5C8762)' }}
+              className="text-[#8CB492] hover:text-white transition-colors underline underline-offset-4"
             >
               {t('acceptInvitation.signIn')}
             </a>
           </p>
-          <PoweredBy className="text-xs mt-2" style={{ color: 'var(--color-text, #171717)', opacity: 0.5 }} />
+          <PoweredBy className="text-xs mt-3 text-neutral-500" />
         </div>
       </div>
     </div>

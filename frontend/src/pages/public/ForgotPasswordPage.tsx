@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2, Lock, Mail, Loader2, Sparkles } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Lock, Mail, Loader2, ShieldCheck } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 export const ForgotPasswordPage: React.FC = () => {
@@ -19,7 +19,6 @@ export const ForgotPasswordPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // Appel API ou simulation pour la réinitialisation
       await new Promise((resolve) => setTimeout(resolve, 800));
       setIsSubmitted(true);
       toast.success('Instructions envoyées par e-mail');
@@ -31,48 +30,50 @@ export const ForgotPasswordPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full relative flex flex-col items-center justify-center px-4 py-12 bg-[#000000] text-white selection:bg-[#C89561] selection:text-white overflow-hidden">
-      {/* Halo ambré signature FotoDesk en arrière-plan */}
+    <div className="min-h-screen w-full relative flex flex-col items-center justify-center px-4 py-12 bg-[#090A0C] text-white selection:bg-[#5C8762] selection:text-white overflow-hidden">
+      {/* Halo kaki signature FotoDesk en arrière-plan */}
       <div
-        className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[140px] opacity-25"
+        className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[140px] opacity-20"
         style={{
-          background: 'radial-gradient(circle, #C89561 0%, rgba(150, 105, 62, 0.4) 40%, transparent 70%)',
+          background: 'radial-gradient(circle, #5C8762 0%, rgba(92, 135, 98, 0.35) 40%, transparent 70%)',
         }}
       />
 
       {/* CARTE D'AUTHENTIFICATION LUXURY */}
-      <div className="relative w-full max-w-[460px] rounded-[26px] bg-[#0A0A0C]/90 backdrop-blur-2xl border border-white/[0.08] p-8 sm:p-10 shadow-[0_30px_90px_rgba(0,0,0,0.8)] transition-all">
+      <div className="relative w-full max-w-[440px] rounded-2xl bg-[#10141A]/95 backdrop-blur-2xl border border-white/[0.08] p-8 sm:p-10 shadow-[0_30px_90px_rgba(0,0,0,0.85)] transition-all">
         {/* LOGO FOTODESK LUMINEUX */}
-        <div className="flex justify-center mb-6">
+        <div className="flex justify-center mb-5">
           <Link
             to="/"
-            className="w-14 h-14 rounded-full flex items-center justify-center bg-white/[0.06] border border-[#C89561]/30 shadow-[0_0_25px_rgba(200,149,97,0.25)] transition-transform hover:scale-105"
+            className="inline-flex items-center gap-2 transition-transform hover:scale-105"
             aria-label="Accueil FotoDesk"
           >
             <img
               src="/logo.png"
               alt="FotoDesk"
-              className="w-8 h-8 object-contain drop-shadow-[0_2px_10px_rgba(200,149,97,0.4)]"
-              onError={(e) => {
-                // Fallback icon si image non trouvée
-                (e.target as HTMLElement).style.display = 'none';
-              }}
+              className="h-10 w-auto object-contain drop-shadow-[0_2px_12px_rgba(92,135,98,0.3)]"
             />
           </Link>
         </div>
 
         {/* TITRE & SOUS-TITRE */}
-        <h1 className="text-center text-2xl sm:text-[26px] font-bold text-white tracking-tight">
-          Foto<span className="text-[#C89561]">Desk</span>
-        </h1>
-        <p className="mt-1 text-center text-xs text-neutral-400 font-medium uppercase tracking-wider">
-          Réinitialisation du mot de passe
-        </p>
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#5C8762]/15 text-[#8CB492] border border-[#5C8762]/30 mb-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#5C8762] animate-pulse" />
+            Sécurité FotoDesk
+          </div>
+          <h1 className="text-2xl font-bold text-white tracking-tight">
+            Mot de passe oublié
+          </h1>
+          <p className="mt-1 text-xs text-neutral-400">
+            Récupérez l'accès à votre studio FotoDesk
+          </p>
+        </div>
 
         {isSubmitted ? (
-          <div className="mt-8 text-center space-y-5 animate-fade-in">
-            <div className="w-12 h-12 mx-auto rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-              <CheckCircle2 className="w-6 h-6" />
+          <div className="text-center space-y-5 animate-fade-in">
+            <div className="w-12 h-12 mx-auto rounded-full bg-[#5C8762]/15 border border-[#5C8762]/30 flex items-center justify-center text-[#8CB492]">
+              <CheckCircle2 className="w-6 h-6 text-[#5C8762]" />
             </div>
             <div>
               <h2 className="text-lg font-semibold text-white">E-mail envoyé</h2>
@@ -83,7 +84,7 @@ export const ForgotPasswordPage: React.FC = () => {
             <div className="pt-2">
               <Link
                 to="/login"
-                className="inline-flex items-center gap-2 text-sm font-medium text-[#C89561] hover:text-[#E8BFA1] transition-colors"
+                className="inline-flex items-center gap-2 text-sm font-medium text-[#7FA685] hover:text-[#9BBF9F] transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Retour à la connexion
@@ -91,9 +92,9 @@ export const ForgotPasswordPage: React.FC = () => {
             </div>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="mt-7 space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <p className="text-sm text-neutral-400 text-center leading-relaxed">
-              Saisissez l'adresse e-mail associée à votre studio FotoDesk. Nous vous enverrons un lien d'accès sécurisé.
+              Saisissez l'adresse e-mail associée à votre compte FotoDesk. Nous vous enverrons un lien d'accès sécurisé.
             </p>
 
             {error && (
@@ -116,23 +117,20 @@ export const ForgotPasswordPage: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="nom@votrestudio.com"
-                  className="w-full h-11 pl-10 pr-4 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white placeholder-neutral-500 transition-all focus:outline-none focus:border-[#C89561] focus:ring-1 focus:ring-[#C89561]/40"
+                  className="w-full h-11 pl-10 pr-4 rounded-xl bg-[#13161C] border border-white/[0.1] text-sm text-white placeholder-neutral-500 transition-all focus:outline-none focus:border-[#5C8762] focus:ring-2 focus:ring-[#5C8762]/30"
                 />
                 <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" />
               </div>
             </div>
 
-            {/* BOUTON D'ENVOI CTA AMBRÉ FOTODESK */}
+            {/* BOUTON D'ENVOI CTA KAKI FOTODESK */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full h-11 mt-2 rounded-xl text-sm font-semibold text-[#0A0A0C] flex items-center justify-center transition-all duration-200 cursor-pointer shadow-[0_4px_20px_rgba(200,149,97,0.3)] hover:brightness-105 active:scale-[0.99] disabled:opacity-60"
-              style={{
-                background: 'linear-gradient(135deg, #C89561 0%, #D4A853 50%, #C89561 100%)',
-              }}
+              className="w-full h-11 mt-2 rounded-xl text-sm font-semibold text-white bg-[#5C8762] hover:bg-[#4E7554] active:bg-[#416246] flex items-center justify-center transition-all duration-200 cursor-pointer shadow-[0_4px_16px_rgba(92,135,98,0.3)] hover:shadow-[0_6px_22px_rgba(92,135,98,0.45)] disabled:opacity-60"
             >
               {isLoading ? (
-                <span className="flex items-center gap-2 text-[#0A0A0C]">
+                <span className="flex items-center gap-2 text-white">
                   <Loader2 className="w-4 h-4 animate-spin" />
                   Envoi en cours...
                 </span>
@@ -156,15 +154,9 @@ export const ForgotPasswordPage: React.FC = () => {
 
         {/* MICRO-RÉASSURANCE DISCRÈTE */}
         <div className="mt-7 pt-5 border-t border-white/[0.06] flex items-center justify-center gap-2 text-[11px] text-neutral-500">
-          <Lock className="w-3.5 h-3.5 text-[#C89561]" />
+          <ShieldCheck className="w-3.5 h-3.5 text-[#5C8762]" />
           <span>Plateforme sécurisée certifiée SSL 256-bit</span>
         </div>
-      </div>
-
-      {/* PREUVE SOCIALE CRÉATEURS */}
-      <div className="mt-8 text-center text-xs text-neutral-500 flex items-center gap-2">
-        <Sparkles className="w-3.5 h-3.5 text-[#C89561]" />
-        <span>FotoDesk — La solution de référence pour photographes & monteurs</span>
       </div>
     </div>
   );
