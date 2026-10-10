@@ -185,10 +185,10 @@ export const CustomerAcceptInvitePage: React.FC = () => {
 
   return (
     <div
-      className="customer-surface min-h-screen flex items-center justify-center px-4 py-8 bg-[#090A0C] text-white selection:bg-[#5C8762] selection:text-white relative overflow-hidden"
+      className="customer-surface min-h-screen flex items-center justify-center px-4 py-8 bg-[#090A0C] text-white selection:bg-[#C89561] selection:text-white relative overflow-hidden"
     >
       {/* Background ambient halo */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[350px] bg-[#5C8762]/10 blur-[130px] rounded-full pointer-events-none" />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[350px] bg-[#C89561]/10 blur-[130px] rounded-full pointer-events-none" />
 
       <div className="w-full max-w-2xl relative z-10">
         <div className="text-center mb-8">
@@ -474,7 +474,7 @@ export const CustomerAcceptInvitePage: React.FC = () => {
                 variant="primary"
                 size="lg"
                 isLoading={isSubmitting}
-                className="w-full bg-[#5C8762] hover:bg-[#4E7554] text-white shadow-lg shadow-[#5C8762]/20 border-0"
+                className="w-full bg-[#C89561] hover:bg-[#B5824E] text-white shadow-lg shadow-[#C89561]/25 border-0"
               >
                 {t('customer.acceptInvite.submit', 'Create account')}
               </Button>

@@ -287,7 +287,7 @@ export const AcceptInvitePage: React.FC = () => {
             </p>
             <button
               onClick={() => navigate('/admin/login')}
-              className="w-full py-2.5 px-4 rounded-xl font-medium text-white bg-[#5C8762] hover:bg-[#4E7554] shadow-lg shadow-[#5C8762]/20 transition-all duration-200"
+              className="w-full py-2.5 px-4 rounded-xl font-medium text-white bg-[#C89561] hover:bg-[#B5824E] shadow-lg shadow-[#C89561]/25 transition-all duration-200"
             >
               {t('acceptInvitation.goToLogin')}
             </button>
@@ -303,8 +303,8 @@ export const AcceptInvitePage: React.FC = () => {
       <div className="min-h-screen flex items-center justify-center p-4 bg-[#090A0C] text-white">
         <div className="w-full max-w-md">
           <div className="bg-[#10141A] border border-white/[0.08] shadow-2xl rounded-2xl p-8 text-center">
-            <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[#5C8762]/10 border border-[#5C8762]/25 flex items-center justify-center">
-              <CheckCircle className="w-8 h-8 text-[#5C8762]" />
+            <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[#C89561]/10 border border-[#C89561]/25 flex items-center justify-center">
+              <CheckCircle className="w-8 h-8 text-[#C89561]" />
             </div>
             <h1 className="text-2xl font-bold text-white mb-2">
               {t('acceptInvitation.success')}
@@ -317,7 +317,7 @@ export const AcceptInvitePage: React.FC = () => {
             </p>
             <button
               onClick={() => navigate('/admin/login')}
-              className="w-full py-2.5 px-4 rounded-xl font-medium text-white bg-[#5C8762] hover:bg-[#4E7554] shadow-lg shadow-[#5C8762]/20 transition-all duration-200"
+              className="w-full py-2.5 px-4 rounded-xl font-medium text-white bg-[#C89561] hover:bg-[#B5824E] shadow-lg shadow-[#C89561]/25 transition-all duration-200"
             >
               {t('acceptInvitation.goToLogin')}
             </button>
@@ -331,7 +331,7 @@ export const AcceptInvitePage: React.FC = () => {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-[#090A0C] text-white relative overflow-hidden">
       {/* Background ambient halo */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[350px] bg-[#5C8762]/10 blur-[130px] rounded-full pointer-events-none" />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[350px] bg-[#C89561]/10 blur-[130px] rounded-full pointer-events-none" />
 
       <div className="w-full max-w-md relative z-10 py-10">
         {/* Header */}
@@ -354,14 +354,14 @@ export const AcceptInvitePage: React.FC = () => {
         {/* Invitation Info Card */}
         <div className="bg-[#10141A]/90 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-5 mb-5 shadow-xl">
           <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#5C8762]/15 border border-[#5C8762]/25 flex items-center justify-center flex-shrink-0 text-[#8CB492]">
+            <div className="w-10 h-10 rounded-xl bg-[#C89561]/15 border border-[#C89561]/25 flex items-center justify-center flex-shrink-0 text-[#E8BFA1]">
               <Mail className="w-5 h-5" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs text-neutral-400">{t('acceptInvitation.invitedAs')}</p>
               <p className="font-semibold text-white truncate text-sm mt-0.5">{invitation.email}</p>
               <div className="flex items-center gap-2 mt-2">
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#5C8762]/15 text-[#8CB492] border border-[#5C8762]/20">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#C89561]/15 text-[#E8BFA1] border border-[#C89561]/20">
                   <Shield className="w-3 h-3" />
                   {formatRole(invitation.role)}
                 </span>
@@ -391,7 +391,7 @@ export const AcceptInvitePage: React.FC = () => {
                 leftIcon={<User className="w-4 h-4 text-neutral-500" />}
                 autoComplete="username"
                 autoFocus
-                className="bg-[#090A0C]/80 border-white/[0.1] text-white focus:border-[#5C8762] focus:ring-[#5C8762]"
+                className="bg-[#090A0C]/80 border-white/[0.1] text-white focus:border-[#C89561] focus:ring-[#C89561]"
               />
               <p className="mt-1 text-xs text-neutral-500">
                 {t('acceptInvitation.usernameHelp')}
@@ -413,7 +413,7 @@ export const AcceptInvitePage: React.FC = () => {
                   placeholder={t('acceptInvitation.passwordPlaceholder')}
                   leftIcon={<Lock className="w-4 h-4 text-neutral-500" />}
                   autoComplete="new-password"
-                  className="bg-[#090A0C]/80 border-white/[0.1] text-white focus:border-[#5C8762] focus:ring-[#5C8762]"
+                  className="bg-[#090A0C]/80 border-white/[0.1] text-white focus:border-[#C89561] focus:ring-[#C89561]"
                 />
                 <button
                   type="button"
@@ -460,11 +460,11 @@ export const AcceptInvitePage: React.FC = () => {
                   return (
                     <div key={index} className="flex items-center gap-2">
                       {isMet ? (
-                        <CheckCircle className="w-3.5 h-3.5 text-[#5C8762]" />
+                        <CheckCircle className="w-3.5 h-3.5 text-[#C89561]" />
                       ) : (
                         <div className="w-3.5 h-3.5 rounded-full border border-neutral-600" />
                       )}
-                      <span className={`text-xs ${isMet ? 'text-[#8CB492]' : 'text-neutral-500'}`}>
+                      <span className={`text-xs ${isMet ? 'text-[#E8BFA1]' : 'text-neutral-500'}`}>
                         {req.label}
                       </span>
                     </div>
@@ -488,7 +488,7 @@ export const AcceptInvitePage: React.FC = () => {
                   placeholder={t('acceptInvitation.confirmPasswordPlaceholder')}
                   leftIcon={<Lock className="w-4 h-4 text-neutral-500" />}
                   autoComplete="new-password"
-                  className="bg-[#090A0C]/80 border-white/[0.1] text-white focus:border-[#5C8762] focus:ring-[#5C8762]"
+                  className="bg-[#090A0C]/80 border-white/[0.1] text-white focus:border-[#C89561] focus:ring-[#C89561]"
                 />
                 <button
                   type="button"
@@ -505,8 +505,8 @@ export const AcceptInvitePage: React.FC = () => {
               </div>
               {formData.confirmPassword && formData.password === formData.confirmPassword && (
                 <div className="flex items-center gap-1.5 mt-1.5">
-                  <CheckCircle className="w-3.5 h-3.5 text-[#5C8762]" />
-                  <span className="text-xs text-[#8CB492]">{t('acceptInvitation.passwordsMatch')}</span>
+                  <CheckCircle className="w-3.5 h-3.5 text-[#C89561]" />
+                  <span className="text-xs text-[#E8BFA1]">{t('acceptInvitation.passwordsMatch')}</span>
                 </div>
               )}
             </div>
@@ -515,7 +515,7 @@ export const AcceptInvitePage: React.FC = () => {
             <button
               type="submit"
               disabled={acceptMutation.isPending}
-              className="w-full mt-2 py-3 px-4 rounded-xl font-medium text-white bg-[#5C8762] hover:bg-[#4E7554] shadow-lg shadow-[#5C8762]/20 transition-all duration-200 disabled:opacity-50"
+              className="w-full mt-2 py-3 px-4 rounded-xl font-medium text-white bg-[#C89561] hover:bg-[#B5824E] shadow-lg shadow-[#C89561]/25 transition-all duration-200 disabled:opacity-50"
             >
               {acceptMutation.isPending ? t('common.loading', 'Chargement...') : t('acceptInvitation.createAccount')}
             </button>
@@ -528,7 +528,7 @@ export const AcceptInvitePage: React.FC = () => {
             {t('acceptInvitation.alreadyHaveAccount')}{' '}
             <a
               href="/admin/login"
-              className="text-[#8CB492] hover:text-white transition-colors underline underline-offset-4"
+              className="text-[#E8BFA1] hover:text-white transition-colors underline underline-offset-4"
             >
               {t('acceptInvitation.signIn')}
             </a>

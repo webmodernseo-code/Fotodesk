@@ -128,7 +128,7 @@ export const CustomerLoginPage: React.FC = () => {
 
   return (
     <div
-      className="customer-surface min-h-screen flex items-center justify-center p-4 bg-[#090A0C] text-white selection:bg-[#5C8762] selection:text-white"
+      className="customer-surface min-h-screen flex items-center justify-center p-4 bg-[#090A0C] text-white selection:bg-[#C89561] selection:text-white"
     >
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
@@ -136,11 +136,11 @@ export const CustomerLoginPage: React.FC = () => {
             <img
               src="/logo.png"
               alt="FotoDesk"
-              className="h-10 w-auto object-contain mx-auto drop-shadow-[0_2px_12px_rgba(92,135,98,0.3)]"
+              className="h-10 w-auto object-contain mx-auto drop-shadow-[0_2px_12px_rgba(200,149,97,0.3)]"
             />
           </a>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#5C8762]/15 text-[#8CB492] border border-[#5C8762]/30 mb-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#5C8762] animate-pulse" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#C89561]/15 text-[#E8BFA1] border border-[#C89561]/30 mb-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#C89561] animate-pulse" />
             Espace Client
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
@@ -227,7 +227,7 @@ export const CustomerLoginPage: React.FC = () => {
               type="submit"
               size="lg"
               isLoading={isLoading}
-              className="w-full bg-[#5C8762] hover:bg-[#4E7554] active:bg-[#416246] text-white font-medium shadow-[0_4px_16px_rgba(92,135,98,0.3)] hover:shadow-[0_6px_22px_rgba(92,135,98,0.45)] cursor-pointer"
+              className="w-full bg-[#C89561] hover:bg-[#B5824E] active:bg-[#96693E] text-white font-medium shadow-[0_4px_16px_rgba(200,149,97,0.3)] hover:shadow-[0_6px_22px_rgba(200,149,97,0.45)] cursor-pointer"
             >
               {t('customer.login.signIn', 'Se connecter')}
             </Button>
@@ -241,7 +241,7 @@ export const CustomerLoginPage: React.FC = () => {
               {t('customer.login.needHelp', 'Besoin d\'aide ?')}{' '}
               <a
                 href={`mailto:${settingsData.branding_support_email}`}
-                className="text-[#7FA685] hover:underline"
+                className="text-[#C89561] hover:text-[#E8BFA1] hover:underline"
               >
                 {settingsData.branding_support_email}
               </a>

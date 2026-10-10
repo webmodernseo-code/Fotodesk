@@ -102,7 +102,7 @@ export const CustomerResetPasswordPage: React.FC = () => {
 
   return (
     <div
-      className="customer-surface min-h-screen flex items-center justify-center px-4 py-8 bg-[#090A0C] text-white selection:bg-[#5C8762] selection:text-white"
+      className="customer-surface min-h-screen flex items-center justify-center px-4 py-8 bg-[#090A0C] text-white selection:bg-[#C89561] selection:text-white"
     >
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
@@ -110,11 +110,11 @@ export const CustomerResetPasswordPage: React.FC = () => {
             <img
               src="/logo.png"
               alt="FotoDesk"
-              className="h-10 w-auto object-contain mx-auto drop-shadow-[0_2px_12px_rgba(92,135,98,0.3)]"
+              className="h-10 w-auto object-contain mx-auto drop-shadow-[0_2px_12px_rgba(200,149,97,0.3)]"
             />
           </a>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#5C8762]/15 text-[#8CB492] border border-[#5C8762]/30 mb-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#5C8762] animate-pulse" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#C89561]/15 text-[#E8BFA1] border border-[#C89561]/30 mb-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#C89561] animate-pulse" />
             Espace Client
           </div>
           <h1 className="text-2xl font-bold text-white tracking-tight">
@@ -184,7 +184,7 @@ export const CustomerResetPasswordPage: React.FC = () => {
                 type="submit"
                 size="lg"
                 isLoading={isSubmitting}
-                className="w-full bg-[#5C8762] hover:bg-[#4E7554] active:bg-[#416246] text-white font-medium shadow-[0_4px_16px_rgba(92,135,98,0.3)] hover:shadow-[0_6px_22px_rgba(92,135,98,0.45)] cursor-pointer"
+                className="w-full bg-[#C89561] hover:bg-[#B5824E] active:bg-[#96693E] text-white font-medium shadow-[0_4px_16px_rgba(200,149,97,0.3)] hover:shadow-[0_6px_22px_rgba(200,149,97,0.45)] cursor-pointer"
               >
                 {t('customer.resetPassword.submit', 'Mettre à jour le mot de passe')}
               </Button>
