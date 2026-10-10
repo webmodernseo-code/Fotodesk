@@ -27,6 +27,30 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --radius: 1rem;
+  --accent: oklch(0.89 0 0);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #0f172a;
+  --foreground: #0f172a;
+  --muted-foreground: #64748b;
+  --primary-foreground: #ffffff;
+}
+
+.dark {
+  --background: oklch(0.125 0 0);
+  --accent: oklch(0.229 0 0);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: #334155;
+  --input: #334155;
+  --ring: #f8fafc;
+  --foreground: #f8fafc;
+  --muted-foreground: #94a3b8;
+  --primary-foreground: #0f172a;
+}
+
 @layer base {
   * {
     font-family: var(--font-family);

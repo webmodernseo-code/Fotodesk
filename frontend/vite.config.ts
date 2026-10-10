@@ -1,6 +1,7 @@
 /// <reference types="vitest" />
 // @ts-nocheck
 
+import path from 'path'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import type { UserConfig as VitestUserConfig } from 'vitest/config'
@@ -8,6 +9,11 @@ import type { UserConfig as VitestUserConfig } from 'vitest/config'
 // https://vite.dev/config/
 const config: VitestUserConfig = {
   plugins: [react()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
   build: {
     rollupOptions: {
       output: {

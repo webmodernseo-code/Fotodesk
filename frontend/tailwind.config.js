@@ -38,6 +38,21 @@ export default {
         'text-secondary': 'var(--color-muted-text)',
         accent: 'var(--color-accent)',
         'accent-dark': 'var(--color-accent-dark)',
+        border: 'var(--border, #e2e8f0)',
+        input: 'var(--input, #e2e8f0)',
+        ring: 'var(--ring, #0f172a)',
+        foreground: 'var(--foreground, #0f172a)',
+        'muted-foreground': 'var(--muted-foreground, #64748b)',
+        'primary-foreground': 'var(--primary-foreground, #ffffff)',
+        secondary: {
+          DEFAULT: 'var(--secondary, #f1f5f9)',
+          foreground: 'var(--secondary-foreground, #0f172a)',
+        },
+        destructive: {
+          DEFAULT: 'var(--destructive, #ef4444)',
+          foreground: 'var(--destructive-foreground, #ffffff)',
+        },
+        'accent-foreground': 'var(--accent-foreground, #0f172a)',
         primary: {
           50: '#f0fdf4',
           100: '#dcfce7',

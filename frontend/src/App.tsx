@@ -533,7 +533,7 @@ function App() {
                   {/* FotoDesk convenience routes & redirects */}
                   <Route path="/login" element={<Navigate to="/admin/login" replace />} />
                   <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                  <Route path="/register" element={<RegisterPage />} />
+                  <Route path="/register" element={<AdminAuthWrapper><RegisterPage /></AdminAuthWrapper>} />
                   <Route path="/dashboard" element={<Navigate to="/admin/dashboard" replace />} />
 
                   {/* FotoDesk Landing Page */}
