@@ -165,8 +165,9 @@ export interface PasswordInputProps extends React.InputHTMLAttributes<HTMLInputE
 }
 
 const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
-  ({ className, label, ...props }, ref) => {
-    const id = useId();
+  ({ className, label, id: explicitId, ...props }, ref) => {
+    const generatedId = useId();
+    const id = explicitId || generatedId;
     const [showPassword, setShowPassword] = useState(false);
     const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
     return (
@@ -279,12 +280,32 @@ function SignUpForm() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
   const trimmedEmail = email.trim().toLowerCase();
   const trimmedConfirm = confirmEmail.trim().toLowerCase();
   const hasConfirm = confirmEmail.length > 0;
   const emailsMatch = hasConfirm && trimmedEmail.length > 0 && trimmedEmail === trimmedConfirm;
   const emailsMismatch = hasConfirm && trimmedEmail !== trimmedConfirm;
+
+  // Critères de mot de passe fort
+  const passwordCriteria = [
+    { id: "length", label: "8 caractères minimum", test: (p: string) => p.length >= 8 },
+    { id: "uppercase", label: "1 majuscule (A-Z)", test: (p: string) => /[A-Z]/.test(p) },
+    { id: "lowercase", label: "1 minuscule (a-z)", test: (p: string) => /[a-z]/.test(p) },
+    { id: "number", label: "1 chiffre (0-9)", test: (p: string) => /[0-9]/.test(p) },
+    { id: "special", label: "1 caractère spécial (!@#...)", test: (p: string) => /[^A-Za-z0-9]/.test(p) },
+  ];
+
+  const metCriteriaCount = passwordCriteria.filter((c) => c.test(password)).length;
+
+  const passwordStrength = useMemo(() => {
+    if (!password) return { level: 0, label: "", color: "bg-transparent", textClass: "" };
+    if (metCriteriaCount <= 2) return { level: 1, label: "Faible", color: "bg-rose-500", textClass: "text-rose-400" };
+    if (metCriteriaCount === 3) return { level: 2, label: "Moyen", color: "bg-amber-500", textClass: "text-amber-400" };
+    if (metCriteriaCount === 4) return { level: 3, label: "Bon", color: "bg-[#C89561]/80", textClass: "text-[#E8BFA1]" };
+    return { level: 4, label: "Très fort", color: "bg-[#C89561]", textClass: "text-[#E8BFA1] font-semibold" };
+  }, [password, metCriteriaCount]);
 
   const handleSignUp = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -293,7 +314,13 @@ function SignUpForm() {
       toast.error("Veuillez vérifier vos adresses e-mail : elles ne correspondent pas.");
       return;
     }
+    if (password.length < 8 || metCriteriaCount < 3) {
+      setPasswordError("Veuillez choisir un mot de passe plus fort respectant les critères de sécurité.");
+      toast.warning("Votre mot de passe doit comporter au moins 8 caractères avec majuscule, chiffre ou symbole.");
+      return;
+    }
     setEmailError("");
+    setPasswordError("");
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
@@ -403,15 +430,77 @@ function SignUpForm() {
           )}
         </div>
 
-        <PasswordInput
-          name="password"
-          label="Mot de passe"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          autoComplete="new-password"
-          placeholder="Créer un mot de passe sécurisé"
-        />
+        {/* Champ Mot de passe avec indicateur de robustesse */}
+        <div className="grid gap-1.5">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="signup-password">Créer un mot de passe fort</Label>
+            {password.length > 0 && (
+              <span className={cn("inline-flex items-center gap-1 text-[11px] font-medium transition-colors", passwordStrength.textClass)}>
+                Force : {passwordStrength.label}
+              </span>
+            )}
+          </div>
+          <PasswordInput
+            id="signup-password"
+            name="password"
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              if (passwordError) setPasswordError("");
+            }}
+            required
+            autoComplete="new-password"
+            placeholder="Votre mot de passe sécurisé"
+          />
+
+          {/* Jauge visuelle de robustesse à 4 segments */}
+          {password.length > 0 && (
+            <div className="space-y-2.5 pt-1">
+              <div className="grid grid-cols-4 gap-1.5 h-1.5">
+                {[1, 2, 3, 4].map((step) => (
+                  <div
+                    key={step}
+                    className={cn(
+                      "h-full rounded-full transition-all duration-300",
+                      step <= passwordStrength.level ? passwordStrength.color : "bg-white/[0.08]"
+                    )}
+                  />
+                ))}
+              </div>
+
+              {/* Critères sous forme de micro-checklist élégante */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-0.5">
+                {passwordCriteria.map((criterion) => {
+                  const isMet = criterion.test(password);
+                  return (
+                    <div key={criterion.id} className="flex items-center gap-1.5 text-[11px] transition-colors">
+                      {isMet ? (
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#C89561] shrink-0" />
+                      ) : (
+                        <div className="w-3.5 h-3.5 rounded-full border border-white/20 shrink-0" />
+                      )}
+                      <span className={isMet ? "text-[#E8BFA1] font-medium" : "text-neutral-500"}>
+                        {criterion.label}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {passwordError ? (
+            <p className="text-[11px] text-red-400 flex items-center gap-1 mt-0.5">
+              <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {passwordError}
+            </p>
+          ) : (
+            password.length === 0 && (
+              <p className="text-[11px] text-neutral-500">
+                Créez un mot de passe robuste (min. 8 caractères, majuscule, chiffre ou symbole).
+              </p>
+            )
+          )}
+        </div>
 
         <Button type="submit" variant="default" className="mt-2 w-full h-11 text-base font-semibold" disabled={isLoading}>
           {isLoading ? "Création en cours..." : "Créer mon compte"}
