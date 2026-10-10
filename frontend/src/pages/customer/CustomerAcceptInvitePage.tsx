@@ -187,8 +187,8 @@ export const CustomerAcceptInvitePage: React.FC = () => {
     <div
       className="customer-surface min-h-screen flex items-center justify-center px-4 py-8 bg-[#090A0C] text-white selection:bg-[#C89561] selection:text-white relative overflow-hidden"
     >
-      {/* Background ambient halo */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[350px] bg-[#C89561]/10 blur-[130px] rounded-full pointer-events-none" />
+      {/* Background ambient subtle blur */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[350px] bg-white/[0.02] blur-[120px] rounded-full pointer-events-none" />
 
       <div className="w-full max-w-2xl relative z-10">
         <div className="text-center mb-8">
@@ -215,8 +215,8 @@ export const CustomerAcceptInvitePage: React.FC = () => {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="flex items-start gap-2 p-3 rounded-lg" style={{ backgroundColor: 'var(--color-elevated, #f5f5f5)' }}>
-                <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: 'var(--color-accent)' }} />
+              <div className="flex items-start gap-2 p-3 rounded-lg bg-white/[0.04] border border-white/[0.08]">
+                <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0 text-emerald-400" />
                 <div className="text-sm text-theme">
                   {t('customer.acceptInvite.emailWillBe', 'Your account email will be ')}
                   <span className="font-medium">{invitation.email}</span>

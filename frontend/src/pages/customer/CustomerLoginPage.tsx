@@ -136,11 +136,11 @@ export const CustomerLoginPage: React.FC = () => {
             <img
               src="/logo.png"
               alt="FotoDesk"
-              className="h-10 w-auto object-contain mx-auto drop-shadow-[0_2px_12px_rgba(200,149,97,0.3)]"
+              className="h-10 w-auto object-contain mx-auto filter drop-shadow-sm"
             />
           </a>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#C89561]/15 text-[#E8BFA1] border border-[#C89561]/30 mb-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#C89561] animate-pulse" />
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium text-neutral-400 bg-white/[0.04] border border-white/[0.08] mb-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-neutral-400" />
             Espace Client
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
@@ -241,7 +241,7 @@ export const CustomerLoginPage: React.FC = () => {
               {t('customer.login.needHelp', 'Besoin d\'aide ?')}{' '}
               <a
                 href={`mailto:${settingsData.branding_support_email}`}
-                className="text-[#C89561] hover:text-[#E8BFA1] hover:underline"
+                className="text-neutral-300 hover:text-white underline underline-offset-4"
               >
                 {settingsData.branding_support_email}
               </a>

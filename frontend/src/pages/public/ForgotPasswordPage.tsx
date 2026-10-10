@@ -31,17 +31,12 @@ export const ForgotPasswordPage: React.FC = () => {
 
   return (
     <div className="min-h-screen w-full relative flex flex-col items-center justify-center px-4 py-12 bg-[#090A0C] text-white selection:bg-[#C89561] selection:text-white overflow-hidden">
-      {/* Halo ambré signature FotoDesk en arrière-plan */}
-      <div
-        className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[140px] opacity-20"
-        style={{
-          background: 'radial-gradient(circle, #C89561 0%, rgba(200, 149, 97, 0.35) 40%, transparent 70%)',
-        }}
-      />
+      {/* Halo d'ambiance ultra discret */}
+      <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-white/[0.02] blur-[140px]" />
 
       {/* CARTE D'AUTHENTIFICATION LUXURY */}
       <div className="relative w-full max-w-[440px] rounded-2xl bg-[#10141A]/95 backdrop-blur-2xl border border-white/[0.08] p-8 sm:p-10 shadow-[0_30px_90px_rgba(0,0,0,0.85)] transition-all">
-        {/* LOGO FOTODESK LUMINEUX */}
+        {/* LOGO FOTODESK */}
         <div className="flex justify-center mb-5">
           <Link
             to="/"
@@ -51,15 +46,15 @@ export const ForgotPasswordPage: React.FC = () => {
             <img
               src="/logo.png"
               alt="FotoDesk"
-              className="h-10 w-auto object-contain drop-shadow-[0_2px_12px_rgba(200,149,97,0.3)]"
+              className="h-10 w-auto object-contain filter drop-shadow-sm"
             />
           </Link>
         </div>
 
         {/* TITRE & SOUS-TITRE */}
         <div className="text-center mb-6">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#C89561]/15 text-[#E8BFA1] border border-[#C89561]/30 mb-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#C89561] animate-pulse" />
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium text-neutral-400 bg-white/[0.04] border border-white/[0.08] mb-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-neutral-400" />
             Sécurité FotoDesk
           </div>
           <h1 className="text-2xl font-bold text-white tracking-tight">
@@ -72,8 +67,8 @@ export const ForgotPasswordPage: React.FC = () => {
 
         {isSubmitted ? (
           <div className="text-center space-y-5 animate-fade-in">
-            <div className="w-12 h-12 mx-auto rounded-full bg-[#C89561]/15 border border-[#C89561]/30 flex items-center justify-center text-[#E8BFA1]">
-              <CheckCircle2 className="w-6 h-6 text-[#C89561]" />
+            <div className="w-12 h-12 mx-auto rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+              <CheckCircle2 className="w-6 h-6 text-emerald-400" />
             </div>
             <div>
               <h2 className="text-lg font-semibold text-white">E-mail envoyé</h2>
@@ -84,9 +79,9 @@ export const ForgotPasswordPage: React.FC = () => {
             <div className="pt-2">
               <Link
                 to="/login"
-                className="inline-flex items-center gap-2 text-sm font-medium text-[#C89561] hover:text-[#E8BFA1] transition-colors"
+                className="inline-flex items-center gap-2 text-sm font-medium text-neutral-300 hover:text-white transition-colors underline underline-offset-4"
               >
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeft className="w-4 h-4 text-neutral-500" />
                 Retour à la connexion
               </Link>
             </div>
@@ -117,7 +112,7 @@ export const ForgotPasswordPage: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="nom@votrestudio.com"
-                  className="w-full h-11 pl-10 pr-4 rounded-xl bg-[#13161C] border border-white/[0.1] text-sm text-white placeholder-neutral-500 transition-all focus:outline-none focus:border-[#C89561] focus:ring-2 focus:ring-[#C89561]/30"
+                  className="w-full h-11 pl-10 pr-4 rounded-xl bg-[#13161C] border border-white/[0.1] text-sm text-white placeholder-neutral-500 transition-all focus:outline-none focus:border-[#C89561] focus:ring-1 focus:ring-[#C89561]/25"
                 />
                 <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" />
               </div>
@@ -145,7 +140,7 @@ export const ForgotPasswordPage: React.FC = () => {
                 to="/login"
                 className="inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-white transition-colors"
               >
-                <ArrowLeft className="w-3.5 h-3.5" />
+                <ArrowLeft className="w-3.5 h-3.5 text-neutral-500" />
                 Retour à la page de connexion
               </Link>
             </div>
@@ -154,7 +149,7 @@ export const ForgotPasswordPage: React.FC = () => {
 
         {/* MICRO-RÉASSURANCE DISCRÈTE */}
         <div className="mt-7 pt-5 border-t border-white/[0.06] flex items-center justify-center gap-2 text-[11px] text-neutral-500">
-          <ShieldCheck className="w-3.5 h-3.5 text-[#C89561]" />
+          <ShieldCheck className="w-3.5 h-3.5 text-neutral-400" />
           <span>Plateforme sécurisée certifiée SSL 256-bit</span>
         </div>
       </div>

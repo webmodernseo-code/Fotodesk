@@ -110,11 +110,11 @@ export const CustomerResetPasswordPage: React.FC = () => {
             <img
               src="/logo.png"
               alt="FotoDesk"
-              className="h-10 w-auto object-contain mx-auto drop-shadow-[0_2px_12px_rgba(200,149,97,0.3)]"
+              className="h-10 w-auto object-contain mx-auto filter drop-shadow-sm"
             />
           </a>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#C89561]/15 text-[#E8BFA1] border border-[#C89561]/30 mb-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#C89561] animate-pulse" />
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium text-neutral-400 bg-white/[0.04] border border-white/[0.08] mb-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-neutral-400" />
             Espace Client
           </div>
           <h1 className="text-2xl font-bold text-white tracking-tight">
@@ -132,11 +132,11 @@ export const CustomerResetPasswordPage: React.FC = () => {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="flex items-start gap-2 p-3 rounded-lg" style={{ backgroundColor: 'var(--color-elevated, #f5f5f5)' }}>
-                <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0" style={{ color: 'var(--color-accent)' }} />
-                <div className="text-sm text-theme">
+              <div className="flex items-start gap-2 p-3 rounded-lg bg-white/[0.04] border border-white/[0.06]">
+                <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0 text-neutral-400" />
+                <div className="text-sm text-neutral-300">
                   {t('customer.resetPassword.forEmail', 'Setting a new password for ')}
-                  <span className="font-medium">{reset.email}</span>
+                  <span className="font-medium text-white">{reset.email}</span>
                   {'.'}
                 </div>
               </div>

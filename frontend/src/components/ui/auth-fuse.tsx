@@ -116,7 +116,7 @@ const buttonVariants = cva(
         outline: "border border-white/[0.1] bg-[#13161C] text-neutral-200 hover:bg-[#1A1E26] hover:text-white hover:border-white/[0.18]",
         secondary: "bg-[#181C24] text-neutral-200 hover:bg-[#202530] hover:text-white",
         ghost: "hover:bg-white/[0.06] text-neutral-300 hover:text-white",
-        link: "text-[#C89561] underline-offset-4 hover:underline hover:text-[#E8BFA1]",
+        link: "text-neutral-300 underline-offset-4 hover:underline hover:text-white",
       },
       size: {
         default: "h-11 px-4 py-2",
@@ -219,10 +219,10 @@ function SignInForm() {
     <form onSubmit={handleSignIn} autoComplete="on" className="flex flex-col gap-6">
       <div className="flex flex-col items-center gap-2 text-center">
         <a href="/" className="mb-1 inline-flex items-center gap-2 transition-transform hover:scale-105">
-          <img src="/logo.png" alt="FotoDesk" className="h-9 w-auto object-contain drop-shadow-[0_2px_12px_rgba(200,149,97,0.25)]" />
+          <img src="/logo.png" alt="FotoDesk" className="h-9 w-auto object-contain filter drop-shadow-sm" />
         </a>
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#C89561]/15 text-[#E8BFA1] border border-[#C89561]/30 mb-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#C89561] animate-pulse" />
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium text-neutral-400 bg-white/[0.04] border border-white/[0.08] mb-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-neutral-400" />
           Espace Studio & Photographe
         </div>
         <h1 className="text-2xl font-bold tracking-tight text-white">Connexion à FotoDesk</h1>
@@ -256,10 +256,10 @@ function SignInForm() {
 
         <div className="flex items-center justify-between text-xs pt-0.5">
           <label className="flex items-center gap-2 text-neutral-400 cursor-pointer select-none">
-            <input type="checkbox" defaultChecked className="w-4 h-4 rounded border-white/10 bg-[#13161C] text-[#C89561] focus:ring-[#C89561] focus:ring-offset-0" />
+            <input type="checkbox" defaultChecked className="w-4 h-4 rounded border-white/10 bg-[#13161C] accent-[#C89561] focus:ring-1 focus:ring-white/20" />
             Se souvenir de moi
           </label>
-          <a href="/forgot-password" className="text-[#C89561] hover:text-[#E8BFA1] transition-colors">
+          <a href="/forgot-password" className="text-neutral-400 hover:text-white transition-colors">
             Mot de passe oublié ?
           </a>
         </div>
@@ -303,8 +303,8 @@ function SignUpForm() {
     if (!password) return { level: 0, label: "", color: "bg-transparent", textClass: "" };
     if (metCriteriaCount <= 2) return { level: 1, label: "Faible", color: "bg-rose-500", textClass: "text-rose-400" };
     if (metCriteriaCount === 3) return { level: 2, label: "Moyen", color: "bg-amber-500", textClass: "text-amber-400" };
-    if (metCriteriaCount === 4) return { level: 3, label: "Bon", color: "bg-[#C89561]/80", textClass: "text-[#E8BFA1]" };
-    return { level: 4, label: "Très fort", color: "bg-[#C89561]", textClass: "text-[#E8BFA1] font-semibold" };
+    if (metCriteriaCount === 4) return { level: 3, label: "Bon", color: "bg-emerald-500", textClass: "text-emerald-400" };
+    return { level: 4, label: "Très fort", color: "bg-emerald-400", textClass: "text-emerald-400 font-medium" };
   }, [password, metCriteriaCount]);
 
   const handleSignUp = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -333,10 +333,10 @@ function SignUpForm() {
     <form onSubmit={handleSignUp} autoComplete="on" className="flex flex-col gap-6">
       <div className="flex flex-col items-center gap-2 text-center">
         <a href="/" className="mb-1 inline-flex items-center gap-2 transition-transform hover:scale-105">
-          <img src="/logo.png" alt="FotoDesk" className="h-9 w-auto object-contain drop-shadow-[0_2px_12px_rgba(200,149,97,0.25)]" />
+          <img src="/logo.png" alt="FotoDesk" className="h-9 w-auto object-contain filter drop-shadow-sm" />
         </a>
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-[#C89561]/15 text-[#E8BFA1] border border-[#C89561]/30 mb-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#C89561] animate-pulse" />
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium text-neutral-400 bg-white/[0.04] border border-white/[0.08] mb-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-neutral-400" />
           Essai gratuit 14 jours
         </div>
         <h1 className="text-2xl font-bold tracking-tight text-white">Créer un compte FotoDesk</h1>
@@ -383,13 +383,13 @@ function SignUpForm() {
           <div className="flex items-center justify-between">
             <Label htmlFor="signup-confirm-email">Confirmer l'adresse e-mail</Label>
             {emailsMatch && (
-              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#C89561]">
+              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-400">
                 <CheckCircle2 className="w-3 h-3" />
                 Adresses identiques
               </span>
             )}
             {emailsMismatch && (
-              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-red-400">
+              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-rose-400">
                 <AlertCircle className="w-3 h-3" />
                 Ne correspond pas
               </span>
@@ -415,8 +415,8 @@ function SignUpForm() {
             required
             autoComplete="off"
             className={cn(
-              emailsMismatch && "border-red-500/60 focus-visible:border-red-500 focus-visible:ring-red-500/30",
-              emailsMatch && "border-[#C89561]/60 focus-visible:border-[#C89561]"
+              emailsMismatch && "border-rose-500/50 focus-visible:border-rose-500 focus-visible:ring-rose-500/20",
+              emailsMatch && "border-emerald-500/40 focus-visible:border-emerald-500"
             )}
           />
           {emailError ? (
@@ -475,11 +475,11 @@ function SignUpForm() {
                   return (
                     <div key={criterion.id} className="flex items-center gap-1.5 text-[11px] transition-colors">
                       {isMet ? (
-                        <CheckCircle2 className="w-3.5 h-3.5 text-[#C89561] shrink-0" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                       ) : (
                         <div className="w-3.5 h-3.5 rounded-full border border-white/20 shrink-0" />
                       )}
-                      <span className={isMet ? "text-[#E8BFA1] font-medium" : "text-neutral-500"}>
+                      <span className={isMet ? "text-neutral-200 font-medium" : "text-neutral-500"}>
                         {criterion.label}
                       </span>
                     </div>
@@ -519,7 +519,7 @@ function AuthFormContainer({ isSignIn, onToggle }: { isSignIn: boolean; onToggle
         {isSignIn ? "Vous n'avez pas encore de compte ?" : "Vous avez déjà un compte ?"}{" "}
         <button
           type="button"
-          className="font-medium text-[#C89561] hover:text-[#E8BFA1] transition-colors cursor-pointer ml-1"
+          className="font-medium text-white hover:underline underline-offset-4 cursor-pointer ml-1"
           onClick={onToggle}
         >
           {isSignIn ? "Créer un compte" : "Se connecter"}
@@ -547,10 +547,10 @@ function AuthFormContainer({ isSignIn, onToggle }: { isSignIn: boolean; onToggle
 
       <div className="flex items-center justify-between pt-2 border-t border-white/[0.06] text-xs text-neutral-400">
         <a href="/" className="inline-flex items-center gap-1.5 hover:text-white transition-colors">
-          <ArrowLeft className="w-3.5 h-3.5" /> Accueil FotoDesk
+          <ArrowLeft className="w-3.5 h-3.5 text-neutral-500" /> Accueil FotoDesk
         </a>
-        <div className="flex items-center gap-1.5 text-neutral-400">
-          <ShieldCheck className="w-3.5 h-3.5 text-[#C89561]" />
+        <div className="flex items-center gap-1.5 text-neutral-500">
+          <ShieldCheck className="w-3.5 h-3.5 text-neutral-400" />
           <span>SSL 256-bit certifié</span>
         </div>
       </div>
@@ -638,11 +638,11 @@ export function AuthUI({ initialIsSignIn = true, signInContent = {}, signUpConte
         
         {/* Badge supérieur FotoDesk */}
         <div className="absolute top-8 right-8 z-10 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-xs font-medium text-neutral-300">
-          <span className="w-2 h-2 rounded-full bg-[#C89561] shadow-[0_0_8px_#C89561]" />
+          <span className="w-2 h-2 rounded-full bg-emerald-400" />
           FotoDesk Pro Engine
         </div>
 
-        {/* Citation machine à écrire avec accent officiel FotoDesk */}
+        {/* Citation machine à écrire */}
         <div className="relative z-10 flex h-full flex-col items-center justify-end p-8 pb-14">
           <blockquote className="space-y-3.5 text-center text-white max-w-lg px-4">
             <p className="text-xl lg:text-2xl font-medium drop-shadow-md leading-relaxed text-neutral-100">
@@ -652,7 +652,7 @@ export function AuthUI({ initialIsSignIn = true, signInContent = {}, signUpConte
                 speed={50}
               />”
             </p>
-            <cite className="block text-sm font-light text-[#E8BFA1] not-italic tracking-wide">
+            <cite className="block text-sm font-light text-neutral-400 not-italic tracking-wide">
               — {currentContent.quote.author}
             </cite>
           </blockquote>
