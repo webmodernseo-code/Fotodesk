@@ -1,0 +1,445 @@
+/**
+ * Admin → System health. Aggregates background failures that would
+ * otherwise go unnoticed. v1: stuck/failed outbound emails (the queue
+ * processor gave up or exhausted retries), with retry + dismiss.
+ *
+ * #1262 — "no failures" was being read as "everything went out". It is not the
+ * same claim: a queue nobody is working produces no failures at all, because
+ * every row sits at status='pending' with retry_count 0. So the page now leads
+ * with what the processor itself last did, and lists due-but-unsent emails
+ * next to the failed ones. The all-clear only shows when both are empty and
+ * the processor is running.
+ */
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
+import { AlertCircle, RefreshCw, Trash2, CheckCircle, Clock, FileCheck, KeyRound, Mail, MailX, ShieldAlert } from 'lucide-react';
+import { Button, Card, Loading } from '../../components/common';
+import { useFeatureFlags } from '../../contexts/FeatureFlagsContext';
+import { useMutationWithToast } from '../../hooks';
+import { useLocalizedDate } from '../../hooks/useLocalizedDate';
+import { systemHealthService, type StuckEmail } from '../../services/systemHealth.service';
+import { mailPolicyMessage } from '../../utils/mailErrors';
+
+export const SystemHealthPage: React.FC = () => {
+  const { t } = useTranslation();
+  const { formatDateTime: fmtDateTime } = useLocalizedDate();
+  const { flags } = useFeatureFlags();
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['system-health-failures'],
+    queryFn: () => systemHealthService.getFailures(),
+  });
+
+  const retryMutation = useMutationWithToast({
+    mutationFn: (id: number) => systemHealthService.retryEmail(id),
+    invalidateKeys: [['system-health-failures']],
+    successMessage: t('systemHealth.retriedToast', 'Email re-queued.'),
+    errorMessage: () => t('toast.saveError'),
+  });
+  const dismissMutation = useMutationWithToast({
+    mutationFn: (id: number) => systemHealthService.dismissEmail(id),
+    invalidateKeys: [['system-health-failures']],
+    successMessage: t('systemHealth.dismissedToast', 'Dismissed.'),
+    errorMessage: () => t('toast.saveError'),
+  });
+
+  const stuckEmails = data?.stuckEmails ?? [];
+  const waitingEmails = data?.waitingEmails ?? [];
+  const processor = data?.processor;
+  // The endpoint stops reading after a bounded number of pending rows. Past
+  // that, an empty waiting list means "nothing found yet", not "nothing" — so
+  // it must not turn into a green check.
+  const scanTruncated = data?.scanTruncated ?? false;
+
+  // The processor is only "fine" when it has been started AND its last pass
+  // didn't bail. A started-but-erroring processor is the case that used to
+  // read as healthy, so it gets its own state rather than folding into either.
+  const processorState: 'ok' | 'degraded' | 'stopped' = !processor
+    ? 'ok'
+    : !processor.started
+      ? 'stopped'
+      : processor.lastError
+        ? 'degraded'
+        : 'ok';
+
+  /**
+   * `actions` is off for waiting rows, and deliberately so. Retry would
+   * rewrite a row that is already pending / retry_count 0 / unscheduled to the
+   * state it is in, and Dismiss would permanently delete an email that has not
+   * failed and will still go out once the processor recovers — a click on a
+   * health warning silently cancelling a customer's mail.
+   */
+  const emailTable = (rows: StuckEmail[], showError: boolean, actions = true) => (
+    <div className="rounded-lg border border-line overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="bg-subtle text-body">
+            <tr>
+              <th className="px-3 py-2 text-left">{t('systemHealth.stuckEmails.col.recipient', 'Recipient')}</th>
+              <th className="px-3 py-2 text-left">{t('systemHealth.stuckEmails.col.type', 'Type')}</th>
+              <th className="px-3 py-2 text-left">
+                {showError
+                  ? t('systemHealth.stuckEmails.col.error', 'Error')
+                  : t('systemHealth.waitingEmails.col.attempts', 'Attempts')}
+              </th>
+              <th className="px-3 py-2 text-left">{t('systemHealth.stuckEmails.col.queued', 'Queued')}</th>
+              {actions && (
+                <th className="px-3 py-2 text-right">{t('systemHealth.stuckEmails.col.actions', 'Actions')}</th>
+              )}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((m) => (
+              <tr key={m.id} className="border-t border-line align-top">
+                <td className="px-3 py-2 break-all">{m.recipientEmail}</td>
+                <td className="px-3 py-2 font-mono text-xs">{m.emailType}</td>
+                <td className="px-3 py-2 max-w-xs">
+                  {showError ? (
+                    <span className="text-xs text-red-700 dark:text-red-400 break-words">
+                      {m.errorMessage || t('systemHealth.stuckEmails.noError', 'retries exhausted')}
+                    </span>
+                  ) : (
+                    <span className="text-xs text-soft">
+                      {m.retryCount > 0
+                        ? t('systemHealth.waitingEmails.attempted', '{{count}} attempt(s), last error: {{error}}', {
+                          count: m.retryCount,
+                          error: m.errorMessage || t('systemHealth.waitingEmails.unknownError', 'unknown'),
+                        })
+                        : t('systemHealth.waitingEmails.neverAttempted', 'never attempted')}
+                    </span>
+                  )}
+                </td>
+                <td className="px-3 py-2 whitespace-nowrap">{m.createdAt ? fmtDateTime(m.createdAt) : '—'}</td>
+                {actions && (
+                  <td className="px-3 py-2">
+                    <div className="flex items-center justify-end gap-1">
+                      <Button variant="outline" size="sm"
+                        isLoading={retryMutation.isPending && retryMutation.variables === m.id}
+                        onClick={() => retryMutation.mutate(m.id)}
+                        leftIcon={<RefreshCw className="w-3.5 h-3.5" />}>
+                        {t('systemHealth.retry', 'Retry')}
+                      </Button>
+                      <button type="button"
+                        aria-label={t('systemHealth.dismiss', 'Dismiss') as string}
+                        onClick={() => dismissMutation.mutate(m.id)}
+                        className="p-1.5 text-neutral-400 hover:text-red-600">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+
+  // No header and no page padding of its own: this renders as the Settings →
+  // System → Health tab, and SettingsPage supplies the SectionPageHeader
+  // (title + description) and the page gutter. It used to be a top-level route
+  // at /admin/system-health, which now redirects here.
+  return (
+    <div>
+
+      {/* Queue processor. Listed first because when this is stopped, every
+          other count on the page is explained by it — and a stopped processor
+          shows no failures at all, which is what made it invisible. */}
+      {!isLoading && processor && (
+        <Card padding="lg" className="mb-4">
+          <div className="flex items-start gap-3">
+            {processorState === 'ok'
+              ? <Mail className="w-5 h-5 mt-0.5 text-green-600 dark:text-green-400 shrink-0" />
+              : <MailX className="w-5 h-5 mt-0.5 text-red-600 dark:text-red-400 shrink-0" />}
+            <div className="min-w-0">
+              <h2 className="text-lg font-semibold text-heading">
+                {t('systemHealth.processor.title', 'Email queue processor')}
+              </h2>
+              <p className={`text-sm mt-0.5 ${
+                processorState === 'ok'
+                  ? 'text-soft'
+                  : 'text-red-700 dark:text-red-400'
+              }`}>
+                {processorState === 'stopped'
+                  ? t('systemHealth.processor.stopped',
+                    'Not running on this instance. Queued emails are written to the database but nothing is sending them.')
+                  : processorState === 'degraded'
+                    ? t('systemHealth.processor.degraded',
+                      'Running, but the last pass could not send: {{error}}', { error: mailPolicyMessage(processor.lastErrorCode, t) || processor.lastError })
+                    : t('systemHealth.processor.running', 'Running.')}
+              </p>
+              <p className="text-xs text-muted mt-1">
+                {processor.lastRunAt
+                  ? t('systemHealth.processor.lastRun', 'Last pass {{when}}', { when: fmtDateTime(processor.lastRunAt) })
+                  : t('systemHealth.processor.neverRan', 'Has not run since this instance started.')}
+                {processor.lastResult && (
+                  <> {' · '}
+                    {t('systemHealth.processor.lastResult', '{{sent}} sent, {{failed}} failed', {
+                      sent: processor.lastResult.sent,
+                      failed: processor.lastResult.failed,
+                    })}
+                  </>
+                )}
+              </p>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* Customer documents (#1444). Uploads stay unavailable to the customer
+          until someone reviews them on the customer record, so a pending
+          count here is work waiting, not an error. */}
+      {!isLoading && data?.customerDocuments
+        && (flags.documents || data.customerDocuments.pending + data.customerDocuments.rejected > 0) && (
+        <Card padding="lg" className="mb-4">
+          <div className="flex items-start gap-3">
+            <FileCheck className="w-5 h-5 mt-0.5 text-muted shrink-0" />
+            <div className="min-w-0">
+              <h2 className="text-lg font-semibold text-heading">
+                {t('systemHealth.customerDocuments.title', 'Customer documents')}
+              </h2>
+              <p className="text-sm mt-0.5 text-soft">
+                {t('systemHealth.customerDocuments.counts', '{{pending}} awaiting review, {{rejected}} rejected.', {
+                  pending: data.customerDocuments.pending,
+                  rejected: data.customerDocuments.rejected,
+                })}
+              </p>
+              <p className="text-xs text-muted mt-1">
+                {t('systemHealth.customerDocuments.hint',
+                  'Customer uploads stay unavailable to them until they are marked clean on the customer record. Rejected files are deleted after the retention period.')}
+              </p>
+              {data.customerDocuments.scanner && (
+                <p
+                  className={`text-sm mt-2 ${data.customerDocuments.scanner.configured && !data.customerDocuments.scanner.reachable
+                    ? 'text-red-700 dark:text-red-400' : 'text-soft'}`}
+                >
+                  {!data.customerDocuments.scanner.configured
+                    ? t('systemHealth.customerDocuments.scannerOff', 'Malware scanner: not configured. Customer uploads wait for a manual review.')
+                    : data.customerDocuments.scanner.reachable
+                      ? t('systemHealth.customerDocuments.scannerOk', 'Malware scanner (ClamAV): reachable.')
+                      : t('systemHealth.customerDocuments.scannerDown', 'Malware scanner (ClamAV): not reachable. New uploads stay pending until it is back; the hourly re-scan catches up.')}
+                  {data.customerDocuments.scanner.lastSuccessAt && (
+                    <>{' '}{t('systemHealth.customerDocuments.scannerLastSuccess', 'Last successful scan: {{date}}.', {
+                      date: fmtDateTime(data.customerDocuments.scanner.lastSuccessAt),
+                    })}</>
+                  )}
+                  {data.customerDocuments.scanner.lastError && data.customerDocuments.scanner.lastErrorAt && (
+                    <>{' '}{t('systemHealth.customerDocuments.scannerLastError', 'Last problem: {{error}} ({{date}}).', {
+                      error: data.customerDocuments.scanner.lastError,
+                      date: fmtDateTime(data.customerDocuments.scanner.lastErrorAt),
+                    })}</>
+                  )}
+                </p>
+              )}
+              {data.customerDocuments.abuse && (
+                <p
+                  className={`text-sm mt-2 ${data.customerDocuments.abuse.customersOverThreshold > 0
+                    ? 'text-red-700 dark:text-red-400' : 'text-soft'}`}
+                >
+                  {t('systemHealth.customerDocuments.abuse',
+                    'Last 24 hours: {{forbidden}} attempts on other customers\' documents, {{quota}} uploads refused for quota, {{rate}} rate-limit hits.', {
+                      forbidden: data.customerDocuments.abuse.forbiddenAccess,
+                      quota: data.customerDocuments.abuse.quotaExceeded,
+                      rate: data.customerDocuments.abuse.rateLimited,
+                    })}
+                  {data.customerDocuments.abuse.customersOverThreshold > 0 && (
+                    <>{' '}{t('systemHealth.customerDocuments.abuseAlert',
+                      '{{count}} customer(s) passed the alert threshold; the business address was emailed.',
+                      { count: data.customerDocuments.abuse.customersOverThreshold })}</>
+                  )}
+                </p>
+              )}
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* Where the key for signing evidence comes from (#1446) — never the key
+          itself. Shown while contracts are on, or once a key exists. */}
+      {!isLoading && data?.backupAuthentication && (
+        <Card padding="lg" className="mb-4">
+          <div className="flex items-start gap-3">
+            <ShieldAlert className="w-5 h-5 mt-0.5 shrink-0 text-muted" />
+            <div className="min-w-0">
+              <h2 className="text-lg font-semibold text-heading">{t('systemHealth.backupAuthentication.title')}</h2>
+              <p className="text-sm text-body mt-1">
+                {t(data.backupAuthentication.signingKey.ready
+                  ? 'systemHealth.backupAuthentication.keyReady' : 'systemHealth.backupAuthentication.keyMissing')}
+                {data.backupAuthentication.signingKey.keyId && (
+                  <span className="font-mono"> · {data.backupAuthentication.signingKey.keyId}</span>
+                )}
+              </p>
+              <p className="text-sm text-body mt-1">
+                {t(data.backupAuthentication.latestManifest.authenticated
+                  ? 'systemHealth.backupAuthentication.verified'
+                  : data.backupAuthentication.latestManifest.state === 'legacy'
+                    ? 'systemHealth.backupAuthentication.legacy' : 'systemHealth.backupAuthentication.unverified')}
+              </p>
+              <p className="text-xs text-soft mt-2">{t('systemHealth.backupAuthentication.hint')}</p>
+            </div>
+          </div>
+        </Card>
+      )}
+      {!isLoading && data?.evidenceKey && (flags.contracts || data.evidenceKey.source !== 'none') && (
+        <Card padding="lg" className="mb-4">
+          <div className="flex items-start gap-3">
+            <KeyRound className={`w-5 h-5 mt-0.5 shrink-0 ${data.evidenceKey.source === 'unreadable'
+              ? 'text-red-600 dark:text-red-400' : 'text-muted'}`} />
+            <div className="min-w-0">
+              <h2 className="text-lg font-semibold text-heading">
+                {t('systemHealth.evidenceKey.title', 'Signing evidence key')}
+              </h2>
+              <p className={`text-sm mt-0.5 ${data.evidenceKey.source === 'unreadable'
+                ? 'text-red-700 dark:text-red-300' : 'text-soft'}`}>
+                {{
+                  env: t('systemHealth.evidenceKey.env', 'Set with PICPEAK_EVIDENCE_KEY.'),
+                  file: t('systemHealth.evidenceKey.file', 'Stored in business-docs/keys/evidence.key, which is part of every backup.'),
+                  none: t('systemHealth.evidenceKey.none', 'Not created yet. It is created with the first signature.'),
+                  unreadable: t('systemHealth.evidenceKey.unreadable',
+                    'The key file can\'t be read. Restore it from a backup, otherwise stored signing evidence can\'t be decrypted.'),
+                }[data.evidenceKey.source]}
+                {data.evidenceKey.keyId && (
+                  <span className="font-mono"> · {t('systemHealth.evidenceKey.id', 'Key ID {{id}}', { id: data.evidenceKey.keyId })}</span>
+                )}
+              </p>
+              {data.evidenceKey.matchesStored === false && (data.evidenceKey.unreadableValues ?? 1) > 0 && (
+                <p role="alert" className="text-sm mt-1 text-red-700 dark:text-red-300">
+                  {t('systemHealth.evidenceKey.mismatch',
+                    'Evidence already stored was written under key {{stored}}, so it can no longer be read — and those signer names and email addresses come back empty. {{unreadable}} of {{total}} stored values are affected. Put the earlier key back, or expect blank names on contracts signed before.',
+                    {
+                      stored: data.evidenceKey.storedKeyId || '—',
+                      unreadable: data.evidenceKey.unreadableValues
+                        ?? (data.evidenceKey.storedValues ?? 0) - (data.evidenceKey.storedValuesUnderCurrentKey ?? 0),
+                      total: data.evidenceKey.storedValues ?? 0,
+                    })}
+                </p>
+              )}
+              {(data.evidenceKey.valuesUnderOlderKeys ?? 0) > 0 && (
+                <p className="text-sm mt-1 text-amber-700 dark:text-amber-300">
+                  {t('systemHealth.evidenceKey.olderKeys',
+                    '{{count}} of {{total}} stored values are still under an older key that can be read. Run scripts/rotate-evidence-key.js to move them to the current key, and keep the older key until it reports none left.',
+                    { count: data.evidenceKey.valuesUnderOlderKeys, total: data.evidenceKey.storedValues ?? 0 })}
+                </p>
+              )}
+              <p className="text-xs text-muted mt-1">
+                {t('systemHealth.evidenceKey.hint',
+                  'Signers\' IP addresses and browsers are stored encrypted with this key. Without it that evidence can\'t be read; the signatures and PDFs stay valid.')}
+              </p>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* Probing of the signing links, last 24 hours (#1446): unknown and dead
+          links, wrong codes, rate-limit hits, replayed keys, sessions reaching
+          for another contract's file. Counts only — no addresses. */}
+      {!isLoading && flags.contracts && data?.signingSignals && (
+        <Card padding="lg" className="mb-4">
+          <div className="flex items-start gap-3">
+            <ShieldAlert className={`w-5 h-5 mt-0.5 shrink-0 ${data.signingSignals.alerts.length
+              ? 'text-red-600 dark:text-red-400' : 'text-muted'}`} />
+            <div className="min-w-0 flex-1">
+              <h2 className="text-lg font-semibold text-heading">
+                {t('systemHealth.signingSignals.title', 'Signing links: unusual activity (24 h)')}
+              </h2>
+              <ul className="text-sm mt-1 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-0.5 text-body">
+                {Object.entries(data.signingSignals.byKind).map(([kind, count]) => (
+                  <li key={kind} className="flex justify-between gap-3">
+                    <span>{t(`systemHealth.signingSignals.kind.${kind}`, kind)}</span>
+                    <span className="tabular-nums">{count}</span>
+                  </li>
+                ))}
+              </ul>
+              {data.signingSignals.alerts.length > 0 && (
+                <p role="alert" className="text-sm mt-2 text-red-700 dark:text-red-300">
+                  {t('systemHealth.signingSignals.alerts', '{{count}} alert(s) sent to the business email in the last 24 hours.', { count: data.signingSignals.alerts.length })}
+                </p>
+              )}
+              {data.signingSignals.mode && (
+                <p className="text-sm mt-1 text-soft">
+                  {data.signingSignals.mode === 'global'
+                    ? t('systemHealth.signingSignals.modeGlobal', 'IP addresses are not stored, so unknown links are counted across all visitors together.')
+                    : t('systemHealth.signingSignals.modePerClient', 'Unknown links are counted per visitor (as a keyed hash of the address) and across all visitors together.')}
+                </p>
+              )}
+              <p className="text-xs text-muted mt-1">
+                {t('systemHealth.signingSignals.hint', 'Counted per hour without storing any address, token or code. A threshold crossed mails you once per kind and hour; thresholds are in Settings → CRM.')}
+              </p>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* Due but unsent. Distinct from failed: nothing went wrong with these,
+          they were simply never picked up. */}
+      <Card padding="lg" className="mb-4">
+        <div className="flex items-center gap-2 mb-3">
+          <Clock className="w-5 h-5 text-amber-500" />
+          <h2 className="text-lg font-semibold text-heading">
+            {t('systemHealth.waitingEmails.title', 'Waiting to send')}
+          </h2>
+          {!isLoading && (
+            <span className="ml-1 text-sm text-muted">({waitingEmails.length})</span>
+          )}
+        </div>
+
+        {isLoading ? <Loading /> : waitingEmails.length === 0 ? (
+          // "Nothing waiting" is only reassuring when something is working the
+          // queue. A processor that stopped a minute ago has no waiting rows
+          // yet either — the grace window has not elapsed — and a green check
+          // there is the same false all-clear this page exists to remove.
+          processorState === 'ok' && !scanTruncated ? (
+            <div className="flex items-center gap-2 text-sm text-green-700 dark:text-green-400 py-6">
+              <CheckCircle className="w-5 h-5" />
+              {t('systemHealth.waitingEmails.empty', 'Nothing waiting — the queue is being worked.')}
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 text-sm text-amber-700 dark:text-amber-400 py-6">
+              <AlertCircle className="w-5 h-5" />
+              {scanTruncated
+                ? t('systemHealth.waitingEmails.truncated',
+                  'The pending queue is too large to check in full — nothing overdue was found in the rows read, but this is not an all-clear.')
+                : t('systemHealth.waitingEmails.emptyButUnworked',
+                  'Nothing is overdue yet, but nothing is sending either — see the processor above. Anything queued from now on will sit here.')}
+            </div>
+          )
+        ) : (
+          <>
+            <p className="text-sm text-soft mb-3">
+              {t('systemHealth.waitingEmails.description',
+                'Queued more than 10 minutes ago, due now, and still unsent. These have not failed — nothing has tried to send them.')}
+            </p>
+            {emailTable(waitingEmails, false, false)}
+          </>
+        )}
+      </Card>
+
+      <Card padding="lg">
+        <div className="flex items-center gap-2 mb-3">
+          <AlertCircle className="w-5 h-5 text-amber-500" />
+          <h2 className="text-lg font-semibold text-heading">
+            {t('systemHealth.stuckEmails.title', 'Stuck / failed emails')}
+          </h2>
+          {!isLoading && (
+            <span className="ml-1 text-sm text-muted">({stuckEmails.length})</span>
+          )}
+        </div>
+
+        {isLoading ? <Loading /> : stuckEmails.length === 0 ? (
+          <div className="flex items-center gap-2 text-sm text-green-700 dark:text-green-400 py-6">
+            <CheckCircle className="w-5 h-5" />
+            {/* "all clear" is a claim about the whole queue, so it is only
+                allowed when the whole queue is clear. With mail waiting or a
+                processor that is not working, this section is still empty but
+                the system is not fine. */}
+            {waitingEmails.length === 0 && processorState === 'ok' && !scanTruncated
+              ? t('systemHealth.stuckEmails.empty', 'No stuck or failed emails — all clear.')
+              : t('systemHealth.stuckEmails.emptyNotAllClear', 'Nothing has failed — but see above.')}
+          </div>
+        ) : emailTable(stuckEmails, true)}
+      </Card>
+    </div>
+  );
+};

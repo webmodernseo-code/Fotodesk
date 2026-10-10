@@ -1,0 +1,497 @@
+/**
+ * Admin → Settings → CRM → Reminder Emails.
+ *
+ * Two-column layout deliberately mirroring the contract block library
+ * and the email-template editor so admins navigate one shape across
+ * every template surface. Left rail lists "Default (catch-all)" first,
+ * then every active event_type from the catalog with a "Default" pill
+ * when no per-type template exists yet (admin's first save creates it
+ * from whatever's currently in the form, which on entry mirrors the
+ * default).
+ *
+ * Right panel: full language tab row (EN/DE/RU/PT/NL/FR with flags +
+ * amber bullets for missing translations) → Subject input → the same
+ * tiptap-based `EmailTemplateEditor` used in the main email-templates
+ * editor so the body styling, toolbar, and variable inserter match.
+ *
+ * Plus a header strip with the two global toggles (`crm_event_reminders_enabled`,
+ * `crm_event_reminders_days_before`).
+ *
+ * Template-key naming convention (matches eventReminderService):
+ *   - `event_reminder_default` — catch-all, seeded at runtime
+ *   - `event_reminder_<event_type slug_prefix>` — per-type override
+ *
+ * Per-type templates that don't exist yet have their right-panel fields
+ * pre-filled from the default's content so admin can see what the
+ * customer would currently receive and decide whether to override.
+ * First Save on such a row hits POST /admin/email/templates which
+ * creates the per-type row.
+ */
+
+import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { Mail, AlertTriangle, Workflow as WorkflowIcon } from 'lucide-react';
+import { Card, Loading, Input } from '../../../components/common';
+import { SUPPORTED_LANGUAGES } from '../../../components/common/LanguageSelector';
+import { EmailTemplateEditor } from '../../../components/admin/EmailTemplateEditor';
+import { eventTypesService } from '../../../services/eventTypes.service';
+import { emailService, type EmailTemplateTranslation } from '../../../services/email.service';
+import { settingsService } from '../../../services/settings.service';
+import { useFeatureFlags } from '../../../contexts/FeatureFlagsContext';
+import { useMutationWithToast } from '../../../hooks';
+import { SettingsSaveBar } from '../../../components/admin/SettingsSaveBar';
+import { useConfirm } from '../../../components/common/ConfirmDialog';
+import { SectionPageHeader } from '../../../components/admin/SectionPageHeader';
+
+const TEMPLATE_KEY_DEFAULT = 'event_reminder_default';
+const TEMPLATE_KEY_PREFIX = 'event_reminder_';
+
+const VARIABLES = [
+  'customer_name', 'event_name', 'event_date',
+  'event_type', 'days_before', 'business_name',
+];
+
+interface SidebarRow {
+  key: string;
+  label: string;
+  emoji: string;
+  isDefault: boolean;
+  hasTemplate: boolean;
+}
+
+export const ReminderTemplatesPage: React.FC = () => {
+  const { t } = useTranslation();
+
+  // Global on/off + lead time: owned by the "Pre-event reminder" workflow when
+  // the engine is live; otherwise the legacy crm_event_reminders_* settings drive
+  // the hourly pass, so we keep their controls. Per-event override (disable /
+  // offset / custom body) always lives on the event detail page.
+  const { flags } = useFeatureFlags();
+  const workflowsLive = !!flags.workflows;
+
+  const { data: settings } = useQuery({
+    queryKey: ['reminder-settings'],
+    queryFn: () => settingsService.getSettings([
+      'crm_event_reminders_enabled',
+      'crm_event_reminders_days_before',
+    ]),
+    enabled: !workflowsLive,
+  });
+  const [enabled, setEnabled] = useState<boolean>(false);
+  const [daysBefore, setDaysBefore] = useState<number>(2);
+  // What the server last sent, so the save bar can tell dirty from clean.
+  const [loadedSettings, setLoadedSettings] = useState<{ enabled: boolean; daysBefore: number } | null>(null);
+  useEffect(() => {
+    if (!settings) return;
+    const e = settings.crm_event_reminders_enabled;
+    const d = Number(settings.crm_event_reminders_days_before);
+    const next = { enabled: e === true || e === 'true' || e === 1 || e === '1', daysBefore: Number.isFinite(d) ? d : 2 };
+    setEnabled(next.enabled);
+    setDaysBefore(next.daysBefore);
+    setLoadedSettings(next);
+  }, [settings]);
+  const saveSettingsMutation = useMutationWithToast({
+    mutationFn: () => settingsService.updateSettings({
+      crm_event_reminders_enabled: enabled,
+      crm_event_reminders_days_before: daysBefore,
+    }),
+    successMessage: t('reminderTemplates.settingsSaved', 'Reminder settings saved.'),
+    invalidateKeys: [['reminder-settings']],
+    errorMessage: () => t('reminderTemplates.settingsSaveError', 'Could not save reminder settings.'),
+  });
+
+  // ---- Event types catalog ---------------------------------------------
+  const { data: eventTypes = [] } = useQuery({
+    queryKey: ['event-types-active'],
+    queryFn: () => eventTypesService.getActiveEventTypes(),
+  });
+
+  // ---- All templates (for the "has template?" indicator) ---------------
+  // GET /templates triggers the runtime self-heal on the backend, which
+  // backfills empty/missing event_reminder_* rows with the example
+  // content. By the time this list resolves, the default has content.
+  const { data: allTemplates = [] } = useQuery({
+    queryKey: ['email-templates'],
+    queryFn: () => emailService.getTemplates(),
+  });
+  const reminderTemplateKeys = useMemo(
+    () => new Set(allTemplates
+      .filter((t) => t.template_key.startsWith(TEMPLATE_KEY_PREFIX))
+      .map((t) => t.template_key)),
+    [allTemplates],
+  );
+
+  // ---- Sidebar rows ------------------------------------------------------
+  const sidebarRows: SidebarRow[] = useMemo(() => {
+    const rows: SidebarRow[] = [{
+      key: TEMPLATE_KEY_DEFAULT,
+      label: t('reminderTemplates.defaultLabel', 'Default (catch-all)'),
+      emoji: '✉️',
+      isDefault: true,
+      hasTemplate: reminderTemplateKeys.has(TEMPLATE_KEY_DEFAULT),
+    }];
+    for (const et of eventTypes) {
+      const key = `${TEMPLATE_KEY_PREFIX}${et.slug_prefix}`;
+      rows.push({
+        key,
+        label: et.name,
+        emoji: et.emoji || '📅',
+        isDefault: false,
+        hasTemplate: reminderTemplateKeys.has(key),
+      });
+    }
+    return rows;
+  }, [eventTypes, reminderTemplateKeys, t]);
+
+  // ---- Selection + per-template fetch ----------------------------------
+  const [selectedKey, setSelectedKey] = useState<string>(TEMPLATE_KEY_DEFAULT);
+  const [editingLang, setEditingLang] = useState<string>('en');
+
+  // Default template — always loaded so per-type rows that don't exist
+  // yet can prefill their form from it.
+  const { data: defaultTemplate } = useQuery({
+    queryKey: ['email-template', TEMPLATE_KEY_DEFAULT],
+    queryFn: () => emailService.getTemplate(TEMPLATE_KEY_DEFAULT),
+    enabled: reminderTemplateKeys.has(TEMPLATE_KEY_DEFAULT),
+  });
+
+  const { data: selectedTemplate, isLoading: selectedLoading } = useQuery({
+    queryKey: ['email-template', selectedKey],
+    queryFn: () => emailService.getTemplate(selectedKey),
+    enabled: reminderTemplateKeys.has(selectedKey),
+  });
+
+  // ---- Form state ------------------------------------------------------
+  // Six locales buffered locally — admin can flip between tabs without
+  // losing edits. Reset whenever the selection changes.
+  const emptyTranslation: EmailTemplateTranslation = { subject: '', body_html: '', body_text: '' };
+  const blankAllLangs = (): Record<string, EmailTemplateTranslation> => {
+    const out: Record<string, EmailTemplateTranslation> = {};
+    for (const lang of SUPPORTED_LANGUAGES) out[lang.code] = { ...emptyTranslation };
+    return out;
+  };
+  const [translations, setTranslations] = useState<Record<string, EmailTemplateTranslation>>(blankAllLangs);
+  const [loadedTranslations, setLoadedTranslations] = useState<Record<string, EmailTemplateTranslation>>(blankAllLangs);
+
+  useEffect(() => {
+    // Repopulate form from the resolved source:
+    //   1. existing template's translations (per-type that has its own row)
+    //   2. default template's translations (prefill for per-type without a row yet)
+    //   3. blank fallback
+    const source = selectedTemplate ?? (
+      !reminderTemplateKeys.has(selectedKey) && defaultTemplate ? defaultTemplate : null
+    );
+    const next = blankAllLangs();
+    if (source?.translations) {
+      for (const lang of SUPPORTED_LANGUAGES) {
+        const tr = source.translations[lang.code];
+        if (tr) next[lang.code] = {
+          subject: tr.subject || '',
+          body_html: tr.body_html || '',
+          body_text: tr.body_text || '',
+        };
+      }
+    }
+    setTranslations(next);
+    setLoadedTranslations(next);
+    setEditingLang('en');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedKey, selectedTemplate, defaultTemplate]);
+
+  // ---- Dirty state for the shared save bar ------------------------------
+  // One bar saves whatever is dirty: the global settings, the open template,
+  // or both. Switching templates with unsaved edits asks first.
+  const confirm = useConfirm();
+  const settingsDirty = !!loadedSettings && (enabled !== loadedSettings.enabled || daysBefore !== loadedSettings.daysBefore);
+  const templateDirty = JSON.stringify(translations) !== JSON.stringify(loadedTranslations);
+  const isDirty = settingsDirty || templateDirty;
+  const discardAll = () => {
+    if (loadedSettings) { setEnabled(loadedSettings.enabled); setDaysBefore(loadedSettings.daysBefore); }
+    setTranslations(loadedTranslations);
+  };
+  const selectTemplate = async (key: string) => {
+    if (key === selectedKey) return;
+    if (templateDirty) {
+      const ok = await confirm({
+        title: t('settings.saveBar.leaveTitle', 'Discard unsaved changes?'),
+        message: t('settings.saveBar.leaveMessage', 'You have unsaved changes on this page. Leaving now discards them.'),
+        confirmLabel: t('settings.saveBar.leaveConfirm', 'Discard and leave'),
+        cancelLabel: t('settings.saveBar.leaveCancel', 'Stay'),
+        variant: 'warning',
+      });
+      if (!ok) return;
+    }
+    setSelectedKey(key);
+  };
+
+  // ---- Save -------------------------------------------------------------
+  const saveMutation = useMutationWithToast({
+    mutationFn: async () => {
+      // Only send non-empty translations so we don't clobber DB rows
+      // for locales the admin hasn't touched.
+      const payloadTranslations: Record<string, EmailTemplateTranslation> = {};
+      for (const lang of SUPPORTED_LANGUAGES) {
+        const tr = translations[lang.code];
+        const s = (tr?.subject || '').trim();
+        const h = (tr?.body_html || '').trim();
+        const x = (tr?.body_text || '').trim();
+        if (s || h || x) payloadTranslations[lang.code] = tr;
+      }
+      if (reminderTemplateKeys.has(selectedKey)) {
+        await emailService.updateTemplate(selectedKey, { translations: payloadTranslations });
+      } else {
+        await emailService.createTemplate({
+          template_key: selectedKey,
+          translations: payloadTranslations,
+          category: 'crm',
+          subcategory: 'event_reminder',
+          feature_flag: 'crm_event_reminders_enabled',
+          variables: VARIABLES,
+        });
+      }
+    },
+    successMessage: t('reminderTemplates.saved', 'Template saved.'),
+    invalidateKeys: [['email-templates'], ['email-template', selectedKey]],
+    errorMessage: t('reminderTemplates.saveError', 'Could not save template.'),
+  });
+
+  // Translation completeness pill for the sidebar — matches the email
+  // templates' "{count}/{total}" display.
+  const translationCount = (key: string) => {
+    const tpl = allTemplates.find((x) => x.template_key === key);
+    if (!tpl?.translations) return 0;
+    return SUPPORTED_LANGUAGES.filter((lang) => {
+      const tr = tpl.translations[lang.code];
+      return !!(tr && ((tr.subject || '').trim() || (tr.body_html || '').trim() || (tr.body_text || '').trim()));
+    }).length;
+  };
+
+  const currentTranslation = translations[editingLang] || emptyTranslation;
+  const setCurrentField = (field: keyof EmailTemplateTranslation, value: string) =>
+    setTranslations((prev) => ({
+      ...prev,
+      [editingLang]: { ...prev[editingLang], [field]: value },
+    }));
+
+  const isNewPerType = !reminderTemplateKeys.has(selectedKey)
+    && !sidebarRows.find((r) => r.key === selectedKey)?.isDefault;
+  const totalLangs = SUPPORTED_LANGUAGES.length;
+
+  return (
+    <div>
+      <SectionPageHeader
+        icon={Mail}
+        title={t('reminderTemplates.title', 'Pre-event reminder emails')}
+      />
+
+      {/* Schedule (on/off + lead time): in Workflows when the engine is live,
+          else the legacy global controls. */}
+      <Card className="mb-4">
+        {workflowsLive ? (
+          <div className="flex items-start gap-2 text-sm text-blue-800 dark:text-blue-200">
+            <WorkflowIcon className="w-4 h-4 mt-0.5 shrink-0" />
+            <div>
+              <p className="font-medium">{t('reminderTemplates.scheduleMoved.title', 'The reminder schedule is now in Workflows')}</p>
+              <p className="mt-1 text-soft">
+                {t('reminderTemplates.scheduleMoved.body', 'Whether pre-event reminders are sent, and how many days before the event, is configured in the “Pre-event reminder” workflow. This page edits the email templates; per-event overrides stay on each event’s detail page.')}{' '}
+                <Link to="/admin/automation/workflows" className="underline font-medium">{t('reminderTemplates.scheduleMoved.link', 'Open Workflows')}</Link>
+              </p>
+            </div>
+          </div>
+        ) : (
+          <>
+            <h3 className="font-semibold text-sm text-heading mb-2">
+              {t('reminderTemplates.globalSection', 'Global behaviour')}
+            </h3>
+            <p className="text-xs text-muted mb-3">
+              {t('reminderTemplates.globalHelp',
+                'Off by default — turn on to start sending pre-event reminders. The offset below is the default; each event can override on its detail page.')}
+            </p>
+            <div className="flex items-center gap-6 flex-wrap">
+              <label className="inline-flex items-center gap-2 text-sm text-body cursor-pointer">
+                <input type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)} />
+                {t('reminderTemplates.enableLabel', 'Send pre-event reminder emails')}
+              </label>
+              <div className="flex items-center gap-2">
+                <label htmlFor="reminder-days-before" className="text-sm text-body">
+                  {t('reminderTemplates.daysBeforeLabel', 'Days before the event')}
+                </label>
+                <Input id="reminder-days-before" type="number" min={0} max={365}
+                  value={daysBefore} onChange={(e) => setDaysBefore(Number(e.target.value))} className="w-24" />
+              </div>
+            </div>
+          </>
+        )}
+      </Card>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Sidebar — same shape as EmailConfigPage + BlockLibraryPage. */}
+        <Card padding="sm">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-heading">
+              {t('reminderTemplates.sidebarHeading', 'Templates')}
+            </h3>
+          </div>
+          <div className="space-y-5">
+            {/* Section header — single section for now ("TEMPLATES"). The
+                contract block library uses 4-6 sections; we have one
+                conceptual grouping (default + per-type) so we render
+                one uppercase header and let the rows speak for the
+                taxonomy via the "Default" pill. */}
+            <div>
+              <h4 className="px-1 mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted">
+                {t('reminderTemplates.sectionTemplates', 'Templates')}
+              </h4>
+              <div className="space-y-2">
+                {sidebarRows.map((row) => {
+                  const isSelected = row.key === selectedKey;
+                  const count = translationCount(row.key);
+                  return (
+                    <button
+                      key={row.key}
+                      onClick={() => { void selectTemplate(row.key); }}
+                      className={`w-full text-left p-3 rounded-lg transition-colors ${
+                        isSelected
+                          ? 'tile-selected'
+                          : 'bg-inset border-2 border-transparent hover:bg-hover'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="text-base shrink-0">{row.emoji}</span>
+                          <p className="font-medium text-heading truncate">
+                            {row.label}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-1.5 flex-shrink-0">
+                          {!row.hasTemplate && !row.isDefault && (
+                            <span
+                              className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300"
+                              title={t('reminderTemplates.usesDefaultTooltip',
+                                'No dedicated template yet — this event type falls back to the default. Edit + save here to create one.') as string}
+                            >
+                              {t('reminderTemplates.usesDefault', 'Default')}
+                            </span>
+                          )}
+                          {row.hasTemplate && (
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-fill text-body">
+                              {count}/{totalLangs}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        {/* Right panel — edit form, lg:col-span-2 to match the email +
+            contract editor proportions. */}
+        <div className="lg:col-span-2">
+          <Card padding="md">
+            {selectedLoading ? <Loading /> : (
+              <>
+                <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                  <h3 className="text-lg font-semibold text-heading">
+                    {sidebarRows.find((r) => r.key === selectedKey)?.label || selectedKey}
+                  </h3>
+                </div>
+
+                {/* Language tabs — full SUPPORTED_LANGUAGES row with
+                    flags and an amber bullet on locales the admin
+                    hasn't filled. */}
+                <div className="flex flex-wrap gap-1 mb-4 p-1 bg-inset rounded-lg">
+                  {SUPPORTED_LANGUAGES.map((lang) => {
+                    const tr = translations[lang.code];
+                    const filled = !!(tr && ((tr.subject || '').trim() || (tr.body_html || '').trim()));
+                    return (
+                      <button
+                        key={lang.code}
+                        onClick={() => setEditingLang(lang.code)}
+                        className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors flex items-center gap-1.5 ${
+                          editingLang === lang.code
+                            ? 'bg-panel text-accent-dark shadow-sm'
+                            : 'text-soft hover:text-body'
+                        }`}
+                      >
+                        <lang.Flag />
+                        <span>{lang.name}</span>
+                        {!filled && lang.code !== 'en' && (
+                          <span
+                            className="w-1.5 h-1.5 rounded-full bg-amber-400"
+                            title={t('reminderTemplates.noTranslation', 'No translation yet') as string}
+                          />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {isNewPerType && (
+                  <div className="rounded-md border border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-700 p-3 mb-3 flex items-start gap-2">
+                    <AlertTriangle className="w-4 h-4 text-amber-700 dark:text-amber-300 mt-0.5 shrink-0" />
+                    <p className="text-sm text-amber-800 dark:text-amber-200">
+                      {t('reminderTemplates.willCreateOnSave',
+                        'This event type uses the default template. The fields below are pre-filled from the default; saving will create a dedicated template for this event type.')}
+                    </p>
+                  </div>
+                )}
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-body mb-1">
+                      {t('reminderTemplates.subjectLabel', 'Subject')} ({SUPPORTED_LANGUAGES.find((l) => l.code === editingLang)?.name || editingLang})
+                    </label>
+                    <Input
+                      type="text"
+                      value={currentTranslation.subject || ''}
+                      onChange={(e) => setCurrentField('subject', e.target.value)}
+                      placeholder={t('reminderTemplates.subjectPlaceholder', 'Email subject') as string}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-body mb-1">
+                      {t('reminderTemplates.bodyLabel', 'Body')} ({SUPPORTED_LANGUAGES.find((l) => l.code === editingLang)?.name || editingLang})
+                    </label>
+                    <EmailTemplateEditor
+                      content={currentTranslation.body_html || ''}
+                      onChange={(value) => setCurrentField('body_html', value)}
+                      variables={VARIABLES}
+                    />
+                  </div>
+
+                  <p className="text-xs text-muted">
+                    {t('reminderTemplates.variablesHint',
+                      'Available variables: {{customer_name}}, {{event_name}}, {{event_date}}, {{event_type}}, {{days_before}}, {{business_name}} — substituted when the email is rendered.')}
+                  </p>
+                </div>
+              </>
+            )}
+          </Card>
+        </div>
+      </div>
+
+      <SettingsSaveBar
+        isDirty={isDirty}
+        // An event type on the default template is seeded from it, so the
+        // draft reads clean — but saving it is how the dedicated copy is
+        // created, as the page says above the fields.
+        saveClean={isNewPerType}
+        isSaving={saveSettingsMutation.isPending || saveMutation.isPending}
+        onSave={() => {
+          if (settingsDirty) saveSettingsMutation.mutate();
+          if (templateDirty || isNewPerType) saveMutation.mutate();
+        }}
+        onDiscard={discardAll}
+      />
+    </div>
+  );
+};
+
+export default ReminderTemplatesPage;

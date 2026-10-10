@@ -1,0 +1,177 @@
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
+import { Shield, Key, Copy, CheckCircle } from 'lucide-react';
+import type { Event } from '../../../types';
+import { Button, Card } from '../../../components/common';
+import { eventsService } from '../../../services/events.service';
+
+interface ClientAccessCardProps {
+  event: Event;
+  refetchEvent: () => void;
+}
+
+export const ClientAccessCard: React.FC<ClientAccessCardProps> = ({ event, refetchEvent }) => {
+  const { t } = useTranslation();
+  const [copiedClientLink, setCopiedClientLink] = useState(false);
+  const [clientPin, setClientPin] = useState('');
+  // The PIN and the client link are the owner's to change (issue 743); a
+  // team member sees the link but not these controls. Missing = owner.
+  const ownsEvent = event?.can_manage_assignments !== false;
+
+  const regenerateLink = async () => {
+    try {
+      await eventsService.updateEvent(event.id, { regenerate_client_token: true });
+      toast.success(t('clientAccess.tokenRegenerated'));
+      refetchEvent();
+    } catch {
+      toast.error(t('common.error'));
+    }
+  };
+
+  return (
+    <Card padding="md">
+      <h2 className="text-lg font-semibold text-heading mb-4 flex items-center gap-2">
+        <Shield className="w-5 h-5" />
+        {t('clientAccess.adminTitle')}
+      </h2>
+
+      <div className="space-y-4">
+        <label className="flex items-start gap-2">
+          <input
+            type="checkbox"
+            className="mt-1 w-4 h-4 text-accent border-line-strong rounded focus:ring-primary-500"
+            checked={!!event?.client_access_enabled}
+            onChange={async (e) => {
+              try {
+                await eventsService.updateEvent(event.id, { client_access_enabled: e.target.checked });
+                refetchEvent();
+              } catch {
+                toast.error(t('common.error'));
+              }
+            }}
+            disabled={event?.is_archived}
+          />
+          <div>
+            <span className="text-sm font-medium text-body">
+              {t('clientAccess.enableToggle')}
+            </span>
+            <p className="text-xs text-muted mt-1">
+              {t('clientAccess.enableDescription')}
+            </p>
+          </div>
+        </label>
+
+        {/* !! — SQLite integer boolean; bare 0 renders as literal "0" */}
+        {!!event?.client_access_enabled && (
+          <>
+            {/* Set/Change PIN */}
+            {ownsEvent && (
+            <div className="flex items-end gap-2">
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-body mb-1">
+                  {t('clientAccess.pinLabel')}
+                </label>
+                <input
+                  type="text"
+                  value={clientPin}
+                  onChange={(e) => setClientPin(e.target.value)}
+                  minLength={6}
+                  placeholder={t('clientAccess.pinPlaceholder')}
+                  aria-describedby="client-pin-helper"
+                  className="w-full px-3 py-2 bg-inset border border-line-strong text-heading rounded-lg text-sm"
+                />
+                {/* Not a form, so minLength alone never blocks the save; the
+                    handler below checks the floor and this line names it. */}
+                <p id="client-pin-helper" className="mt-1 text-xs text-muted">
+                  {t('clientAccess.pinHelperText')}
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="md"
+                leftIcon={<Key className="w-4 h-4" />}
+                onClick={async () => {
+                  if (!clientPin.trim()) return;
+                  if (clientPin.length < 6) {
+                    toast.error(t('clientAccess.pinHelperText'));
+                    return;
+                  }
+                  try {
+                    await eventsService.updateEvent(event.id, { client_password: clientPin });
+                    setClientPin('');
+                    toast.success(t('clientAccess.pinUpdated'));
+                    refetchEvent();
+                  } catch {
+                    toast.error(t('common.error'));
+                  }
+                }}
+                disabled={!clientPin.trim() || clientPin.length < 6}
+              >
+                {t('clientAccess.setPin')}
+              </Button>
+            </div>
+            )}
+
+            {/* Client access link */}
+            {event?.client_share_token && (
+              <div>
+                <label className="block text-sm font-medium text-body mb-1">
+                  {t('clientAccess.linkLabel')}
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={`${window.location.origin}/gallery/${event.slug}/client-access?token=${event.client_share_token}`}
+                    readOnly
+                    className="flex-1 px-3 py-2 bg-inset border border-line-strong text-heading rounded-lg text-sm"
+                  />
+                  <Button
+                    variant="outline"
+                    size="md"
+                    leftIcon={copiedClientLink ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                    onClick={async () => {
+                      const link = `${window.location.origin}/gallery/${event.slug}/client-access?token=${event.client_share_token}`;
+                      try {
+                        await navigator.clipboard.writeText(link);
+                      } catch {
+                        const textArea = document.createElement('textarea');
+                        textArea.value = link;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                      }
+                      setCopiedClientLink(true);
+                      setTimeout(() => setCopiedClientLink(false), 2000);
+                    }}
+                  >
+                    {copiedClientLink ? t('events.copied') : t('events.copy')}
+                  </Button>
+                </div>
+
+                {ownsEvent && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="mt-2 text-xs"
+                  onClick={regenerateLink}
+                >
+                  {t('clientAccess.regenerateToken')}
+                </Button>
+                )}
+              </div>
+            )}
+            {/* No link yet (older galleries): the PIN alone cannot sign a
+                client in, so the control that mints one stays reachable. */}
+            {!event?.client_share_token && (
+              <Button variant="ghost" size="sm" className="text-xs" onClick={regenerateLink}>
+                {t('clientAccess.regenerateToken')}
+              </Button>
+            )}
+          </>
+        )}
+      </div>
+    </Card>
+  );
+};

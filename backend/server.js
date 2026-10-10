@@ -1,0 +1,1518 @@
+require('dotenv').config();
+
+// Validate critical environment variables before proceeding
+const { validateEnvironment } = require('./src/config/validateEnv');
+validateEnvironment();
+
+// Resolve which database engine this process should use, BEFORE anything
+// requires knexfile/db (#1038). wait-for-db.sh normally does this and exports
+// DATABASE_CLIENT, but a Kubernetes manifest that sets `command`/`args`, or a
+// plain `docker run … node server.js`, bypasses the entrypoint entirely — and
+// those are exactly the deployments this fix is for. Without this, such an
+// install would resolve to Postgres (NODE_ENV is baked into the image now) and
+// come up against an empty database while its SQLite data sat there unseen.
+//
+// spawnSync because the decision needs an async Postgres probe and this must
+// happen before the first `require` of knexfile. It short-circuits without
+// probing when DATABASE_CLIENT is already set, so the entrypoint path pays
+// nothing.
+// Also run it when a migration pin exists: an explicit DATABASE_CLIENT=pg
+// would otherwise skip the check and start against a half-migrated Postgres
+// while SQLite is still the database of record.
+if (!process.env.DATABASE_CLIENT
+    || require('./src/utils/databaseEngine').hasMigrationInProgress()) {
+  const { spawnSync } = require('child_process');
+  const probe = spawnSync(
+    process.execPath,
+    [require('path').join(__dirname, 'scripts', 'resolve-db-engine.js')],
+    { encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] }
+  );
+  // Exit 3: two populated databases and no record of which is authoritative.
+  // The resolver has printed the comparison and the two ways to resolve it;
+  // starting either engine would hide the other's data.
+  if (probe.status === 3) {
+    process.exit(1);
+  }
+  const resolved = (probe.stdout || '').trim();
+  if (probe.status === 0 && resolved) {
+    process.env.DATABASE_CLIENT = resolved;
+    // Pin the CONNECTION too, not just the client. knexfile's development block
+    // defaults Postgres to localhost/postgres/photo_sharing and production to
+    // db/picpeak/picpeak, so naming only the client can point this process at a
+    // different database than the resolver probed — with SQLite already retired.
+    if (resolved === 'pg') {
+      const conn = require('./src/utils/databaseEngine').pgConnectionFromEnv();
+      process.env.DB_HOST = String(conn.host);
+      process.env.DB_PORT = String(conn.port);
+      process.env.DB_USER = String(conn.user);
+      process.env.DB_NAME = String(conn.database);
+    }
+  }
+}
+
+// Initialize logger early to capture startup logs
+const logger = require('./src/utils/logger');
+logger.info('Server starting up', {
+  nodeVersion: process.version,
+  environment: process.env.NODE_ENV || 'development',
+  // Which database this process actually talks to (#1038). Nothing logged this
+  // before, so an install silently running on SQLite with Postgres configured
+  // had no way to notice.
+  database: require('./src/utils/databaseEngine').describeEngine(require('./knexfile')),
+  timestamp: new Date().toISOString()
+});
+
+const fs = require('fs');
+const express = require('express');
+const helmet = require('helmet');
+const compression = require('compression');
+const cors = require('cors');
+const path = require('path');
+const { initializeDatabase, db } = require('./src/database/db');
+const {
+  getFrontendBaseUrlSync,
+  getAbsoluteFrontendUrl,
+  primeSiteUrlCache,
+} = require('./src/utils/frontendUrl');
+const { startFileWatcher } = require('./src/services/fileWatcher');
+const { startExpirationChecker } = require('./src/services/expirationChecker');
+const { startTransferCleanup } = require('./src/services/transferCleanupService');
+const { startDownloadJobCleanup } = require('./src/services/downloadJobCleanupService');
+const { startFeedbackRateLimitCleanup } = require('./src/services/feedbackRateLimitCleanupService');
+const { startRevealScheduler } = require('./src/services/revealScheduler');
+const { startInvoiceScheduler } = require('./src/services/invoiceSchedulerService');
+const { initializeTransporter, startEmailQueueProcessor } = require('./src/services/emailProcessor');
+const emailWebhookTransport = require('./src/services/emailWebhookTransport');
+const { startBackupService } = require('./src/services/backupService');
+const { startScheduledBackups } = require('./src/services/databaseBackup');
+const backgroundProcessor = require('./src/services/backgroundProcessor');
+const { maintenanceMiddleware } = require('./src/middleware/maintenance');
+const { sessionTimeoutMiddleware } = require('./src/middleware/sessionTimeout');
+const { createLargeJsonBody } = require('./src/middleware/largeJsonBody');
+const { errorHandler, notFoundHandler } = require('./src/middleware/errorHandler');
+const rateLimitService = require('./src/services/rateLimitService');
+const { createApiRateLimitGate } = require('./src/middleware/apiRateLimitGate');
+const { createAuthRateLimitGate } = require('./src/middleware/authRateLimitGate');
+const { getPublicSitePayload } = require('./src/services/publicSiteService');
+const cookieParser = require('cookie-parser');
+const {
+  getAdminTokenFromRequest,
+  getGalleryTokenFromRequest,
+} = require('./src/utils/tokenUtils');
+const {
+  LEGACY_TRUST_PROXY,
+  isTrustProxyUnset,
+  parseTrustProxy,
+  resolveListenHost,
+} = require('./src/config/network');
+
+// Import routes
+const authRoutes = require('./src/routes/auth');
+const galleryRoutes = require('./src/routes/gallery');
+const adminRoutes = require('./src/routes/admin');
+const adminAuthRoutes = require('./src/routes/adminAuth');
+const setupRoutes = require('./src/routes/setup');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+const LISTEN_HOST = resolveListenHost();
+
+// Trust proxy headers (required for Traefik/nginx).
+//
+// `req.ip` is computed by Express by walking X-Forwarded-For from
+// right-to-left and stopping at the first hop NOT in this list, so
+// the value picpeak audits (signing IPs, payment-check actions,
+// rate-limit keys) is the originating client IP behind any number
+// of trusted reverse proxies.
+//
+// Default (TRUST_PROXY unset): 'loopback, linklocal, uniquelocal', the
+// legacy private-range trust. It stays the default so an install that only
+// pulls a new image keeps resolving the real client behind its proxy, but a
+// source address being private does not prove it is a proxy this deployment
+// controls. Recommended: set TRUST_PROXY to the exact hop count (the Compose
+// stack pins 1 for its frontend nginx; the installer writes 'loopback' for
+// a native reverse proxy). Any value Express accepts works: a number,
+// 'loopback', 'linklocal', 'uniquelocal', a CIDR, a comma list, 'false' /
+// '0' (trust nothing), or
+// 'true' (trust ALL proxies — only safe behind a fully-controlled
+// reverse-proxy chain).
+//
+// NEVER read req.headers['x-forwarded-for'] directly in audit paths
+// — see utils/clientIp.js for the rationale.
+app.set('trust proxy', parseTrustProxy());
+if (process.env.NODE_ENV === 'production' && isTrustProxyUnset()) {
+  logger.warn(
+    `TRUST_PROXY is not set: trusting forwarding headers from every private-range address (${LEGACY_TRUST_PROXY}). `
+    + 'Set TRUST_PROXY to the exact number of reverse-proxy hops in front of PicPeak (or false when there is none).'
+  );
+}
+
+// Security middleware with custom CSP
+// In native HTTP installs, do NOT force HTTPS for subresources.
+const enableHsts = process.env.ENABLE_HSTS === 'true';
+const cspDirectives = {
+  defaultSrc: ["'self'"],
+  scriptSrc: [
+    "'self'",
+    'https://www.google.com',
+    'https://www.gstatic.com'
+  ],
+  styleSrc: ["'self'", "'unsafe-inline'", "https:"], // Required for styled components
+  imgSrc: ["'self'", "data:", "https:", "blob:"], // Allow data URLs and external images
+  connectSrc: ["'self'", 'https://www.google.com', 'https://www.gstatic.com'], // API connections
+  fontSrc: ["'self'", "https:", "data:"], // Web fonts
+  objectSrc: ["'none'"], // Disable plugins
+  mediaSrc: ["'self'", "blob:"], // Audio/video, incl. page-created blobs (matches imgSrc)
+  frameSrc: ["'self'", 'https://www.google.com'],
+};
+// Only upgrade insecure requests when HSTS explicitly enabled (HTTPS deployment)
+if (enableHsts) {
+  // In helmet, an empty array enables the directive
+  cspDirectives.upgradeInsecureRequests = [];
+}
+
+app.use(cookieParser());
+
+// First, so every later middleware, route and the error handler can put the
+// same id in their logs and responses.
+app.use(require('./src/middleware/requestId'));
+
+app.use((req, res, next) => {
+  if (req.headers.authorization) {
+    return next();
+  }
+
+  const path = req.path || '';
+  const slugMatch = path.match(/\/api\/gallery\/([^\/]+)/);
+  const slug = slugMatch ? slugMatch[1] : req.requestedSlug;
+  const adminToken = getAdminTokenFromRequest(req);
+  const galleryToken = getGalleryTokenFromRequest(req, slug);
+
+  const isAdminRequest = path.startsWith('/api/admin') || path.startsWith('/admin');
+  const isGalleryRequest = Boolean(slugMatch)
+    || path.startsWith('/api/gallery')
+    || path.startsWith('/gallery');
+
+  // Prefer admin credentials on admin routes so gallery sessions cannot override them.
+  if (isAdminRequest) {
+    if (adminToken) {
+      req.headers.authorization = `Bearer ${adminToken}`;
+    }
+  } else if (isGalleryRequest) {
+    if (galleryToken) {
+      req.headers.authorization = `Bearer ${galleryToken}`;
+    } else if (adminToken) {
+      req.headers.authorization = `Bearer ${adminToken}`;
+    }
+  } else if (adminToken) {
+    req.headers.authorization = `Bearer ${adminToken}`;
+  } else if (galleryToken) {
+    req.headers.authorization = `Bearer ${galleryToken}`;
+  }
+
+  next();
+});
+
+app.use(helmet({
+  contentSecurityPolicy: {
+    // Avoid helmet adding defaults like upgrade-insecure-requests when not desired
+    useDefaults: false,
+    directives: cspDirectives,
+  },
+  hsts: enableHsts ? {
+    maxAge: 31536000, // 1 year
+    includeSubDomains: true,
+    preload: true
+  } : false,
+  permittedCrossDomainPolicies: false,
+  referrerPolicy: { policy: "strict-origin-when-cross-origin" }
+}));
+
+// Additional security headers
+app.use((req, res, next) => {
+  // Permissions Policy (controls browser features)
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
+  next();
+});
+
+// CORS configuration (apply only to API routes)
+const { isAllowedOrigin } = require('./src/utils/requestOrigin');
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    // getFrontendBaseUrlSync() resolves FRONTEND_URL, else the configured
+    // general_site_url (#705) — without it, an install that leaves the
+    // environment untouched and answers the setup wizard instead would have
+    // its own public origin missing from the allowlist.
+    // Allow requests with no origin (like curl) and allow-listed origins
+    if (!origin || isAllowedOrigin(origin)) {
+      callback(null, true);
+    } else {
+      // Do not error globally; just omit CORS headers on disallowed origins
+      callback(null, false);
+    }
+  },
+  credentials: true,
+  // Expose Content-Disposition so split (cross-origin) frontend
+  // deployments can read the server's chosen download filename. Used
+  // by the gallery/admin download flows to honour the #493 "original
+  // camera filename" toggle on individual photo downloads (#507).
+  //
+  // Retry-After is not CORS-safelisted either. AuthenticatedImage reads it
+  // off a 429 to wait out the rate-limit window before retrying a thumbnail
+  // fetch; without it a split-origin deployment would spend its retry budget
+  // inside the window and leave the tile blank after the limit had lifted.
+  //
+  // X-Request-Id carries the correlation id (middleware/requestId.js) that an
+  // admin can quote from an error message.
+  exposedHeaders: ['Content-Disposition', 'Retry-After', 'X-Request-Id'],
+};
+
+// Only attach CORS to API endpoints, not static assets
+app.use('/api', cors(corsOptions));
+// Handle preflight explicitly for API paths
+app.options('/api/*', cors(corsOptions));
+
+// Data-only analytics, mounted before the app-wide body parser to enforce its
+// own smaller JSON limit. It never serves vendor code, reads
+// PicPeak credentials, or forwards arbitrary upstream responses.
+app.use('/api/analytics/tracker', require('./src/routes/analyticsTrackerProxy'));
+
+// Health check endpoint. `pid` + `uptime` let monitors (and the local E2E
+// watchdog) detect a silent process restart between two checks.
+//
+// Served at BOTH paths: /health is the canonical one, /api/health exists
+// because probes reasonably assume the API lives under /api and otherwise
+// produce a "route not found" warning on every poll. Same handler, same body,
+// same (public) exposure — the alias adds no information.
+//
+// Mounted HERE, ahead of the API middleware chain, so a probe running every
+// couple of seconds does not pay for — or pollute — the body parsers, the
+// request logger, the maintenance gate (/health is on its skip list anyway)
+// or the rate limiter's per-IP budget.
+app.get(['/health', '/api/health'], async (req, res) => {
+  try {
+    await db.raw('SELECT 1');
+    res.json({
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      pid: process.pid,
+      uptime: process.uptime()
+    });
+  } catch (error) {
+    logger.error('Health check failed:', error);
+    res.status(503).json({
+      status: 'error',
+      timestamp: new Date().toISOString(),
+      pid: process.pid,
+      uptime: process.uptime()
+    });
+  }
+});
+
+// Initialize rate limiters (they will be created dynamically)
+
+// The stylesheet below is interpolated into a raw-text <style> element, where
+// the HTML parser ends the element at the first `</style` regardless of CSS
+// structure. Every segment — palette, base CSS, operator CSS — is settings
+// data, so the whole thing is escaped at the sink rather than trusting each
+// producer. `<` → `\3c ` is the same character to a CSS parser.
+const { escapeCssForStyleElement } = require('./src/utils/cssSanitizer');
+
+function composeInlineStyles(payload) {
+  const { branding } = payload;
+  const cssSegments = [];
+
+  cssSegments.push(`:root {
+  --brand-primary: ${branding.colors.primary};
+  --brand-accent: ${branding.colors.accent};
+  --brand-background: ${branding.colors.background};
+  --brand-text: ${branding.colors.text};
+  --brand-surface: ${branding.colors.surface || '#ffffff'};
+  --brand-elevated: ${branding.colors.elevated || '#f5f5f5'};
+  --brand-border: ${branding.colors.border || '#e5e5e5'};
+  --brand-muted-text: ${branding.colors.mutedText || '#737373'};
+}`);
+
+  if (payload.baseCss) {
+    cssSegments.push(payload.baseCss);
+  }
+
+  if (payload.css) {
+    cssSegments.push(`/* Custom styles */\n${payload.css}`);
+  }
+
+  return escapeCssForStyleElement(cssSegments.join('\n\n'));
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function renderBrandHeader(branding) {
+  const displayName = escapeHtml(branding.companyName || 'PicPeak');
+  const logoSrc = encodeURI(branding.logoUrl || '/picpeak-logo-transparent.png');
+  const logo = `<img src="${logoSrc}" alt="${displayName}" class="brand-logo" loading="lazy" decoding="async" />`;
+
+  const tagline = branding.companyTagline
+    ? `<p class="brand-tagline">${escapeHtml(branding.companyTagline)}</p>`
+    : '';
+
+  return `<header class="site-header">
+  <div class="header-inner">
+    <div class="brand">
+      ${logo}
+      <div class="brand-copy">
+        <p class="brand-label">${displayName}</p>
+        ${tagline}
+      </div>
+    </div>
+    <nav class="site-nav">
+      <a href="#features">${'Features'}</a>
+      <a href="#workflow">${'Workflow'}</a>
+      <a href="#collections">${'Collections'}</a>
+      <a href="#stories">${'Stories'}</a>
+      <a href="#contact">${'Contact'}</a>
+    </nav>
+  </div>
+</header>`;
+}
+
+function renderBrandFooter(branding) {
+  const displayName = escapeHtml(branding.companyName || 'PicPeak');
+  const footerNote = branding.footerText
+    ? `<p>${escapeHtml(branding.footerText)}</p>`
+    : '<p>Powered by PicPeak to keep every celebration beautifully organised.</p>';
+
+  const supportEmail = escapeHtml(branding.supportEmail || '');
+  const supportLink = supportEmail
+    ? `<a href="mailto:${supportEmail}">Support</a>`
+    : '';
+
+  const legalLinks = `
+    <a href="/datenschutz">Privacy Policy</a>
+    <a href="/impressum">Impressum</a>
+    ${supportLink}
+  `;
+
+  return `<footer class="site-footer" id="contact">
+  <div class="footer-inner">
+    <div>
+      <h2>${displayName}</h2>
+      ${footerNote}
+    </div>
+    <div class="footer-links">
+      ${legalLinks}
+    </div>
+  </div>
+</footer>`;
+}
+
+function buildSeoMetaTags(seoSettings) {
+  const tags = [];
+  const robotsDirectives = [];
+
+  if (seoSettings.seo_meta_noindex) robotsDirectives.push('noindex');
+  if (seoSettings.seo_meta_nofollow) robotsDirectives.push('nofollow');
+
+  if (robotsDirectives.length > 0) {
+    tags.push(`<meta name="robots" content="${robotsDirectives.join(', ')}" />`);
+  }
+
+  if (seoSettings.seo_meta_noai) {
+    tags.push('<meta name="robots" content="noai, noimageai" />');
+  }
+
+  return tags.join('\n  ');
+}
+
+// Inter for the landing page, served from the /fonts mount below — the same
+// files frontend/src/index.css declares for the SPA. The document used to
+// link fonts.googleapis.com for this, which leaked every visitor's IP to
+// Google even though the rest of the app had already moved to self-hosted
+// fonts for exactly that reason. 500 is not shipped; the browser falls back
+// to the nearest declared weight, as it already does in the SPA.
+const PUBLIC_SITE_FONT_FACES = `
+    @font-face { font-family: 'Inter'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/Inter/400.woff2') format('woff2'); }
+    @font-face { font-family: 'Inter'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/Inter/600.woff2') format('woff2'); }
+    @font-face { font-family: 'Inter'; font-style: normal; font-weight: 700; font-display: swap; src: url('/fonts/Inter/700.woff2') format('woff2'); }
+  `;
+
+function buildPublicSiteDocument(payload) {
+  const inlineStyles = composeInlineStyles(payload);
+  const header = renderBrandHeader(payload.branding);
+  const footer = renderBrandFooter(payload.branding);
+  const seoMeta = payload.seoSettings ? buildSeoMetaTags(payload.seoSettings) : '';
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>${escapeHtml(payload.title)}</title>
+  <meta name="description" content="Curated photo galleries and stories from unforgettable celebrations." />
+  ${seoMeta}
+  <style>${PUBLIC_SITE_FONT_FACES}</style>
+  <style>${inlineStyles}</style>
+</head>
+<body>
+  <div class="site-shell">
+    ${header}
+    <main class="site-main">
+      ${payload.html}
+    </main>
+    ${footer}
+  </div>
+</body>
+</html>`;
+}
+
+async function handlePublicSiteRequest(req, res, next) {
+  try {
+    const payload = await getPublicSitePayload();
+
+    if (!payload.enabled) {
+      res.redirect(302, '/admin/login');
+      return;
+    }
+
+    // Inject SEO meta settings into payload
+    try {
+      const seoRows = await db('app_settings')
+        .where('setting_type', 'seo')
+        .whereIn('setting_key', ['seo_meta_noindex', 'seo_meta_nofollow', 'seo_meta_noai'])
+        .select('setting_key', 'setting_value');
+      const seoSettings = {};
+      for (const row of seoRows) {
+        let val = row.setting_value;
+        if (typeof val === 'string') { try { val = JSON.parse(val); } catch {} }
+        seoSettings[row.setting_key] = val;
+      }
+      payload.seoSettings = seoSettings;
+    } catch {}
+
+    const document = buildPublicSiteDocument(payload);
+
+    // The validator covers the whole document, not only the settings behind
+    // payload.etag: a template change (this PR swapped the Google Fonts
+    // link for self-hosted faces) or a SEO toggle must stop answering 304 to
+    // clients that cached the previous HTML, or they keep it until a
+    // settings change happens to move the payload hash.
+    const etag = `W/"${require('crypto').createHash('sha1').update(document).digest('hex')}"`;
+    if (req.headers['if-none-match'] === etag) {
+      res.status(304).end();
+      return;
+    }
+
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, max-age=30, must-revalidate');
+    res.setHeader('ETag', etag);
+    res.setHeader('Vary', 'Accept-Encoding');
+    res.setHeader('Content-Security-Policy', "default-src 'self'; frame-ancestors 'none'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https:; font-src 'self' https: data:; object-src 'none'; script-src 'self'; form-action 'self'");
+
+    res.status(200).send(document);
+  } catch (error) {
+    logger.error('Failed to render public site', { error: error.message });
+    next();
+  }
+}
+
+// Function to initialize rate limiters
+async function initializeRateLimiters() {
+  // The instances live in rateLimitService so the settings route can
+  // rebuild them when the window changes (#1337); the gates below read
+  // them per request through the service's getters.
+  await rateLimitService.initializeRateLimiters();
+
+  // Neither limiter is registered here — an app.use() at this point runs after
+  // the routers, the /api 404 handler and the error handler are already on the
+  // stack, so it can never see a request. Both are reached through their gates
+  // below, which are registered ahead of the routers and read these variables
+  // per request.
+  //
+  // The five prefix registrations of authRateLimiter that used to live here
+  // were inert for that reason, and could not simply be moved up either: the
+  // widest of them mounted on the whole /api/auth router, so the 5-per-window
+  // auth budget would have covered GET /api/auth/session and POST
+  // /api/auth/password-strength, which the frontend calls far more often than
+  // five times per window. authRateLimitGate matches exact method + path
+  // instead, and counts only failed attempts.
+}
+
+// Rate limiting for /api. Registered HERE — above the routers — because
+// Express dispatches in registration order; see apiRateLimitGate for the full
+// story. The gate is a no-op until initializeRateLimiters() resolves, and it
+// must stay unmounted (no path argument) so req.path keeps its /api prefix.
+// /health and /api/health are mounted above this point and so are never
+// counted, which matters because monitors poll them every couple of seconds.
+app.use(createApiRateLimitGate(rateLimitService.getGeneralLimiter));
+
+// Per-IP limit for credential-verification endpoints only, on its own bucket.
+// Registered after the general gate so that an IP already over the /api budget
+// is rejected there first; see authRateLimitGate for the exact endpoint table
+// and why it must stay unmounted.
+app.use(createAuthRateLimitGate(rateLimitService.getAuthLimiter));
+
+// Body limits. 50mb is only needed by the authenticated admin and API-token
+// surfaces (restore manifests, CMS and email templates, bulk operations).
+// Scoping the large parser to those path prefixes was not enough: it still
+// ran before any authentication, so an unauthenticated POST to an admin path
+// was parsed at 50mb and only then refused. largeJsonBody parses at the large
+// limit only for a verified admin JWT or a known API token; everything else
+// falls through to the 2mb parser below. express.json skips a request whose
+// body is already parsed, so the scoped parser must run first.
+// fallbackLimitBytes mirrors the 2mb parser right below: a body that fits it
+// never triggers the identity check.
+app.use(['/api/admin', '/api/v1'], createLargeJsonBody({ limit: '50mb', fallbackLimitBytes: 2 * 1024 * 1024 }));
+app.use(express.json({ limit: '2mb' }));
+app.use(express.urlencoded({ extended: true, limit: '2mb' }));
+
+// Validate the origin independently of body length/content type.
+app.use('/api', require('./src/middleware/csrf'));
+
+app.use('/api', require('./src/middleware/apiRequestLogger'));
+
+// Maintenance mode middleware - add after body parsing but before routes
+app.use(maintenanceMiddleware);
+
+// Session timeout middleware for admin routes
+app.use('/api/admin', sessionTimeoutMiddleware);
+
+// Middleware to set CORS headers for static files
+const setCorsHeaders = (req, res, next) => {
+  const origin = req.headers.origin;
+  const staticAllowedOrigins = [
+    getFrontendBaseUrlSync() || 'http://localhost:3005',
+    process.env.ADMIN_URL || 'http://localhost:3005'
+  ];
+  if (process.env.NODE_ENV === 'development') {
+    staticAllowedOrigins.push(
+      'http://localhost:5173',
+      'http://localhost:3002',
+      'http://localhost:3001',
+      'http://localhost:3000'
+    );
+  }
+  if (origin && staticAllowedOrigins.indexOf(origin) !== -1) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Credentials', 'true');
+  }
+  res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+  next();
+};
+
+// Import secure static middleware
+const secureStatic = require('./src/middleware/secureStatic');
+
+// Get storage path from environment or use default
+const storagePath = process.env.STORAGE_PATH || path.join(__dirname, '../storage');
+process.env.EXTERNAL_MEDIA_ROOT = process.env.EXTERNAL_MEDIA_ROOT || '/external-media';
+
+// The /photos and /thumbnails static mounts are gone.
+//
+// They served the raw originals tree and the thumbnail tree behind photoAuth
+// alone, which authorises on a slug match. A static file server cannot apply
+// the rules the gallery API applies per photo, so everything the API decides
+// was simply absent here: allow_downloads, per-category allow_downloads,
+// watermarking, the resolution cap, reveal-mode windows, visibility='hidden',
+// download logging, and the customer-assignment re-check that lets an admin
+// revoke access immediately. The filenames needed to exercise it are handed to
+// every guest in the photos listing.
+//
+// Nothing builds these URLs: no reference in frontend/src, none in the email
+// templates, and the only backend mentions are the /api/admin/photos/... API
+// routes and a maintenance-mode prefix list. nginx still proxies /photos and
+// /thumbnails; those locations now 404, which is the intended outcome.
+//
+// Serving these safely would mean reimplementing per-photo authorisation and
+// image processing inside a static handler -- i.e. the gallery API, which
+// already exists at /api/gallery/:slug/photo/:id and /thumbnail/:id.
+
+// Static file serving for uploads.
+//
+// Narrowed to the two public asset trees. The mount used to expose the whole
+// uploads/ root with no auth middleware at all, and that root also holds
+// signed contract PDFs (uploads/contracts/signed) and client transfer files
+// (uploads/transfers/<id>) -- both reachable by anyone who learned or guessed
+// a filename. Those are served by their own authorised routes.
+// Both trees only ever hold uploaded images; anything else (a script or
+// HTML file an older upload kept its extension for) is not served.
+const { isPublicUploadImage } = require('./src/utils/safePath');
+app.use('/uploads/logos', setCorsHeaders, secureStatic(path.join(storagePath, 'uploads/logos'), { onlyServe: isPublicUploadImage }));
+app.use('/uploads/favicons', setCorsHeaders, secureStatic(path.join(storagePath, 'uploads/favicons'), { onlyServe: isPublicUploadImage }));
+
+// Static file serving for self-hosted webfonts (public — gallery visitors
+// load these via @font-face). Replaces the previous Google Fonts CDN
+// dependency, which leaked visitor IPs to a third party (LG München 2022
+// GDPR ruling).
+//
+// Two mounts in priority order:
+//   1. STORAGE_PATH/fonts/ — runtime user additions (drop a folder, restart)
+//   2. backend/assets/fonts/ — bundled defaults baked into the image
+// Express evaluates handlers in order, so user-supplied files win on overlap.
+//
+// We deliberately do NOT set `immutable` on these responses. The filenames
+// are stable (e.g. Inter/400.woff2), so an admin replacing the file on disk
+// must be able to roll out the change to clients. With max-age + Last-Modified
+// (set by express.static from file mtime), browsers send If-Modified-Since
+// after expiry and pick up the new version automatically. See https://docs.picpeak.app/guides/custom-fonts
+// "Replacing an existing font" for the documented rollout strategy.
+//
+// Only font formats leave these mounts (isPublicFontFile): the storage tree is
+// admin-writable and a restored backup can populate it, so anything else in
+// it must not be served from the app origin. nosniff keeps a browser from
+// promoting a font response to another type.
+const { isPublicFontFile } = require('./src/middleware/secureStatic');
+const fontStaticOpts = {
+  maxAge: '7d',
+  onlyServe: isPublicFontFile,
+  setHeaders: (res) => res.setHeader('X-Content-Type-Options', 'nosniff'),
+};
+app.use(
+  '/fonts',
+  setCorsHeaders,
+  secureStatic(path.join(storagePath, 'fonts'), fontStaticOpts)
+);
+app.use(
+  '/fonts',
+  setCorsHeaders,
+  secureStatic(path.resolve(__dirname, 'assets/fonts'), fontStaticOpts)
+);
+
+// Debug endpoint to check IP detection (only in development)
+if (process.env.NODE_ENV === 'development') {
+  app.get('/api/debug/ip', (req, res) => {
+    const clientIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || 
+                     req.headers['x-real-ip'] || 
+                     req.connection.remoteAddress || 
+                     req.ip;
+    
+    res.json({
+      detectedIp: clientIp,
+      reqIp: req.ip,
+      headers: {
+        'x-forwarded-for': req.headers['x-forwarded-for'],
+        'x-real-ip': req.headers['x-real-ip'],
+        'x-forwarded-proto': req.headers['x-forwarded-proto'],
+        'x-forwarded-host': req.headers['x-forwarded-host']
+      },
+      trustProxy: app.get('trust proxy')
+    });
+  });
+}
+
+// OG/Twitter-card preview endpoint for gallery share URLs. Crawlers (WhatsApp,
+// Slack, Facebook, etc.) don't execute JS, so the SPA's client-side meta tags
+// never reach them. nginx routes UA-detected crawlers from /gallery/:slug to
+// here; humans still get the SPA via try_files.
+const {
+  isSocialCrawler,
+  handleGalleryOgRequest,
+  handleGalleryOgCover,
+} = require('./src/services/galleryOgService');
+app.get('/og/gallery/:slug', handleGalleryOgRequest);
+// Public hero-photo cover served as og:image when the admin has flipped
+// events.og_image_share_enabled (#474). Unauthenticated by design;
+// returns 404 unless the opt-in is on AND a hero_photo_id is set.
+app.get('/og/gallery/:slug/cover', handleGalleryOgCover);
+// Same for PicTransfer links: nginx rewrites crawler hits on
+// /transfer/:token and /transfer-upload/:token here so the preview shows
+// the transfer's name + the branding tagline instead of the SPA stub.
+const { handleTransferOgRequest } = require('./src/services/transferOgService');
+app.get('/og/transfer/:token', handleTransferOgRequest('send'));
+app.get('/og/transfer-upload/:token', handleTransferOgRequest('request'));
+
+// Branded URL shortener (#699). /s/<short_slug> is bot-UA aware:
+//   - Social crawler → server-render OG for the target event so the
+//     SHORT URL itself is what scrapes cache against. The og:url canonical
+//     in the rendered HTML points back at /s/<slug>, not the underlying
+//     gallery URL — so a re-share of the same short URL keeps the cache
+//     warm even if the underlying gallery slug rotates.
+//   - Browser → 302 to the stored target_path. The target_path was
+//     captured at create time from the event's slug + share_token + the
+//     global "Use short gallery URLs" setting, so it doesn't silently
+//     change later.
+//   - Soft-deleted → 410 Gone so the admin can tell their delete worked
+//     vs. a typo'd unknown slug (which returns 404).
+const galleryShortUrlService = require('./src/services/galleryShortUrlService');
+const { buildOgMetadata, renderOgHtml } = require('./src/services/galleryOgService');
+app.get('/s/:shortSlug', async (req, res) => {
+  try {
+    const row = await galleryShortUrlService.findByShortSlug(req.params.shortSlug);
+    if (!row) {
+      return res.status(404).type('text/plain').send('Short URL not found');
+    }
+    if (row.deleted_at) {
+      return res.status(410).type('text/plain').send('Short URL has been removed');
+    }
+
+    // Bot UA → render OG metadata for the target event. We look up the
+    // event via the short URL's event_id rather than re-parsing the
+    // target_path so a future migration that adds new target shapes
+    // (slideshow, client-access) doesn't need to rewrite the URL parser.
+    if (isSocialCrawler(req.get('user-agent'))) {
+      const event = await require('./src/database/db').db('events')
+        .where({ id: row.event_id })
+        .first('slug');
+      if (event?.slug) {
+        const meta = await buildOgMetadata(event.slug, req.originalUrl);
+        // Override the canonical to point at the SHORT URL itself —
+        // social platforms cache OG by URL, and the short URL is the
+        // one operators actually share, so that's the cache key we
+        // want them to stick with.
+        const base = await getAbsoluteFrontendUrl(req);
+        meta.url = `${base}/s/${row.short_slug}`;
+        res.set('Cache-Control', 'public, max-age=300');
+        res.set('Content-Type', 'text/html; charset=utf-8');
+        res.send(renderOgHtml(meta));
+        // Hit accounting is fire-and-forget — don't block the bot.
+        galleryShortUrlService.recordHit(row.id).catch(() => {});
+        return;
+      }
+      // Event disappeared (FK CASCADE in flight, or admin hard-deleted
+      // outside the normal soft-delete path) — fall through to 410 so
+      // the scraper sees a clean signal.
+      return res.status(410).type('text/plain').send('Short URL points at a deleted event');
+    }
+
+    // Browser path: redirect, carrying the query along (issue 1733: a
+    // `?photo=` link through the shortener). Hit accounting is fire-and-forget.
+    galleryShortUrlService.recordHit(row.id).catch(() => {});
+    return res.redirect(302, galleryShortUrlService.redirectTarget(row.target_path, req.originalUrl));
+  } catch (err) {
+    logger.error('Short URL resolver failed', { slug: req.params.shortSlug, error: err.message });
+    return res.status(500).type('text/plain').send('Internal server error');
+  }
+});
+
+// robots.txt endpoint (dynamic, served from DB settings)
+const { generateRobotsTxt } = require('./src/services/robotsTxtService');
+app.get('/robots.txt', async (req, res) => {
+  try {
+    const robotsTxt = await generateRobotsTxt();
+    res.setHeader('Content-Type', 'text/plain');
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    res.status(200).send(robotsTxt);
+  } catch (error) {
+    logger.error('Failed to generate robots.txt', { error: error.message });
+    // Safe default for a private photo platform
+    res.setHeader('Content-Type', 'text/plain');
+    res.status(200).send('User-agent: *\nDisallow: /\n');
+  }
+});
+
+// Dynamic favicon endpoints. Browsers — notably Safari — request
+// /favicon.ico and /apple-touch-icon*.png directly at the site root and are
+// unreliable about honouring JS-injected <link rel="icon"> tags. Serving the
+// admin's configured branding favicon here makes it work without client-side
+// JS (and survive aggressive favicon caches). Falls back to the bundled asset
+// shipped with the frontend build when no custom favicon is set.
+app.get(
+  ['/favicon.ico', '/apple-touch-icon.png', '/apple-touch-icon-precomposed.png'],
+  async (req, res) => {
+    try {
+      const { getAppSetting } = require('./src/utils/appSettings');
+      const raw = await getAppSetting('branding_favicon_url', null);
+      const url = (raw && String(raw).trim()) || null;
+      if (url) {
+        // External URL — can't stream the bytes, so redirect (best effort).
+        if (/^https?:\/\//i.test(url)) return res.redirect(302, url);
+        // Local upload → stream the file bytes DIRECTLY rather than 302'ing.
+        // Safari does NOT reliably follow a redirect for favicon requests
+        // (it falls back to the HTML <link>, i.e. the bundled default),
+        // whereas Firefox/Chrome do — so a 302 worked everywhere except
+        // Safari. sendFile sets the right content-type from the extension.
+        const rel = String(url).replace(/^\/+/, '').replace(/^uploads\//, '');
+        // Containment is the two public asset trees, not the whole uploads/
+        // root: that root also holds signed contracts and client transfer
+        // files, and the favicon URL is an admin-writable setting, so the
+        // wider check let `/uploads/contracts/signed/<file>` be served here
+        // unauthenticated with a day of cache.
+        const uploadsRoot = path.resolve(path.join(storagePath, 'uploads'));
+        const resolved = path.resolve(path.join(uploadsRoot, rel));
+        const servableRoots = ['favicons', 'logos'].map((d) => path.join(uploadsRoot, d) + path.sep);
+        if (servableRoots.some((root) => resolved.startsWith(root)) && isPublicUploadImage(resolved) && fs.existsSync(resolved)) {
+          // This route streams the file directly, bypassing the secureStatic
+          // middleware — so re-apply its SVG hardening here. An admin-uploaded
+          // SVG favicon could contain <script>; served at the top-level
+          // /favicon.ico origin without CSP that would be stored XSS. Keep in
+          // sync with secureStatic.js.
+          if (/\.svg$/i.test(resolved)) {
+            res.setHeader('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'; img-src 'self' data:");
+            res.setHeader('X-Content-Type-Options', 'nosniff');
+          }
+          res.setHeader('Cache-Control', 'public, max-age=86400');
+          return res.sendFile(resolved);
+        }
+      }
+    } catch (error) {
+      logger.warn('Favicon lookup failed; serving bundled default', { error: error.message });
+    }
+    return res.redirect(302, '/favicon-32x32.png');
+  }
+);
+
+// Routes
+app.use('/api/setup', setupRoutes); // public first-run bootstrap (self-closes after setup)
+app.use('/api/auth', authRoutes);
+app.use('/api/admin', require('./src/middleware/productUsage').productUsage);
+app.use('/api/admin/usage', require('./src/routes/adminUsage'));
+app.use('/api/admin/external-media', require('./src/routes/adminExternalMedia'));
+// Gallery routes - main routes first, then feedback routes
+app.use('/api/gallery', galleryRoutes);
+app.use('/api/gallery', require('./src/routes/galleryFeedback'));
+app.use('/api/gallery', require('./src/routes/galleryGuests'));
+app.use('/api/admin', adminRoutes);
+app.use('/api/admin/auth', adminAuthRoutes);
+app.use('/api/admin/system', require('./src/routes/adminSystem'));
+// Branded URL shortener admin CRUD (#699) — list/create/delete short URLs
+// per event. Mounted at /api/admin so the routes appear at
+// /api/admin/events/:eventId/short-urls and /api/admin/short-urls/:id.
+app.use('/api/admin', require('./src/routes/adminShortUrls'));
+// Gallery folders (issue 1786) and two-stage delivery (issue 1562): routes
+// under /api/admin/events/:eventId/folders|folder-requests|delivery.
+app.use('/api/admin', require('./src/routes/adminFolders'));
+app.use('/api/admin', require('./src/routes/adminDelivery'));
+app.use('/api/admin/feature-flags', require('./src/routes/adminFeatureFlags'));
+app.use('/api/admin/whatsapp', require('./src/routes/adminWhatsapp'));
+app.use('/api/admin/database-backup', require('./src/routes/adminDatabaseBackup'));
+app.use('/api/admin/feedback', require('./src/routes/adminFeedback'));
+app.use('/api/admin', require('./src/routes/adminGuests'));
+app.use('/api/admin/image-security', require('./src/routes/adminImageSecurity'));
+app.use('/api/admin/thumbnails', require('./src/routes/adminThumbnails'));
+// adminPhotos is mounted twice on purpose (audit §2.3, issue 1670): here as
+// /api/admin/photos/:eventId/... for the media and repair endpoints the admin
+// UI reads (thumbnail, photo, preview, repair-* jobs), and in routes/admin.js
+// as /api/admin/events/:eventId/photos/... for the CRUD calls photos.service.ts
+// makes. Both sit behind the same global middleware; neither tree is dead, so
+// neither is removed. adminPhotoDimensions shares the prefix for the same
+// reason.
+app.use('/api/admin/photos', require('./src/routes/adminPhotoDimensions'));
+app.use('/api/admin/photos', require('./src/routes/adminPhotos'));
+app.use('/api/admin/photo-export', require('./src/routes/adminPhotoExport'));
+app.use('/api/admin/css-templates', require('./src/routes/adminCssTemplates'));
+app.use('/api/admin/events', require('./src/routes/adminEventRename'));
+app.use('/api/admin/users', require('./src/routes/adminUsers'));
+app.use('/api/admin/roles', require('./src/routes/adminRoles'));
+// Customer portal (#354). The customerPortal feature flag is a
+// VISIBILITY toggle for the admin surface, not a kill switch for
+// customer access. Enforcement:
+//
+//   1. Frontend: RequireFeature guards + AdminSidebar visibility
+//      hide the Clients section when the flag is off. Customer-side
+//      /customer/* surfaces stay reachable.
+//   2. Backend: NO route-level gate. The admin surface is gated by
+//      adminAuth + permission checks (admin still has rights to
+//      manage customer records even if the section is hidden in
+//      their UI). The customer surface is gated by customerAuth +
+//      is_active checks on customer_accounts.
+//
+// For close-to-realtime access changes use the dedicated tools:
+//   - Revoke a customer's access to ONE gallery → "Manage galleries"
+//     dialog removes the event_customer_assignments row, which
+//     verifyGalleryAccess re-checks on every customer-minted JWT.
+//   - Lock out a customer entirely → "Deactivate" sets is_active=false
+//     and bumps password_changed_at, killing every outstanding JWT.
+//   - Toggle per-customer feature surfaces (calendar/quotes/bills)
+//     → toggles on the customer detail page.
+//
+// Putting the global flag in the kill-switch role was a mistake — a
+// stray click in Settings → Features would lock every paying
+// customer out at once. PR-revert moved the gate back to per-record.
+//
+// `noStoreCache` belt-and-braces the cache-control story for both
+// surfaces: any response — 200, 4xx, 5xx — carries `Cache-Control:
+// no-store` so a transient error (the now-reverted #458 410, a
+// permission flip mid-session, a backend restart) can't get pinned
+// in browser or intermediate caches and outlive its cause. See the
+// PR #458 → #470 history in the middleware file for context.
+const { noStoreCache } = require('./src/middleware/noStoreCache');
+app.use('/api/admin/customers', noStoreCache, require('./src/routes/adminCustomers'));
+// Customer-side surface (#354). Strictly separate from /api/admin/* —
+// distinct token type, distinct cookie, distinct middleware. The
+// noStoreCache wrapper (upstream) prevents stale customer-portal
+// data from being served after logout. The CRM-area route-flag
+// gate was reverted upstream and lives in the UI now.
+app.use('/api/customer/auth', noStoreCache, require('./src/routes/customerAuth'));
+app.use('/api/customer', noStoreCache, require('./src/routes/customer'));
+
+// --- CRM (#TBD) -------------------------------------------------------
+// Quotes / Invoices / Contracts / Calendar / Tax report / Deals lineage.
+// Business profile (issuer block for PDFs) lives at
+// /api/admin/business-profile, gated by the existing settings.manage
+// permission rather than a CRM-specific one. The public endpoints
+// host the customer-side accept/decline / sign / payment-check pages.
+app.use('/api/admin/business-profile', require('./src/routes/adminBusinessProfile'));
+// PDF theme for quotes, invoices and contracts (#1445) — same settings
+// permissions as the business profile's PDF settings.
+app.use('/api/admin/pdf-themes', require('./src/routes/adminPdfThemes'));
+app.use('/api/admin/quotes',     require('./src/routes/adminQuotes'));
+// Quote catalogue + templates (#1451). Own prefix so its collection paths
+// never collide with /api/admin/quotes/:id.
+app.use('/api/admin/quote-catalog', require('./src/routes/adminQuoteCatalog'));
+app.use('/api/admin/invoices',   require('./src/routes/adminInvoices'));
+app.use('/api/admin/contracts',  require('./src/routes/adminContracts'));
+// Contract templates (#1445) — own prefix, behind the contracts flag.
+app.use('/api/admin/contract-templates', require('./src/routes/adminContractTemplates'));
+// The attachment library for contract templates and contracts (#1445).
+app.use('/api/admin/document-attachments', require('./src/routes/adminDocumentAttachments'));
+app.use('/api/admin/projects',   require('./src/routes/adminProjects'));
+app.use('/api/admin/calendar',   require('./src/routes/adminCalendar'));
+app.use('/api/admin/deals',      require('./src/routes/adminDeals'));
+app.use('/api/admin/workflows',  require('./src/routes/adminWorkflows'));
+app.use('/api/admin/tax-report', require('./src/routes/adminTaxReport'));
+app.use('/api/admin/expenses',   require('./src/routes/adminExpenses'));
+app.use('/api/admin/ledger',     require('./src/routes/adminLedger'));
+// Read-only VAT-code registry for the invoice/quote editors — un-gated by the
+// accounting flag (management stays under /ledger).
+app.use('/api/admin/vat-codes',  require('./src/routes/adminVatCodes'));
+app.use('/api/admin/system-health', require('./src/routes/adminSystemHealth'));
+app.use('/api/admin/dev',        require('./src/routes/adminDev'));
+app.use('/api/admin/transfers',  require('./src/routes/adminTransfers'));
+// Newsletter campaigns (#1264). Flag-gated inside the router.
+app.use('/api/admin/newsletters', require('./src/routes/adminNewsletters'));
+app.use('/api/public/quotes',  require('./src/routes/publicQuotes'));
+app.use('/api/public/contracts', require('./src/routes/publicContracts'));
+// Signing with a link per signer and an emailed code (#1446).
+app.use('/api/public/contract-signing', require('./src/routes/publicContractSigning'));
+// PicTransfer (#997): recipient download + client upload, token-authenticated.
+app.use('/api/public/transfer', require('./src/routes/publicTransfer'));
+app.use('/api/public/transfer-upload', require('./src/routes/publicTransferUpload'));
+app.use('/api/public/payment-check', require('./src/routes/publicPaymentCheck'));
+// Newsletter unsubscribe (#1264). Deliberately NOT flag-gated: turning the
+// feature off must not break the links in mail that already went out.
+app.use('/api/public/newsletter', require('./src/routes/publicNewsletter'));
+app.use('/api/public/workflow-approvals', require('./src/routes/publicWorkflowApprovals'));
+app.use('/api/admin/event-types', require('./src/routes/adminEventTypes'));
+app.use('/api/admin/api-tokens', require('./src/routes/adminApiTokens'));
+app.use('/api/admin/webhooks', require('./src/routes/adminWebhooks'));
+// Public v1 API for n8n / external integrations (#322). Mounted under
+// /api/v1; auth handled per-route via apiTokenAuth (Bearer tokens).
+app.use('/api/v1', require('./src/middleware/productUsage').productUsageApi, require('./src/routes/v1/events'));
+
+// Swagger UI for the v1 API. Admin-gated since it lists endpoint shapes
+// that should not be enumerable to anonymous users (a common reduce-info-leak hardening).
+{
+  const swaggerUi = require('swagger-ui-express');
+  const { adminAuth } = require('./src/middleware/auth');
+  const { getOpenApiSpec } = require('./src/openapi/spec');
+  app.get('/api/openapi.json', adminAuth, (_req, res) => res.json(getOpenApiSpec()));
+  app.use(
+    '/api/docs',
+    adminAuth,
+    swaggerUi.serve,
+    swaggerUi.setup(getOpenApiSpec(), { customSiteTitle: 'PicPeak API · v1' })
+  );
+}
+
+app.use('/api/invite', require('./src/routes/acceptInvite'));
+app.use('/api/public/settings', require('./src/routes/publicSettings'));
+app.use('/api/public/fonts', require('./src/routes/publicFonts'));
+app.use('/api/public', require('./src/routes/publicCMS'));
+
+// Optional: Serve built frontend (native installs and the all-in-one image, #1042)
+// Set when the SPA is being served, and registered as a catch-all AFTER the
+// /api 404 handler further down — see the registration site for why it cannot
+// live inside this block.
+let spaCatchAll = null;
+try {
+  const serveFrontendEnv = process.env.SERVE_FRONTEND; // 'true' | 'false' | undefined
+  const frontendDir = process.env.FRONTEND_DIR || path.join(__dirname, '../frontend/dist');
+  const indexPath = path.join(frontendDir, 'index.html');
+  // Auto-serve when dist exists unless explicitly disabled
+  const shouldServe = (serveFrontendEnv === 'true') || ((serveFrontendEnv === undefined || serveFrontendEnv === 'auto') && fs.existsSync(indexPath));
+  if (shouldServe) {
+    logger.info(`Serving frontend from ${frontendDir}`);
+
+    // The built index.html carries ${BRAND_TITLE} / ${BRAND_DESCRIPTION}
+    // placeholders (#521) that the nginx image renders via envsubst in its
+    // entrypoint. Here the render happens once at boot, in memory — same
+    // semantics: locked to exactly these two vars (never the JS bundle's own
+    // template literals), defaults applied when unset, re-rendered on every
+    // process start so changing the env + restarting is enough.
+    const spaHtml = fs
+      .readFileSync(indexPath, 'utf8')
+      .split('${BRAND_TITLE}').join(process.env.BRAND_TITLE || 'PicPeak')
+      .split('${BRAND_DESCRIPTION}').join(process.env.BRAND_DESCRIPTION || 'Photo gallery shared with PicPeak.');
+    // Mirrors nginx's `location = /index.html` cache rule: the SPA shell must
+    // revalidate so a redeploy is picked up, while the hashed assets below
+    // cache immutably.
+    const sendSpa = (res) => {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.type('html').send(spaHtml);
+    };
+
+    // gzip for the SPA bundle (nginx parity — its server block gzips js/css/
+    // json). Mounted here, after every /api router, so API responses keep
+    // their exact current behavior; only the statics and SPA shell below
+    // pass through it.
+    app.use(compression());
+
+    // /index.html must serve the RENDERED shell, and express.static would
+    // otherwise answer first with the raw template straight off disk.
+    app.get('/index.html', (req, res) => sendSpa(res));
+
+    // Serve pre-built assets. index:false keeps `/` flowing to the landing-page
+    // handler below (nginx parity: `location = /` goes to the backend, it never
+    // serves index.html off disk) — express.static's default index option was
+    // shadowing handlePublicSiteRequest in native installs. Vite's hashed
+    // /assets/* get nginx's 1y-immutable rule; everything else keeps etag
+    // revalidation.
+    app.use(express.static(frontendDir, {
+      index: false,
+      setHeaders: (res, filePath) => {
+        if (/[/\\]assets[/\\]/.test(filePath)) {
+          res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        }
+      },
+    }));
+
+    // Landing page handler or SPA fallback
+    app.get('/', handlePublicSiteRequest, (req, res) => {
+      sendSpa(res);
+    });
+
+    // SPA fallback for admin + gallery routes. For gallery URLs we intercept
+    // social-crawler User-Agents and serve OG/Twitter-card metadata so link
+    // previews show the event name + branding instead of the SPA stub.
+    //
+    // Two route shapes — 1-2 segments (`/gallery/:slug/:token?`) and the
+    // 3-segment slideshow form (`/gallery/:slug/show/:token`). The slideshow
+    // shape was previously falling through to the SPA-catchall below and
+    // skipping OG injection entirely (#699). Both patterns route to the
+    // same handler — buildOgMetadata only looks at `slug`, so the extra
+    // /show/ segment is harmless.
+    const ogIntercept = (req, res, next) => {
+      if (isSocialCrawler(req.get('user-agent'))) {
+        return handleGalleryOgRequest(req, res);
+      }
+      return next();
+    };
+    app.get('/gallery/:slug/:token?', ogIntercept, (req, res) => sendSpa(res));
+    app.get('/gallery/:slug/show/:token', ogIntercept, (req, res) => sendSpa(res));
+    // PicTransfer links (single-container deploys without nginx).
+    const transferOgIntercept = (kind) => {
+      const handler = handleTransferOgRequest(kind);
+      return (req, res, next) => (isSocialCrawler(req.get('user-agent')) ? handler(req, res) : next());
+    };
+    app.get('/transfer/:token', transferOgIntercept('send'), (req, res) => sendSpa(res));
+    app.get('/transfer-upload/:token', transferOgIntercept('request'), (req, res) => sendSpa(res));
+
+    app.get(['/admin', '/admin/*', '/gallery/*'], (req, res) => {
+      sendSpa(res);
+    });
+
+    // Everything else the router owns client-side. nginx did `try_files $uri
+    // $uri/ /index.html`, so behind compose every client route survived a
+    // reload and the short route list above was never exercised. Without
+    // nginx it is the whole contract: /setup, /customer, /impressum,
+    // /datenschutz, /payment-check, /quote/:token, /contract/:token,
+    // /invite/:token, /transfer/:token, /transfer-upload/:token and the
+    // branded short URLs all 404'd on a direct hit or a refresh. /setup is
+    // the first URL a new install visits.
+    spaCatchAll = (req, res) => sendSpa(res);
+  } else {
+    logger.info('Frontend static serving disabled or dist not found', { serveFrontendEnv, frontendDir });
+    app.get('/', handlePublicSiteRequest, (req, res) => {
+      res.status(503).send('Frontend bundle not available. Build frontend or enable public site.');
+    });
+  }
+} catch (e) {
+  logger.warn('Failed to enable frontend static serving', { error: e.message });
+}
+
+// 404 handler for undefined API routes
+app.use('/api', notFoundHandler);
+
+// SPA history fallback, deliberately registered here — AFTER the /api 404
+// handler, so an unknown /api/* route still answers JSON instead of being
+// handed the HTML shell, and after the short-URL resolver so a real short
+// code still redirects. GET-only: a stray POST/PUT keeps 404ing rather than
+// getting a 200 page back.
+if (spaCatchAll) {
+  // nginx gives these their own `location` blocks, so `try_files` never applied
+  // to them. The fallback has to mirror that: /photos, /thumbnails, /uploads
+  // and /fonts are backend-owned static mounts whose middleware calls next()
+  // when the file is missing, and swallowing that would answer 200 text/html
+  // under an image or font URL instead of a 404.
+  // /assets/ belongs on this list for the same reason even though it is the
+  // frontend's own bundle: after an upgrade a still-open tab requests the old
+  // hashed chunk, which no longer exists. Answering index.html would hand a
+  // JavaScript URL a 200 text/html body, so the module load fails with a MIME
+  // error instead of the plain 404 nginx returns — and the 200 hides it from
+  // any monitoring watching status codes.
+  const BACKEND_OWNED = ['/photos/', '/thumbnails/', '/uploads/', '/fonts/', '/assets/', '/health'];
+  // Scanner probes (/wp-login.php, /cgi-bin/…) are no client route either. A
+  // 200 shell tells the scanner something is there and hides the probe from
+  // every log-based tool that counts 404s; frontend/nginx.conf does the same.
+  const { isScannerProbePath } = require('./src/utils/scannerPaths');
+  app.get('*', (req, res, next) => {
+    if (BACKEND_OWNED.some((prefix) => req.path.startsWith(prefix))) return next();
+    if (isScannerProbePath(req.path)) return next();
+    return spaCatchAll(req, res);
+  });
+}
+
+// Global error handler (must be last)
+app.use(errorHandler);
+
+// App construction is side-effect free with respect to listening and workers.
+let httpServer;
+let shutdownPromise;
+// Docker stops a container 10 s after SIGTERM by default (compose sets no
+// stop_grace_period), so the drain must finish inside that window.
+const SHUTDOWN_TIMEOUT_MS = Number(process.env.SHUTDOWN_TIMEOUT_MS) || 8000;
+async function stopServer() {
+  if (shutdownPromise) return shutdownPromise;
+  shutdownPromise = (async () => {
+    const close = httpServer ? new Promise((resolve, reject) => httpServer.close(err => err ? reject(err) : resolve())) : Promise.resolve();
+    const timeout = setTimeout(() => httpServer?.closeAllConnections(), Math.floor(SHUTDOWN_TIMEOUT_MS / 2));
+    timeout.unref();
+    try {
+      await Promise.all([close, require('./src/services/serviceShutdown').stopServices()]);
+    } finally {
+      clearTimeout(timeout);
+      // Always release the pool: a rejected service stop must not leave
+      // ref'd sockets keeping the process alive until SIGKILL.
+      await db.destroy();
+    }
+  })();
+  return shutdownPromise;
+}
+
+// Initialize services
+function startServer() {
+  return require('./src/database/crmAccess').withTrustedCrmAccess('application bootstrap', startServerInternal);
+}
+
+async function startServerInternal() {
+  try {
+    // Initialize database
+    await initializeDatabase();
+    await require('./src/utils/authSecurity').assertAuthSecuritySchema();
+
+    // Warm the public-origin cache so the SYNCHRONOUS resolver (CORS headers,
+    // secureImageMiddleware) can see the general_site_url setting. Best-effort:
+    // the async resolver reads through on its own, and a cold cache only means
+    // falling back to the environment.
+    await primeSiteUrlCache().catch(() => {});
+
+    // Initialize storage backend (local fs or S3) — fail fast on misconfig
+    const { initStorage } = require('./src/services/storage');
+    await initStorage();
+
+    // Initialize rate limiters after database is ready
+    await initializeRateLimiters();
+    logger.info('Rate limiters initialized with database configuration');
+
+    // Initialize auth security cleanup job
+    const { initializeCleanupJob } = require('./src/utils/authSecurity');
+    initializeCleanupJob();
+    
+    require('./src/utils/cleanupTempUploads').startTempUploadCleanup();
+
+    // Start file watcher
+    startFileWatcher();
+    // External-media folder watcher (issue 1187): imports new files into
+    // reference events that opted in. Not gated on STORAGE_BACKEND like the
+    // managed watcher — EXTERNAL_MEDIA_ROOT is always a local path.
+    try {
+      const { startExternalMediaWatcher } = require('./src/services/externalMediaWatcher');
+      startExternalMediaWatcher();
+    } catch (err) {
+      logger.warn('External-media watcher failed to start:', err.message);
+    }
+    
+    // Start expiration checker
+    startExpirationChecker();
+    // PicTransfer retention sweep (#997): expire links, notify admins, and
+    // hard-delete client uploads once the grace window elapses.
+    startTransferCleanup();
+    // Customer documents retention (#1444): delete long-rejected files and
+    // remove the bytes of deleted ones once the retention window elapses.
+    require('./src/services/customerDocumentRetentionService').startCustomerDocumentRetention();
+    // Malware scanner for customer documents (#1444): clamd over TCP, only
+    // when CLAMAV_HOST is set. Without it uploads stay pending until an admin
+    // reviews them. The hourly re-scan picks up rows left pending while the
+    // scanner was down; it does nothing while no scanner is registered.
+    {
+      const clamd = require('./src/services/scanners/clamd');
+      if (clamd.isConfigured()) {
+        require('./src/services/documentScanService').registerScanner(clamd.scan);
+        logger.info('Customer documents: clamd scanner registered');
+      }
+      require('./src/services/customerDocumentRescanService').startCustomerDocumentRescan();
+    }
+    // Reminder ladder for open document requests (#1444).
+    require('./src/services/customerDocumentRequestReminderService').startDocumentRequestReminders();
+    // Contract signing sweep (#1446): expire contracts whose time to sign has
+    // run out, and remove signing codes and sessions a month after they end.
+    require('./src/services/contract/expiry').startContractSigningSweep();
+    // Enumeration and replay signals on the public signing routes (#1446):
+    // flush the counts, check the thresholds, alert once per kind per hour.
+    require('./src/services/contract/signingSignals').startSigningSignals();
+    // Custom-resolution download archives (#858) are disposable renditions —
+    // sweep them once their TTL passes so .download-cache doesn't grow forever.
+    // Best-effort, as before the scheduler refactor: a transient DB error on
+    // this one UPDATE must not abort the whole server start.
+    await require('./src/services/downloadJobService').recoverOrphanedJobs()
+      .catch((err) => logger.error('Download job recovery failed', { error: err.message }));
+    startDownloadJobCleanup();
+    // Stale feedback_rate_limits rows (#1585): the per-request delete in
+    // consumeFeedbackLimit() only ever clears the event/action-type pair it
+    // just handled, so a gallery that goes quiet leaves its rows behind —
+    // sweep them on a schedule as a backstop.
+    startFeedbackRateLimitCleanup();
+    // Reveal-mode scheduler (#838): minutely stamp for scheduled reveals.
+    startRevealScheduler();
+    // CRM invoice scheduler: hourly tick to flush scheduled-send invoices
+    // + run the overdue reminder ladder. No-op when the `bills` feature
+    // flag is OFF (the service short-circuits on empty result sets).
+    startInvoiceScheduler();
+    
+    // Initialize email transporter and start queue processor.
+    // Skipped under the webhook transport (#1225): an install that switched to
+    // it may still carry an old, now-unreachable SMTP row, and nodemailer's
+    // verify() would sit on a connection timeout here — delaying boot for a
+    // transport that will never send anything.
+    if (!emailWebhookTransport.isEnabled()) {
+      await initializeTransporter();
+    }
+    // Seed CRM / contract / event-reminder email templates and recover
+    // any queue rows that exhausted retries because their template
+    // didn't exist yet. Runs once per boot via module-level caches in
+    // each seeder. See _emailTemplateBoot.js for the full rationale.
+    try {
+      const { seedEmailTemplatesAndRecoverQueue } = require('./src/services/_emailTemplateBoot');
+      await seedEmailTemplatesAndRecoverQueue(db, logger);
+    } catch (err) {
+      logger.warn('Email template self-heal failed at boot:', err.message);
+    }
+    startEmailQueueProcessor();
+
+    // Start WhatsApp queue processor — no-ops each cycle unless the
+    // `whatsapp` flag is on and a config exists (migration 136, #640D).
+    try {
+      const { startWhatsAppQueueProcessor } = require('./src/services/whatsappProcessor');
+      startWhatsAppQueueProcessor();
+    } catch (err) {
+      logger.warn('WhatsApp queue processor start failed:', err.message);
+    }
+
+    // Start incoming-mail (IMAP) poller — no-ops each minute unless the
+    // `incomingMail` flag is on and a mailbox is configured (migration 128).
+    try {
+      const { startIncomingMailPoller } = require('./src/services/emailIntakeService');
+      startIncomingMailPoller();
+    } catch (err) {
+      logger.warn('Incoming-mail poller failed to start:', err.message);
+    }
+
+    // Start webhook delivery worker (#327)
+    const { startWebhookDeliveryWorker } = require('./src/services/webhookDeliveryWorker');
+    startWebhookDeliveryWorker();
+
+    // Start S3 auto-importer (#328 follow-up). No-op when STORAGE_AUTO_IMPORT
+    // is unset OR STORAGE_BACKEND=local — replaces the chokidar watcher
+    // for S3-mode deployments that drop files into the bucket directly.
+    const { startS3AutoImporter } = require('./src/services/s3AutoImporter');
+    startS3AutoImporter();
+
+    // Self-heal the `backup_paths` table before the backup service
+    // starts — the file-backup walker reads from it, so missing
+    // canonical rows (a new subdirectory shipped by a future feature)
+    // get re-seeded here on every boot. See _backupPathsBoot.js for
+    // the full rationale; pattern mirrors _emailTemplateBoot.js.
+    try {
+      const { seedBackupPathsAtBoot } = require('./src/services/_backupPathsBoot');
+      await seedBackupPathsAtBoot(db, logger);
+    } catch (err) {
+      logger.warn('backup_paths self-heal failed at boot:', err.message);
+    }
+
+    // Self-heal restore-meta settings — currently just
+    // `restore_allow_force` defaulting to ON so fresh installs can
+    // recover from disaster without a SQL incantation. Only seeds on
+    // FRESH installs (existing rows, true or false, are preserved).
+    // See _restoreSettingsBoot.js for the full rationale.
+    try {
+      const { seedRestoreSettingsAtBoot } = require('./src/services/_restoreSettingsBoot');
+      await seedRestoreSettingsAtBoot(db, logger);
+    } catch (err) {
+      logger.warn('restore-settings self-heal failed at boot:', err.message);
+    }
+
+    // Seed built-in workflows (the editable invoice-dunning flow). Disabled by
+    // default — live reminder behaviour is unchanged. See _workflowSeedBoot.js.
+    try {
+      const { seedBuiltinWorkflowsAtBoot } = require('./src/services/_workflowSeedBoot');
+      await seedBuiltinWorkflowsAtBoot(db, logger);
+    } catch (err) {
+      logger.warn('built-in workflow seed failed at boot:', err.message);
+    }
+
+    // Self-heal the RBAC catalog: ensure super_admin holds every permission
+    // (the "Admin tracks all" guarantee) and the solo_photographer preset
+    // exists. New perms never need a compensation migration. See
+    // _permissionsBoot.js + project_permission_gating.
+    try {
+      const { seedPermissionsAtBoot } = require('./src/services/_permissionsBoot');
+      await seedPermissionsAtBoot(db, logger);
+    } catch (err) {
+      logger.warn('permissions self-heal failed at boot:', err.message);
+    }
+
+    // Install-from-backup trigger. If `RESTORE_ON_INSTALL` (or
+    // `.txt`) exists in the /backup mount AND the DB is empty, run
+    // the restore HERE before any admin UI surfaces. Lets admins
+    // recover a picpeak install with: (a) place backup files in the
+    // bind mount, (b) drop the trigger file, (c) `docker compose up`.
+    // No onboarding wizard, no throwaway admin, no compose-file
+    // changes. See _installFromBackupBoot.js for the full rationale
+    // + the safety gates.
+    try {
+      const { tryInstallFromBackup } = require('./src/services/_installFromBackupBoot');
+      const result = await tryInstallFromBackup(db, logger);
+      if (result.ran) {
+        logger.info(`Install-from-backup: completed from ${result.manifestPath}. Server will start with restored state.`);
+      }
+    } catch (err) {
+      logger.warn('Install-from-backup hook threw:', err.message);
+    }
+
+    // The standard contract template (#1445): seeded once, and given a new
+    // published version when the built-in revision moved on. Never changes
+    // an existing version; safe with two replicas booting at once. After
+    // install-from-backup, which replaces the database it would seed.
+    try {
+      await require('./src/services/contract/defaultTemplate').ensureDefaultTemplate();
+    } catch (err) {
+      logger.warn('standard contract template check failed at boot:', err.message);
+    }
+
+    // The retired free-text PDF font path (#1445) becomes an uploaded font
+    // once; the renderer no longer reads the column. After install-from-backup,
+    // so a restored profile's path is the one moved.
+    try {
+      await require('./src/services/pdf/uploadedFonts').migrateLegacyFont(logger);
+    } catch (err) {
+      logger.warn('moving the earlier custom PDF font failed at boot:', err.message);
+    }
+
+    // First-run: surface a one-time setup token while no admin account exists.
+    // Runs AFTER install-from-backup so a restored instance (which repopulates
+    // admin_users) never prints a throwaway token. Best-effort — never blocks boot.
+    let setupToken = null;
+    let setupTokenFile = null;
+    try {
+      const setupSvc = require('./src/services/setupService');
+      setupToken = await setupSvc.ensureSetupToken();
+      // The path the write ACTUALLY produced (null when it failed). existsSync
+      // on the candidate answered a different question and reported success
+      // for a stale, read-only or directory-shaped SETUP_TOKEN — suppressing
+      // the token here while pointing the operator at content that is not it.
+      setupTokenFile = setupSvc.writtenSetupTokenFile();
+    } catch (err) {
+      logger.warn(`[setup] ensureSetupToken skipped: ${err.message}`);
+    }
+
+    // Start backup service
+    await startBackupService();
+
+    // Start database backup service
+    await startScheduledBackups();
+
+    // Start the async photo-processing worker pool. Picks up
+    // photos in 'pending' state (from POST /upload) and runs the
+    // sharp/ffmpeg/EXIF pipeline off the request thread.
+    backgroundProcessor.start();
+
+    // Decide now how image work is isolated, so a host that cannot run the
+    // memory-limited image worker says so in the startup log, once.
+    require('./src/services/isolatedSharp').prepare()
+      .catch((err) => logger.warn('Image worker check failed at boot', { error: err.message }));
+
+    // The same for ffmpeg/ffprobe/exiftool: one startup line says which of
+    // the optional protections (process guard, kernel leases) this host runs
+    // and what to do about the ones it does not. Never a reason not to start.
+    require('./src/services/mediaCapabilities').probe();
+
+    // Public upload leases: heartbeat this process's live requests and reap
+    // the ones a dead process left behind, now and every 30 s.
+    const publicUploadQuota = require('./src/services/publicUploadQuota');
+    publicUploadQuota.startMaintenance();
+    publicUploadQuota.cleanupAbandoned().catch((err) => logger.warn('Public upload reaper failed at boot', { error: err.message }));
+
+    // Face detection (#1074). Starts alongside the photo processor but stays
+    // idle — every worker tick re-checks the `faces` feature flag, which is
+    // off by default. It is safe to start unconditionally precisely because
+    // it never touches FACE_ML_URL until that flag is on.
+    //
+    // Required HERE rather than at module scope: the face stack pulls in
+    // axios and (via imageProcessor) sharp, and server.js is imported by a
+    // large number of supertest suites that never start a worker. Keeping it
+    // lazy means they don't pay for a module graph they never use.
+    require('./src/services/faceQueue').start();
+
+    // Browser-playable video copies (issue 1430). Same shape as the face
+    // queue: starts idle and re-reads the general_video_web_rendition
+    // setting every tick, so nothing runs until an admin switches it on.
+    require('./src/services/videoRenditionQueue').start();
+
+    // Bootstrap/cron authority must not become the default authority of an
+    // incoming HTTP request. Its authentication/capability middleware owns it.
+    httpServer = await require('./src/database/crmAccess').withoutCrmContext(() => app.listen(PORT, LISTEN_HOST, () => {
+      logger.info(`Server running on ${LISTEN_HOST || 'all interfaces'}:${PORT}`);
+      logger.info(`Admin interface: ${process.env.ADMIN_URL || 'http://localhost:3000'}`);
+      logger.info(`Frontend: ${process.env.FRONTEND_URL || 'http://localhost:3001'}`);
+      // First-run banner. Print the TOKEN ITSELF only when the 0600 token file
+      // could not be written — otherwise this lands a live first-admin
+      // credential in `docker logs` / journald, which is the leak GHSA-r794's
+      // sweep turned up. When the file exists we point at it instead.
+      if (setupToken) {
+        const url = `${process.env.ADMIN_URL || 'http://localhost:3000'}/admin`;
+        const line = '='.repeat(64);
+        const secretLine = setupTokenFile
+          ? `  Setup token saved to:  ${setupTokenFile}\n  (read it there — deliberately not printed)`
+          : `  One-time setup token:  ${setupToken}\n  (could not write the token file, so it is shown here)`;
+        console.log(`\n${line}\n  PicPeak first-run setup — no admin account yet.\n  Open:                  ${url}\n${secretLine}\n${line}\n`);
+      }
+    }));
+  } catch (error) {
+    logger.error('Failed to start server:', error);
+    await stopServer();
+    process.exitCode = 1;
+  }
+}
+
+if (require.main === module) {
+  let stopping = false;
+  for (const signal of ['SIGTERM', 'SIGINT']) {
+    process.on(signal, () => {
+      if (stopping) {
+        logger.warn(`Received ${signal} again during shutdown, exiting immediately`);
+        process.exit(1);
+      }
+      stopping = true;
+      // The drain itself has no deadline; a hung worker must not keep the
+      // process alive past the container's stop grace period.
+      setTimeout(() => {
+        logger.error(`Shutdown exceeded ${SHUTDOWN_TIMEOUT_MS}ms, forcing exit`);
+        process.exit(1);
+      }, SHUTDOWN_TIMEOUT_MS).unref();
+      stopServer().catch(error => { logger.error('Shutdown failed', { error: error.message }); process.exitCode = 1; });
+    });
+  }
+  startServer();
+}
+app.startServer = startServer;
+app.stopServer = stopServer;
+
+module.exports = app; // For testing

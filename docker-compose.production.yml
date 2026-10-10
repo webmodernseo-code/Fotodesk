@@ -1,0 +1,375 @@
+version: '3.8'
+
+services:
+  # Generates machine secrets (JWT/DB/Redis) on first run when they aren't set
+  # in .env, so a fresh install needs zero secret management. Each file is seeded
+  # from the matching env var when provided (backward-compatible), otherwise a
+  # strong random value. Idempotent — never overwrites an existing file, so the
+  # DB password can't drift out from under an already-initialised Postgres volume.
+  secrets-init:
+    image: alpine:3.20
+    container_name: picpeak-secrets-init
+    env_file: .env
+    entrypoint:
+      - sh
+      - -c
+      - |
+        set -e
+        mkdir -p /run/secrets
+        if [ ! -s /run/secrets/jwt_secret ]; then
+          if [ -n "$$JWT_SECRET" ]; then printf '%s' "$$JWT_SECRET" > /run/secrets/jwt_secret;
+          else tr -dc A-Za-z0-9 < /dev/urandom | head -c 48 > /run/secrets/jwt_secret; fi
+        fi
+        if [ ! -s /run/secrets/db_password ]; then
+          if [ -n "$$DB_PASSWORD" ]; then printf '%s' "$$DB_PASSWORD" > /run/secrets/db_password;
+          else tr -dc A-Za-z0-9 < /dev/urandom | head -c 48 > /run/secrets/db_password; fi
+        fi
+        if [ ! -s /run/secrets/redis_password ]; then
+          if [ -n "$$REDIS_PASSWORD" ]; then printf '%s' "$$REDIS_PASSWORD" > /run/secrets/redis_password;
+          else tr -dc A-Za-z0-9 < /dev/urandom | head -c 48 > /run/secrets/redis_password; fi
+        fi
+        if [ -n "$$BACKUP_MANIFEST_KEY" ]; then
+          # A corrected BACKUP_MANIFEST_KEY replaces the seeded copy, so a bad
+          # first value is not sticky. The value it replaces is kept, one per
+          # line, for BACKUP_MANIFEST_KEYS_OLD.
+          if [ "$$(cat /run/secrets/backup_manifest_key 2>/dev/null)" != "$$BACKUP_MANIFEST_KEY" ]; then
+            if [ -s /run/secrets/backup_manifest_key ]; then
+              { cat /run/secrets/backup_manifest_key; echo; } >> /run/secrets/backup_manifest_key.previous
+              chmod 600 /run/secrets/backup_manifest_key.previous
+            fi
+            printf '%s' "$$BACKUP_MANIFEST_KEY" > /run/secrets/backup_manifest_key
+          fi
+        elif [ ! -e /run/secrets/backup_manifest_key ]; then
+          od -An -N32 -tx1 /dev/urandom | tr -d ' \n' > /run/secrets/backup_manifest_key
+        fi
+        # Independent backup-store trust anchor: backend volume only, never
+        # copied into Postgres/Redis secrets or the backed-up media estate.
+        chmod 644 /run/secrets/backup_manifest_key
+        # 644: the readers run as three different users (postgres, redis, nodejs),
+        # so a non-root reader must be able to read them. The volume is private to
+        # these containers and never host-exposed.
+        chmod 644 /run/secrets/jwt_secret /run/secrets/db_password /run/secrets/redis_password
+        # Postgres and Redis each mount a volume holding only their own password,
+        # so neither can read jwt_secret (the backend's token signing key).
+        # Refreshed from picpeak-secrets on every run, which also fills them on
+        # an existing install the first time this version starts.
+        mkdir -p /run/db-secret /run/redis-secret
+        cp /run/secrets/db_password /run/db-secret/db_password
+        cp /run/secrets/redis_password /run/redis-secret/redis_password
+        chmod 644 /run/db-secret/db_password /run/redis-secret/redis_password
+    volumes:
+      - picpeak-secrets:/run/secrets
+      - picpeak-db-secret:/run/db-secret
+      - picpeak-redis-secret:/run/redis-secret
+    restart: "no"
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: picpeak-postgres
+    userns_mode: "host"
+    environment:
+      POSTGRES_USER: ${DB_USER:-picpeak}
+      # Reads the generated (or .env-seeded) password from picpeak-db-secret,
+      # which holds only this password.
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+      POSTGRES_DB: ${DB_NAME:-picpeak}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - picpeak-db-secret:/run/secrets:ro
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
+    networks:
+      - picpeak-network
+    restart: unless-stopped
+    healthcheck:
+      # `pg_isready -U <user>` without -d defaults to probing a database
+      # whose name matches the user — postgres then logs constant
+      # `FATAL: database "picpeak" does not exist` even though the
+      # actual DB is `picpeak_prod`. Pinning -d to DB_NAME makes the
+      # probe hit the real database and silences the log noise that
+      # made #484's reporter think the install was broken.
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-picpeak} -d ${DB_NAME:-picpeak}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: picpeak-redis
+    userns_mode: "host"
+    # Reads the generated (or .env-seeded) password from picpeak-redis-secret,
+    # which holds only this password.
+    command: sh -c 'exec redis-server --requirepass "$(cat /run/secrets/redis_password)"'
+    volumes:
+      - redis-data:/data
+      - picpeak-redis-secret:/run/secrets:ro
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
+    networks:
+      - picpeak-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    # Use pre-built image from GitHub Container Registry
+    # PICPEAK_CHANNEL: 'stable' (default), 'beta', or specific version like 'v2.3.0'
+    image: ghcr.io/picpeak/picpeak/backend:${PICPEAK_CHANNEL:-stable}
+    container_name: picpeak-backend
+    env_file: .env
+    environment:
+      - NODE_ENV=production
+      # Trust exactly the immediately connected frontend nginx hop. The
+      # backend port is host-loopback-only, preventing remote bypasses.
+      # A reverse proxy on the host in front of the frontend makes it 2.
+      - TRUST_PROXY=${TRUST_PROXY:-}
+      - COOKIE_SECURE=${COOKIE_SECURE:-auto}
+      - ENABLE_HSTS=${ENABLE_HSTS:-false}
+      - DB_HOST=${DB_HOST:-postgres}
+      - REDIS_HOST=redis
+      - STORAGE_PATH=/app/storage
+      - PUBLIC_UPLOAD_LIMITS_JSON=${PUBLIC_UPLOAD_LIMITS_JSON:-}
+      - ADMIN_UPLOAD_LIMITS_JSON=${ADMIN_UPLOAD_LIMITS_JSON:-}
+      - PHOTOS_DIR=/app/storage/events
+      # Built-in backups land under /backup (migrations 029 + 030 seed
+      # /backup/picpeak and /backup/database). The entrypoint creates the
+      # subfolders and hands the mount to UID 1001 only when BACKUP_DIR names
+      # it; without the mount below the backend ran as UID 1001 against a
+      # root-owned / and every local backup failed with EACCES (issue 1365).
+      - BACKUP_DIR=/backup
+      - BACKUP_MANIFEST_KEY_FILE=${BACKUP_MANIFEST_KEY_FILE:-/run/secrets/backup_manifest_key}
+      - PICPEAK_RELEASE_CHANNEL=${PICPEAK_CHANNEL:-stable}
+      # Watch-folder auto-import: max photos processed in parallel (default 2).
+      - FILE_WATCHER_CONCURRENCY=${FILE_WATCHER_CONCURRENCY:-2}
+      # External-media folder watcher (issue 1187); all optional, see .env.example.
+      - EXTERNAL_MEDIA_WATCH=${EXTERNAL_MEDIA_WATCH:-true}
+      - EXTERNAL_MEDIA_WATCH_POLLING=${EXTERNAL_MEDIA_WATCH_POLLING:-false}
+      - EXTERNAL_MEDIA_WATCH_POLL_INTERVAL_MS=${EXTERNAL_MEDIA_WATCH_POLL_INTERVAL_MS:-5000}
+      - EXTERNAL_MEDIA_WATCH_SWEEP_INTERVAL_MS=${EXTERNAL_MEDIA_WATCH_SWEEP_INTERVAL_MS:-900000}
+      - EXTERNAL_MEDIA_WATCH_DEBOUNCE_MS=${EXTERNAL_MEDIA_WATCH_DEBOUNCE_MS:-10000}
+      - EXTERNAL_MEDIA_WATCH_STABILITY_MS=${EXTERNAL_MEDIA_WATCH_STABILITY_MS:-5000}
+      # Face recognition (#1074). Defaults to the sidecar's compose service
+      # name; nothing touches it until the `faces` feature flag is enabled in
+      # admin settings, so installs without the picpeak-ml container are
+      # unaffected. Start the sidecar with `--profile faces`.
+      - FACE_ML_URL=${FACE_ML_URL:-http://picpeak-ml:8000}
+      - FACE_ML_TOKEN=${FACE_ML_TOKEN:-}
+      - FACE_PROCESSOR_CONCURRENCY=${FACE_PROCESSOR_CONCURRENCY:-}
+      # CLAMAV_HOST / _PORT / _TIMEOUT_MS / _MAX_BYTES (#1444, malware scanner
+      # for customer documents) reach the backend through env_file too. With
+      # the opt-in `clamav` service below, set CLAMAV_HOST=clamav in .env.
+      # PICPEAK_EVIDENCE_KEY (#1446) reaches the backend through env_file
+      # above. It encrypts contract signers' names, email addresses and IP
+      # addresses at rest. Unset, a key is generated into
+      # storage/business-docs/keys/evidence.key — that is inside the backup
+      # path, but it is then the only copy of it, so back it up with the
+      # database. See docs/ENVIRONMENT_VARIABLES.md. While rotating it,
+      # PICPEAK_EVIDENCE_KEYS_OLD (same env_file) keeps the earlier keys
+      # readable until scripts/rotate-evidence-key.js reports none left.
+    volumes:
+      # Defaulted so a .env that simply does not set these still works. Without
+      # them compose aborts with "invalid spec: :/app/storage: empty section
+      # between colons", which reads like a broken compose file rather than a
+      # missing variable (#705).
+      #
+      # Note this does NOT make `config` work with no .env at all: `env_file`
+      # above still requires the file. Making it optional needs
+      # `required: false`, which is Compose 2.24+ syntax that OLDER Compose
+      # rejects as a schema error — taking the whole stack down rather than
+      # just losing a default. Not worth it for a case the onboarding flow
+      # never hits, since it copies .env.example first.
+      - ${APP_STORAGE:-./storage}:/app/storage
+      - ${LOGS:-./logs}:/app/logs
+      - ${APP_DATA:-./data}:/app/data
+      # Where local backups are written (see BACKUP_DIR above). The host
+      # directory is created by Docker on first start and chowned to 1001 by
+      # the entrypoint; keep it outside APP_STORAGE, or the backup would
+      # include itself.
+      - ${APP_BACKUP:-./backup}:/backup
+      - picpeak-secrets:/run/secrets:ro
+      # In-app updates (docs/self-update.md): the backend writes its request
+      # here and only reads the updater's status, hence the separate read-only
+      # mount. Both directories are created on first start even when the
+      # feature stays off (PICPEAK_SELF_UPDATE unset); nothing reads them then.
+      - ${APP_UPDATE:-./update}/request:/app/update/request
+      - ${APP_UPDATE:-./update}/status:/app/update/status:ro
+    ports:
+      - "${PICPEAK_BACKEND_BIND_ADDRESS:-127.0.0.1}:${BACKEND_PORT:-3001}:3000"
+    networks:
+      - picpeak-network
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    # Memory cap (optional, recommended on shared / multi-tenant hosts):
+    # uncomment to bound the backend's RSS. Sharp/libvips decodes the full
+    # uncompressed image before resize, so a multi-photo upload batch can
+    # spike memory. With a cap set, the kernel OOM-killer takes the
+    # container instead of the whole host; restart:unless-stopped brings
+    # it back. Match this to the RAM budget you've allocated for picpeak
+    # (`docker stats` shows the live usage).
+    # mem_limit: 3g
+    # memswap_limit: 3g
+    healthcheck:
+      # Backend exposes /health on internal port 3000.
+      # The backend image only ships wget (Alpine base) — using curl
+      # here makes `docker ps` show the container as `unhealthy`
+      # indefinitely even when /health responds. Mirrors the wget-based
+      # HEALTHCHECK already declared in backend/Dockerfile so docker
+      # compose, plain `docker run`, and `docker ps` all agree.
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Optional face-detection sidecar (#1074). Gated behind the `faces` profile:
+  # `docker compose --profile faces up -d`. Nothing depends on it, and the
+  # backend never calls it while the `faces` feature flag is off.
+  #
+  # The service name is `picpeak-ml` because it doubles as the hostname in
+  # FACE_ML_URL's default. Renaming it breaks that default for every install
+  # that never set the variable.
+  picpeak-ml:
+    image: ghcr.io/picpeak/picpeak/ml:${PICPEAK_CHANNEL:-stable}
+    container_name: picpeak-ml
+    profiles:
+      - faces
+    environment:
+      # The container refuses to start without this rather than serving
+      # anonymously — it must match the backend's FACE_ML_TOKEN.
+      - FACE_ML_TOKEN=${FACE_ML_TOKEN:-}
+      - FACE_ORT_THREADS=${FACE_ORT_THREADS:-1}
+      - TZ=${TZ:-UTC}
+    # No volumes and no published ports: stateless, and reachable only from
+    # the backend on picpeak-network.
+    networks:
+      - picpeak-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=4).status == 200 else 1)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Optional malware scanner for customer documents (#1444). Gated behind the
+  # `clamav` profile: `docker compose --profile clamav up -d`, then set
+  # CLAMAV_HOST=clamav in .env. Needs about 1 GB of RAM; no published port.
+  clamav:
+    image: clamav/clamav:stable
+    container_name: picpeak-clamav
+    profiles:
+      - clamav
+    volumes:
+      - clamav-db:/var/lib/clamav
+    networks:
+      - picpeak-network
+    restart: unless-stopped
+
+  frontend:
+    # Use pre-built image from GitHub Container Registry
+    # Uses same channel as backend for consistency
+    image: ghcr.io/picpeak/picpeak/frontend:${PICPEAK_CHANNEL:-stable}
+    container_name: picpeak-frontend
+    # Note: Pre-built frontend uses Nginx to proxy /api to backend:3000.
+    # Prefer keeping API base as '/api' in builds to avoid CORS.
+    environment:
+      # Substituted into index.html at container start (see frontend/
+      # docker-entrypoint.sh) so social link previews reaching the
+      # static SPA shell (WhatsApp Business API, Twilio, LinkPreview,
+      # etc. — see #521) show the configured brand instead of the
+      # generic "PicPeak" default. Defaults applied when unset; restart
+      # the frontend container after changing for the new title to
+      # take effect.
+      - BRAND_TITLE=${BRAND_TITLE:-PicPeak}
+      - BRAND_DESCRIPTION=${BRAND_DESCRIPTION:-Photo gallery shared with PicPeak.}
+    ports:
+      - "${PICPEAK_BIND_ADDRESS:-0.0.0.0}:${FRONTEND_PORT:-3000}:80"
+    networks:
+      - picpeak-network
+    depends_on:
+      - backend
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Optional in-app updater, container packaging (docs/self-update.md). Off by
+  # default: enable with COMPOSE_PROFILES=updater and PICPEAK_PROJECT_DIR in
+  # .env. Prefer the host agent (`picpeak-setup.sh --enable-self-update`) where
+  # you have a shell — this container holds the Docker socket, which is root on
+  # the host.
+  #
+  # It has no port and no network: the backend reaches it only through the
+  # request/status files in ./update. The project directory is mounted
+  # read-only at the IDENTICAL host path, because compose resolves the relative
+  # bind mounts above against it; the updater refuses to run otherwise. The
+  # placeholder default only keeps interpolation from failing on installs that
+  # never enable the profile.
+  updater:
+    image: ghcr.io/picpeak/picpeak/updater:${PICPEAK_UPDATER_TAG:-1}
+    container_name: picpeak-updater
+    profiles: [updater]
+    network_mode: none
+    environment:
+      - PICPEAK_PROJECT_DIR=${PICPEAK_PROJECT_DIR:-/picpeak-project-dir-not-set}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${PICPEAK_PROJECT_DIR:-/picpeak-project-dir-not-set}:${PICPEAK_PROJECT_DIR:-/picpeak-project-dir-not-set}:ro
+      - ${APP_UPDATE:-./update}:/update
+    restart: unless-stopped
+
+  # Optional: Nginx reverse proxy for production with SSL
+  # Uncomment and configure if you want built-in HTTPS support
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: picpeak-nginx
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+  #     - ./nginx/ssl:/etc/nginx/ssl:ro
+  #     - ./nginx/conf.d:/etc/nginx/conf.d:ro
+  #   networks:
+  #     - picpeak-network
+  #   depends_on:
+  #     - frontend
+  #     - backend
+  #   restart: unless-stopped
+
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  # Holds the auto-generated machine secrets (jwt_secret, db_password,
+  # redis_password). Keep it — deleting it orphans the DB password from the
+  # Postgres volume. Back it up alongside postgres-data.
+  picpeak-secrets:
+    driver: local
+  # Copies of db_password and redis_password for the postgres and redis
+  # containers alone. secrets-init rebuilds them from picpeak-secrets, so they
+  # need no backup.
+  picpeak-db-secret:
+    driver: local
+  picpeak-redis-secret:
+    driver: local
+  # ClamAV signature database (opt-in `clamav` profile); re-downloadable.
+  clamav-db:
+    driver: local
+
+networks:
+  picpeak-network:
+    driver: bridge

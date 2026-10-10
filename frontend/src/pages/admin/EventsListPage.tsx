@@ -1,0 +1,1005 @@
+import React, { useState, useEffect } from 'react';
+import { useExpiryRefresh } from '../../hooks/useExpiryRefresh';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import {
+  Plus,
+  Search,
+  Archive,
+  AlertTriangle,
+  MoreVertical,
+  ExternalLink,
+  Edit,
+  Download,
+  Trash2,
+  Calendar,
+  Image,
+  Activity,
+  Copy,
+  CheckCircle,
+  ChevronLeft,
+  ChevronRight,
+  Sparkles
+} from 'lucide-react';
+import { parseISO } from 'date-fns';
+import { toast } from 'react-toastify';
+import { useModal, useMutationWithToast } from '../../hooks';
+import { useLocalizedDate } from '../../hooks/useLocalizedDate';
+
+import { Button, Input, Card, SkeletonTable, ErrorBoundary, ColumnMenuHeader } from '../../components/common';
+import type { ColumnMenuOption, ColumnMenuState } from '../../components/common';
+import { BulkArchiveModal, BulkDeleteModal } from '../../components/admin';
+import { PermissionGate } from '../../components/admin/PermissionGate';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { eventsService, type EventStatusFilter, type EventSortBy } from '../../services/events.service';
+import { eventTypesService } from '../../services/eventTypes.service';
+import { adminService } from '../../services/admin.service';
+import { isGalleryPublic } from '../../utils/accessControl';
+import { mediaSplitLabel, splitMediaCount } from '../../utils/mediaCounts';
+import { buildShareLinkUrl } from '../../utils/url';
+import type { Event } from '../../types';
+import { deliveryDue, isAwaitingFullGallery } from './event-details/deliveryStatus';
+import { useTranslation } from 'react-i18next';
+
+const PAGE_SIZE = 20;
+
+/**
+ * The sort keys the column menus below can produce. A URL carrying anything
+ * else is dropped rather than forwarded: the server would discard it and fall
+ * back to created_at desc, leaving the table in an order no header reflects.
+ */
+const MENU_SORT_KEYS: readonly EventSortBy[] = [
+  'event_name', 'event_date', 'created_at', 'photo_count', 'status', 'expires_at',
+];
+
+export const EventsListPage: React.FC = () => {
+  const { t } = useTranslation();
+  const { format } = useLocalizedDate();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedEvents, setSelectedEvents] = useState<number[]>([]);
+  // const [showFilters, setShowFilters] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
+  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number } | null>(null);
+  const bulkArchiveModal = useModal();
+  const bulkDeleteModal = useModal();
+  const [copiedEventId, setCopiedEventId] = useState<number | null>(null);
+
+  const copyShareLink = async (event: Event) => {
+    const url = buildShareLinkUrl(event.share_link);
+    if (!url || url === '#') {
+      toast.error(t('errors.noShareLink', 'No share link available'));
+      return;
+    }
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(url);
+      } else {
+        const textArea = document.createElement('textarea');
+        textArea.value = url;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.select();
+        const ok = document.execCommand('copy');
+        document.body.removeChild(textArea);
+        if (!ok) throw new Error('Copy failed');
+      }
+      setCopiedEventId(event.id);
+      toast.success(t('events.linkCopied', 'Gallery link copied'));
+      setTimeout(() => setCopiedEventId((current) => (current === event.id ? null : current)), 2000);
+    } catch {
+      toast.error(t('errors.copyFailed', 'Failed to copy link'));
+    }
+  };
+
+  // Server-side pagination. Declared above patchParams, which resets it.
+  const [page, setPage] = useState(1);
+
+  // Get filter from URL — backend supports all of these as `status` values
+  const filterParam = searchParams.get('filter');
+  const statusFilter: EventStatusFilter | undefined =
+    filterParam === 'active' || filterParam === 'archived' ||
+    filterParam === 'draft' || filterParam === 'expiring' ||
+    filterParam === 'inactive' || filterParam === 'awaiting_delivery'
+      ? filterParam
+      : undefined;
+  const isExpiringFilter = filterParam === 'expiring';
+  const isDraftFilter = filterParam === 'draft';
+  const isAwaitingFilter = filterParam === 'awaiting_delivery';
+
+  // Sort and type filter live in the URL alongside `filter`, so a view the
+  // admin arranged survives a reload, the browser Back button and a link
+  // pasted to a colleague.
+  //
+  // Both halves or neither. A header finds its applied option by matching the
+  // whole `sortBy:sortOrder` pair, so forwarding half of one — a link that lost
+  // its `&dir=`, a hand-edited key the menus never produce — would sort the
+  // table by something while every header still rendered the faint "unsorted"
+  // hint and no menu item showed a check.
+  const sortParam = searchParams.get('sort');
+  const dirParam = searchParams.get('dir');
+  const urlSortOrder = dirParam === 'asc' || dirParam === 'desc' ? dirParam : undefined;
+  const sortBy = urlSortOrder && MENU_SORT_KEYS.includes(sortParam as EventSortBy)
+    ? (sortParam as EventSortBy)
+    : undefined;
+  const sortOrder = sortBy ? urlSortOrder : undefined;
+  const typeFilter = searchParams.get('type') || '';
+
+  // Preserves the params it is not changing: picking a status must not throw
+  // away the sort the admin just chose, and vice versa.
+  //
+  // Resets the page here rather than leaving it to the effect below. That
+  // effect still runs — it is what catches a Back navigation or a pasted URL,
+  // where no click passed through this function — but on a click it would fire
+  // a render later, so the query went out once with the new sort and the OLD
+  // page before the page-1 request replaced it. One request per change, not
+  // two.
+  const patchParams = (patch: Record<string, string | null>) => {
+    const next = new URLSearchParams(searchParams);
+    for (const [key, value] of Object.entries(patch)) {
+      if (value === null || value === '') next.delete(key);
+      else next.set(key, value);
+    }
+    setPage(1);
+    setSearchParams(next);
+  };
+
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearchTerm(searchTerm.trim()), 300);
+    return () => clearTimeout(t);
+  }, [searchTerm]);
+
+  // Reset to page 1 whenever the query changes so users don't get stuck on a
+  // page index that no longer exists in the new result set. patchParams
+  // already does this for a click; this covers the paths that bypass it —
+  // Back/Forward, a pasted link, and the debounced search box, which is local
+  // state rather than a URL param. Setting the same value is a no-op render,
+  // so the two together do not double up.
+  useEffect(() => {
+    setPage(1);
+  }, [statusFilter, debouncedSearchTerm, typeFilter, sortBy, sortOrder]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.dropdown-container')) {
+        setActiveDropdown(null);
+        setDropdownPosition(null);
+      }
+    };
+
+    if (activeDropdown !== null) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [activeDropdown]);
+
+  // Update dropdown position on scroll/resize
+  useEffect(() => {
+    const handleScrollOrResize = () => {
+      if (activeDropdown !== null) {
+        setActiveDropdown(null);
+        setDropdownPosition(null);
+      }
+    };
+
+    window.addEventListener('scroll', handleScrollOrResize, true);
+    window.addEventListener('resize', handleScrollOrResize);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScrollOrResize, true);
+      window.removeEventListener('resize', handleScrollOrResize);
+    };
+  }, [activeDropdown]);
+
+  // Fetch events — fully server-side: pagination, status filter, and search
+  // (#346 — counters and search were previously bounded to the first 100 rows).
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ['admin-events', statusFilter ?? 'all', debouncedSearchTerm, typeFilter, sortBy ?? '', sortOrder ?? '', page],
+    queryFn: () => eventsService.getEvents({
+      page,
+      limit: PAGE_SIZE,
+      status: statusFilter,
+      search: debouncedSearchTerm || undefined,
+      type: typeFilter || undefined,
+      sortBy,
+      sortOrder,
+    }),
+    placeholderData: (prev) => prev,
+  });
+
+  // Clamp the active page when the result count shrinks (#442 — bulk
+  // delete of an entire page would leave the user on a now-empty
+  // page=N where N > totalPages, with no auto-correction). Triggers
+  // after each successful refetch when totalPages drops below the
+  // current page (bulk delete, individual delete, archive, anything).
+  // Must live AFTER the useQuery above so `data` is in scope — the
+  // original placement at the top of the component caused a TDZ
+  // ReferenceError on /admin/events that crashed the page (#454).
+  useEffect(() => {
+    if (data?.pagination && page > data.pagination.totalPages) {
+      setPage(Math.max(1, data.pagination.totalPages));
+    }
+  }, [data?.pagination, page]);
+
+  // Aggregate counters come from the dashboard stats endpoint so the cards
+  // and the "All (N)" filter button always reflect global totals, not the
+  // currently visible page.
+  const { data: dashboardStats } = useQuery({
+    queryKey: ['admin-dashboard-stats'],
+    queryFn: () => adminService.getDashboardStats(),
+  });
+  const installMedia = splitMediaCount(dashboardStats?.totalPhotos, dashboardStats?.totalVideos);
+
+  // Every type ever assigned, including deactivated ones: a gallery created
+  // years ago can still carry a type that has since been switched off, and
+  // leaving it out of the menu would make those rows unfilterable. Deleting a
+  // type in use is blocked and a rename cascades to events.event_type, so this
+  // list covers every slug the rows can hold.
+  const { data: eventTypes } = useQuery({
+    queryKey: ['admin-event-types', 'withInactive'],
+    queryFn: () => eventTypesService.getEventTypes(true),
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Column menus. Each option value is the `sortBy:sortOrder` pair sent to the
+  // server, so the applied option is found by string match rather than by
+  // reconstructing which column owns the current sort.
+  const sortValue = sortBy && sortOrder ? `${sortBy}:${sortOrder}` : null;
+
+  const NAME_SORT: ColumnMenuOption[] = [
+    { value: 'event_name:asc', label: t('events.sortNameAsc', 'A – Z') },
+    { value: 'event_name:desc', label: t('events.sortNameDesc', 'Z – A') },
+  ];
+  const DATE_SORT: ColumnMenuOption[] = [
+    { value: 'event_date:desc', label: t('events.sortDateNewest', 'Newest first') },
+    { value: 'event_date:asc', label: t('events.sortDateOldest', 'Oldest first') },
+    { value: 'created_at:desc', label: t('events.sortCreatedNewest', 'Recently created'), separatorBefore: true },
+    { value: 'created_at:asc', label: t('events.sortCreatedOldest', 'First created') },
+  ];
+  const PHOTOS_SORT: ColumnMenuOption[] = [
+    { value: 'photo_count:desc', label: t('events.sortPhotosMost', 'Most photos') },
+    { value: 'photo_count:asc', label: t('events.sortPhotosFewest', 'Fewest photos') },
+  ];
+  const STATUS_SORT: ColumnMenuOption[] = [
+    { value: 'status:asc', label: t('events.sortStatusActive', 'Active first') },
+    { value: 'status:desc', label: t('events.sortStatusArchived', 'Archived first') },
+  ];
+  const EXPIRES_SORT: ColumnMenuOption[] = [
+    { value: 'expires_at:asc', label: t('events.sortExpiresSoonest', 'Expiring soonest') },
+    { value: 'expires_at:desc', label: t('events.sortExpiresLatest', 'Expiring latest') },
+  ];
+
+  const typeOptions: ColumnMenuOption[] = [
+    { value: '', label: t('events.filterAllTypes', 'All types') },
+    ...(eventTypes ?? []).map((type) => ({
+      value: type.slug_prefix,
+      label: type.emoji ? `${type.emoji} ${type.name}` : type.name,
+    })),
+  ];
+
+  /** The option this column currently carries, or null when it is not the active sort. */
+  const sortSelection = (options: ColumnMenuOption[]) =>
+    (sortValue && options.some((o) => o.value === sortValue) ? sortValue : null);
+
+  /** Chevron direction for the column, or null when it is not the active sort. */
+  const sortState = (options: ColumnMenuOption[]): ColumnMenuState => {
+    const selected = sortSelection(options);
+    if (!selected) return null;
+    return selected.endsWith(':asc') ? 'asc' : 'desc';
+  };
+
+  const applySort = (value: string) => {
+    const [by, dir] = value.split(':');
+    patchParams({ sort: by, dir });
+  };
+
+  // Archive mutation
+  const archiveMutation = useMutationWithToast({
+    mutationFn: eventsService.archiveEvent,
+    invalidateKeys: [['admin-events'], ['admin-dashboard-stats']],
+    successMessage: t('toast.eventArchived'),
+    errorMessage: () => t('toast.saveError'),
+  });
+
+  // Delete mutation
+  const deleteMutation = useMutationWithToast({
+    mutationFn: eventsService.deleteEvent,
+    invalidateKeys: [['admin-events'], ['admin-dashboard-stats']],
+    successMessage: t('toast.deleteSuccess'),
+    errorMessage: () => t('toast.deleteError'),
+  });
+
+  // Bulk archive mutation
+  const bulkArchiveMutation = useMutation({
+    mutationFn: eventsService.bulkArchiveEvents,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['admin-events'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-dashboard-stats'] });
+      setSelectedEvents([]);
+      bulkArchiveModal.close();
+
+      if (data.results.failed.length === 0) {
+        toast.success(t('events.bulkArchiveSuccess', { count: data.results.successful.length }));
+      } else {
+        toast.warning(t('events.bulkArchivePartial', { success: data.results.successful.length, failed: data.results.failed.length }));
+      }
+    },
+    onError: () => {
+      toast.error(t('toast.saveError'));
+    },
+  });
+
+  // Bulk delete mutation. Confirmation is handled client-side by the modal's
+  // typed-DELETE gate (#417); server still enforces auth + permission.
+  const bulkDeleteMutation = useMutation({
+    mutationFn: (eventIds: number[]) => eventsService.bulkDeleteEvents(eventIds),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['admin-events'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-dashboard-stats'] });
+      setSelectedEvents([]);
+      bulkDeleteModal.close();
+
+      if (data.results.failed.length === 0) {
+        toast.success(t('events.bulkDelete.successAll', { count: data.results.successful.length }));
+      } else {
+        toast.warning(t('events.bulkDelete.successPartial', { success: data.results.successful.length, failed: data.results.failed.length }));
+      }
+    },
+    onError: () => {
+      toast.error(t('events.bulkDelete.errorGeneric'));
+      bulkDeleteModal.close();
+    },
+  });
+
+  // Filtering and searching now happen server-side. Use the response directly,
+  // ordered as the backend returned them (created_at desc by default).
+  const events: Event[] = data?.events ?? [];
+
+  // Refetch when the soonest event expiry passes (#909 review): the status
+  // badge is computed inline from Date.now(), and under the "expiring" filter
+  // the backend drops the row once expires_at <= now — so a plain re-render
+  // would leave a stale "Expired" row (and total) in that filtered view.
+  // refetch() re-runs with the current page/filter/search: rows and totals
+  // both correct under every filter.
+  useExpiryRefresh(events.map((e) => e.expires_at), refetch);
+  const pagination = data?.pagination;
+  const totalPages = pagination?.totalPages ?? 1;
+  const filteredCount = pagination?.total ?? 0;
+  const isFilteringOrSearching = !!statusFilter || !!debouncedSearchTerm;
+
+  const handleSelectAll = () => {
+    if (selectedEvents.length === events.length) {
+      setSelectedEvents([]);
+    } else {
+      setSelectedEvents(events.map(e => e.id));
+    }
+  };
+
+  const handleSelectEvent = (id: number) => {
+    setSelectedEvents(prev => 
+      prev.includes(id) 
+        ? prev.filter(i => i !== id)
+        : [...prev, id]
+    );
+  };
+
+  // Two-stage delivery (issue 1562): next to the status, a gallery waiting
+  // for its full delivery says how close the promised date is.
+  const deliveryPill = (event: Event) => {
+    if (!isAwaitingFullGallery(event) || event.is_archived) return null;
+    const due = deliveryDue(event.delivery_due_at);
+    const color = due?.tone === 'overdue'
+      ? 'text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/40'
+      : due?.tone === 'soon'
+        ? 'text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/40'
+        : 'text-body bg-inset';
+    return (
+      <span className={`mt-1 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${color}`}>
+        <Sparkles className="w-3 h-3" />
+        {!due
+          ? t('events.delivery.pill', 'First look')
+          : due.tone === 'overdue'
+            ? t('events.delivery.pillOverdue', 'First look · overdue')
+            : t('events.delivery.pillDue', 'First look · due in {{count}} d', { count: due.days })}
+      </span>
+    );
+  };
+
+  const getEventStatus = (event: Event) => {
+    if (event.is_draft) return { label: t('events.draft'), color: 'text-yellow-600 dark:text-yellow-400 bg-yellow-100 dark:bg-yellow-900/40' };
+    if (event.is_archived) return { label: t('events.archived'), color: 'text-muted bg-inset' };
+    if (!event.is_active) return { label: t('events.inactive'), color: 'text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/40' };
+
+    if (!event.expires_at) return { label: t('events.active'), color: 'text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/40' };
+
+    // Expired means the timestamp has actually passed (#909):
+    // differenceInDays truncates to whole days, so an event expiring in a
+    // few hours returned 0 and showed "Expired" while the public gallery
+    // (which compares real timestamps) correctly showed it active.
+    const expiresAt = parseISO(event.expires_at);
+    if (expiresAt.getTime() <= Date.now()) return { label: t('events.expired'), color: 'text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/40' };
+    // Ceiling so the last day reads "1 day left", never "0 days".
+    const days = Math.ceil((expiresAt.getTime() - Date.now()) / 86400000);
+    if (days <= 7) return { label: t('events.daysLeft', { count: days }), color: 'text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-900/40' };
+
+    return { label: t('events.active'), color: 'text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/40' };
+  };
+
+  if (isLoading) {
+    return (
+      <div>
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-heading">{t('events.title')}</h1>
+            <p className="text-soft mt-1">{t('events.subtitle')}</p>
+          </div>
+        </div>
+        <SkeletonTable rows={5} />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-red-600">{t('events.failedToLoadEvents')}</p>
+        <Button onClick={() => window.location.reload()} className="mt-4">
+          {t('events.tryAgain')}
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <ErrorBoundary>
+      <div>
+        {/* Page Header */}
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-heading">{t('events.title')}</h1>
+            <p className="text-soft mt-1">{t('events.subtitle')}</p>
+          </div>
+          <PermissionGate permission="events.create">
+            <Button
+              variant="primary"
+              leftIcon={<Plus className="w-5 h-5" />}
+              onClick={() => navigate('/admin/events/new')}
+            >
+              {t('events.createEvent')}
+            </Button>
+          </PermissionGate>
+        </div>
+
+      {/* Statistics Cards — fed from /admin/dashboard/stats so the totals
+          stay accurate regardless of the visible page (#346). */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <Card padding="sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-soft">{t('events.stats.totalEvents')}</p>
+              <p className="text-2xl font-bold text-heading">{dashboardStats?.totalEvents ?? 0}</p>
+            </div>
+            <Calendar className="w-8 h-8 text-accent" />
+          </div>
+        </Card>
+
+        <Card padding="sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-soft">{t('events.stats.activeEvents')}</p>
+              <p className="text-2xl font-bold text-heading">
+                {dashboardStats?.activeEvents ?? 0}
+              </p>
+            </div>
+            <Activity className="w-8 h-8 text-green-600" />
+          </div>
+        </Card>
+
+        <Card padding="sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-soft">
+                {installMedia.hasVideos ? t('admin.totalMedia', 'Total Media') : t('events.stats.totalPhotos')}
+              </p>
+              <p className="text-2xl font-bold text-heading">
+                {dashboardStats?.totalPhotos ?? 0}
+              </p>
+              {installMedia.hasVideos && (
+                <p className="text-xs text-muted">{mediaSplitLabel(t, installMedia)}</p>
+              )}
+            </div>
+            <Image className="w-8 h-8 text-blue-600" />
+          </div>
+        </Card>
+
+        <Card padding="sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-soft">{t('events.stats.expiringEvents')}</p>
+              <p className="text-2xl font-bold text-heading">
+                {dashboardStats?.expiringEvents ?? 0}
+              </p>
+            </div>
+            <AlertTriangle className="w-8 h-8 text-orange-600" />
+          </div>
+        </Card>
+      </div>
+
+      {/* Filters and Search */}
+      <Card padding="sm" className="mb-6">
+        <div className="flex flex-col lg:flex-row gap-4">
+          {/* Search */}
+          <div className="flex-1">
+            <Input
+              type="text"
+              placeholder={t('events.searchEventsPlaceholder')}
+              leftIcon={<Search className="w-5 h-5 text-neutral-400" />}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          {/* Filter Buttons */}
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant={!statusFilter ? 'primary' : 'outline'}
+              size="md"
+              onClick={() => patchParams({ filter: null })}
+            >
+              {t('events.all')} ({dashboardStats?.totalEvents ?? 0})
+            </Button>
+            <Button
+              variant={statusFilter === 'active' ? 'primary' : 'outline'}
+              size="md"
+              onClick={() => patchParams({ filter: 'active' })}
+            >
+              {t('events.active')}
+            </Button>
+            <Button
+              variant={isExpiringFilter ? 'primary' : 'outline'}
+              size="md"
+              onClick={() => patchParams({ filter: 'expiring' })}
+              leftIcon={<AlertTriangle className="w-4 h-4" />}
+            >
+              {t('events.expiring')}
+            </Button>
+            <Button
+              variant={isDraftFilter ? 'primary' : 'outline'}
+              size="md"
+              onClick={() => patchParams({ filter: 'draft' })}
+            >
+              {t('events.draft')}
+            </Button>
+            <Button
+              variant={isAwaitingFilter ? 'primary' : 'outline'}
+              size="md"
+              onClick={() => patchParams({ filter: 'awaiting_delivery' })}
+              leftIcon={<Sparkles className="w-4 h-4" />}
+            >
+              {t('events.delivery.awaitingFilter', 'Awaiting full gallery')}
+            </Button>
+            <Button
+              variant={statusFilter === 'archived' ? 'primary' : 'outline'}
+              size="md"
+              onClick={() => patchParams({ filter: 'archived' })}
+              leftIcon={<Archive className="w-4 h-4" />}
+            >
+              {t('events.archived')}
+            </Button>
+          </div>
+        </div>
+
+        {/* Bulk Actions */}
+        {selectedEvents.length > 0 && (
+          <div className="mt-4 p-3 bg-accent-dark/15 rounded-lg flex items-center justify-between">
+            <span className="text-sm text-accent-dark">
+              {t('events.eventsSelected', { count: selectedEvents.length })}
+            </span>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => setSelectedEvents([])}>
+                {t('events.clear')}
+              </Button>
+              <PermissionGate permission="events.archive">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => bulkArchiveModal.open()}
+                >
+                  {t('events.archiveSelected')}
+                </Button>
+              </PermissionGate>
+              <PermissionGate permission="events.delete">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => bulkDeleteModal.open()}
+                  className="border-red-300 text-red-700 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-900/30"
+                >
+                  {t('events.deleteSelected', 'Delete Selected')}
+                </Button>
+              </PermissionGate>
+            </div>
+          </div>
+        )}
+      </Card>
+
+      {/* Events Table */}
+      <Card className="overflow-visible">
+        <div className="overflow-x-auto overflow-y-visible">
+          <table className="w-full">
+            <thead className="bg-subtle border-b border-line">
+              <tr>
+                <th className="px-6 py-3 text-left">
+                  <input
+                    type="checkbox"
+                    checked={selectedEvents.length === events.length && events.length > 0}
+                    onChange={handleSelectAll}
+                    className="w-4 h-4 text-accent border-line-strong rounded focus:ring-primary-500 dark:bg-neutral-700"
+                  />
+                </th>
+                <ColumnMenuHeader
+                  label={t('events.event')}
+                  menuLabel={t('events.sortByName', 'Sort by name')}
+                  options={NAME_SORT}
+                  value={sortSelection(NAME_SORT)}
+                  state={sortState(NAME_SORT)}
+                  onSelect={applySort}
+                />
+                <ColumnMenuHeader
+                  label={t('events.type')}
+                  menuLabel={t('events.filterByType', 'Filter by type')}
+                  options={typeOptions}
+                  value={typeFilter}
+                  state={typeFilter ? 'set' : null}
+                  onSelect={(value) => patchParams({ type: value || null })}
+                  // Until the catalogue loads — or if it fails to — the only
+                  // option would be "All types", which filters nothing. A
+                  // header that plainly has no menu yet beats one that opens
+                  // and offers a single useless choice.
+                  disabled={!eventTypes}
+                />
+                <ColumnMenuHeader
+                  label={t('events.date')}
+                  menuLabel={t('events.sortByDate', 'Sort by date')}
+                  options={DATE_SORT}
+                  value={sortSelection(DATE_SORT)}
+                  state={sortState(DATE_SORT)}
+                  onSelect={applySort}
+                />
+                <ColumnMenuHeader
+                  label={installMedia.hasVideos ? t('events.media', 'Media') : t('events.photos', 'Photos')}
+                  menuLabel={t('events.sortByPhotos', 'Sort by photo count')}
+                  options={PHOTOS_SORT}
+                  value={sortSelection(PHOTOS_SORT)}
+                  state={sortState(PHOTOS_SORT)}
+                  onSelect={applySort}
+                  align="right"
+                />
+                <ColumnMenuHeader
+                  label={t('events.status')}
+                  menuLabel={t('events.sortByStatus', 'Sort by status')}
+                  options={STATUS_SORT}
+                  value={sortSelection(STATUS_SORT)}
+                  state={sortState(STATUS_SORT)}
+                  onSelect={applySort}
+                />
+                <ColumnMenuHeader
+                  label={t('events.expires')}
+                  menuLabel={t('events.sortByExpiry', 'Sort by expiry')}
+                  options={EXPIRES_SORT}
+                  value={sortSelection(EXPIRES_SORT)}
+                  state={sortState(EXPIRES_SORT)}
+                  onSelect={applySort}
+                />
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
+                  {t('events.actions')}
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-panel divide-y divide-line">
+              {events.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="px-6 py-12 text-center text-muted">
+                    {t('events.noEventsFound')}
+                  </td>
+                </tr>
+              ) : (
+                events.map((event) => {
+                  const status = getEventStatus(event);
+
+                  return (
+                    <tr
+                      key={event.id}
+                      className="hover:bg-neutral-50 dark:hover:bg-neutral-700/50 cursor-pointer"
+                      onClick={() => navigate(`/admin/events/${event.id}`)}
+                    >
+                      <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          checked={selectedEvents.includes(event.id)}
+                          onChange={() => handleSelectEvent(event.id)}
+                          className="w-4 h-4 text-accent border-line-strong rounded focus:ring-primary-500 dark:bg-neutral-700"
+                        />
+                      </td>
+                      <td className="px-6 py-4">
+                        <div>
+                          <p className="text-sm font-medium text-heading">{event.event_name}</p>
+                          <p className="text-xs text-muted">{event.customer_email}</p>
+                          <div className="mt-1">
+                            <span
+                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium ${
+                                isGalleryPublic(event.require_password)
+                                  ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300'
+                                  : 'bg-inset text-body'
+                              }`}
+                            >
+                              {isGalleryPublic(event.require_password) ? t('events.publicAccess', 'Public access') : t('events.passwordProtected', 'Password protected')}
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-body">
+                        {event.event_type}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-body">
+                        {event.event_date ? format(parseISO(event.event_date)) : 'N/A'}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-right tabular-nums text-body">
+                        {event.photo_count ?? 0}
+                        {(event.video_count ?? 0) > 0 && (
+                          <p className="text-xs text-muted whitespace-nowrap">
+                            {mediaSplitLabel(t, splitMediaCount(event.photo_count, event.video_count))}
+                          </p>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${status.color}`}>
+                          {status.label}
+                        </span>
+                        {deliveryPill(event)}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-body">
+                        {event.expires_at ? format(parseISO(event.expires_at)) : 'N/A'}
+                      </td>
+                      <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center gap-1">
+                          {/* Inline action buttons - hidden on mobile */}
+                          <div className="hidden md:flex items-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => navigate(`/admin/events/${event.id}`)}
+                              title={t('events.viewDetails')}
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            {event.share_link && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => window.open(buildShareLinkUrl(event.share_link), '_blank')}
+                                title={t('events.viewGallery')}
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                              </Button>
+                            )}
+                            {event.share_link && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => copyShareLink(event)}
+                                title={t('events.copyLink', 'Copy Link')}
+                              >
+                                {copiedEventId === event.id ? (
+                                  <CheckCircle className="w-4 h-4 text-green-600" />
+                                ) : (
+                                  <Copy className="w-4 h-4" />
+                                )}
+                              </Button>
+                            )}
+                          </div>
+
+                          {/* Context menu for additional actions */}
+                          <div className="relative inline-block text-left dropdown-container">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (activeDropdown === event.id) {
+                                  setActiveDropdown(null);
+                                  setDropdownPosition(null);
+                                } else {
+                                  const rect = e.currentTarget.getBoundingClientRect();
+                                  setActiveDropdown(event.id);
+                                  setDropdownPosition({
+                                    top: rect.bottom + window.scrollY,
+                                    left: rect.right - 224 + window.scrollX // 224px = 14rem (w-56)
+                                  });
+                                }
+                              }}
+                              className="text-neutral-400 hover:text-body p-1"
+                            >
+                              <MoreVertical className="w-5 h-5" />
+                            </button>
+
+                            {activeDropdown === event.id && dropdownPosition && (
+                              <div
+                                className="fixed z-50 w-56 rounded-md shadow-lg bg-panel ring-1 ring-black ring-opacity-5 dark:ring-neutral-700"
+                                style={{ top: `${dropdownPosition.top}px`, left: `${dropdownPosition.left}px` }}
+                              >
+                                <div className="py-1">
+                                  {/* Show Edit/View on mobile only (already visible inline on desktop) */}
+                                  <button
+                                    onClick={() => {
+                                      navigate(`/admin/events/${event.id}`);
+                                      setActiveDropdown(null);
+                                      setDropdownPosition(null);
+                                    }}
+                                    className="md:hidden w-full text-left px-4 py-2 text-sm text-body hover:bg-hover flex items-center gap-2"
+                                  >
+                                    <Edit className="w-4 h-4" />
+                                    {t('events.viewDetails')}
+                                  </button>
+                                  {event.share_link ? (
+                                    <a
+                                      href={buildShareLinkUrl(event.share_link)}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="md:hidden w-full text-left px-4 py-2 text-sm text-body hover:bg-hover flex items-center gap-2"
+                                      onClick={() => {
+                                        setActiveDropdown(null);
+                                        setDropdownPosition(null);
+                                      }}
+                                    >
+                                      <ExternalLink className="w-4 h-4" />
+                                      {t('events.viewGallery')}
+                                    </a>
+                                  ) : null}
+                                  {event.share_link ? (
+                                    <button
+                                      onClick={() => {
+                                        copyShareLink(event);
+                                        setActiveDropdown(null);
+                                        setDropdownPosition(null);
+                                      }}
+                                      className="md:hidden w-full text-left px-4 py-2 text-sm text-body hover:bg-hover flex items-center gap-2"
+                                    >
+                                      <Copy className="w-4 h-4" />
+                                      {t('events.copyLink', 'Copy Link')}
+                                    </button>
+                                  ) : null}
+                                  {!event.is_archived ? (
+                                    <PermissionGate permission="events.archive">
+                                      <button
+                                        onClick={() => {
+                                          archiveMutation.mutate(event.id);
+                                          setActiveDropdown(null);
+                                          setDropdownPosition(null);
+                                        }}
+                                        className="w-full text-left px-4 py-2 text-sm text-body hover:bg-hover flex items-center gap-2"
+                                      >
+                                        <Archive className="w-4 h-4" />
+                                        {t('events.archiveEventAction')}
+                                      </button>
+                                    </PermissionGate>
+                                  ) : null}
+                                  {event.is_archived ? (
+                                    <PermissionGate permission="archives.download">
+                                      <button
+                                        onClick={() => {
+                                          toast.info(t('events.downloadArchiveSoon'));
+                                          setActiveDropdown(null);
+                                          setDropdownPosition(null);
+                                        }}
+                                        className="w-full text-left px-4 py-2 text-sm text-body hover:bg-hover flex items-center gap-2"
+                                      >
+                                        <Download className="w-4 h-4" />
+                                        {t('events.downloadArchiveAction')}
+                                      </button>
+                                    </PermissionGate>
+                                  ) : null}
+                                  <PermissionGate permission="events.delete">
+                                    <button
+                                      onClick={() => {
+                                        if (confirm(t('events.deleteEventConfirm'))) {
+                                          deleteMutation.mutate(event.id);
+                                          setActiveDropdown(null);
+                                          setDropdownPosition(null);
+                                        }
+                                      }}
+                                      className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center gap-2"
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                      {t('events.deleteEvent')}
+                                    </button>
+                                  </PermissionGate>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      {/* Pagination — only when the current filter has more than one page */}
+      {totalPages > 1 && (
+        <div className="mt-4 flex items-center justify-between text-sm text-soft">
+          <div>
+            {t('events.paginationLabel', {
+              from: events.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1,
+              to: (page - 1) * PAGE_SIZE + events.length,
+              total: filteredCount,
+              defaultValue: '{{from}}–{{to}} of {{total}}',
+            })}
+            {isFilteringOrSearching && (
+              <span className="ml-2 text-neutral-400">({t('events.filtered', 'filtered')})</span>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              leftIcon={<ChevronLeft className="w-4 h-4" />}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page <= 1}
+            >
+              {t('common.previous', 'Previous')}
+            </Button>
+            <span>
+              {t('events.pageOf', {
+                page,
+                totalPages,
+                defaultValue: 'Page {{page}} of {{totalPages}}',
+              })}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              rightIcon={<ChevronRight className="w-4 h-4" />}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page >= totalPages}
+            >
+              {t('common.next', 'Next')}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Archive Modal */}
+      <BulkArchiveModal
+        isOpen={bulkArchiveModal.isOpen}
+        onClose={bulkArchiveModal.close}
+        onConfirm={() => bulkArchiveMutation.mutate(selectedEvents)}
+        selectedEvents={events.filter(e => selectedEvents.includes(e.id))}
+        isLoading={bulkArchiveMutation.isPending}
+      />
+
+      {/* Bulk Delete Modal */}
+      <BulkDeleteModal
+        isOpen={bulkDeleteModal.isOpen}
+        onClose={bulkDeleteModal.close}
+        onConfirm={async () => {
+          await bulkDeleteMutation.mutateAsync(selectedEvents);
+        }}
+        selectedEvents={events.filter(e => selectedEvents.includes(e.id))}
+        isLoading={bulkDeleteMutation.isPending}
+      />
+      </div>
+    </ErrorBoundary>
+  );
+};
+
+EventsListPage.displayName = 'EventsListPage';

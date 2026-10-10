@@ -1,0 +1,823 @@
+const path = require('path');
+const fs = require('fs').promises;
+const { db } = require('../database/db');
+const { generateThumbnail, generateVideoPlaceholder, extractCaptureDate, withLocalCopy, withProcessableImage } = require('./imageProcessor');
+const { generatePhotoFilename } = require('../utils/filenameSanitizer');
+const { processUploadedVideo, extractVideoMetadata, isVideoMimeType, posterFrameError } = require('./videoProcessor');
+const { getStorage } = require('./storage');
+const { resolvePhotoStorageKey, resolvePhotoFilePath } = require('./photoResolver');
+const logger = require('../utils/logger');
+const uploadQuota = require('./publicUploadQuota');
+const { insertPhotoWithinCap, photoCapOf } = require('./photoCap');
+const { resolveCredit, creditOpenForExif, settleGuestCredit } = require('./photoCredit');
+const imageAdmission = require('./imageWorkAdmission');
+const { isResourceError, describe: describeImageError } = require('./imageResourcePolicy');
+const mediaAttempts = require('./mediaAttemptService');
+const { refusal: mediaRefusal, isInterruption } = require('./mediaProcessPolicy');
+
+function normalizeFiles(files) {
+  // Handle null, undefined, or falsy values
+  if (!files) {
+    logger.info('[normalizeFiles] No files provided');
+    return [];
+  }
+
+  // Handle arrays
+  if (Array.isArray(files)) {
+    const validFiles = files.filter(Boolean);
+    logger.info(`[normalizeFiles] Normalized ${validFiles.length} files from array`);
+    return validFiles;
+  }
+
+  // Handle iterable objects (some multer configurations)
+  try {
+    if (typeof files === 'object' && typeof files[Symbol.iterator] === 'function') {
+      const validFiles = Array.from(files).filter(Boolean);
+      logger.info(`[normalizeFiles] Normalized ${validFiles.length} files from iterable`);
+      return validFiles;
+    }
+  } catch (err) {
+    logger.warn('[normalizeFiles] Failed to iterate files object:', err.message);
+  }
+
+  // Handle plain objects (multer fieldname mapping)
+  if (typeof files === 'object') {
+    try {
+      const validFiles = Object.values(files)
+        .flatMap((value) => (Array.isArray(value) ? value : [value]))
+        .filter(Boolean);
+      logger.info(`[normalizeFiles] Normalized ${validFiles.length} files from object`);
+      return validFiles;
+    } catch (err) {
+      logger.warn('[normalizeFiles] Failed to process files object:', err.message);
+      return [];
+    }
+  }
+
+  // Unexpected type
+  logger.warn('[normalizeFiles] Unexpected files type:', typeof files);
+  return [];
+}
+
+// `placement` (issue 1786): photo columns resolved by uploadPlacement —
+// category_id, folder_id, first_look, pending_folder_request_id. Before it
+// existed this path dropped the category of a chunked upload entirely.
+async function processUploadedPhotos(files, eventId, uploadedBy = 'admin', categoryId = null, placement = {}, uploadReservation = null) {
+  const uploadedPhotos = [];
+  const fileList = normalizeFiles(files);
+
+  if (fileList.length === 0) {
+    return uploadedPhotos;
+  }
+
+  // Get event details
+  const event = await db('events').where({ id: eventId }).first();
+  if (!event) {
+    throw new Error('Event not found');
+  }
+  
+  // Read the setting before any transaction opens: on SQLite the pool is one
+  // connection, and a read through `db` while `trx` holds it waits for the
+  // acquire timeout (isEnabled then logs and answers false). The value is
+  // cached for a minute, so once per batch is right.
+  const webCopyEnabled = await require('./videoRenditionService').isEnabled();
+
+  // Process each file
+  for (const file of fileList) {
+    // Admission commits use the ledger's short transaction. Never hold a
+    // SQLite connection through media IO then try to nest a ledger transaction.
+    const trx = uploadReservation ? null : await db.transaction();
+    const conn = trx || db;
+    let promotion = null;
+    let promotionSettled = false;
+    let rowCommitted = false;
+    
+    try {
+      // Count existing photos to generate sequence number
+      let counter = 1;
+      let photoType = 'individual'; // default type
+      
+      // If categoryId is provided and matches photo types, use it as type
+      if (categoryId === 'collage') {
+        photoType = 'collage';
+      }
+      
+      // Count existing photos of the same type for numbering
+      if (uploadReservation?.isCancelled?.()) throw uploadQuota.refusal('UPLOAD_CANCELLED', 400);
+      const existingCount = await conn('photos')
+        .where({ event_id: eventId, type: photoType })
+        .count('id as count')
+        .first();
+
+      const existingCountValue = Number(existingCount?.count ?? 0);
+      counter = existingCountValue + 1;
+      
+      // Generate new filename
+      const extension = path.extname(file.originalname);
+      const categoryName = photoType === 'collage' ? 'collages' : 'individual';
+      const newFilename = generatePhotoFilename(
+        event.event_name,
+        categoryName,
+        counter,
+        extension
+      );
+      
+      const tempPath = file?.path || file?.filepath || file?.tempFilePath;
+
+      if (!tempPath) {
+        const fileInfo = JSON.stringify({
+          originalname: file?.originalname,
+          mimetype: file?.mimetype,
+          size: file?.size,
+          availableKeys: Object.keys(file || {})
+        });
+        throw new Error(`Uploaded file is missing a temporary path. File info: ${fileInfo}`);
+      }
+
+      // Verify temp file exists before processing
+      try {
+        await fs.access(tempPath);
+      } catch (accessErr) {
+        logger.error(`Temp file not accessible: ${tempPath}`, {
+          originalname: file?.originalname,
+          error: accessErr.message
+        });
+        throw new Error(`Uploaded file not found at temporary location: ${tempPath}`);
+      }
+
+      // Final storage key under events/active/{slug}/{newFilename}.
+      const relativePath = path.posix.join(event.slug, newFilename);
+      const finalKey = path.posix.join('events/active', relativePath);
+
+      // Determine if this is a video or image
+      const isVideo = isVideoMimeType(file.mimetype);
+      const mediaType = isVideo ? 'video' : 'image';
+
+      // Generate thumbnail and extract metadata FROM the temp file (still on
+      // local disk) before uploading the original.
+      let thumbnailPath;
+      let videoMetadata = null;
+      let imageMetadata = null;
+      // A video that completes with the placeholder tile records why, so the
+      // admin grid can say so and offer a retry (issue 1430, item 6). The row
+      // still completes: the guest gallery lists only complete rows.
+      let processingError = null;
+
+      if (isVideo) {
+        const videoThumbnailKey = path.posix.join(
+          'thumbnails',
+          `thumb_${newFilename.replace(/\.[^.]+$/, '.jpg')}`
+        );
+        // A thumbnail/probe failure must not lose the video: without this
+        // guard the whole upload errors here, while the image branch below
+        // already survives its thumbnail failures. Fall back to metadata-only
+        // plus the static play-button placeholder — a completed video with a
+        // NULL thumbnail would make the grid fetch the ORIGINAL video file
+        // as an <img> blob (thumbnail_url || url), i.e. a multi-GB download
+        // for a broken tile (codex review of #845).
+        try {
+          const result = await processUploadedVideo(tempPath, videoThumbnailKey);
+          videoMetadata = result.metadata;
+          thumbnailPath = result.thumbnailKey;
+          if (result.placeholder) processingError = posterFrameError(result.thumbnailError);
+        } catch (videoErr) {
+          logger.warn(`Video processing failed for ${file.originalname}, using placeholder thumbnail:`, videoErr.message);
+          processingError = posterFrameError(videoErr.message);
+          try {
+            videoMetadata = await extractVideoMetadata(tempPath);
+          } catch (metaErr) {
+            logger.warn(`Video metadata extraction also failed for ${file.originalname}:`, metaErr.message);
+          }
+          // ffmpeg-free (sharp-rendered SVG); returns null on failure.
+          thumbnailPath = await generateVideoPlaceholder(newFilename);
+        }
+      } else {
+        // RAW/DNG can't be fed to sharp directly (no raw loader), so extract the
+        // embedded JPEG preview first and thumbnail/measure THAT. Pass-through
+        // for ordinary images. The stored original stays the RAW (download).
+        // Use the unique stored filename (not the client-supplied original) so
+        // the RAW-derived thumbnail's global key can't collide across galleries.
+        const proc = await withProcessableImage(tempPath, newFilename);
+        try {
+          thumbnailPath = await generateThumbnail(proc.path, { outputBasename: proc.outputBasename });
+          try {
+            const sharp = require('./isolatedSharp');
+            const metadata = await sharp(proc.path).metadata();
+            // Oriented, not raw — see orientedDimensions (#1185).
+            const dims = require('./imageProcessor').orientedDimensions(metadata);
+            if (dims.width && dims.height) {
+              imageMetadata = { width: dims.width, height: dims.height };
+            }
+          } catch (metadataError) {
+            if (isResourceError(metadataError)) throw metadataError;
+            logger.warn(`Could not extract image dimensions for ${file.originalname}:`, metadataError.message);
+          }
+        } finally {
+          await proc.cleanup();
+        }
+      }
+
+      // Credit (#1561), read from the temp file before it is moved.
+      const credit = await resolveCredit({ uploadedBy, localPath: tempPath, isVideo });
+
+      // Now upload the original through the storage backend and remove the
+      // local temp copy.
+      const actualSize = uploadReservation ? (await fs.stat(tempPath)).size : file.size;
+      if (uploadReservation) promotion = await uploadQuota.prepareObject(uploadReservation, finalKey, actualSize);
+      try {
+        await getStorage().putFromFile(finalKey, tempPath, {
+          contentType: file.mimetype,
+        });
+        promotionSettled = true;
+        if (uploadReservation && Number((await getStorage().stat(finalKey))?.size) !== actualSize) {
+          throw new Error('Stored upload size could not be verified');
+        }
+      } catch (uploadErr) {
+        logger.error(`Failed to upload ${file.originalname} → ${finalKey}:`, uploadErr);
+        throw new Error(`Failed to upload to storage: ${uploadErr.message}`);
+      } finally {
+        try {
+          await fs.unlink(tempPath);
+        } catch (unlinkErr) {
+          if (unlinkErr?.code !== 'ENOENT') {
+            logger.warn(`Failed to clean up temp upload ${tempPath}:`, {
+              error: unlinkErr.message,
+              code: unlinkErr.code
+            });
+          }
+        }
+      }
+
+      const relativeThumbPath = thumbnailPath;
+
+      // Add to database with uploaded_by field and media metadata
+      let insertResult;
+      const clientName = trx?.client?.config?.client;
+      const supportsReturning = ['pg', 'postgres', 'postgresql'].includes(clientName);
+
+      const photoData = {
+        event_id: eventId,
+        filename: newFilename,
+        original_filename: file.originalname,
+        path: relativePath,
+        thumbnail_path: relativeThumbPath,
+        type: photoType,
+        size_bytes: actualSize,
+        uploaded_by: uploadedBy,
+        source_origin: 'managed',
+        media_type: mediaType,
+        mime_type: file.mimetype,
+        // Browser-playable copy (issue 1430): queued only while the setting
+        // is on, so installs without it never write a web_status.
+        ...(isVideo && webCopyEnabled ? { web_status: 'pending' } : {}),
+        ...(processingError ? { processing_error: processingError } : {}),
+        ...placement,
+        ...credit
+      };
+
+      // Add video-specific metadata if applicable
+      if (isVideo && videoMetadata) {
+        photoData.duration = videoMetadata.duration;
+        photoData.video_codec = videoMetadata.videoCodec;
+        photoData.audio_codec = videoMetadata.audioCodec;
+        photoData.width = videoMetadata.width;
+        photoData.height = videoMetadata.height;
+      }
+
+      // Add image dimensions if available
+      if (!isVideo && imageMetadata) {
+        photoData.width = imageMetadata.width;
+        photoData.height = imageMetadata.height;
+      }
+
+      if (uploadReservation) {
+        const id = await uploadQuota.commitObject(promotion, 'photo', async ledgerTrx => {
+          const inserted = await insertPhotoWithinCap(photoData, photoCapOf(event), ledgerTrx);
+          if (!inserted) throw new Error('Photo cap reached');
+          return inserted[0]?.id || inserted[0];
+        });
+        insertResult = [id];
+      } else if (supportsReturning) {
+        insertResult = await trx('photos')
+          .insert(photoData)
+          .returning('id');
+      } else {
+        insertResult = await trx('photos').insert(photoData);
+      }
+
+      const insertedId = Array.isArray(insertResult)
+        ? (insertResult[0]?.id ?? insertResult[0])
+        : insertResult;
+
+      const photoId = typeof insertedId === 'object' ? insertedId.id : insertedId;
+
+      if (photoId === undefined || photoId === null) {
+        throw new Error('Failed to determine inserted photo ID');
+      }
+
+      // Commit transaction
+      if (trx) await trx.commit();
+      rowCommitted = true;
+
+      // Webhook (#327) — fires for every entry path that lands in this
+      // service: guest upload + auto-import + admin upload via API. A photo
+      // held for review (issue 743) fires when it is approved instead.
+      if (!photoData.moderation_status) {
+        try {
+          const webhookService = require('./webhookService');
+          await webhookService.fire('photo.uploaded', {
+            event: { id: event.id, slug: event.slug, event_name: event.event_name },
+            photo: {
+              id: photoId,
+              filename: newFilename,
+              original_filename: file.originalname,
+              size_bytes: file.size,
+              uploaded_by: uploadedBy,
+            },
+          });
+        } catch (e) { /* non-fatal */ }
+      }
+
+      // Face detection (#1074). processPhoto() — the ASYNC path — enqueues on
+      // completion, but this synchronous path (chunked-upload completion,
+      // watch-folder import) writes a finished photo row directly and never
+      // reaches it, so those photos stayed unscanned in a face-enabled event
+      // until someone ran a manual re-scan.
+      try {
+        const { isEnabledForEvent } = require('./faceSettings');
+        if (!isVideo && await isEnabledForEvent(event)) {
+          // `db`, NOT `trx`: the transaction is committed above, so a query
+          // through it throws "Transaction query already complete" — which the
+          // catch below swallowed, making this whole enqueue a silent no-op.
+          await db('photos').where({ id: photoId }).update({ face_status: 'pending' });
+        }
+      } catch (err) {
+        logger.warn(`processUploadedPhotos: face enqueue failed for photo ${photoId}`, {
+          error: err.message,
+        });
+      }
+
+      uploadedPhotos.push({
+        id: photoId,
+        filename: newFilename,
+        size: file.size,
+        type: photoType
+      });
+
+      logger.info(`Successfully processed file ${file.originalname} (ID: ${photoId})`);
+    } catch (error) {
+      if (promotion && !rowCommitted) {
+        await uploadQuota.failedObject(promotion, { storage: getStorage(), settled: promotionSettled })
+          .catch(err => logger.warn('Failed upload charge retained', { objectId: promotion.id, error: err.message }));
+      }
+      logger.error(`Error processing file ${file.originalname}:`, {
+        error: error.message,
+        stack: error.stack,
+        originalname: file.originalname,
+        mimetype: file.mimetype,
+        size: file.size,
+        tempPath: file?.path || file?.filepath || file?.tempFilePath
+      });
+
+      if (trx) {
+        try {
+          await trx.rollback();
+        } catch (rollbackErr) {
+          logger.error('Failed to rollback transaction:', rollbackErr);
+        }
+      }
+
+      // Continue with other files
+      // Note: Individual file failures don't stop the entire upload batch
+    }
+  }
+  
+  return uploadedPhotos;
+}
+
+/**
+ * Queue uploaded files for async processing.
+ *
+ * Moves each file from its multer temp path to the final storage key
+ * and inserts a `photos` row with `processing_status = 'pending'` and
+ * a shared `upload_id`. The background worker
+ * (services/backgroundProcessor.js) picks up pending rows, generates
+ * thumbnails / EXIF / dimensions, then flips status to 'complete'
+ * (or 'failed' with the error).
+ *
+ * Used by both the admin upload route and the gallery (guest) upload
+ * route so they share the same fast-return semantics.
+ *
+ * Options:
+ *   - eventId           required
+ *   - photoType         'individual' | 'collage' (default 'individual')
+ *   - categoryId        numeric category id or null
+ *   - folderId          folder (issue 1786) or null for the gallery root
+ *   - uploadId          optional pre-generated upload id (caller can
+ *                       provide it for chunked uploads that span
+ *                       multiple HTTP requests)
+ *   - uploadedBy        'admin' | 'guest' — who ran the upload (default 'admin')
+ *   - credit            credit columns resolved by the caller (#1561); for a
+ *                       guest upload that is the guest's name, and the
+ *                       worker then never reads EXIF for the row
+ *
+ * Returns: { uploadId, photos: [{id, filename, size, category_id}], errors: [{filename, error}] }
+ */
+async function queueFilesForProcessing(files, options = {}) {
+  const crypto = require('crypto');
+  const { countEventPhotos, insertPhotoWithinCap, photoCapError } = require('./photoCap');
+  const {
+    eventId, photoType = 'individual', categoryId = null, folderId = null, uploadId: providedUploadId, photoCap = null,
+    uploadedBy = 'admin', credit = {}, uploadReservation = null,
+  } = options;
+  const uploadId = providedUploadId || crypto.randomBytes(16).toString('hex');
+
+  const event = await db('events').where({ id: eventId }).first();
+  if (!event) throw new Error(`Event ${eventId} not found`);
+
+  const fileList = normalizeFiles(files);
+  const queued = [];
+  const errors = [];
+
+  if (fileList.length === 0) return { uploadId, photos: queued, errors };
+
+  // Counter base — a per-request approximation (concurrent calls can
+  // compute the same base). Uniqueness of the final path comes from the
+  // random suffix inside generatePhotoFilename (#931) — before that
+  // suffix, a counter collision silently overwrote the first photo's
+  // bytes at its already-recorded path.
+  const existingCount = await db('photos')
+    .where({ event_id: eventId, type: photoType })
+    .count('id as count')
+    .first();
+  let counter = (parseInt(existingCount?.count) || 0) + 1;
+
+  const storage = getStorage();
+  const finalDestPathRel = path.posix.join('events/active', event.slug);
+  const categoryName = photoType === 'collage' ? 'collages' : 'individual';
+
+  // Once the cap is hit, the rest of the batch is refused without storing it.
+  let capReached = false;
+  const preparedImages = await imageAdmission.prepareBatch(fileList, uploadReservation?.signal);
+  const capRefusal = () => Object.assign(new Error(photoCapError(photoCap).error), { code: 'PHOTO_CAP_REACHED' });
+
+  for (const file of fileList) {
+    const tempPath = file?.path || file?.filepath || file?.tempFilePath;
+    let storedKey = null;
+    let uploadCharge = null;
+    let promotionSettled = false;
+    let rowCommitted = false;
+    try {
+      if (!tempPath) {
+        throw new Error('Uploaded file is missing a temporary path');
+      }
+      if (photoCap && (capReached || (await countEventPhotos(eventId)) >= photoCap)) {
+        capReached = true;
+        throw capRefusal();
+      }
+      const tempStats = await fs.stat(tempPath);
+      if (tempStats.size === 0) {
+        throw new Error('File is empty - upload may have been interrupted');
+      }
+
+      const extension = path.extname(file.originalname);
+      const newFilename = generatePhotoFilename(event.event_name, categoryName, counter, extension);
+      counter += 1;
+
+      const finalKey = path.posix.join(finalDestPathRel, newFilename);
+      const relativePath = path.posix.join(event.slug, newFilename);
+      const isVideo = isVideoMimeType(file.mimetype);
+
+      // An image over the server's limits is refused here, before promotion
+      // or queue insertion, with a message naming the limit.
+      if (!isVideo) await imageAdmission.inspect(tempPath, newFilename, uploadReservation?.signal, preparedImages);
+
+      if (uploadReservation) {
+        uploadCharge = await require('./publicUploadQuota').prepareObject(uploadReservation, finalKey, tempStats.size);
+      }
+
+      // Move to storage first so the file is at its recorded path by the
+      // time the worker picks up the row.
+      await storage.putFromFile(finalKey, tempPath, { contentType: file.mimetype });
+      promotionSettled = true;
+      storedKey = finalKey;
+      await fs.unlink(tempPath).catch(() => {});
+
+      const stat = await storage.stat(finalKey);
+      if (!stat || stat.size !== tempStats.size) {
+        throw new Error(`Size mismatch after upload: expected ${tempStats.size}, got ${stat ? stat.size : 'null'}`);
+      }
+
+      // The count above is only a fast path; this insert is the binding
+      // check, so parallel uploads cannot overshoot the cap together.
+      const photoRow = {
+        event_id: parseInt(eventId, 10),
+        filename: newFilename,
+        original_filename: file.originalname,
+        path: relativePath,
+        thumbnail_path: null,
+        type: photoType,
+        category_id: categoryId,
+        folder_id: folderId,
+        size_bytes: tempStats.size,
+        captured_at: null,
+        media_type: isVideo ? 'video' : 'image',
+        mime_type: file.mimetype,
+        processing_status: 'pending',
+        upload_id: uploadId,
+        // Written explicitly: the column defaults to 'admin', so a queued
+        // guest upload used to be recorded as the photographer's (#1561).
+        uploaded_by: uploadedBy,
+        ...credit,
+      };
+      const writePhoto = async conn => {
+        const inserted = await insertPhotoWithinCap(photoRow, photoCap, conn);
+        if (!inserted) { capReached = true; throw capRefusal(); }
+        return inserted[0]?.id || inserted[0];
+      };
+      const inserted = uploadCharge
+        ? [await require('./publicUploadQuota').commitObject(uploadCharge, 'photo', writePhoto)]
+        : await insertPhotoWithinCap(photoRow, photoCap);
+      if (!inserted) {
+        capReached = true;
+        throw capRefusal();
+      }
+      const photoId = inserted[0]?.id || inserted[0];
+      rowCommitted = true;
+      await settleGuestCredit(photoId, credit);
+
+      queued.push({
+        id: photoId,
+        filename: newFilename,
+        size: tempStats.size,
+        category_id: categoryId,
+      });
+    } catch (err) {
+      // An object with no photo row is invisible to every listing and every
+      // cleanup, so a failure after the upload removes what it stored.
+      if (!rowCommitted && uploadCharge) {
+        await require('./publicUploadQuota').failedObject(uploadCharge, { storage, settled: promotionSettled }).catch(cleanupError => {
+          logger.warn('Public photo cleanup failed; quota remains charged', { error: cleanupError.message });
+        });
+      } else if (!rowCommitted && storedKey) await storage.delete(storedKey).catch(() => {});
+      if (tempPath) await fs.unlink(tempPath).catch(() => {});
+      errors.push({
+        filename: file?.originalname || 'unknown',
+        error: err.message,
+        ...(err.code === 'PHOTO_CAP_REACHED' ? { code: err.code, limit: photoCap } : {}),
+        ...describeImageError(err),
+      });
+    }
+  }
+
+  return { uploadId, photos: queued, errors };
+}
+
+/**
+ * Worker-mode processing for a single already-stored photo.
+ *
+ * Called by the background processor after a row has been claimed
+ * (`processing_status` == 'processing'). The photo file already exists
+ * at its final storage key — this function reads it back, generates a
+ * thumbnail, extracts EXIF + dimensions (or video metadata), then
+ * updates the photo row to `complete` and fires the queued side
+ * effects (watermark, webhook).
+ *
+ * Throwing causes the background processor to mark the row as
+ * 'failed' with the error message; partial successes (e.g. thumbnail
+ * fails but dimensions succeed) are persisted up to the failure point.
+ */
+async function processPhoto(photoId) {
+  // Outside the queue worker (a script, a test): claim the row first, so
+  // this run is fenced like any other.
+  if (!mediaAttempts.current()) {
+    const claimed = await mediaAttempts.claimNext('photo', photoId);
+    if (!claimed || claimed.exhausted) throw mediaRefusal(`Photo ${photoId} is not pending, or is being processed already`, 'MEDIA_ATTEMPT_REQUIRED');
+    return mediaAttempts.execute(claimed, 'photo', () => processPhoto(photoId));
+  }
+  const attempt = mediaAttempts.current();
+  await attempt.assertCurrent();
+  const photo = await db('photos').where({ id: photoId }).first();
+  if (!photo) throw new Error(`Photo ${photoId} not found`);
+
+  const event = await db('events').where({ id: photo.event_id }).first();
+  if (!event) throw new Error(`Event ${photo.event_id} not found for photo ${photoId}`);
+
+  // Null for an external row: those live on the mount, not in the managed
+  // backend. The import writes them complete without this worker, so the only
+  // way one gets here is the admin grid's Retry on a video whose poster frame
+  // failed — which used to hand this null to withLocalCopy.
+  const sourceKey = resolvePhotoStorageKey(event, photo);
+  const isVideo =
+    photo.media_type === 'video' ||
+    (typeof photo.mime_type === 'string' && photo.mime_type.startsWith('video/'));
+
+  const updateData = {};
+  // Set when a video completes with the placeholder tile (issue 1430, item 6).
+  let posterError = null;
+
+  // withLocalCopy materialises the original from the storage backend so
+  // sharp/ffmpeg can read it. For local storage this is a free O(1) path
+  // resolution; for S3 it downloads to a tmpdir that's auto-cleaned. An
+  // external source is read straight off the mount.
+  const withSource = sourceKey
+    ? (fn) => withLocalCopy(sourceKey, fn)
+    : (fn) => fn(resolvePhotoFilePath(event, photo));
+  let exifCredit = null;
+  await withSource(async (localPath) => {
+    // Credit (#1561): admin uploads only. A guest upload already carries the
+    // guest's name (or deliberately none), and a manual credit is final.
+    if (!isVideo && creditOpenForExif(photo)) {
+      exifCredit = (await resolveCredit({ localPath })).credit_name || null;
+    }
+
+    if (!photo.captured_at && !isVideo) {
+      try {
+        const captured = await extractCaptureDate(localPath);
+        if (captured) updateData.captured_at = captured;
+      } catch (e) {
+        logger.warn(`processPhoto: EXIF extraction failed for ${photoId}`, { error: e.message });
+      }
+    }
+
+    if (isVideo) {
+      // The external key carries the `ext<id>_` prefix regenerateVideoThumbnail
+      // uses, so a retried external video overwrites its import-time tile
+      // rather than writing a second one under a basename another event may
+      // share.
+      // Named after the attempt: a worker that lost its claim can never
+      // overwrite the tile a newer attempt published.
+      const thumbnailBasename = mediaAttempts.outputName(sourceKey
+        ? photo.filename
+        : `ext${photo.id}_${path.basename(photo.external_relpath || photo.filename)}`);
+      const videoThumbnailKey = path.posix.join(
+        'thumbnails',
+        `thumb_${thumbnailBasename.replace(/\.[^.]+$/, '.jpg')}`
+      );
+      // A thumbnail/probe failure must not fail the row: processPhoto's caller
+      // marks failed rows 'failed' and the guest gallery only lists 'complete',
+      // so the video would become permanently invisible. The image branch below
+      // already survives its thumbnail failures — mirror that: fall back to
+      // metadata-only plus the static play-button placeholder. A completed
+      // video with a NULL thumbnail would make the grid fetch the ORIGINAL
+      // video file as an <img> blob (thumbnail_url || url) — a multi-GB
+      // download for a broken tile (codex review of #845).
+      let videoResult = null;
+      try {
+        videoResult = await processUploadedVideo(localPath, videoThumbnailKey);
+        if (videoResult.placeholder) posterError = posterFrameError(videoResult.thumbnailError);
+      } catch (videoErr) {
+        // "Not now" and a lost claim are not a verdict on the video.
+        if (isInterruption(videoErr)) throw videoErr;
+        logger.warn(`processPhoto: video processing failed for ${photoId}, using placeholder thumbnail`, { error: videoErr.message });
+        posterError = posterFrameError(videoErr.message);
+        try {
+          videoResult = { metadata: await extractVideoMetadata(localPath) };
+        } catch (metaErr) {
+          if (isInterruption(metaErr)) throw metaErr;
+          logger.warn(`processPhoto: video metadata extraction also failed for ${photoId}`, { error: metaErr.message });
+        }
+        // ffmpeg-free (sharp-rendered SVG); returns null on failure.
+        const placeholderKey = await generateVideoPlaceholder(thumbnailBasename);
+        if (placeholderKey) videoResult = { ...(videoResult || {}), thumbnailKey: placeholderKey };
+      }
+      if (videoResult?.thumbnailKey) updateData.thumbnail_path = videoResult.thumbnailKey;
+      if (videoResult?.metadata) {
+        const m = videoResult.metadata;
+        if (m.duration != null) updateData.duration = m.duration;
+        if (m.videoCodec) updateData.video_codec = m.videoCodec;
+        if (m.audioCodec) updateData.audio_codec = m.audioCodec;
+        if (m.width) updateData.width = m.width;
+        if (m.height) updateData.height = m.height;
+      }
+    } else {
+      // RAW/DNG can't be sharp-decoded directly — extract the embedded JPEG
+      // preview and thumbnail/measure that. Pass-through for ordinary images.
+      // This is the ASYNC worker path (backgroundProcessor → processPhoto), the
+      // one real uploads actually take; the synchronous processUploadedPhotos()
+      // has the same handling.
+      const proc = await withProcessableImage(localPath, photo.filename);
+      try {
+        try {
+          const thumbnailPath = await generateThumbnail(proc.path, { outputBasename: mediaAttempts.outputName(proc.outputBasename || photo.filename) });
+          if (thumbnailPath) updateData.thumbnail_path = thumbnailPath;
+        } catch (e) {
+          if (isResourceError(e)) throw e;
+          logger.warn(`processPhoto: thumbnail generation failed for ${photoId}`, { error: e.message });
+        }
+        try {
+          const sharp = require('./isolatedSharp');
+          const metadata = await sharp(proc.path).metadata();
+          // Oriented, not raw — see orientedDimensions (#1185).
+          const dims = require('./imageProcessor').orientedDimensions(metadata);
+          if (dims.width && dims.height) {
+            updateData.width = dims.width;
+            updateData.height = dims.height;
+          }
+        } catch (e) {
+          if (isResourceError(e)) throw e;
+          logger.warn(`processPhoto: dimensions extraction failed for ${photoId}`, { error: e.message });
+        }
+      } finally {
+        await proc.cleanup();
+      }
+    }
+  });
+
+  // Mark complete. A video that got the placeholder completes with a note
+  // instead of a clean slate: the row is usable, the tile is not the video.
+  updateData.processing_status = 'complete';
+  updateData.processing_error = posterError;
+
+  // Face detection (#1074): this is the only correct place to enqueue.
+  // Earlier and there is no preview rendition to scan; later and there is no
+  // hook at all. Same UPDATE rather than a follow-up write, so a crash
+  // between the two can't leave a complete photo permanently unqueued.
+  // Guarded on BOTH the global flag and the per-event toggle, so installs
+  // without the feature never write a face_status at all.
+  try {
+    const { isEnabledForEvent } = require('./faceSettings');
+    if (!isVideo && await isEnabledForEvent(event)) {
+      updateData.face_status = 'pending';
+    }
+  } catch (err) {
+    // Never let the face feature block a photo from completing.
+    logger.warn(`processPhoto: face enqueue check failed for ${photoId}`, { error: err.message });
+  }
+
+  // Browser-playable copy (issue 1430, item 8): same UPDATE for the same
+  // reason as the face enqueue above, and only while the setting is on.
+  try {
+    if (isVideo && await require('./videoRenditionService').isEnabled()) {
+      updateData.web_status = 'pending';
+    }
+  } catch (err) {
+    logger.warn(`processPhoto: web rendition enqueue check failed for ${photoId}`, { error: err.message });
+  }
+
+  // The result is written only while the row still carries this attempt's
+  // id, in the same UPDATE. A worker that lost its claim removes what it
+  // stored and writes nothing.
+  const storage = require('./storage').getStorage();
+  if (await mediaAttempts.guard(attempt, db, true).update(updateData) !== 1) {
+    if (updateData.thumbnail_path) await storage.delete(updateData.thumbnail_path).catch(() => {});
+    throw mediaRefusal('Photo attempt was superseded', 'MEDIA_SUPERSEDED');
+  }
+  if (updateData.thumbnail_path) await mediaAttempts.dropSuperseded(storage, photo.thumbnail_path, updateData.thumbnail_path);
+
+  // Separate, fenced write: an admin who set a credit while this row was in
+  // the queue made the final call, and this must not overwrite it. Fenced on
+  // the file that was read too, as the backfill is: a replacement meanwhile
+  // swapped it, and this name describes the old one.
+  if (exifCredit) {
+    await mediaAttempts.guard(attempt)
+      // An account credit (issue 743) is the fallback EXIF replaces.
+      .where((q) => q.whereNull('credit_source').orWhere('credit_source', 'account'))
+      .update({ credit_name: exifCredit, credit_source: 'exif' });
+  }
+
+  // Side effects (best-effort, never fail the photo if these break)
+  if (!isVideo) {
+    const watermarkGeneratorService = require('./watermarkGeneratorService');
+    // Awaited, so the watermark is written inside this attempt's fence.
+    await watermarkGeneratorService
+      .generateForPhoto(photoId)
+      .catch((err) => logger.warn(`processPhoto: watermark queue failed for ${photoId}`, { error: err.message }));
+  }
+
+  // Held for review (issue 743): fires when it is approved instead. Read
+  // now, not from the row this run started with: an approval while the
+  // worker ran skipped this photo because it was not complete yet.
+  const { moderation_status: heldNow } = (await db('photos').where({ id: photoId }).first('moderation_status')) || {};
+  if (!heldNow) {
+    try {
+      const webhookService = require('./webhookService');
+      await webhookService.fire('photo.uploaded', {
+        event: { id: event.id, slug: event.slug, event_name: event.event_name },
+        photo: {
+          id: photo.id,
+          filename: photo.filename,
+          original_filename: photo.original_filename,
+          size_bytes: photo.size_bytes,
+        },
+      });
+    } catch (e) {
+      logger.warn(`processPhoto: webhook fire failed for ${photoId}`, { error: e.message });
+    }
+  }
+
+  try {
+    await require('./publicUploadQuota').processingComplete(photoId);
+  } catch (error) {
+    // Retain the pending charge, but do not turn a completed original into a
+    // failed/retryable job because accounting could not release its work hold.
+    logger.warn('Public upload processing settled but quota hold remains', { photoId, error: error.message });
+  }
+  return updateData;
+}
+
+module.exports = {
+  processUploadedPhotos,
+  queueFilesForProcessing,
+  processPhoto
+};

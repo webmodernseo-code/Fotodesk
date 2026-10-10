@@ -1,0 +1,175 @@
+name: Tests
+
+# Runs the backend Jest suite and the frontend Vitest suite on every PR.
+# Both suites already exist and cover the CRM service layer (quoteService,
+# contractService, invoiceService.*, customerHoursService, eventService.
+# calendar) plus the photo / settings / OG / auth surface — wiring them
+# into CI makes regressions visible at PR time instead of post-merge.
+#
+# Triggers on any change that could affect either suite. The backend
+# job intentionally omits frontend paths and vice versa so unrelated
+# PRs don't pay both build costs.
+
+on:
+  push:
+    branches: [main, beta, stable]
+  pull_request:
+    branches: [main, beta, stable]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    # Runaway guard for the whole job, not a performance budget. The suite is
+    # the only one that boots Postgres and runs the full integration set, so
+    # it is the only one long enough for runner contention to matter, and it
+    # keeps growing: ~3 minutes when the cap was first raised to 20, 10-11.5
+    # on main now. On a degraded runner every suite runs several times slower,
+    # and at 20 that cancelled runs with no failing test (twice in a row on
+    # PR 1540, and a push to main on 2026-10-02).
+    #
+    # The budget that normally fires is the 35 on the jest step below. This
+    # one sits five minutes above it, and the steps before jest (checkout,
+    # npm ci, the Postgres service) take about one, so it fires first only
+    # when those steps themselves run more than five minutes. frontend and ml
+    # keep 10 — they take a few minutes at most and have never come close.
+    timeout-minutes: 40
+
+    # The .picpeak restore suites gate their real-Postgres cases behind
+    # PICPEAK_PG_TEST_URL and `describe.skip` themselves out when it is
+    # unset — so until now they never ran here. That hid the half that
+    # matters: sequence resync, operator/role preservation across a
+    # cross-instance restore, and (with #1041) whether a SQLite-shaped
+    # row actually lands in Postgres with the right STORED VALUES rather
+    # than merely not throwing. Everything else in the suite still runs
+    # on SQLite; this service only un-gates those cases.
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: picpeak
+          POSTGRES_PASSWORD: testpass
+          POSTGRES_DB: picpeak_test
+        options: >-
+          --health-cmd "pg_isready -U picpeak -d picpeak_test"
+          --health-interval 2s
+          --health-timeout 2s
+          --health-retries 30
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install backend deps
+        working-directory: ./backend
+        run: npm ci
+
+      - name: Build the optional media process guard and install the media tools
+        working-directory: ./backend
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential ffmpeg libimage-exiftool-perl
+          npm run build:native
+
+      - name: Run Jest suite
+        working-directory: ./backend
+        # On the step, not only on the job: a job that hits its own cap is
+        # reported as "cancelled", which reads like someone cancelled it. A
+        # step that hits its cap FAILS with "The action 'Run Jest suite' has
+        # timed out after 35 minutes", so running out of time is told apart
+        # from a cancellation in the checks list and in the log.
+        timeout-minutes: 35
+        env:
+          # backupService tests would otherwise try a real S3 round-trip.
+          # The S3 path itself is covered separately by the integration
+          # suite when MinIO is provisioned.
+          SKIP_S3_TESTS: 'true'
+          # Un-gates the real-Postgres cases in the .picpeak restore suites
+          # (see the `services:` note above). Absent it they silently skip.
+          PICPEAK_PG_TEST_URL: 'postgres://picpeak:testpass@127.0.0.1:5432/picpeak_test'
+        run: npx jest --ci
+
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend deps
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Lint frontend (including Rules of Hooks)
+        working-directory: ./frontend
+        run: npm run lint
+
+      - name: Run Vitest suite
+        working-directory: ./frontend
+        run: npm test -- --run
+
+  nginx:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      matrix:
+        # Match the two shipped frontend Dockerfiles.
+        image: ['nginx:1.28-alpine', 'nginx:1.30-alpine']
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Verify token-safe nginx logging
+        env:
+          NGINX_TEST_IMAGE: ${{ matrix.image }}
+        run: python3 tests/nginx/test_request_logging.py
+
+  # Optional face-detection sidecar (#1074). Runs on every PR regardless of
+  # whether the feature is enabled anywhere — these tests need no model
+  # weights (they stub the pipeline out) and cover the auth boundary, the
+  # request guards and the alignment geometry, which is where a mistake is a
+  # security problem or a silent accuracy problem rather than a visible bug.
+  ml:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          # Matches ml/Dockerfile's base image, so a wheel that resolves here
+          # resolves in the image too.
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: ml/requirements.txt
+
+      - name: Install ml deps
+        working-directory: ./ml
+        run: pip install -r requirements.txt pytest httpx
+
+      - name: Run pytest suite
+        working-directory: ./ml
+        run: python -m pytest tests/ -q

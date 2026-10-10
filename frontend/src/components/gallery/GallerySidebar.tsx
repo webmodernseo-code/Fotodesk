@@ -1,0 +1,598 @@
+import React, { useEffect, useRef } from 'react';
+import { X, Download, Filter, FolderTree, SortAsc, SortDesc, Search, Calendar, Type, HardDrive, Check, Star, Upload, Camera, ClipboardList } from 'lucide-react';
+import { Button } from '../common';
+import { PhotoCategory, type Photo } from '../../types';
+import { useTranslation } from 'react-i18next';
+import { GalleryFilter, type FilterType, type FeedbackFilterType } from './GalleryFilter';
+import { ColorLabelFilterChips } from './ColorLabelFilterChips';
+import { MinRatingFilterChips } from './MinRatingFilterChips';
+import { CreditFilterChips } from './CreditFilterChips';
+import type { ColorLabel } from '../../services/feedback.service';
+import { useDownloadQuota } from '../../contexts/DownloadQuotaContext';
+import type { QuotaPhoto } from '../../utils/downloadLimit';
+import { selectLabel } from '../../utils/mediaCounts';
+import { DownloadQuotaNotice } from './DownloadQuotaNotice';
+import { GallerySidebarFolderTree, type SidebarFolderTreeProps } from './GallerySidebarFolderTree';
+
+interface GallerySidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+  categories: PhotoCategory[];
+  selectedCategoryId: number | string | null;
+  onCategoryChange: (categoryId: number | string | null) => void;
+  searchTerm: string;
+  onSearchChange: (term: string) => void;
+  sortBy: 'date' | 'name' | 'size' | 'rating' | 'capture_date';
+  onSortChange: (sort: 'date' | 'name' | 'size' | 'rating' | 'capture_date') => void;
+  // Sort direction (#889)
+  sortDesc?: boolean;
+  onSortDescChange?: (desc: boolean) => void;
+  isSelectionMode: boolean;
+  onToggleSelectionMode: () => void;
+  // Whether a video is among the photos on screen: the Select control is
+  // worded for photos until one is (issue 1430, item 3).
+  hasVideos?: boolean;
+  selectedCount: number;
+  // "Select all" over the photos currently on screen under the active filters
+  // (issue 1733, A3c), and its clear. `visibleCount` labels the button.
+  onSelectAll?: () => void;
+  onDeselectAll?: () => void;
+  visibleCount?: number;
+  onDownloadAll: () => void;
+  onDownloadSelected: () => void;
+  isDownloading: boolean;
+  allowDownloads?: boolean;
+  photoCounts?: Record<number | string, number>;
+  totalPhotos: number;
+  /**
+   * Event-wide count for the Download All control (#1160). `totalPhotos` is the
+   * current folder scope and drives the category list; Download All fetches the
+   * whole event, so labelling it from the scoped count would understate it and
+   * disable it entirely on a folder-only root.
+   */
+  downloadAllTotal?: number;
+  // Download limit (issue 1560). The photos "Download all" would ship and the
+  // current selection, so both can be priced against what is left.
+  downloadAllPhotos?: QuotaPhoto[];
+  selectedPhotosForQuota?: QuotaPhoto[];
+  isMobile: boolean;
+  galleryLayout?: string;
+  allowUploads?: boolean;
+  onUploadClick?: () => void;
+  feedbackEnabled?: boolean;
+  // Multi-select feedback filters (#889): empty array = "All".
+  activeFilters?: FeedbackFilterType[];
+  onFilterChange?: (filter: FilterType) => void;
+  likeCount?: number;
+  favoriteCount?: number;
+  ratedCount?: number;
+  // Colour-label filters (#1044).
+  colorLabelsEnabled?: boolean;
+  activeColorFilters?: ColorLabel[];
+  onColorFilterChange?: (color: ColorLabel) => void;
+  colorLabelCounts?: Partial<Record<ColorLabel, number>>;
+  // Minimum own-rating filter (issue 1733, A3c).
+  ratingsEnabled?: boolean;
+  minRating?: number | null;
+  onMinRatingChange?: (minRating: number | null) => void;
+  minRatingCounts?: Partial<Record<number, number>>;
+  mediaFilter?: 'all' | 'photo' | 'video';
+  onMediaFilterChange?: (filter: 'all' | 'photo' | 'video') => void;
+  showMediaFilter?: boolean;
+  // "By" filter (#1561). Rendered only when creditPhotos is passed — the
+  // gallery passes it only while names are visible to this viewer.
+  creditPhotos?: Photo[];
+  selectedCreditKey?: string | null;
+  onCreditChange?: (key: string | null) => void;
+  // Copyable filename list (issue 1733, A3d). `copyFilenamesCount` is how many
+  // photos the dialog would list — the selection, or the viewer's favourites
+  // when nothing is selected; the control is hidden at zero.
+  onCopyFilenames?: () => void;
+  copyFilenamesCount?: number;
+  /**
+   * Folder navigation (issue 1786) as a collapsible tree. Absent for a gallery
+   * without folders, which keeps its sidebar exactly as before.
+   */
+  folderTree?: SidebarFolderTreeProps;
+}
+
+export const GallerySidebar: React.FC<GallerySidebarProps> = ({
+  isOpen,
+  onClose,
+  categories,
+  selectedCategoryId,
+  onCategoryChange,
+  searchTerm,
+  onSearchChange,
+  sortBy,
+  onSortChange,
+  sortDesc = true,
+  onSortDescChange,
+  isSelectionMode,
+  onToggleSelectionMode,
+  hasVideos = false,
+  selectedCount,
+  onSelectAll,
+  onDeselectAll,
+  visibleCount = 0,
+  onDownloadAll,
+  onDownloadSelected,
+  isDownloading,
+  allowDownloads = true,
+  photoCounts = {},
+  totalPhotos,
+  downloadAllTotal,
+  downloadAllPhotos,
+  selectedPhotosForQuota,
+  isMobile,
+  galleryLayout,
+  allowUploads,
+  onUploadClick,
+  feedbackEnabled = false,
+  activeFilters = [],
+  onFilterChange,
+  likeCount = 0,
+  favoriteCount = 0,
+  ratedCount = 0,
+  colorLabelsEnabled = false,
+  activeColorFilters = [],
+  onColorFilterChange,
+  colorLabelCounts = {},
+  ratingsEnabled = false,
+  minRating = null,
+  onMinRatingChange,
+  minRatingCounts = {},
+  mediaFilter = 'all',
+  onMediaFilterChange,
+  showMediaFilter = false,
+  creditPhotos,
+  selectedCreditKey = null,
+  onCreditChange,
+  onCopyFilenames,
+  copyFilenamesCount = 0,
+  folderTree,
+}) => {
+  const { t } = useTranslation();
+  const downloadQuota = useDownloadQuota();
+  const downloadAllOverQuota = !!downloadAllPhotos && !downloadQuota.allows(downloadAllPhotos);
+  const sidebarRef = useRef<HTMLDivElement>(null);
+
+  // Close sidebar when clicking outside on mobile
+  useEffect(() => {
+    if (isMobile && isOpen) {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
+          onClose();
+        }
+      };
+
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isMobile, isOpen, onClose]);
+
+  // Prevent body scroll when sidebar is open on mobile
+  useEffect(() => {
+    if (isMobile && isOpen) {
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = 'unset';
+      };
+    }
+  }, [isMobile, isOpen]);
+
+  const sortOptions = [
+    { value: 'date', label: t('gallery.sortByDate'), icon: Calendar },
+    { value: 'capture_date', label: t('gallery.sortByCaptureDate', 'Capture Date'), icon: Camera },
+    { value: 'name', label: t('gallery.sortByName'), icon: Type },
+    { value: 'size', label: t('gallery.sortBySize'), icon: HardDrive },
+    { value: 'rating', label: t('gallery.sortByRating', 'Rating'), icon: Star }
+  ];
+
+  return (
+    <>
+      {/* Backdrop for mobile */}
+      {isMobile && isOpen && (
+        <div
+          className="gallery-sidebar-backdrop fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity"
+          onClick={onClose}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div
+        ref={sidebarRef}
+        className={`
+          gallery-sidebar fixed top-0 left-0 h-full bg-surface shadow-xl z-50 transition-transform duration-300 ease-in-out flex flex-col
+          ${isMobile ? 'w-full max-w-sm' : 'w-80'}
+          ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+        `}
+      >
+        {/* Header */}
+        <div className="gallery-sidebar-header flex items-center justify-between p-4 border-b border-surface">
+          <h2 className="gallery-sidebar-title text-lg font-semibold text-theme">{t('gallery.filters')}</h2>
+          <button
+            onClick={onClose}
+            className="gallery-sidebar-close p-2 hover:bg-black/10 rounded-lg transition-colors"
+            aria-label={t('common.close')}
+          >
+            <X className="w-5 h-5 text-muted-theme" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="gallery-sidebar-content flex-1 overflow-y-auto">
+          {/* Upload Section - Show prominently at top for mobile users */}
+          {allowUploads && onUploadClick && (
+            <div className="gallery-sidebar-section gallery-sidebar-upload p-4 border-b border-surface">
+              <Button
+                variant="outline"
+                size="sm"
+                leftIcon={<Upload className="w-4 h-4" />}
+                onClick={() => {
+                  onUploadClick();
+                  if (isMobile) onClose();
+                }}
+                className="gallery-btn w-full"
+              >
+                {t('upload.uploadPhotos')}
+              </Button>
+            </div>
+          )}
+
+          {/* Search Section - Hidden for carousel layout */}
+          {galleryLayout !== 'carousel' && (
+            <div className="gallery-sidebar-section gallery-sidebar-search p-4 border-b border-surface">
+              <div className="relative">
+                <Search className="gallery-sidebar-search-icon absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-theme" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => onSearchChange(e.target.value)}
+                  placeholder={t('gallery.searchPlaceholder')}
+                  className="gallery-sidebar-search-input w-full pl-10 pr-4 py-2 bg-surface border border-surface rounded-lg text-theme placeholder:text-muted-theme focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Download Section - Hidden if gallery is expired or downloads disabled */}
+          {allowDownloads && (
+            <div className="gallery-sidebar-section gallery-sidebar-downloads p-4 border-b border-surface">
+              <h3 className="gallery-sidebar-section-title text-sm font-semibold text-muted-theme mb-3 flex items-center gap-2">
+                <Download className="w-4 h-4" />
+                {t('gallery.download')}
+              </h3>
+
+              <div className="space-y-2">
+                <DownloadQuotaNotice />
+                <Button
+                  variant="primary"
+                  size="sm"
+                  leftIcon={<Download className="w-4 h-4" />}
+                  onClick={onDownloadAll}
+                  disabled={isDownloading || (downloadAllTotal ?? totalPhotos) === 0 || downloadAllOverQuota}
+                  title={downloadAllOverQuota
+                    ? t('gallery.downloadLimit.downloadAllBlocked', 'This gallery holds more photos than your remaining downloads')
+                    : undefined}
+                  className="gallery-btn gallery-btn-download w-full"
+                >
+                  {t('gallery.downloadAll')} ({downloadAllTotal ?? totalPhotos})
+                </Button>
+
+                <Button
+                  variant={isSelectionMode ? 'secondary' : 'outline'}
+                  size="sm"
+                  onClick={onToggleSelectionMode}
+                  className="gallery-btn w-full"
+                >
+                  {isSelectionMode ? t('gallery.cancelSelection') : selectLabel(t, hasVideos)}
+                </Button>
+
+                {/* Select what the active filters leave on screen (issue 1733,
+                    A3c) — the inline grid toolbar has had this pair all along,
+                    the sidebar offered only tile-by-tile picking. */}
+                {isSelectionMode && onSelectAll && onDeselectAll && (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={onSelectAll}
+                      disabled={visibleCount === 0}
+                      className="gallery-btn flex-1"
+                    >
+                      {t('gallery.selectAll')} ({visibleCount})
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={onDeselectAll}
+                      disabled={selectedCount === 0}
+                      className="gallery-btn flex-1"
+                    >
+                      {t('gallery.deselectAll')}
+                    </Button>
+                  </div>
+                )}
+
+                {isSelectionMode && selectedCount > 0 && (
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    leftIcon={<Download className="w-4 h-4" />}
+                    onClick={onDownloadSelected}
+                    disabled={isDownloading}
+                    className="gallery-btn gallery-btn-download w-full"
+                  >
+                    {t('gallery.downloadSelected', { count: selectedCount })} ({selectedCount})
+                  </Button>
+                )}
+                {isSelectionMode && selectedCount > 0 && selectedPhotosForQuota && (
+                  <DownloadQuotaNotice photos={selectedPhotosForQuota} />
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Filename list (issue 1733, A3d). Its own section rather than part
+              of Download: a proofing gallery often has downloads off, and the
+              list is for the RAW editor, not for downloading. */}
+          {onCopyFilenames && copyFilenamesCount > 0 && (
+            <div className="gallery-sidebar-section gallery-sidebar-filenames p-4 border-b border-surface">
+              <Button
+                variant="outline"
+                size="sm"
+                leftIcon={<ClipboardList className="w-4 h-4" />}
+                onClick={() => {
+                  onCopyFilenames();
+                  if (isMobile) onClose();
+                }}
+                className="gallery-btn w-full"
+              >
+                {t('gallery.copyFilenames.button', 'Copy filenames')} ({copyFilenamesCount})
+              </Button>
+            </div>
+          )}
+
+          {/* Feedback Filter Section */}
+          {feedbackEnabled && onFilterChange && (
+            <div className="gallery-sidebar-section gallery-sidebar-feedback p-4 border-b border-surface">
+              <GalleryFilter
+                activeFilters={activeFilters}
+                // Unlike the single-select category/sort buttons, feedback
+                // filters are multi-select toggles (#889) — keep the mobile
+                // sidebar open so several can be combined in one visit.
+                onFilterChange={onFilterChange}
+                feedbackEnabled={feedbackEnabled}
+                likeCount={likeCount}
+                favoriteCount={favoriteCount}
+                ratedCount={ratedCount}
+                className="w-full"
+                variant="compact"
+              />
+              {/* Colour filter (#1044) */}
+              {colorLabelsEnabled && onColorFilterChange && (
+                <ColorLabelFilterChips
+                  className="mt-3"
+                  activeColors={activeColorFilters}
+                  onToggle={onColorFilterChange}
+                  counts={colorLabelCounts}
+                />
+              )}
+              {/* Own-rating filter (issue 1733) */}
+              {ratingsEnabled && onMinRatingChange && (
+                <MinRatingFilterChips
+                  className="mt-3"
+                  minRating={minRating}
+                  onChange={onMinRatingChange}
+                  counts={minRatingCounts}
+                />
+              )}
+            </div>
+          )}
+
+          {/* "By" section (#1561) */}
+          {creditPhotos && onCreditChange && (
+            <CreditFilterChips
+              variant="list"
+              className="gallery-sidebar-section p-4 border-b border-surface"
+              photos={creditPhotos}
+              selectedKey={selectedCreditKey}
+              onChange={(key) => {
+                onCreditChange(key);
+                if (isMobile) onClose();
+              }}
+            />
+          )}
+
+          {/* Folders (issue 1786). Not hidden for the carousel like the
+              categories below: containment applies there too, so this is the
+              only way into a folder from the sidebar. */}
+          {folderTree && folderTree.nodes.length > 0 && (
+            <div className="gallery-sidebar-section gallery-sidebar-folders p-4 border-b border-surface">
+              <h3 className="gallery-sidebar-section-title text-sm font-semibold text-muted-theme mb-3 flex items-center gap-2">
+                <FolderTree className="w-4 h-4" />
+                {t('gallery.folders', 'Folders')}
+              </h3>
+              <GallerySidebarFolderTree
+                {...folderTree}
+                onOpenFolder={(key) => {
+                  folderTree.onOpenFolder(key);
+                  if (isMobile) onClose();
+                }}
+                onViewChange={(view) => {
+                  folderTree.onViewChange(view);
+                  if (isMobile) onClose();
+                }}
+              />
+            </div>
+          )}
+
+          {/* Categories Section - Hidden for carousel layout */}
+          {galleryLayout !== 'carousel' && categories.length > 0 && (
+            <div className="gallery-sidebar-section gallery-sidebar-categories p-4 border-b border-surface">
+              <h3 className="gallery-sidebar-section-title text-sm font-semibold text-muted-theme mb-3 flex items-center gap-2">
+                <Filter className="w-4 h-4" />
+                {t('gallery.categories')}
+              </h3>
+
+              <div className="space-y-1">
+                <button
+                  onClick={() => {
+                    onCategoryChange(null);
+                    if (isMobile) onClose();
+                  }}
+                  className={`
+                    gallery-btn w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between
+                    ${selectedCategoryId === null
+                      ? 'bg-accent-dark text-white'
+                      : 'hover:bg-black/10 text-muted-theme'
+                    }
+                  `}
+                >
+                  <span>{t('gallery.allCategories')}</span>
+                  <span className="text-sm text-muted-theme">{totalPhotos}</span>
+                </button>
+
+                {categories.map((category) => {
+                  const count = photoCounts[category.id] || 0;
+                  const isSelected = selectedCategoryId === category.id;
+
+                  return (
+                    <button
+                      key={category.id}
+                      onClick={() => {
+                        onCategoryChange(category.id);
+                        if (isMobile) onClose();
+                      }}
+                      className={`
+                        gallery-btn w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between
+                        ${isSelected
+                          ? 'bg-accent-dark text-white'
+                          : 'hover:bg-black/10 text-muted-theme'
+                        }
+                      `}
+                    >
+                      <span className="flex items-center gap-2">
+                        {isSelected && <Check className="w-4 h-4" />}
+                        {category.name}
+                      </span>
+                      <span className="text-sm text-muted-theme">{count}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {showMediaFilter && onMediaFilterChange && (
+            <div className="gallery-sidebar-section gallery-sidebar-media p-4 border-b border-surface">
+              <h3 className="gallery-sidebar-section-title text-sm font-semibold text-muted-theme mb-3 flex items-center gap-2">
+                <Filter className="w-4 h-4" />
+                {t('gallery.mediaType', 'Media')}
+              </h3>
+              <div className="flex items-center gap-2 flex-wrap">
+                <Button
+                  variant={mediaFilter === 'all' ? 'primary' : 'outline'}
+                  size="sm"
+                  className="gallery-btn"
+                  onClick={() => {
+                    onMediaFilterChange('all');
+                    if (isMobile) onClose();
+                  }}
+                >
+                  {t('gallery.allMedia', 'All')}
+                </Button>
+                <Button
+                  variant={mediaFilter === 'photo' ? 'primary' : 'outline'}
+                  size="sm"
+                  className="gallery-btn"
+                  onClick={() => {
+                    onMediaFilterChange('photo');
+                    if (isMobile) onClose();
+                  }}
+                >
+                  {t('gallery.photosOnly', 'Photos')}
+                </Button>
+                <Button
+                  variant={mediaFilter === 'video' ? 'primary' : 'outline'}
+                  size="sm"
+                  className="gallery-btn"
+                  onClick={() => {
+                    onMediaFilterChange('video');
+                    if (isMobile) onClose();
+                  }}
+                >
+                  {t('gallery.videosOnly', 'Videos')}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Sort Section - Hidden for carousel and timeline layouts */}
+          {galleryLayout !== 'carousel' && galleryLayout !== 'timeline' && (
+            <div className="gallery-sidebar-section gallery-sidebar-sort p-4">
+              <h3 className="gallery-sidebar-section-title text-sm font-semibold text-muted-theme mb-3 flex items-center gap-2">
+                <SortAsc className="w-4 h-4" />
+                {t('gallery.sortBy')}
+              </h3>
+
+              <div className="space-y-1">
+                {sortOptions.map((option) => {
+                  const Icon = option.icon;
+                  const isSelected = sortBy === option.value;
+
+                  return (
+                    <button
+                      key={option.value}
+                      onClick={() => {
+                        onSortChange(option.value as 'date' | 'name' | 'size' | 'rating' | 'capture_date');
+                        if (isMobile) onClose();
+                      }}
+                      className={`
+                        gallery-btn w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center gap-3
+                        ${isSelected
+                          ? 'bg-accent-dark text-white'
+                          : 'hover:bg-black/10 text-muted-theme'
+                        }
+                      `}
+                    >
+                      <Icon className="w-4 h-4" />
+                      <span>{option.label}</span>
+                      {isSelected && <Check className="w-4 h-4 ml-auto" />}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Sort direction (#889) */}
+              {onSortDescChange && (
+                <div className="flex items-center gap-2 mt-3">
+                  <Button
+                    variant={!sortDesc ? 'primary' : 'outline'}
+                    size="sm"
+                    leftIcon={<SortAsc className="w-4 h-4" />}
+                    onClick={() => onSortDescChange(false)}
+                    className="gallery-btn flex-1"
+                  >
+                    {t('gallery.sortAscending', 'Sort ascending')}
+                  </Button>
+                  <Button
+                    variant={sortDesc ? 'primary' : 'outline'}
+                    size="sm"
+                    leftIcon={<SortDesc className="w-4 h-4" />}
+                    onClick={() => onSortDescChange(true)}
+                    className="gallery-btn flex-1"
+                  >
+                    {t('gallery.sortDescending', 'Sort descending')}
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+    </>
+  );
+};

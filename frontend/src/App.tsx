@@ -1,0 +1,575 @@
+import { lazy, Suspense, useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useParams, useSearchParams } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { analyticsService, AnalyticsRouteTracker } from './services/analytics.service';
+
+import { GalleryAuthProvider, MaintenanceProvider } from './contexts';
+import { ThemeProvider } from './contexts/ThemeContext';
+import { GalleryPage } from './pages/GalleryPage';
+import { ClientAccessPage } from './pages/ClientAccessPage';
+import { PreviewPage } from './pages/gallery/PreviewPage';
+const SlideshowPage = lazy(() => import('./pages/gallery/SlideshowPage').then((m) => ({ default: m.SlideshowPage })));
+import { LegalPage } from './pages/public/LegalPage';
+import { FotoDeskLandingPage } from './pages/public/FotoDeskLandingPage';
+import { ForgotPasswordPage } from './pages/public/ForgotPasswordPage';
+import { RegisterPage } from './pages/public/RegisterPage';
+import {
+  AdminLoginPage,
+  AdminDashboard,
+  EventsListPage,
+  CreateEventPage,
+  EventDetailsPage,
+  EventFeedbackPage,
+  ArchivesPage,
+  AnalyticsPage,
+  SettingsPage,
+  // SystemHealthPage and UserManagementPage are no longer routed from here:
+  // they render as the Settings > Health and Settings > Users tabs, and
+  // SettingsPage imports them itself. /admin/system-health and /admin/users
+  // redirect to those tabs, further down.
+  CustomerManagementPage,
+  CustomerDetailPage,
+  WebhookDeliveriesPage,
+  // CRM routes (#TBD) — feature-flagged at the route layer via RequireFeature.
+  QuotesListPage,
+  QuoteEditorPage,
+  QuoteDetailPage,
+  QuoteCatalogPage,
+  QuoteTemplateEditorPage,
+  BillsListPage,
+  BillEditorPage,
+  BillDetailPage,
+} from './pages/admin';
+import { CrmDevelopmentPage } from './pages/admin/clients/CrmDevelopmentPage';
+// Newsletter campaigns (#1264). Gated by the `newsletters` flag inside the
+// Clients block; the API refuses these routes independently when it is off.
+import { NewsletterListPage } from './pages/admin/newsletters/NewsletterListPage';
+import { NewsletterComposerPage } from './pages/admin/newsletters/NewsletterComposerPage';
+import { NewsletterDetailPage } from './pages/admin/newsletters/NewsletterDetailPage';
+import { TaxReportPage } from './pages/admin/clients/TaxReportPage';
+import { HoursLoggingPage } from './pages/admin/clients/HoursLoggingPage';
+// E.6 — Calendar page lazy-loaded so the ~200 KB FullCalendar bundle
+// (carved into its own chunk in vite.config.ts) doesn't ship with the
+// main app. Only pages that visit /admin/clients/calendar fetch it.
+const CalendarPage = lazy(() => import('./pages/admin/clients/CalendarPage').then((m) => ({ default: m.CalendarPage })));
+// Its own chunk: the template editor carries the drag-and-drop library (#1445).
+const ContractTemplateEditorPage = lazy(() => import('./pages/admin/contracts/ContractTemplateEditorPage').then((m) => ({ default: m.ContractTemplateEditorPage })));
+const MessagesPage = lazy(() => import('./pages/admin/messages/MessagesPage').then((m) => ({ default: m.MessagesPage })));
+import { QuoteResponsePage } from './pages/public/QuoteResponsePage';
+import { ContractResponsePage, ContractSigningSessionPage } from './pages/public/ContractResponsePage';
+import { ProjectsListPage } from './pages/admin/projects/ProjectsListPage';
+import { ProjectCockpitPage } from './pages/admin/projects/ProjectCockpitPage';
+import { WorkflowsListPage } from './pages/admin/workflows/WorkflowsListPage';
+import { WorkflowApprovalsPage } from './pages/admin/workflows/WorkflowApprovalsPage';
+import { WorkflowEditorPage } from './pages/admin/workflows/WorkflowEditorPage';
+import { ContractsListPage } from './pages/admin/contracts/ContractsListPage';
+import { ContractEditorPage } from './pages/admin/contracts/ContractEditorPage';
+import { ContractDetailPage } from './pages/admin/contracts/ContractDetailPage';
+import { BlockLibraryPage } from './pages/admin/contracts/BlockLibraryPage';
+import { ContractTemplatesPage } from './pages/admin/contracts/ContractTemplatesPage';
+import { ContractAttachmentsPage } from './pages/admin/contracts/ContractAttachmentsPage';
+import { PaymentCheckPage } from './pages/public/PaymentCheckPage';
+import { AcceptInvitePage } from './pages/public/AcceptInvitePage';
+import { TransfersPage } from './pages/admin/transfers/TransfersPage';
+import { AutomationLayout } from './components/admin/AutomationLayout';
+import { RequirePermission } from './components/admin/RequirePermission';
+import { ReminderTemplatesPage } from './pages/admin/settings/ReminderTemplatesPage';
+import { TransferDownloadPage } from './pages/public/TransferDownloadPage';
+import { TransferUploadPage } from './pages/public/TransferUploadPage';
+import {
+  CustomerLoginPage,
+  CustomerDashboardPage,
+  CustomerAcceptInvitePage,
+  CustomerLayout,
+  CustomerProfilePage,
+  CustomerCalendarPage,
+  CustomerQuotesPage,
+  CustomerBillsPage,
+  CustomerContractsPage,
+  CustomerContractSignPage,
+  CustomerQuoteRespondPage,
+  CustomerResetPasswordPage,
+  CustomerDocumentsPage,
+  CustomerDocumentPage,
+  CustomerEventPage,
+} from './pages/customer';
+import { CustomerAuthProvider } from './contexts/CustomerAuthContext';
+import { AdminLayout, AdminAuthWrapper } from './components/admin';
+import { ClientsLayout } from './components/admin/ClientsLayout';
+import { AccountingLayout, AccountingIndex } from './components/admin/AccountingLayout';
+import { AccountingInboxPage } from './pages/admin/accounting/AccountingInboxPage';
+import { ExpensesLedgerPage } from './pages/admin/accounting/ExpensesLedgerPage';
+import { RequireFeature } from './components/admin/RequireFeature';
+import { PageErrorBoundary, OfflineIndicator, SkipLink, DynamicFavicon, RobotsMetaTags, CMSContentBlock, Loading } from './components/common';
+import { MaintenanceWrapper } from './components/MaintenanceWrapper';
+import { GlobalThemeProvider } from './components/GlobalThemeProvider';
+import { ConfirmDialogProvider } from './components/common';
+import { usePublicSettings } from './hooks/usePublicSettings';
+import { SetupPage } from './pages/SetupPage';
+import { AdminAuthProvider } from './contexts';
+
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
+
+// The backend owns provider configuration and protocol translation. The
+// browser only runs PicPeak's fixed data-only client; no env/snippet fallback.
+function AnalyticsBootstrap() {
+  const { data: settings, isError } = usePublicSettings();
+  useEffect(() => {
+    if (!settings && !isError) return;
+    const explicit = settings?.analytics_tracker_provider;
+    const provider = explicit === 'umami' || explicit === 'rybbit' ? explicit
+      : !explicit && settings?.umami_enabled ? 'umami' : 'none';
+    analyticsService.initialize({ provider: settings?.enable_analytics === false ? 'none' : provider });
+  }, [settings, isError]);
+  return null;
+}
+
+/**
+ * Backward-compat redirect for /admin/customers/:id → /admin/clients/accounts/:id.
+ * Needed because <Navigate to="..."> can't interpolate route params and we
+ * want stale bookmarks / email links to keep working after the Clients
+ * section reorg.
+ */
+function RedirectCustomerDetail() {
+  const { id } = useParams();
+  return <Navigate to={`/admin/clients/accounts/${id}`} replace />;
+}
+
+/**
+ * Settings, with one redirect in front of it.
+ *
+ * `?tab=reminderTemplates` moved out of Settings into the Automation section.
+ * A query string cannot be matched by a Route path, and doing the check inside
+ * SettingsPage lost a race with that page's own URL-sync effect, which rewrites
+ * an unknown ?tab= to the default before a redirect rendered there can fire.
+ * Sitting above the page, this runs before any of that.
+ */
+function SettingsRoute() {
+  const [params] = useSearchParams();
+  if (params.get('tab') === 'reminderTemplates') {
+    return <Navigate to="/admin/automation/reminder-templates" replace />;
+  }
+  return <SettingsPage />;
+}
+
+function RedirectWorkflowEditor() {
+  const { id } = useParams();
+  return <Navigate to={`/admin/automation/workflows/${id}`} replace />;
+}
+
+function App() {
+  // Track dark mode for toast theming
+  const [toastTheme, setToastTheme] = useState<'light' | 'dark'>('light');
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setToastTheme(document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <PageErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <AnalyticsBootstrap />
+        <MaintenanceProvider>
+          <ThemeProvider>
+            <GlobalThemeProvider>
+              <ConfirmDialogProvider>
+              <DynamicFavicon />
+              <RobotsMetaTags />
+              <Router>
+                <AnalyticsRouteTracker />
+                <MaintenanceWrapper>
+                  <SkipLink />
+                  <Routes>
+                  {/* Public gallery routes */}
+                  <Route path="/gallery/preview" element={<PreviewPage />} />
+                  {/* Live Slideshow ("Diashow") — token-only fullscreen kiosk.
+                      Self-manages its session token; no GalleryAuthProvider. */}
+                  <Route path="/gallery/:slug/show/:token" element={
+                    <Suspense fallback={<Loading />}>
+                      <SlideshowPage />
+                    </Suspense>
+                  } />
+                  <Route path="/gallery/:slug/client-access" element={
+                    <GalleryAuthProvider>
+                      <ClientAccessPage />
+                    </GalleryAuthProvider>
+                  } />
+                  <Route path="/gallery/:slug/:token?" element={
+                    <GalleryAuthProvider>
+                      <GalleryPage />
+                    </GalleryAuthProvider>
+                  } />
+
+                  {/* First-run setup — public, self-closes once an admin exists */}
+                  <Route path="/setup" element={
+                    <AdminAuthProvider>
+                      <SetupPage />
+                    </AdminAuthProvider>
+                  } />
+
+                  {/* Admin routes - wrap with AdminAuthProvider */}
+                  <Route path="/admin" element={<AdminAuthWrapper />}>
+                    <Route path="login" element={<AdminLoginPage />} />
+                    <Route element={<AdminLayout />}>
+                      <Route path="dashboard" element={<AdminDashboard />} />
+                      <Route path="events" element={<EventsListPage />} />
+                      <Route path="events/new" element={<CreateEventPage />} />
+                      <Route path="events/:id" element={<EventDetailsPage />} />
+                      <Route path="events/:id/feedback" element={<EventFeedbackPage />} />
+                      {/* Archives is a sub-page of the Events section now —
+                          an archived event is still an event. Static segment,
+                          so it outranks events/:id. */}
+                      <Route path="events/archives" element={<ArchivesPage />} />
+
+                      {/* PicTransfer (#997) — cross-event file transfers.
+                          Gated by the `transfers` flag (strictly opt-in). It
+                          keeps this URL and joins Events and Archives in the
+                          Sharing section, which activates on both trees. */}
+                      <Route element={<RequireFeature flag="transfers" />}>
+                        <Route path="transfers" element={<TransfersPage />} />
+                      </Route>
+                      <Route element={<RequireFeature flag="messaging" />}>
+                        <Route path="messages" element={
+                          <Suspense fallback={<Loading />}>
+                            <MessagesPage />
+                          </Suspense>
+                        } />
+                      </Route>
+
+                      {/* Feature-gated surfaces — redirect to /admin/dashboard when flag is off. */}
+                      <Route element={<RequireFeature flag="analytics" />}>
+                        <Route path="analytics" element={<AnalyticsPage />} />
+                      </Route>
+                      {/* Clients section (#354 follow-up). Parent route
+                          gated by the top-level `clients` flag — when off
+                          the sidebar entry is hidden and every /admin/clients/*
+                          URL redirects to /admin/dashboard. Inside, the
+                          ClientsLayout renders a Settings-style sub-nav
+                          and the active sub-feature's page through an
+                          Outlet. Each sub-route is feature-flagged
+                          independently. */}
+                      <Route element={<RequireFeature flag="clients" />}>
+                        <Route path="clients" element={<ClientsLayout />}>
+                          {/* Newsletters also lives here: the customer detail
+                              page hosts the newsletter consent control, so a
+                              newsletter-only install (portal off) must still
+                              be able to open a customer to record a phone
+                              opt-out (#1264). */}
+                          <Route element={<RequireFeature anyOf={['customerPortal', 'newsletters']} />}>
+                            <Route path="accounts" element={<CustomerManagementPage />} />
+                            <Route path="accounts/:id" element={<CustomerDetailPage />} />
+                          </Route>
+                          {/* Quotes (CRM) — gated by `quotes`. */}
+                          <Route element={<RequireFeature flag="quotes" />}>
+                            <Route path="quotes" element={<QuotesListPage />} />
+                            {/* Catalogue + templates (#1451). Static segments outrank quotes/:id. */}
+                            <Route path="quotes/catalog" element={<QuoteCatalogPage />} />
+                            <Route path="quotes/catalog/templates/:id" element={<QuoteTemplateEditorPage />} />
+                            <Route path="quotes/new" element={<QuoteEditorPage />} />
+                            <Route path="quotes/:id" element={<QuoteDetailPage />} />
+                            <Route path="quotes/:id/edit" element={<QuoteEditorPage />} />
+                          </Route>
+                          {/* Project Overview (CRM) — admin-only grouping
+                              layer above events, gated by `projects`. */}
+                          <Route element={<RequireFeature flag="projects" />}>
+                            <Route path="projects" element={<ProjectsListPage />} />
+                            <Route path="projects/:id" element={<ProjectCockpitPage />} />
+                          </Route>
+                          {/* Bills / invoices (CRM) — gated by `bills`. */}
+                          <Route element={<RequireFeature flag="bills" />}>
+                            <Route path="bills" element={<BillsListPage />} />
+                            <Route path="bills/new" element={<BillEditorPage />} />
+                            <Route path="bills/:id" element={<BillDetailPage />} />
+                            <Route path="bills/:id/edit" element={<BillEditorPage />} />
+                          </Route>
+
+                          {/* Contracts (CRM) — gated by `contracts`. Independent
+                              of quotes/bills; a free-standing legal document
+                              type composed from a library of reusable blocks. */}
+                          <Route element={<RequireFeature flag="contracts" />}>
+                            <Route path="contracts" element={<ContractsListPage />} />
+                            <Route path="contracts/new" element={<ContractEditorPage />} />
+                            <Route path="contracts/blocks" element={<BlockLibraryPage />} />
+                            <Route path="contracts/templates" element={<ContractTemplatesPage />} />
+                            <Route path="contracts/templates/:id" element={<Suspense fallback={<Loading />}><ContractTemplateEditorPage /></Suspense>} />
+                            <Route path="contracts/attachments" element={<ContractAttachmentsPage />} />
+                            <Route path="contracts/:id" element={<ContractDetailPage />} />
+                            <Route path="contracts/:id/edit" element={<ContractEditorPage />} />
+                          </Route>
+
+                          {/* Hour logging (standalone surface) — gated by
+                              `hoursLogging`. Independent of `bills` so admin
+                              can log hours before the full billing surface
+                              is enabled. */}
+                          <Route element={<RequireFeature flag="hoursLogging" />}>
+                            <Route path="hours" element={<HoursLoggingPage />} />
+                          </Route>
+
+                          {/* Admin calendar (migration 137) — gated by
+                              `calendar`. Lazy-loaded so the FullCalendar
+                              bundle stays out of the main chunk. */}
+                          <Route element={<RequireFeature flag="calendar" />}>
+                            <Route
+                              path="calendar"
+                              element={
+                                <Suspense fallback={<Loading />}>
+                                  <CalendarPage />
+                                </Suspense>
+                              }
+                            />
+                          </Route>
+
+                          {/* Tax export moved permanently to the Accounting
+                              section. Keep this path as a redirect so old
+                              bookmarks / links don't 404. */}
+                          <Route path="tax-report" element={<Navigate to="/admin/accounting/tax-report" replace />} />
+                          {/* Newsletter campaigns (#1264) — gated by
+                              `newsletters`. Mass marketing mail to customer
+                              accounts, with per-customer opt-out. */}
+                          <Route element={<RequireFeature flag="newsletters" />}>
+                            <Route path="newsletters" element={<NewsletterListPage />} />
+                            <Route path="newsletters/:id" element={<NewsletterDetailPage />} />
+                            <Route path="newsletters/:id/edit" element={<NewsletterComposerPage />} />
+                          </Route>
+                          {/* Developer tools — gated by `crmDevelopment`. */}
+                          <Route element={<RequireFeature flag="crmDevelopment" />}>
+                            <Route path="development" element={<CrmDevelopmentPage />} />
+                          </Route>
+                          {/* No index redirect here: ClientsLayout picks the
+                              first sub-feature this user can actually reach,
+                              which a fixed /accounts target could not — a
+                              newsletters-only role has no customers.view and
+                              would bounce straight back out (#1264). It also
+                              owns the "parent on, all children off" empty
+                              state. */}
+                        </Route>
+                      </Route>
+
+                      {/* Accounting section (migration 122). Parent gated by
+                          the `accounting` flag. Hosts the Tax report — which
+                          relocates here from the CRM sub-nav when accounting
+                          is on — plus the future inbound-invoice / expenses
+                          pages. Each sub-route is independently flagged. */}
+                      <Route element={<RequireFeature flag="accounting" />}>
+                        <Route path="accounting" element={<AccountingLayout />}>
+                          <Route element={<RequireFeature flag="incomingInvoices" />}>
+                            <Route path="inbox" element={<AccountingInboxPage />} />
+                          </Route>
+                          <Route element={<RequireFeature flag="expenses" />}>
+                            <Route path="expenses" element={<ExpensesLedgerPage />} />
+                          </Route>
+                          <Route element={<RequireFeature flag="taxReport" />}>
+                            <Route path="tax-report" element={<TaxReportPage />} />
+                            {/* Treuhänder export moved onto the Tax page; keep
+                                the old path working for bookmarks. */}
+                            <Route path="export" element={<Navigate to="/admin/accounting/tax-report" replace />} />
+                          </Route>
+                          {/* Chart of accounts (Layer A) moved into Settings →
+                              Accounting; keep the old path working for bookmarks. */}
+                          <Route path="ledger" element={<Navigate to="/admin/settings?tab=accounting" replace />} />
+                          <Route index element={<AccountingIndex />} />
+                        </Route>
+                      </Route>
+
+                      {/* Old /admin/customers paths now live under
+                          /admin/clients/accounts. Kept indefinitely as
+                          redirects so existing bookmarks and email links
+                          don't 404. */}
+                      <Route path="customers"     element={<Navigate to="/admin/clients/accounts" replace />} />
+                      <Route path="customers/:id" element={<RedirectCustomerDetail />} />
+
+                      {/* Automation section — the workflow engine plus the
+                          reminder email templates it sends. Reminder emails
+                          came from Settings; the page already pointed at
+                          Workflows for its schedule, so the two now sit in one
+                          section. Each sub-area keeps its own flag. */}
+                      <Route path="automation" element={<AutomationLayout />}>
+                        {/* Both gates, for the same reason reminder-templates
+                            carries them: a section opens as soon as ANY item
+                            in it is permitted, so `reminderEmails` alone would
+                            otherwise let a role without workflows.view open
+                            the builder and watch its queries 403. */}
+                        <Route element={<RequireFeature flag="workflows" />}>
+                          <Route element={<RequirePermission permission="workflows.view" />}>
+                            <Route path="workflows" element={<WorkflowsListPage />} />
+                            {/* Flattened out from under workflows/ so the
+                                Workflows entry doesn't stay highlighted here. */}
+                            <Route path="approvals" element={<WorkflowApprovalsPage />} />
+                            <Route path="workflows/:id" element={<WorkflowEditorPage />} />
+                          </Route>
+                        </Route>
+                        {/* Reminder emails needs BOTH gates. As a Settings tab
+                            it was gated by living in Settings, which filters
+                            tabs by permission and snaps away from one the role
+                            cannot see. A section page has no such inheritance:
+                            the section opens as soon as ANY item in it is
+                            permitted, so a workflows-only role would otherwise
+                            reach this page and watch its queries 403. */}
+                        <Route element={<RequireFeature flag="reminderEmails" />}>
+                          <Route element={<RequirePermission permission="email.view" />}>
+                            <Route path="reminder-templates" element={<ReminderTemplatesPage />} />
+                          </Route>
+                        </Route>
+                      </Route>
+
+                      <Route path="settings" element={<SettingsRoute />} />
+                      <Route path="webhooks/:id/deliveries" element={<WebhookDeliveriesPage />} />
+
+                      {/* Navigation cleanup — Archives, Messages, PicTransfer,
+                          Workflows, Users and System health are no longer
+                          top-level. Kept indefinitely as redirects: these paths
+                          are bookmarked and appear in already-sent email.
+                          Messages and PicTransfer are absent on purpose — they
+                          keep the URLs they always had. */}
+                      <Route path="archives"           element={<Navigate to="/admin/events/archives" replace />} />
+                      <Route path="workflows"          element={<Navigate to="/admin/automation/workflows" replace />} />
+                      <Route path="workflows/approvals" element={<Navigate to="/admin/automation/approvals" replace />} />
+                      <Route path="workflows/:id"      element={<RedirectWorkflowEditor />} />
+                      {/* Users and System health became Settings tabs. */}
+                      <Route path="users"              element={<Navigate to="/admin/settings?tab=users" replace />} />
+                      <Route path="system-health"      element={<Navigate to="/admin/settings?tab=health" replace />} />
+
+                      {/* Old top-level routes — these surfaces now live as
+                          Settings tabs (#feature-flags-settings-reorg).
+                          Kept indefinitely as redirects so existing bookmarks
+                          and external links don't 404. */}
+                      <Route path="email"        element={<Navigate to="/admin/settings?tab=email"      replace />} />
+                      <Route path="branding"     element={<Navigate to="/admin/settings?tab=branding"   replace />} />
+                      <Route path="event-types"  element={<Navigate to="/admin/settings?tab=eventTypes" replace />} />
+                      <Route path="backup"       element={<Navigate to="/admin/settings?tab=backup"     replace />} />
+                      <Route path="cms"          element={<Navigate to="/admin/settings?tab=cms"        replace />} />
+
+                      <Route index element={<Navigate to="/admin/dashboard" replace />} />
+                    </Route>
+                  </Route>
+
+                  {/* Public invitation acceptance page */}
+                  <Route path="/invite/:token" element={<AcceptInvitePage />} />
+
+                  {/* Public quote accept/decline page (CRM). Token-only,
+                      no auth required. */}
+                  <Route path="/quote/:token" element={<QuoteResponsePage />} />
+                  {/* Contract signing. The static /contract/signing (a session
+                      opened from the customer portal) is listed first and,
+                      being static, always outranks /contract/:token. */}
+                  <Route path="/contract/signing" element={<ContractSigningSessionPage />} />
+                  <Route path="/contract/:token" element={<ContractResponsePage />} />
+
+                  {/* Admin payment-check page (CRM) — token only,
+                      no auth. Reached from the "Paid in full /
+                      Partial / Not paid" buttons in the payment-
+                      check email. */}
+                  <Route path="/payment-check/:token" element={<PaymentCheckPage />} />
+
+                  {/* PicTransfer (#997) — recipient download + client upload,
+                      token-only, no auth. */}
+                  <Route path="/transfer/:token" element={<TransferDownloadPage />} />
+                  <Route path="/transfer-upload/:token" element={<TransferUploadPage />} />
+
+                  {/* Customer surface (#354). Strictly separate provider /
+                      cookie / API surface from /admin/*. The customerPortal
+                      feature flag hides the *admin-side* surfaces (sidebar
+                      entry, /admin/customers routes, CustomerAccountPicker)
+                      via RequireFeature. The customer-side /customer/*
+                      tree stays publicly reachable so existing customers
+                      can still log in even if the admin temporarily flips
+                      the flag off — and because RequireFeature reads from
+                      FeatureFlagsProvider (admin-only context), gating
+                      these routes here would crash unauthenticated
+                      visitors with an unmounted-provider error. */}
+                  <Route path="/customer/*" element={
+                    <CustomerAuthProvider>
+                      <Routes>
+                        {/* Public surfaces: login, accept-invite, reset —
+                            no CustomerLayout (their own branded shells). */}
+                        <Route path="login" element={<CustomerLoginPage />} />
+                        <Route path="invite/:token" element={<CustomerAcceptInvitePage />} />
+                        <Route path="reset-password/:token" element={<CustomerResetPasswordPage />} />
+
+                        {/* Authenticated surfaces share the sidebar layout
+                            (Outlet pattern, mirrors AdminLayout). The
+                            CustomerLayout itself enforces auth — bouncing
+                            unauthenticated visitors to /customer/login. */}
+                        <Route element={<CustomerLayout />}>
+                          <Route path="dashboard" element={<CustomerDashboardPage />} />
+                          <Route path="calendar" element={<CustomerCalendarPage />} />
+                          <Route path="quotes" element={<CustomerQuotesPage />} />
+                          {/* Respond / sign inside the portal session, so the
+                              portal never hands out the emailed link tokens. */}
+                          <Route path="quotes/:id/respond" element={<CustomerQuoteRespondPage />} />
+                          <Route path="contracts" element={<CustomerContractsPage />} />
+                          <Route path="contracts/:id/sign" element={<CustomerContractSignPage />} />
+                          <Route path="bills" element={<CustomerBillsPage />} />
+                          <Route path="documents" element={<CustomerDocumentsPage />} />
+                          <Route path="documents/:id" element={<CustomerDocumentPage />} />
+                          <Route path="events/:slug" element={<CustomerEventPage />} />
+                          <Route path="profile" element={<CustomerProfilePage />} />
+                        </Route>
+
+                        <Route index element={<Navigate to="/customer/dashboard" replace />} />
+                      </Routes>
+                    </CustomerAuthProvider>
+                  } />
+
+                  {/* Public legal pages */}
+                  <Route path="/impressum" element={<LegalPage />} />
+                  <Route path="/datenschutz" element={<LegalPage />} />
+                  <Route path="/:slug" element={<LegalPage />} />
+
+                  {/* FotoDesk convenience routes & redirects */}
+                  <Route path="/login" element={<Navigate to="/admin/login" replace />} />
+                  <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                  <Route path="/register" element={<RegisterPage />} />
+                  <Route path="/dashboard" element={<Navigate to="/admin/dashboard" replace />} />
+
+                  {/* FotoDesk Landing Page */}
+                  <Route path="/" element={<FotoDeskLandingPage />} />
+
+                  {/* Customisable 404 (#324) — caught here for any path that
+                      didn't match. Top-level `/:slug` is consumed above by
+                      LegalPage; this picks up deeper unknown paths. */}
+                  <Route path="*" element={<CMSContentBlock slug="not-found" />} />
+                </Routes>
+              </MaintenanceWrapper>
+            </Router>
+
+            {/* Offline indicator */}
+            <OfflineIndicator />
+
+            {/* Toast notifications */}
+            <ToastContainer
+              position="bottom-right"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme={toastTheme}
+            />
+              </ConfirmDialogProvider>
+            </GlobalThemeProvider>
+          </ThemeProvider>
+        </MaintenanceProvider>
+      </QueryClientProvider>
+    </PageErrorBoundary>
+  );
+}
+
+export default App;

@@ -1,0 +1,290 @@
+/**
+ * Accounting settings tab — rates used by internal expenses + the proof
+ * requirement. Rates are CHF; stored as integer minor units. Tax/legal
+ * guidance only — verify with your Treuhaender.
+ */
+import React, { useEffect, useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
+import { Card, CardContent, Input, Loading } from '../../../components/common';
+import { SettingsSaveBar } from '../../../components/admin/SettingsSaveBar';
+import { DecimalInput } from '../../../components/common/DecimalInput';
+import { accountingService } from '../../../services/accounting.service';
+import { useFeatureFlags } from '../../../contexts/FeatureFlagsContext';
+import { businessProfileService } from '../../../services/businessProfile.service';
+import { vatCodesService } from '../../../services/vatCodes.service';
+import { sortedCountryOptions } from '../../../constants/countries';
+import { VatCodesManager } from '../../../components/admin/VatCodesManager';
+import { ChartOfAccountsManager } from '../../../components/admin/ChartOfAccountsManager';
+
+const labelCls = 'block text-sm font-medium text-body mb-1';
+
+/** The fields behind the save bar, as one object for the dirty check and Discard. */
+interface Draft {
+  kmMajor: number;
+  perDiemMajor: number;
+  hourlyMajor: number;
+  dayMajor: number;
+  requireProof: boolean;
+  rebillAttachProof: boolean;
+  rebillProofNameFormat: string;
+  vatRegistered: boolean;
+  reclaimCountries: string[];
+  defaultOutputVatCode: string;
+  vatLabel: string;
+}
+
+const EMPTY_DRAFT: Draft = {
+  kmMajor: NaN,
+  perDiemMajor: NaN,
+  hourlyMajor: NaN,
+  dayMajor: NaN,
+  requireProof: false,
+  rebillAttachProof: false,
+  rebillProofNameFormat: '',
+  vatRegistered: false,
+  reclaimCountries: [],
+  defaultOutputVatCode: '',
+  vatLabel: '',
+};
+const inputCls = 'w-full max-w-xs rounded-md border border-line-strong bg-panel px-3 py-2 text-sm';
+
+export const AccountingTab: React.FC = () => {
+  const { t, i18n } = useTranslation();
+  const qc = useQueryClient();
+  const { flags } = useFeatureFlags();
+  const { data, isLoading } = useQuery({ queryKey: ['accounting-settings'], queryFn: () => accountingService.getSettings() });
+  const { data: outputVatCodes = [] } = useQuery({ queryKey: ['vat-codes', 'output'], queryFn: () => vatCodesService.listOutput() });
+  // VAT label + default hourly rate live on business_profile, surfaced here so
+  // all financial/VAT config sits in one tab (and one Save).
+  const { data: profileSnap } = useQuery({ queryKey: ['business-profile'], queryFn: () => businessProfileService.get() });
+
+  const [kmMajor, setKmMajor] = useState<number>(NaN);
+  const [perDiemMajor, setPerDiemMajor] = useState<number>(NaN);
+  const [hourlyMajor, setHourlyMajor] = useState<number>(NaN);
+  const [dayMajor, setDayMajor] = useState<number>(NaN);
+  const [requireProof, setRequireProof] = useState(false);
+  const [rebillAttachProof, setRebillAttachProof] = useState(false);
+  const [rebillProofNameFormat, setRebillProofNameFormat] = useState('');
+  const [vatRegistered, setVatRegistered] = useState(false);
+  const [reclaimCountries, setReclaimCountries] = useState<string[]>([]);
+  const [defaultOutputVatCode, setDefaultOutputVatCode] = useState('');
+  const [vatLabel, setVatLabel] = useState('');
+  // What the two queries last sent, in draft shape, for the save bar.
+  const [loaded, setLoaded] = useState<Draft>(EMPTY_DRAFT);
+
+  useEffect(() => {
+    if (data) {
+      const part = {
+        kmMajor: data.accounting_km_rate_minor / 100,
+        perDiemMajor: data.accounting_per_diem_rate_minor / 100,
+        requireProof: data.accounting_require_proof,
+        rebillAttachProof: data.accounting_rebill_attach_proof,
+        rebillProofNameFormat: data.crm_rebill_proof_filename_format || '',
+        vatRegistered: data.accounting_vat_registered,
+        reclaimCountries: data.accounting_vat_reclaim_countries || [],
+        defaultOutputVatCode: data.accounting_default_output_vat_code || '',
+      };
+      setKmMajor(part.kmMajor);
+      setPerDiemMajor(part.perDiemMajor);
+      setRequireProof(part.requireProof);
+      setRebillAttachProof(part.rebillAttachProof);
+      setRebillProofNameFormat(part.rebillProofNameFormat);
+      setVatRegistered(part.vatRegistered);
+      setReclaimCountries(part.reclaimCountries);
+      setDefaultOutputVatCode(part.defaultOutputVatCode);
+      setLoaded(prev => ({ ...prev, ...part }));
+    }
+  }, [data]);
+  useEffect(() => {
+    if (profileSnap?.profile) {
+      const part = {
+        vatLabel: profileSnap.profile.vatLabel || '',
+        hourlyMajor: profileSnap.profile.defaultHourlyRateMinor != null ? profileSnap.profile.defaultHourlyRateMinor / 100 : NaN,
+        dayMajor: profileSnap.profile.defaultDayRateMinor != null ? profileSnap.profile.defaultDayRateMinor / 100 : NaN,
+      };
+      setVatLabel(part.vatLabel);
+      setHourlyMajor(part.hourlyMajor);
+      setDayMajor(part.dayMajor);
+      setLoaded(prev => ({ ...prev, ...part }));
+    }
+  }, [profileSnap]);
+
+  const draft: Draft = {
+    kmMajor, perDiemMajor, hourlyMajor, dayMajor, requireProof, rebillAttachProof,
+    rebillProofNameFormat, vatRegistered, reclaimCountries, defaultOutputVatCode, vatLabel,
+  };
+  const isDirty = JSON.stringify(draft) !== JSON.stringify(loaded);
+  const discard = () => {
+    setKmMajor(loaded.kmMajor);
+    setPerDiemMajor(loaded.perDiemMajor);
+    setHourlyMajor(loaded.hourlyMajor);
+    setDayMajor(loaded.dayMajor);
+    setRequireProof(loaded.requireProof);
+    setRebillAttachProof(loaded.rebillAttachProof);
+    setRebillProofNameFormat(loaded.rebillProofNameFormat);
+    setVatRegistered(loaded.vatRegistered);
+    setReclaimCountries(loaded.reclaimCountries);
+    setDefaultOutputVatCode(loaded.defaultOutputVatCode);
+    setVatLabel(loaded.vatLabel);
+  };
+
+  const countries = sortedCountryOptions(i18n.language);
+  const currency = profileSnap?.profile?.defaultCurrency || 'CHF';
+
+  // One Save persists BOTH the app_settings (rates/VAT/proof) and the two
+  // business_profile fields (VAT label + hourly rate).
+  const save = useMutation({
+    mutationFn: async () => {
+      await accountingService.updateSettings({
+        accounting_km_rate_minor: Number.isFinite(kmMajor) ? Math.round(kmMajor * 100) : 0,
+        accounting_per_diem_rate_minor: Number.isFinite(perDiemMajor) ? Math.round(perDiemMajor * 100) : 0,
+        accounting_require_proof: requireProof,
+        accounting_rebill_attach_proof: rebillAttachProof,
+        crm_rebill_proof_filename_format: rebillProofNameFormat.trim(),
+        accounting_vat_registered: vatRegistered,
+        accounting_vat_reclaim_countries: reclaimCountries,
+        accounting_default_output_vat_code: defaultOutputVatCode,
+      });
+      await businessProfileService.update({
+        vatLabel: vatLabel || '',
+        defaultHourlyRateMinor: Number.isFinite(hourlyMajor) ? Math.max(0, Math.round(hourlyMajor * 100)) : null,
+        defaultDayRateMinor: Number.isFinite(dayMajor) ? Math.max(0, Math.round(dayMajor * 100)) : null,
+      });
+    },
+    onSuccess: () => {
+      toast.success(t('settings.accounting.savedToast', 'Accounting settings saved.'));
+      qc.invalidateQueries({ queryKey: ['accounting-settings'] });
+      qc.invalidateQueries({ queryKey: ['business-profile'] });
+    },
+    onError: (e: any) => toast.error(e?.response?.data?.error || e.message || 'Failed'),
+  });
+
+  if (isLoading) return <Loading />;
+
+  return (
+    <div className="space-y-6">
+      {/* No tab title here — the Settings shell renders the section
+          heading (icon + label + divider) for every tab that isn't in
+          SettingsPage's TABS_WITH_OWN_HEADER, and it reads from the same
+          `settings.accounting.title` key, so repeating it stacked two
+          identical H2s on top of each other (QA warning). */}
+      <p className="text-soft">{t('settings.accounting.subtitle', 'Default rates for internal expenses and the proof requirement.')}</p>
+
+      <Card><CardContent className="p-5 space-y-4">
+        <div>
+          <label className={labelCls}>{t('settings.accounting.kmRate', 'Mileage rate (CHF / km)')}</label>
+          <DecimalInput value={kmMajor} onChange={setKmMajor} fractionDigits={2} className={inputCls} />
+          <p className="mt-1 text-xs text-muted">{t('settings.accounting.kmRateHint', 'Default applied to mileage expenses; overridable per entry.')}</p>
+        </div>
+        <div>
+          <label className={labelCls}>{t('settings.accounting.perDiemRate', 'Daily allowance (CHF / day)')}</label>
+          <DecimalInput value={perDiemMajor} onChange={setPerDiemMajor} fractionDigits={2} className={inputCls} />
+          <p className="mt-1 text-xs text-muted">{t('settings.accounting.perDiemRateHint', 'A flat daily allowance booked as an expense (not a client billing rate); overridable per entry.')}</p>
+        </div>
+        <div>
+          <label className={labelCls}>{t('settings.accounting.profileFields.hourlyRate', 'Default hourly rate')}</label>
+          <DecimalInput value={hourlyMajor} onChange={setHourlyMajor} fractionDigits={2} className={inputCls} placeholder={t('settings.accounting.profileFields.hourlyRatePlaceholder', 'e.g. 120.00') as string} />
+          <p className="mt-1 text-xs text-muted">{t('settings.accounting.profileFields.hourlyRateHint', 'Billing fallback used when a customer has no own rate (hours logging and quote lines priced per hour). In {{currency}}, major units. Leave blank to require a per-customer or per-entry rate.', { currency })}</p>
+        </div>
+        <div>
+          <label className={labelCls}>{t('settings.accounting.profileFields.dayRate', 'Default day rate')}</label>
+          <DecimalInput value={dayMajor} onChange={setDayMajor} fractionDigits={2} className={inputCls} placeholder={t('settings.accounting.profileFields.dayRatePlaceholder', 'e.g. 1200.00') as string} />
+          <p className="mt-1 text-xs text-muted">{t('settings.accounting.profileFields.dayRateHint', 'Used by per-day quote lines when a customer has no own day rate. In {{currency}}, major units.', { currency })}</p>
+        </div>
+        <label className="flex items-center gap-2 text-sm text-body">
+          <input type="checkbox" checked={requireProof} onChange={(e) => setRequireProof(e.target.checked)} className="rounded border-neutral-300" />
+          {t('settings.accounting.requireProof', 'Require a proof file on every expense')}
+        </label>
+        {flags.incomingInvoices && (
+          <div>
+            <label className="flex items-start gap-2 text-sm text-body">
+              <input type="checkbox" checked={rebillAttachProof} onChange={(e) => setRebillAttachProof(e.target.checked)} className="mt-0.5 rounded border-neutral-300" />
+              <span>{t('settings.accounting.rebillAttachProof', 'Attach the supplier proof to re-billed invoices by default')}</span>
+            </label>
+            <p className="mt-1 ml-6 text-xs text-muted">{t('settings.accounting.rebillAttachProofHint', 'When a captured supplier invoice is re-billed or passed through, attach its stored PDF to the client-invoice email as a separate proof. This is the default — a per-customer override and a per-file choice in the Send dialog can change it each time.')}</p>
+            <div className="mt-3 ml-6">
+              <label className={labelCls}>{t('settings.accounting.rebillProofNameFormat', 'Proof filename format')}</label>
+              <Input value={rebillProofNameFormat} onChange={(e) => setRebillProofNameFormat(e.target.value)} placeholder="Beleg-{INVOICE}" className="max-w-xs" />
+              <p className="mt-1 text-xs text-muted">{t('settings.accounting.rebillProofNameFormatHint', 'Filename for the attached proof PDF. Tokens: {INVOICE}, {SUPPLIER}, {YEAR}, {MONTH}, {SEQ} (or {SEQ:03d}). Leave blank for the default “Beleg-{INVOICE}”. When several proofs ride one invoice, an index is appended automatically. Keep a prefix like “Beleg-” so the proof isn’t named identically to the invoice PDF.')}</p>
+            </div>
+          </div>
+        )}
+        <p className="text-xs text-amber-600 dark:text-amber-400">{t('settings.accounting.disclaimer', 'Rates and VAT/tax treatment are guidance only — verify with your Treuhaender.')}</p>
+      </CardContent></Card>
+
+      {/* VAT registration & reclaim — drives whether output/input VAT applies
+          and which countries' input VAT is deductible (cost tax-treatment +
+          the tax report's VAT-payable). */}
+      <Card><CardContent className="p-5 space-y-4">
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-muted">
+          {t('settings.accounting.vat.title', 'VAT')}
+        </h3>
+        <label className="flex items-start gap-2 text-sm text-body">
+          <input type="checkbox" checked={vatRegistered} onChange={(e) => setVatRegistered(e.target.checked)} className="mt-0.5 rounded border-neutral-300" />
+          <span>
+            {t('settings.accounting.vat.registered', 'VAT-registered (charge output VAT + reclaim input VAT)')}
+            <span className="block text-xs text-muted">
+              {t('settings.accounting.vat.registeredHint', 'Off = small business / under threshold: no VAT charged, input VAT is a cost (not reclaimable). Invoices without VAT then show no VAT line; the VAT note from the CRM settings stands in its place. Quotes never carry it — an offer is not the tax document.')}
+            </span>
+          </span>
+        </label>
+        <div className={vatRegistered ? '' : 'opacity-50 pointer-events-none'}>
+          <label className={labelCls}>{t('settings.accounting.vat.reclaimCountries', 'Countries where input VAT is reclaimable')}</label>
+          <select
+            multiple
+            size={6}
+            value={reclaimCountries}
+            onChange={(e) => setReclaimCountries(Array.from(e.target.selectedOptions, (o) => o.value))}
+            className="w-full max-w-xs rounded-md border border-line-strong bg-panel px-3 py-2 text-sm"
+          >
+            {countries.map((c) => (
+              <option key={c.code} value={c.code}>{c.label}</option>
+            ))}
+          </select>
+          <p className="mt-1 text-xs text-muted">
+            {t('settings.accounting.vat.reclaimCountriesHint', 'Typically your domestic country (CH / LI). Costs from other countries are treated as non-reclaimable foreign VAT. Cmd/Ctrl-click to multi-select.')}
+          </p>
+        </div>
+        <div>
+          <label className={labelCls}>{t('settings.accounting.vat.defaultOutputCode', 'Default VAT code for new invoices')}</label>
+          <select value={defaultOutputVatCode} onChange={(e) => setDefaultOutputVatCode(e.target.value)} className={inputCls}>
+            <option value="">{t('settings.accounting.vat.defaultOutputCodeNone', '— none (start at 0%) —')}</option>
+            {outputVatCodes.map((c) => <option key={c.id} value={c.code}>{c.name} ({Number(c.rate).toFixed(1)}%)</option>)}
+          </select>
+          <p className="mt-1 text-xs text-muted">{t('settings.accounting.vat.defaultOutputCodeHint', 'New invoices and quotes start with this VAT code selected. Existing documents are unaffected.')}</p>
+        </div>
+        <div>
+          <label className={labelCls}>{t('settings.accounting.profileFields.vatLabel', 'VAT label (e.g. MwSt., VAT)')}</label>
+          <Input value={vatLabel} onChange={(e) => setVatLabel(e.target.value)} className={inputCls} />
+          <p className="mt-1 text-xs text-muted">{t('settings.accounting.profileFields.vatLabelHint', 'Printed as the VAT-line label on invoice / quote PDFs. Leave blank to use the document language default.')}</p>
+        </div>
+      </CardContent></Card>
+
+      {/* VAT codes + rate→code / treatment→code maps — relocated here from the
+          Chart-of-accounts page so all VAT config lives in one place. */}
+      <VatCodesManager />
+
+      {/* Chart of accounts (accounts + category/default-account mappings) —
+          moved off the /admin/accounting section so all accounting config is
+          here; the section keeps only the operational pages. */}
+      <div className="pt-2">
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-muted mb-3">
+          {t('ledger.accounts.title', 'Chart of accounts')}
+        </h3>
+        <ChartOfAccountsManager />
+      </div>
+
+      {/* Covers the two cards above only; the managers save on their own. */}
+      <SettingsSaveBar
+        isDirty={isDirty}
+        isSaving={save.isPending}
+        onSave={() => save.mutate()}
+        onDiscard={discard}
+      />
+    </div>
+  );
+};
+
+export default AccountingTab;

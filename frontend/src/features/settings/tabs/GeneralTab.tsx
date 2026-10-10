@@ -1,0 +1,486 @@
+import React from 'react';
+import { Camera, Globe, Mail, User } from 'lucide-react';
+import { Card, Input, Loading } from '../../../components/common';
+import { useTranslation } from 'react-i18next';
+import { SettingsSaveBar } from '../../../components/admin/SettingsSaveBar';
+import type { GeneralSettings } from '../hooks/useSettingsState';
+import { MAX_FILES_PER_UPLOAD_LIMIT } from '../hooks/useSettingsState';
+import { SUPPORTED_LANGUAGES } from "../../../components/common/LanguageSelector.tsx";
+import { MfaSettingsCard } from '../components/MfaSettingsCard';
+import { isAbsoluteHttpUrl } from '../../../utils/url';
+
+interface GeneralTabProps {
+  generalSettings: GeneralSettings;
+  setGeneralSettings: React.Dispatch<React.SetStateAction<GeneralSettings>>;
+  saveGeneralMutation: {
+    mutate: () => void;
+    isPending: boolean;
+  };
+  isDirty: boolean;
+  onDiscard: () => void;
+  accountDirty: boolean;
+  onDiscardAccount: () => void;
+  accountForm: { username: string; email: string; creditName: string };
+  accountErrors: Record<string, string>;
+  handleAccountChange: (field: 'username' | 'email' | 'creditName') => (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleAccountSubmit: (e?: React.FormEvent<HTMLFormElement>) => void;
+  updateAdminProfileMutation: { isPending: boolean };
+  adminProfileLoading: boolean;
+}
+
+export const GeneralTab: React.FC<GeneralTabProps> = ({
+  generalSettings,
+  setGeneralSettings,
+  saveGeneralMutation,
+  isDirty,
+  onDiscard,
+  accountDirty,
+  onDiscardAccount,
+  accountForm,
+  accountErrors,
+  handleAccountChange,
+  handleAccountSubmit,
+  updateAdminProfileMutation,
+  adminProfileLoading,
+}) => {
+  const { t, i18n } = useTranslation();
+
+  // The public address reaches the CORS allowlist and the
+  // Access-Control-Allow-Origin header since #705, not just email links — and
+  // the `type="url"` constraint never fires because this input isn't inside a
+  // <form>. Validate it here so a schemeless value can't be saved, mirroring
+  // the server-side check in adminSettings.js (#1104).
+  //
+  // Only once the admin has actually touched the field. The key was free-text
+  // until #1104, so an upgraded install can hold a schemeless value nobody
+  // typed today — and flagging that on load would disable Save for every
+  // General setting. An admin with `settings.edit` but not `settings.domains`
+  // could not clear it either: correcting the address is a change to a
+  // protected key and 403s. They would simply be locked out of the tab.
+  const siteUrlDirty = generalSettings.site_url !== generalSettings.site_url_stored;
+  const siteUrlError = !generalSettings.site_url_env_pinned
+    && siteUrlDirty
+    && generalSettings.site_url.trim()
+    && !isAbsoluteHttpUrl(generalSettings.site_url)
+    ? t('settings.general.siteUrlInvalid', 'Enter the full address including http:// or https://, for example https://gallery.example.com')
+    : undefined;
+
+  return (
+    <div className="space-y-6">
+      <Card padding="md">
+        <h2 className="text-lg font-semibold text-heading mb-4">{t('settings.general.accountSection')}</h2>
+        {adminProfileLoading ? (
+          <div className="py-8 flex justify-center">
+            <Loading size="md" />
+          </div>
+        ) : (
+          <form className="space-y-4" onSubmit={handleAccountSubmit}>
+            <div>
+              <label htmlFor="admin-account-username" className="block text-sm font-medium text-body mb-1">
+                {t('settings.general.accountUsername')}
+              </label>
+              <Input
+                id="admin-account-username"
+                type="text"
+                value={accountForm.username}
+                onChange={handleAccountChange('username')}
+                placeholder="admin"
+                leftIcon={<User className="w-5 h-5 text-neutral-400" />}
+                error={accountErrors.username}
+              />
+              <p className="text-xs text-muted mt-1">
+                {t('settings.general.accountUsernameHelp')}
+              </p>
+            </div>
+
+            <div>
+              <label htmlFor="admin-account-email" className="block text-sm font-medium text-body mb-1">
+                {t('settings.general.accountEmail')}
+              </label>
+              <Input
+                id="admin-account-email"
+                type="email"
+                value={accountForm.email}
+                onChange={handleAccountChange('email')}
+                placeholder="admin@example.com"
+                leftIcon={<Mail className="w-5 h-5 text-neutral-400" />}
+                error={accountErrors.email}
+              />
+              <p className="text-xs text-muted mt-1">
+                {t('settings.general.accountEmailHelp')}
+              </p>
+            </div>
+
+            <div>
+              <label htmlFor="admin-account-credit-name" className="block text-sm font-medium text-body mb-1">
+                {t('settings.general.accountCreditName', 'Photo credit')}
+              </label>
+              <Input
+                id="admin-account-credit-name"
+                type="text"
+                value={accountForm.creditName}
+                onChange={handleAccountChange('creditName')}
+                maxLength={100}
+                leftIcon={<Camera className="w-5 h-5 text-neutral-400" />}
+                error={accountErrors.credit_name}
+              />
+              <p className="text-xs text-muted mt-1">
+                {t('settings.general.accountCreditNameHelp', 'Credited on photos you upload when the file has no photographer name in its metadata. Leave empty for no credit.')}
+              </p>
+            </div>
+
+            <div className="pt-2">
+            </div>
+          </form>
+        )}
+      </Card>
+
+      {/* Per-user two-factor authentication (issue #738) — lives beside the
+          admin's own account details rather than the admin-wide Security tab. */}
+      <MfaSettingsCard />
+
+      <Card padding="md">
+        <h2 className="text-lg font-semibold text-heading mb-4">{t('settings.general.siteConfiguration')}</h2>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-body mb-1">
+              {t('settings.general.siteUrl')}
+            </label>
+            <Input
+              type="url"
+              value={generalSettings.site_url}
+              onChange={(e) => setGeneralSettings(prev => ({ ...prev, site_url: e.target.value }))}
+              placeholder="https://yourdomain.com"
+              leftIcon={<Globe className="w-5 h-5 text-neutral-400" />}
+              disabled={generalSettings.site_url_env_pinned}
+              error={siteUrlError}
+            />
+            {!siteUrlError && (
+              <p className="text-xs text-muted mt-1">
+                {generalSettings.site_url_env_pinned
+                  ? t('settings.general.siteUrlEnvPinned', 'Pinned by the FRONTEND_URL environment variable, which overrides this setting. Remove it from your .env (or container environment) and restart to manage the address here.')
+                  : t('settings.general.siteUrlHelp')}
+              </p>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-body mb-1">
+                {t('settings.general.defaultExpiration')}
+              </label>
+              <Input
+                type="number"
+                value={generalSettings.default_expiration_days}
+                onChange={(e) => setGeneralSettings(prev => ({ ...prev, default_expiration_days: parseInt(e.target.value) || 30 }))}
+                min="1"
+                max="365"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-body mb-1">
+                {t('settings.general.maxFileSize')}
+              </label>
+              <Input
+                type="number"
+                value={generalSettings.max_file_size_mb}
+                onChange={(e) => setGeneralSettings(prev => ({ ...prev, max_file_size_mb: parseInt(e.target.value) || 50 }))}
+                min="1"
+                max="500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-body mb-1">
+                {t('settings.general.maxVideoSize', 'Max Video Size (MB)')}
+              </label>
+              <Input
+                type="number"
+                value={generalSettings.max_video_size_mb}
+                onChange={(e) => setGeneralSettings(prev => ({ ...prev, max_video_size_mb: parseInt(e.target.value) || 500 }))}
+                min="1"
+              />
+              <p className="text-xs text-muted mt-1">
+                {t('settings.general.maxVideoSizeHelp', 'Separate per-file limit for video uploads, so photos can keep a smaller limit.')}
+              </p>
+            </div>
+            <div>
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={generalSettings.video_web_rendition}
+                  onChange={(e) => setGeneralSettings(prev => ({ ...prev, video_web_rendition: e.target.checked }))}
+                  className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
+                  data-testid="general-video-web-rendition"
+                />
+                <span className="ml-2 text-sm text-body">
+                  {t('settings.general.videoWebRendition', 'Browser-playable copies of videos')}
+                </span>
+              </label>
+              <p className="text-xs text-muted ml-6 mt-1">
+                {t('settings.general.videoWebRenditionHelp', 'Re-encodes videos a browser cannot play (HEVC, QuickTime, MP4s that are not streamable) into an H.264 MP4 for playback. The original stays the download. Costs CPU per video and a second file; switching it on queues the videos already uploaded.')}
+              </p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-body mb-1">
+                {t('settings.general.maxFilesPerUpload')}
+              </label>
+              <Input
+                type="number"
+                value={generalSettings.max_files_per_upload}
+                onChange={(e) => {
+                  const parsed = parseInt(e.target.value, 10);
+                  setGeneralSettings(prev => ({
+                    ...prev,
+                    max_files_per_upload: Number.isFinite(parsed)
+                      ? Math.min(MAX_FILES_PER_UPLOAD_LIMIT, Math.max(1, parsed))
+                      : prev.max_files_per_upload
+                  }));
+                }}
+                min="1"
+                max={MAX_FILES_PER_UPLOAD_LIMIT}
+              />
+              <p className="text-xs text-muted mt-1">
+                {t('settings.general.maxFilesPerUploadHelp', { max: MAX_FILES_PER_UPLOAD_LIMIT })}
+              </p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-body mb-1">
+                {t('settings.general.maxUploadBatchSize')}
+              </label>
+              <Input
+                type="number"
+                value={generalSettings.max_upload_batch_size_mb}
+                onChange={(e) => {
+                  const parsed = parseInt(e.target.value, 10);
+                  setGeneralSettings(prev => ({
+                    ...prev,
+                    max_upload_batch_size_mb: Number.isFinite(parsed)
+                      ? Math.max(1, parsed)
+                      : prev.max_upload_batch_size_mb
+                  }));
+                }}
+                min="1"
+              />
+              <p className="text-xs text-muted mt-1">
+                {t('settings.general.maxUploadBatchSizeHelp')}
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-body mb-1">
+              {t('settings.general.allowedFileTypes')}
+            </label>
+            <Input
+              type="text"
+              value={generalSettings.allowed_file_types}
+              onChange={(e) => setGeneralSettings(prev => ({ ...prev, allowed_file_types: e.target.value }))}
+              placeholder="jpg,jpeg,png,gif"
+            />
+            <p className="text-xs text-muted mt-1">
+              {t('settings.general.allowedFileTypesHelp')}
+            </p>
+          </div>
+        </div>
+      </Card>
+
+      <Card padding="md">
+        <h2 className="text-lg font-semibold text-heading mb-4">{t('settings.general.featureToggles')}</h2>
+
+        <div className="space-y-3">
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              checked={generalSettings.enable_analytics}
+              onChange={(e) => setGeneralSettings(prev => ({ ...prev, enable_analytics: e.target.checked }))}
+              className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
+            />
+            <span className="ml-2 text-sm text-body">{t('settings.general.enableAnalytics')}</span>
+          </label>
+
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              checked={generalSettings.enable_registration}
+              onChange={(e) => setGeneralSettings(prev => ({ ...prev, enable_registration: e.target.checked }))}
+              className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
+            />
+            <span className="ml-2 text-sm text-body">{t('settings.general.enableRegistration')}</span>
+          </label>
+
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              checked={generalSettings.maintenance_mode}
+              onChange={(e) => setGeneralSettings(prev => ({ ...prev, maintenance_mode: e.target.checked }))}
+              className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
+            />
+            <span className="ml-2 text-sm text-body">{t('settings.general.maintenanceMode')}</span>
+          </label>
+
+          <div>
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                checked={generalSettings.short_gallery_urls}
+                onChange={(e) => setGeneralSettings(prev => ({ ...prev, short_gallery_urls: e.target.checked }))}
+                className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
+              />
+              <span className="ml-2 text-sm text-body">{t('settings.general.enableShortGalleryUrls')}</span>
+            </label>
+            <p className="text-xs text-muted ml-6 mt-1">
+              {t('settings.general.enableShortGalleryUrlsHelp')}
+            </p>
+          </div>
+
+          <div>
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                checked={generalSettings.use_original_filenames_for_downloads}
+                onChange={(e) => setGeneralSettings(prev => ({ ...prev, use_original_filenames_for_downloads: e.target.checked }))}
+                className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
+              />
+              <span className="ml-2 text-sm text-body">{t('settings.general.useOriginalFilenames')}</span>
+            </label>
+            <p className="text-xs text-muted ml-6 mt-1">
+              {t('settings.general.useOriginalFilenamesHelp')}
+            </p>
+          </div>
+        </div>
+      </Card>
+
+      <Card padding="md">
+        <h2 className="text-lg font-semibold text-heading mb-4">{t('settings.general.language')}</h2>
+
+        <div className="space-y-4">
+          {/* Two languages, two scopes, and the order matters: the one the
+              admin is reading right now comes first.
+
+              This one is a per-admin browser preference, not an instance
+              setting — it is the same i18next value the header selector used
+              to write, so it applies the moment it changes and is deliberately
+              NOT part of `generalSettings`. Wiring it into the form state
+              would put a personal preference behind an instance-wide Save
+              button and let Discard revert the language mid-edit. */}
+          <div>
+            <label htmlFor="admin-language" className="block text-sm font-medium text-body mb-2">
+              {t('settings.general.adminLanguage', 'Your admin language')}
+            </label>
+            <select
+              id="admin-language"
+              value={i18n.language}
+              onChange={(e) => { void i18n.changeLanguage(e.target.value); }}
+              className="w-full px-3 py-2 border border-line-strong rounded-lg bg-panel text-heading focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            >
+              {SUPPORTED_LANGUAGES.map(lang => (
+                <option key={lang.code} value={lang.code}>{lang.name}</option>
+              ))}
+            </select>
+            <p className="text-xs text-muted mt-1">
+              {t('settings.general.adminLanguageHelp', 'Applies to the admin area, for you on this device only. It takes effect immediately — no need to save.')}
+            </p>
+          </div>
+
+          {/* Instance-wide, saved with the rest of the tab. */}
+          <div className="pt-4 border-t border-line">
+            <label htmlFor="gallery-language" className="block text-sm font-medium text-body mb-2">
+              {t('settings.general.customerLanguage', 'Gallery & guest language')}
+            </label>
+            <select
+              id="gallery-language"
+              value={generalSettings.default_language}
+              onChange={(e) => setGeneralSettings(prev => ({ ...prev, default_language: e.target.value }))}
+              className="w-full px-3 py-2 border border-line-strong rounded-lg bg-panel text-heading focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            >
+              {SUPPORTED_LANGUAGES.map(lang => (
+                <option key={lang.code} value={lang.code}>{lang.name}</option>
+              ))}
+            </select>
+            <p className="text-xs text-muted mt-1">
+              {t('settings.general.defaultLanguageHelp')}
+            </p>
+          </div>
+        </div>
+      </Card>
+
+      <Card padding="md">
+        <h2 className="text-lg font-semibold text-heading mb-4">{t('settings.general.dateTimeFormat')}</h2>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-body mb-2">
+              {t('settings.general.dateFormat')}
+            </label>
+            <select
+              value={generalSettings.date_format?.format || 'dd/MM/yyyy'}
+              onChange={(e) => {
+                const format = e.target.value;
+                const locale = format === 'MM/dd/yyyy' ? 'en-US' : 'en-GB';
+                setGeneralSettings(prev => ({
+                  ...prev,
+                  date_format: { format, locale }
+                }));
+              }}
+              className="w-full px-3 py-2 border border-line-strong rounded-lg bg-panel text-heading focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            >
+              <option value="dd/MM/yyyy">DD/MM/YYYY (European)</option>
+              <option value="MM/dd/yyyy">MM/DD/YYYY (US)</option>
+              <option value="yyyy-MM-dd">YYYY-MM-DD (ISO)</option>
+              <option value="dd.MM.yyyy">DD.MM.YYYY (German)</option>
+            </select>
+            <p className="text-xs text-muted mt-1">
+              {t('settings.general.dateFormatHelp')}
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-body mb-2">
+              {t('settings.general.timeFormat', 'Time format')}
+            </label>
+            <select
+              value={generalSettings.time_format || '24h'}
+              onChange={(e) => {
+                const time_format = e.target.value === '12h' ? '12h' : '24h';
+                setGeneralSettings(prev => ({ ...prev, time_format }));
+              }}
+              className="w-full px-3 py-2 border border-line-strong rounded-lg bg-panel text-heading focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            >
+              <option value="24h">{t('settings.general.timeFormat24h', '24-hour (14:30)')}</option>
+              <option value="12h">{t('settings.general.timeFormat12h', '12-hour (2:30 PM)')}</option>
+            </select>
+            <p className="text-xs text-muted mt-1">
+              {t('settings.general.timeFormatHelp',
+                'Controls how times render across admin views, customer-facing pages, and PDFs. Storage stays 24-hour (HH:mm); only the display switches.')}
+            </p>
+          </div>
+        </div>
+      </Card>
+
+      {/* One bar for both forms on this tab: the admin account (its own
+
+          mutation and validation) and the general settings. */}
+
+      <SettingsSaveBar
+
+        isDirty={isDirty || accountDirty}
+
+        isSaving={saveGeneralMutation.isPending || updateAdminProfileMutation.isPending}
+
+        canSave={!siteUrlError}
+
+        onSave={() => {
+
+          if (accountDirty) handleAccountSubmit();
+
+          if (isDirty) saveGeneralMutation.mutate();
+
+        }}
+
+        onDiscard={() => { onDiscard(); onDiscardAccount(); }}
+
+      />
+    </div>
+  );
+};

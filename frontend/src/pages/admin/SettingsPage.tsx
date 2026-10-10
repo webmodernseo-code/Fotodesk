@@ -1,0 +1,330 @@
+import React, { lazy, Suspense, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
+import { Loading } from '../../components/common';
+const ProductUsageTab = lazy(() => import('../../features/settings/tabs/ProductUsageTab'));
+import {
+  useSettingsState,
+  FeaturesTab,
+  GeneralTab,
+  EventsTab,
+  StatusTab,
+  SecurityTab,
+  ImageSecurityTab,
+  CategoriesTab,
+  AnalyticsTab,
+  ModerationTab,
+  TransfersTab,
+  StylingTab,
+  SEOTab,
+  ThumbnailsTab,
+  DownloadsTab,
+  ApiTokensTab,
+  WebhooksTab,
+  AccountingTab,
+  WhatsAppTab,
+  SsoTab,
+} from '../../features/settings';
+import { EmailConfigPage } from './EmailConfigPage';
+import { BrandingPage } from './BrandingPage';
+import { EventTypesPage } from './EventTypesPage';
+import { SlideshowSettingsPage } from './SlideshowSettingsPage';
+import { BackupManagement } from './BackupManagement';
+import { CMSPage } from './CMSPage';
+// CRM (#TBD)
+import { SettingsBusinessProfilePage } from './settings/SettingsBusinessProfilePage';
+import { CrmSettingsPage } from './settings/CrmSettingsPage';
+// Reminder templates moved to the Automation section (it authors the emails
+// the Pre-event reminder workflow sends). The ?tab=reminderTemplates redirect
+// lives in App.tsx's SettingsRoute, above this page: done here it raced the
+// URL-sync effect below, which rewrote ?tab= to the fallback before the
+// redirect could fire.
+import { UserManagementPage } from './UserManagementPage';
+import { SystemHealthPage } from './SystemHealthPage';
+import { BlockLibraryPage } from './contracts/BlockLibraryPage';
+import { useFeatureFlags } from '../../contexts/FeatureFlagsContext';
+import { usePermissions } from '../../contexts/PermissionsContext';
+import {
+  type SettingsTab as TabType,
+  ALL_SETTINGS_TABS,
+  DEFAULT_SETTINGS_TAB,
+  isValidSettingsTab as isValidTab,
+  SETTINGS_TAB_PERMISSIONS as TAB_PERMISSIONS,
+  settingsTabGatedOff,
+  useSettingsNavGroups,
+} from '../../features/settings/settingsNav';
+import { SectionPageHeader } from '../../components/admin/SectionPageHeader';
+
+// Tab keys, permissions and the grouped navigation live in
+// features/settings/settingsNav.tsx — shared with the admin sidebar, which
+// renders the Settings groups in place of the main menu while on this page.
+
+export const SettingsPage: React.FC = () => {
+  const { t } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { flags, isLoading: flagsLoading } = useFeatureFlags();
+  const { hasAnyPermission, isLoading: permissionsLoading } = usePermissions();
+  const visibleGroups = useSettingsNavGroups();
+
+  // Read ?tab=… on mount; default to Features per the redesign.
+  const initialTab: TabType = isValidTab(searchParams.get('tab'))
+    ? (searchParams.get('tab') as TabType)
+    : DEFAULT_SETTINGS_TAB;
+  const [activeTab, setActiveTab] = useState<TabType>(initialTab);
+
+  // Keep URL in sync when the user clicks tabs (so deep-link / back-button
+  // works and copy-paste of the URL lands the recipient on the same tab).
+  useEffect(() => {
+    const current = searchParams.get('tab');
+    if (current === activeTab) return;
+    const next = new URLSearchParams(searchParams);
+    next.set('tab', activeTab);
+    setSearchParams(next, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
+
+  // Reflect external URL changes (e.g. back/forward, redirect-to-tab) back
+  // into local state.
+  useEffect(() => {
+    const urlTab = searchParams.get('tab');
+    if (isValidTab(urlTab) && urlTab !== activeTab) {
+      setActiveTab(urlTab);
+    } else if (!urlTab) {
+      // A navigation to the bare /admin/settings while the page is mounted
+      // (the sidebar's Settings entry after "Back to menu", the header
+      // link) keeps the open tab; put it back in the URL so the sidebar,
+      // which reads only the URL, highlights the tab that is showing.
+      const next = new URLSearchParams(searchParams);
+      next.set('tab', activeTab);
+      setSearchParams(next, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  const {
+    isLoading,
+    adminProfileLoading,
+    generalSettings,
+    setGeneralSettings,
+    securitySettings,
+    rateLimitSettings,
+    setRateLimitSettings,
+    setSecuritySettings,
+    analyticsSettings,
+    setAnalyticsSettings,
+    eventSettings,
+    setEventSettings,
+    accountForm,
+    accountErrors,
+    handleAccountChange,
+    handleAccountSubmit,
+    updateAdminProfileMutation,
+    softLimitGb,
+    setSoftLimitGb,
+    softLimitDirty,
+    setSoftLimitDirty,
+    capacityOverrideGb,
+    setCapacityOverrideGb,
+    availableOverrideGb,
+    setAvailableOverrideGb,
+    overrideDirty,
+    setOverrideDirty,
+    handleSaveSoftLimit,
+    handleSaveCapacityOverride,
+    saveSoftLimitMutation,
+    saveCapacityOverrideMutation,
+    saveGeneralMutation,
+    saveSecurityMutation,
+    saveAnalyticsMutation,
+    saveEventSettingsMutation,
+    seoSettings,
+    setSeoSettings,
+    saveSeoMutation,
+    generalDirty, securityDirty, analyticsDirty, eventDirty, seoDirty,
+    discardGeneral, discardSecurity, discardAnalytics, discardEvent, discardSeo,
+    accountDirty, discardAccount,
+  } = useSettingsState();
+
+  // If the active tab refers to an item that's now hidden (e.g. admin
+  // landed on ?tab=whatsapp after disabling the WhatsApp feature),
+  // snap to the first key that the dependency-rule flags allow. Effect
+  // re-fires when flags toggle live. MUST stay above the isLoading early
+  // return so React's rules-of-hooks count stays consistent across renders
+  // (was previously after the early return — that's a hooks violation that
+  // surfaced as React error #310 once settled long enough for `isLoading`
+  // to transition true→false in the same mount, #640D pre-existing-bug fix).
+  useEffect(() => {
+    // Wait for the server's actual flag values before deciding whether the
+    // current tab is allowed — during initial load `flags` is the defaults
+    // placeholder which would falsely snap-back away from a tab the server
+    // has actually enabled.
+    if (flagsLoading) return;
+    if (settingsTabGatedOff(flags)[activeTab]) {
+      setActiveTab(DEFAULT_SETTINGS_TAB);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [flagsLoading, flags.quotes, flags.bills, flags.contracts, flags.documents, flags.userManagement, flags.accounting, flags.whatsapp, flags.slideshow, activeTab]);
+
+  // Permission snap-back: if the active tab isn't permitted for this role (e.g.
+  // a deep-linked ?tab=security a photographer can't access), move to the first
+  // tab that is both permitted and not feature-flag-gated-off. Sits above the
+  // isLoading early return to keep hook ordering stable.
+  useEffect(() => {
+    // Both contexts have to be in: permissions arriving after the flags
+    // would otherwise have found every tab forbidden, snapped nowhere, and
+    // never run again — leaving a deep-linked tab the role cannot see open
+    // with nothing highlighted in the sidebar.
+    if (flagsLoading || permissionsLoading) return;
+    if (hasAnyPermission(TAB_PERMISSIONS[activeTab] ?? ['settings.view'])) return;
+    const flagOff = settingsTabGatedOff(flags);
+    const firstVisible = ALL_SETTINGS_TABS.find(
+      (k) => !flagOff[k] && hasAnyPermission(TAB_PERMISSIONS[k] ?? ['settings.view'])
+    );
+    if (firstVisible && firstVisible !== activeTab) setActiveTab(firstVisible);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [flagsLoading, permissionsLoading, activeTab, flags.quotes, flags.bills, flags.contracts, flags.documents, flags.userManagement, flags.accounting, flags.whatsapp, flags.slideshow]);
+
+  // Wait for the permissions context too: on a fresh/hard mount it starts out
+  // empty, which filters every nav group down to nothing and left `activeItem`
+  // undefined below (QA J.08 crash). `activeTab` is held in state, so a
+  // deep-linked ?tab= still lands on the right tab once permissions arrive.
+  if (isLoading || permissionsLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loading size="lg" text={t('settings.loadingSettings')} />
+      </div>
+    );
+  }
+
+  const allItems = visibleGroups.flatMap((g) => g.items);
+  const activeItem = allItems.find((i) => i.key === activeTab) ?? allItems[0];
+  // (Visibility snap-back is handled in the useEffect above, which sits
+  // before the isLoading early return to keep hook ordering stable.)
+
+  // For tabs that mount existing top-level pages OR bring their own
+  // header (FeaturesTab has its own icon+title+description block), skip
+  // the Settings shell's section heading so the layout doesn't double
+  // up.
+  const TABS_WITH_OWN_HEADER: TabType[] = ['features', 'email', 'branding', 'eventTypes', 'backup', 'cms', 'contracts', 'users'];
+  const showSectionHeading = !TABS_WITH_OWN_HEADER.includes(activeTab);
+
+  return (
+    <div>
+      <div className="min-w-0">
+          {showSectionHeading && activeItem && (
+            <SectionPageHeader icon={activeItem.icon} title={activeItem.label} description={activeItem.description} />
+          )}
+
+          {activeTab === 'features' && <FeaturesTab />}
+
+          {activeTab === 'general' && (
+            <GeneralTab
+              generalSettings={generalSettings}
+              setGeneralSettings={setGeneralSettings}
+              saveGeneralMutation={saveGeneralMutation}
+              isDirty={generalDirty}
+              onDiscard={discardGeneral}
+              accountDirty={accountDirty}
+              onDiscardAccount={discardAccount}
+              accountForm={accountForm}
+              accountErrors={accountErrors}
+              handleAccountChange={handleAccountChange}
+              handleAccountSubmit={handleAccountSubmit}
+              updateAdminProfileMutation={updateAdminProfileMutation}
+              adminProfileLoading={adminProfileLoading}
+            />
+          )}
+
+          {activeTab === 'events' && (
+            <EventsTab
+              eventSettings={eventSettings}
+              setEventSettings={setEventSettings}
+              saveEventSettingsMutation={saveEventSettingsMutation}
+              isDirty={eventDirty}
+              onDiscard={discardEvent}
+            />
+          )}
+
+          {activeTab === 'eventTypes' && <EventTypesPage />}
+          {activeTab === 'slideshow' && <SlideshowSettingsPage />}
+          {activeTab === 'branding' && <BrandingPage />}
+          {activeTab === 'cms' && <CMSPage />}
+          {activeTab === 'email' && <EmailConfigPage />}
+          {activeTab === 'backup' && <BackupManagement />}
+          {activeTab === 'users' && <UserManagementPage />}
+          {activeTab === 'health' && <SystemHealthPage />}
+          {activeTab === 'businessProfile' && <SettingsBusinessProfilePage />}
+          {activeTab === 'crm' && <CrmSettingsPage />}
+          {activeTab === 'contracts' && <BlockLibraryPage />}
+          {activeTab === 'accounting' && <AccountingTab />}
+          {activeTab === 'whatsapp' && <WhatsAppTab />}
+          {activeTab === 'usage' && hasAnyPermission(['settings.edit']) && <Suspense fallback={<Loading />}><ProductUsageTab /></Suspense>}
+
+          {activeTab === 'status' && (
+            <StatusTab
+              isActive={activeTab === 'status'}
+              handleSaveSoftLimit={handleSaveSoftLimit}
+              handleSaveCapacityOverride={handleSaveCapacityOverride}
+              saveSoftLimitMutation={saveSoftLimitMutation}
+              saveCapacityOverrideMutation={saveCapacityOverrideMutation}
+              softLimitGb={softLimitGb}
+              setSoftLimitGb={setSoftLimitGb}
+              softLimitDirty={softLimitDirty}
+              setSoftLimitDirty={setSoftLimitDirty}
+              capacityOverrideGb={capacityOverrideGb}
+              setCapacityOverrideGb={setCapacityOverrideGb}
+              availableOverrideGb={availableOverrideGb}
+              setAvailableOverrideGb={setAvailableOverrideGb}
+              overrideDirty={overrideDirty}
+              setOverrideDirty={setOverrideDirty}
+            />
+          )}
+
+          {activeTab === 'sso' && <SsoTab />}
+
+          {activeTab === 'security' && (
+            <SecurityTab
+              securitySettings={securitySettings}
+              setSecuritySettings={setSecuritySettings}
+              rateLimitSettings={rateLimitSettings}
+              setRateLimitSettings={setRateLimitSettings}
+              saveSecurityMutation={saveSecurityMutation}
+              isDirty={securityDirty}
+              onDiscard={discardSecurity}
+            />
+          )}
+
+          {activeTab === 'seo' && (
+            <SEOTab
+              seoSettings={seoSettings}
+              setSeoSettings={setSeoSettings}
+              saveSeoMutation={saveSeoMutation}
+              isDirty={seoDirty}
+              onDiscard={discardSeo}
+            />
+          )}
+
+          {activeTab === 'imageSecurity' && <ImageSecurityTab />}
+          {activeTab === 'thumbnails' && <ThumbnailsTab />}
+          {activeTab === 'downloads' && <DownloadsTab />}
+          {activeTab === 'categories' && <CategoriesTab />}
+
+          {activeTab === 'analytics' && (
+            <AnalyticsTab
+              analyticsSettings={analyticsSettings}
+              setAnalyticsSettings={setAnalyticsSettings}
+              saveAnalyticsMutation={saveAnalyticsMutation}
+              isDirty={analyticsDirty}
+              onDiscard={discardAnalytics}
+            />
+          )}
+
+          {activeTab === 'moderation' && <ModerationTab />}
+          {activeTab === 'transfers' && <TransfersTab />}
+          {activeTab === 'styling' && <StylingTab />}
+          {activeTab === 'apiTokens' && <ApiTokensTab />}
+          {activeTab === 'webhooks' && <WebhooksTab />}
+      </div>
+    </div>
+  );
+};

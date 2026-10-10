@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FotoDesk — Galeries photo privées pour photographes africains</title>
+  <meta name="description" content="Créez des galeries photo privées, partagez un lien unique sur WhatsApp, et livrez vos photos HD en un clic. Zéro friction, 100% mobile. Fait pour les photographes en Afrique.">
+  <meta name="keywords" content="galerie photo, photographe, Afrique, livraison photo, SaaS, WhatsApp, galerie privée, sélection photo">
+  <meta name="author" content="FotoDesk">
+  <meta name="theme-color" content="#0A0A0B">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="FotoDesk — Livrez vos photos comme un pro">
+  <meta property="og:description" content="Galeries privées, sélection client, livraison HD — tout en un clic. Fait pour les photographes africains.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="fr_FR">
+
+  <!-- Favicon -->
+  <link rel="icon" href="/logo.png" type="image/png">
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/sections.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════
+       NAVBAR
+       ═══════════════════════════════════════ -->
+  <nav class="navbar" id="navbar" role="navigation" aria-label="Navigation principale">
+    <div class="navbar__inner">
+      <a href="/" class="navbar__logo" aria-label="FotoDesk" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
+        <img src="/logo.png" alt="FotoDesk Logo" style="height: 32px; width: auto; object-fit: contain; filter: brightness(0) invert(1);" />
+        <span style="font-size: 20px; font-weight: 600; color: #FFFFFF; letter-spacing: -0.02em;">Foto<span style="font-weight: 400; color: #FFFFFF;">Desk</span></span>
+      </a>
+
+      <div class="navbar__links" role="menubar" style="display: flex; align-items: center; gap: 35px;">
+        <a href="#fonctionnalites" class="navbar__link" role="menuitem" style="font-size: 14px; font-weight: 500; color: #8A8A8A;">Fonctionnalités</a>
+        <a href="#comment-ca-marche" class="navbar__link" role="menuitem" style="font-size: 14px; font-weight: 500; color: #8A8A8A;">Comment ça marche</a>
+        <a href="#tarifs" class="navbar__link" role="menuitem" style="font-size: 14px; font-weight: 500; color: #8A8A8A;">Tarifs</a>
+        <a href="#faq" class="navbar__link" role="menuitem" style="font-size: 14px; font-weight: 500; color: #8A8A8A;">FAQ</a>
+      </div>
+
+      <div class="navbar__actions" style="display: flex; align-items: center; gap: 24px;">
+        <a href="/login" class="navbar__link" style="font-size: 14px; font-weight: 500; color: #8A8A8A; text-decoration: none;">Se connecter</a>
+        <a href="/register" class="btn btn--signup" id="navbar-cta" style="background: linear-gradient(180deg, #FFFFFF 0%, #F7F7F7 60%, #D6D6D6 100%); color: #050505; border-radius: 8px; padding: 10px 20px; font-weight: 600; font-size: 14px; border: none; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Commencer</a>
+      </div>
+
+      <!-- Mobile Toggle -->
+      <button class="navbar__toggle" id="mobile-toggle" aria-label="Menu mobile" aria-expanded="false">
+        <span class="navbar__toggle-line" style="background: #FFFFFF;"></span>
+        <span class="navbar__toggle-line" style="background: #FFFFFF;"></span>
+        <span class="navbar__toggle-line" style="background: #FFFFFF;"></span>
+      </button>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div class="navbar__mobile-menu" id="mobile-menu" role="dialog" aria-label="Menu de navigation" style="background: #000000; border-top: 1px solid #18181B;">
+      <a href="#fonctionnalites" class="navbar__mobile-link">Fonctionnalités</a>
+      <a href="#comment-ca-marche" class="navbar__mobile-link">Comment ça marche</a>
+      <a href="#tarifs" class="navbar__mobile-link">Tarifs</a>
+      <a href="#faq" class="navbar__mobile-link">FAQ</a>
+      
+      <!-- Sélecteur de Région Mobile -->
+      <div class="region-select__wrapper" style="margin-top: 1rem; width: 80%; max-width: 250px;">
+        <select id="region-select-mobile" aria-label="Choisir la région et la devise" style="width: 100%; text-align: center; background: #000000; border: 1px solid #18181B; color: #8A8A8A;">
+          <option value="africa">FCFA</option>
+          <option value="europe">€</option>
+          <option value="usa">$</option>
+        </select>
+      </div>
+      
+      <a href="/login" class="navbar__mobile-link" style="margin-top: 1rem; font-weight: 600; color: #FFFFFF; text-align: center;">Se connecter</a>
+      <a href="/register" class="btn btn--signup btn--lg" style="margin-top: 0.5rem;">Commencer</a>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════════
+       HERO SECTION (Strict Monochrome Référence)
+       ═══════════════════════════════════════ -->
+  <section class="hero section" id="hero">
+    <div class="hero__bg">
+      <div class="hero__grid"></div>
+    </div>
+
+    <div class="container hero__content" style="max-width: 950px; margin: 0 auto; text-align: center; padding-top: 32px;">
+      <div class="hero__text" style="max-width: 950px; margin: 0 auto;">
+        <!-- Announcement badge -->
+        <aside class="hero__badge" style="height: 36px; padding: 0 18px; background: #10141A; border: 1px solid #344054; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; gap: 8px;" aria-label="Annonce FotoDesk">
+          <span style="font-size: 12px; font-weight: 500; color: #E5E5E5; white-space: nowrap;">Fait pour les photographes professionnels</span>
+          <a href="#fonctionnalites" style="font-size: 12px; font-weight: 500; color: #8A8A8A; display: inline-flex; align-items: center; gap: 4px; text-decoration: none;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#8A8A8A'">
+            Découvrir
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14"/>
+              <path d="m12 5 7 7-7 7"/>
+            </svg>
+          </a>
+        </aside>
+
+        <!-- Titre : EXACTEMENT 2 lignes, font-weight: 400, 64px, leading: 1.08, -0.045em, mt: 38px -->
+        <h1 class="hero__title">
+          <span class="hero__title-line-1">Livrez vos photos clients</span>
+          <span class="hero__title-line-2">comme un professionnel</span>
+        </h1>
+
+        <!-- Sous-titre : 16px, leading 1.45, font-weight 400, color #9CA8BA, max-w 620px, mt: 30px -->
+        <p class="hero__subtitle">
+          Galeries privées sécurisées, sélection en 1 clic sur WhatsApp et téléchargement HD sans perte.<br>Fini les liens WeTransfer expirés et les allers-retours interminables.
+        </p>
+
+        <!-- Bouton CTA : min-w: 200px, h: 44px, padding: 0 28px, rounded: 8px -->
+        <div class="hero__ctas" style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+          <a href="/register" class="btn--get-started" id="hero-cta-primary" style="min-width: 210px; height: 44px; padding: 0 28px;">
+            Créer ma première galerie
+          </a>
+          <span style="font-size: 12px; color: #71717A; font-weight: 400;">
+            2 galeries offertes · Sans carte bancaire · Prêt en 2 min
+          </span>
+        </div>
+      </div>
+
+      <!-- Espace entre CTA et Dashboard (~60–70px) + Mockup qui remonte dans le Hero -->
+      <div class="hero__visual">
+        <!-- Glow du background : halo brun/cuivré (#A17142) -->
+        <div class="hero__glow-horizon" aria-hidden="true">
+          <img src="assets/images/hero-glow.png" alt="" class="hero__glow-img" loading="eager">
+        </div>
+        <div class="hero__glow-synthetic" aria-hidden="true"></div>
+
+        <!-- Dashboard Preview Card -->
+        <div class="hero__card">
+          <img src="assets/images/crm-dashboard.png" alt="Aperçu de l'interface de gestion de galeries FotoDesk" class="hero__mockup" width="1020" height="600" loading="eager">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       STATS BAR
+       ═══════════════════════════════════════ -->
+  <section class="stats-bar" id="stats" aria-label="Chiffres clés">
+    <div class="container">
+      <div class="stats-bar__inner reveal">
+        <div class="stat">
+          <div class="stat-value" data-counter="500" data-prefix="+">0</div>
+          <div class="stat-label">Photographes actifs</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" data-counter="10000" data-prefix="+">0</div>
+          <div class="stat-label">Galeries créées</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">0 <span style="font-size: var(--font-size-lg);">FCFA</span></div>
+          <div class="stat-label">Pour commencer</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       PROBLÈME / SOLUTION
+       ═══════════════════════════════════════ -->
+  <section class="section problem-solution" id="probleme-solution">
+    <div class="container">
+      <div class="section-header section-header--center reveal">
+        <span class="section-badge"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.9 1.2 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg> Le constat</span>
+        <h2 class="section-title section-title--center">
+          Fini le chaos des livraisons photo
+        </h2>
+        <p class="section-subtitle section-subtitle--center">
+          Vos clients méritent mieux qu'un lien WeTransfer perdu dans WhatsApp.
+        </p>
+      </div>
+
+      <div class="problem-solution__grid">
+        <!-- Problème -->
+        <div class="problem-solution__side problem-solution__side--problem reveal">
+          <div class="problem-solution__icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>
+          <h3 class="problem-solution__title" style="color: #EF4444;">Avant Fotodesk</h3>
+          <ul class="problem-solution__list">
+            <li class="problem-solution__item">
+              <span class="problem-solution__item-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>
+              <span>Upload sur WeTransfer, lien expiré en 7 jours</span>
+            </li>
+            <li class="problem-solution__item">
+              <span class="problem-solution__item-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>
+              <span>Client valide par WhatsApp : "je veux la photo 23, 47 et 89"</span>
+            </li>
+            <li class="problem-solution__item">
+              <span class="problem-solution__item-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>
+              <span>Allers-retours pendant 2-3 semaines</span>
+            </li>
+            <li class="problem-solution__item">
+              <span class="problem-solution__item-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>
+              <span>Fichiers dispersés, aucun suivi client</span>
+            </li>
+            <li class="problem-solution__item">
+              <span class="problem-solution__item-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>
+              <span>Image de marque peu professionnelle</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Flèche -->
+        <div class="problem-solution__arrow reveal">
+          <span>→</span>
+        </div>
+
+        <!-- Solution -->
+        <div class="problem-solution__side problem-solution__side--solution reveal">
+          <div class="problem-solution__icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg></div>
+          <h3 class="problem-solution__title" style="color: var(--accent-gold);">Avec Fotodesk</h3>
+          <ul class="problem-solution__list">
+            <li class="problem-solution__item">
+              <span class="problem-solution__item-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+              <span>Galerie privée avec lien unique permanent</span>
+            </li>
+            <li class="problem-solution__item">
+              <span class="problem-solution__item-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+              <span>Client sélectionne ses favoris en 1 clic</span>
+            </li>
+            <li class="problem-solution__item">
+              <span class="problem-solution__item-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+              <span>Livraison HD en 24h au lieu de 2 semaines</span>
+            </li>
+            <li class="problem-solution__item">
+              <span class="problem-solution__item-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+              <span>Tout centralisé, suivi complet par projet</span>
+            </li>
+            <li class="problem-solution__item">
+              <span class="problem-solution__item-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+              <span>Expérience premium pour vos clients</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       FONCTIONNALITÉS
+       ═══════════════════════════════════════ -->
+  <section class="section section--alt" id="fonctionnalites">
+    <div class="container">
+      <div class="section-header section-header--center reveal">
+        <span class="section-badge">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Fonctionnalités
+        </span>
+        <h2 class="section-title section-title--center">
+          Tout ce qu'il faut pour<br>
+          <span class="text-gradient">livrer comme un pro</span>
+        </h2>
+        <p class="section-subtitle section-subtitle--center">
+          Des outils pensés pour votre quotidien de photographe, pas pour les développeurs.
+        </p>
+      </div>
+
+      <div class="features__grid">
+        <!-- Feature 1 -->
+        <div class="card reveal reveal-delay-1">
+          <div class="card-icon card-icon--indigo">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+            </svg>
+          </div>
+          <h3 class="card-title">Lien privé sans friction</h3>
+          <p class="card-description">
+            Générez une URL exclusive pour chaque reportage. Partagez-la sur WhatsApp : votre client accède immédiatement à sa galerie, sans créer de compte ni installer d'application.
+          </p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="card reveal reveal-delay-2">
+          <div class="card-icon card-icon--cyan">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="14" height="20" x="5" y="2" rx="2" ry="2" />
+              <path d="M12 18h.01" />
+            </svg>
+          </div>
+          <h3 class="card-title">Fluidité mobile &amp; 3G/4G</h3>
+          <p class="card-description">
+            Vos clients parcourent des centaines de photos sans latence. Compression adaptative intelligente des aperçus et affichage ultra-rapide sur tous les smartphones Android et iPhone.
+          </p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="card reveal reveal-delay-3">
+          <div class="card-icon card-icon--amber">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+            </svg>
+          </div>
+          <h3 class="card-title">Sélection client en 1 clic</h3>
+          <p class="card-description">
+            Votre client sélectionne ses clichés coups de cœur du bout des doigts, laisse ses remarques et valide son choix final. Fini les messages éparpillés et confus.
+          </p>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="card reveal reveal-delay-1">
+          <div class="card-icon card-icon--emerald">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+          </div>
+          <h3 class="card-title">Téléchargement HD sans perte</h3>
+          <p class="card-description">
+            Dès validation de la sélection, votre client télécharge ses fichiers en haute définition ou en archive ZIP complète. Fini les liens WeTransfer qui expirent au bout de 7 jours.
+          </p>
+        </div>
+
+        <!-- Feature 5 -->
+        <div class="card reveal reveal-delay-2">
+          <div class="card-icon card-icon--whatsapp">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.262 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.457L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.42 9.864-9.852.002-2.631-1.019-5.105-2.876-6.964-1.857-1.859-4.335-2.88-6.97-2.88-5.437 0-9.863 4.42-9.867 9.852-.001 1.73.458 3.422 1.33 4.927l-.988 3.6 3.69-.968zm11.233-7.241c-.29-.145-1.72-.848-1.986-.944-.266-.097-.459-.145-.652.145-.193.29-.747.944-.917 1.137-.17.193-.341.217-.63.072-1.349-.672-2.332-1.117-3.267-2.723-.25-.429.25-.398.715-1.325.077-.154.039-.29-.019-.406-.058-.116-.459-1.105-.63-1.516-.167-.402-.335-.348-.459-.354l-.391-.008c-.193 0-.507.072-.773.354-.266.29-1.014.99-1.014 2.415 0 1.425 1.038 2.801 1.182 2.995.145.193 2.043 3.12 4.949 4.373.69.298 1.23.476 1.65.61.694.22 1.326.19 1.825.115.556-.083 1.72-.702 1.962-1.381.242-.678.242-1.258.17-1.381-.072-.123-.266-.193-.556-.338z" />
+            </svg>
+          </div>
+          <h3 class="card-title">Notifications WhatsApp</h3>
+          <p class="card-description">
+            Soyez notifié dès que votre client ouvre sa galerie, termine sa sélection ou télécharge ses photos HD. Vous suivez chaque livraison sans effort et en temps réel.
+          </p>
+        </div>
+
+        <!-- Feature 6 -->
+        <div class="card reveal reveal-delay-3">
+          <div class="card-icon card-icon--violet">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+          </div>
+          <h3 class="card-title">Protection par code PIN</h3>
+          <p class="card-description">
+            Verrouillez vos galeries sensibles par un code PIN à 4 chiffres. Vous contrôlez exactement qui peut consulter et télécharger les photos de chaque reportage.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       COMMENT ÇA MARCHE
+       ═══════════════════════════════════════ -->
+  <section class="section" id="comment-ca-marche">
+    <div class="container">
+      <div class="section-header section-header--center reveal">
+        <span class="section-badge"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> 3 étapes simples</span>
+        <h2 class="section-title section-title--center">
+          Comment ça marche ?
+        </h2>
+        <p class="section-subtitle section-subtitle--center">
+          De l'upload à la livraison, tout se fait en quelques clics.
+        </p>
+      </div>
+
+      <div class="steps__grid">
+        <!-- Step 1 -->
+        <div class="step-card reveal reveal-delay-1">
+          <div class="step-card__number">1</div>
+          <div class="step-card__visual">
+            <img src="assets/images/step-upload.png" alt="Étape 1 : Upload de photos sur Fotodesk" loading="lazy" width="400" height="300">
+          </div>
+          <h3 class="step-card__title">Uploadez vos photos</h3>
+          <p class="step-card__description">
+            Glissez-déposez vos photos depuis votre ordinateur. Upload par lot, 
+            compression automatique des aperçus.
+          </p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step-card reveal reveal-delay-2">
+          <div class="step-card__number">2</div>
+          <div class="step-card__visual">
+            <img src="assets/images/step-share.png" alt="Étape 2 : Partage du lien sur WhatsApp" loading="lazy" width="400" height="300">
+          </div>
+          <h3 class="step-card__title">Partagez le lien</h3>
+          <p class="step-card__description">
+            Envoyez le lien unique à votre client sur WhatsApp. 
+            Il ouvre la galerie directement, sans créer de compte.
+          </p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="step-card reveal reveal-delay-3">
+          <div class="step-card__number">3</div>
+          <div class="step-card__visual">
+            <img src="assets/images/step-download.png" alt="Étape 3 : Le client sélectionne et télécharge" loading="lazy" width="400" height="300">
+          </div>
+          <h3 class="step-card__title">Le client choisit & télécharge</h3>
+          <p class="step-card__description">
+            Votre client sélectionne ses favoris, valide, 
+            et télécharge ses photos HD en un clic.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       POURQUOI FOTODESK (Comparaison)
+       ═══════════════════════════════════════ -->
+  <section class="section section--alt comparison" id="pourquoi-fotodesk">
+    <div class="container">
+      <div class="section-header section-header--center reveal">
+        <span class="section-badge"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg> Pourquoi nous ?</span>
+        <h2 class="section-title section-title--center">
+          Fotodesk vs les alternatives
+        </h2>
+        <p class="section-subtitle section-subtitle--center">
+          Conçu pour le photographe africain, pas pour la Silicon Valley.
+        </p>
+      </div>
+
+      <div class="comparison__table-wrapper reveal">
+        <table class="comparison__table" role="table">
+          <thead>
+            <tr>
+              <th scope="col">Fonctionnalité</th>
+              <th scope="col">WeTransfer</th>
+              <th scope="col">Google Drive</th>
+              <th scope="col">Pixieset</th>
+              <th scope="col" class="highlight">Fotodesk <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-left:4px;"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Galerie avec sélection client</td>
+              <td><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></td>
+              <td><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></td>
+              <td><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><polyline points="20 6 9 17 4 12"></polyline></svg></td>
+              <td class="highlight"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><polyline points="20 6 9 17 4 12"></polyline></svg></td>
+            </tr>
+            <tr>
+              <td>Pas de compte client requis</td>
+              <td><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><polyline points="20 6 9 17 4 12"></polyline></svg></td>
+              <td><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></td>
+              <td><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></td>
+              <td class="highlight"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><polyline points="20 6 9 17 4 12"></polyline></svg></td>
+            </tr>
+            <tr>
+              <td>Optimisé 3G / mobile</td>
+              <td><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></td>
+              <td><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></td>
+              <td><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></td>
+              <td class="highlight"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><polyline points="20 6 9 17 4 12"></polyline></svg></td>
+            </tr>
+            <tr>
+              <td>Notifications WhatsApp</td>
+              <td><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></td>
+              <td><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></td>
+              <td><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></td>
+              <td class="highlight"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><polyline points="20 6 9 17 4 12"></polyline></svg></td>
+            </tr>
+            <tr>
+              <td>Tarifs en FCFA / Mobile Money</td>
+              <td><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></td>
+              <td><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></td>
+              <td><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></td>
+              <td class="highlight"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><polyline points="20 6 9 17 4 12"></polyline></svg></td>
+            </tr>
+            <tr>
+              <td>Plan gratuit généreux</td>
+              <td>Limité</td>
+              <td>15 Go</td>
+              <td><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></td>
+              <td class="highlight"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><polyline points="20 6 9 17 4 12"></polyline></svg> 5 Go</td>
+            </tr>
+            <tr>
+              <td>Interface en français</td>
+              <td><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><polyline points="20 6 9 17 4 12"></polyline></svg></td>
+              <td><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><polyline points="20 6 9 17 4 12"></polyline></svg></td>
+              <td><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></td>
+              <td class="highlight"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><polyline points="20 6 9 17 4 12"></polyline></svg></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       POUR LES PHOTOGRAPHES (Valeur)
+       ═══════════════════════════════════════ -->
+  <section class="section section--alt value-section" id="valeur-photographes">
+    <div class="container value-section__grid">
+      <!-- Left: Visual -->
+      <div class="value-section__visual reveal">
+        <div class="value-section__image-wrapper">
+          <img src="/assets/images/photographer.png" alt="Photographe au travail" class="value-section__image">
+          <!-- Floating element 1 -->
+          <div class="value-section__floating value-section__floating--top">
+            <div class="value-section__floating-icon" style="color: var(--accent-green);">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
+            </div>
+            <div class="value-section__floating-text">
+              <strong>Galerie Livrée</strong>
+              <span>Le client est notifié</span>
+            </div>
+          </div>
+          <!-- Floating element 2 -->
+          <div class="value-section__floating value-section__floating--bottom">
+            <span class="value-section__badge">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;margin-right:4px;vertical-align:text-bottom;color:var(--accent-gold);"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              Fotodesk Ready
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Right: Content -->
+      <div class="value-section__content reveal reveal-delay-1">
+        <span class="section-badge section-badge--left">POUR LES PHOTOGRAPHES</span>
+        <h2 class="value-section__title" style="margin-top: var(--space-md);">
+          Livrer devient <span class="highlight-pill" style="margin-left: 5px;">magique</span>
+        </h2>
+        <p class="value-section__description">
+          Nous avons construit l'écosystème dont vous rêviez. Une suite d'outils puissants pour passer du shooting à la livraison finale en un éclair.
+        </p>
+        
+        <div class="value-section__features">
+          <div class="value-section__feature">
+            <div class="value-section__feature-dot"></div>
+            <h4 class="value-section__feature-title">Sélection Client</h4>
+            <p class="value-section__feature-text">Laissez vos clients choisir leurs photos préférées facilement depuis leur mobile.</p>
+          </div>
+          <div class="value-section__feature">
+            <div class="value-section__feature-dot"></div>
+            <h4 class="value-section__feature-title">Galeries Sécurisées</h4>
+            <p class="value-section__feature-text">Protégez votre travail avec des filigranes intelligents et mots de passe.</p>
+          </div>
+          <div class="value-section__feature">
+            <div class="value-section__feature-dot"></div>
+            <h4 class="value-section__feature-title">Portfolio Auto</h4>
+            <p class="value-section__feature-text">Une vitrine publique magnifique générée depuis vos meilleures prises.</p>
+          </div>
+          <div class="value-section__feature">
+            <div class="value-section__feature-dot"></div>
+            <h4 class="value-section__feature-title">Paiements Locaux</h4>
+            <p class="value-section__feature-text">Soyez payé par Mobile Money ou carte de crédit avant le téléchargement.</p>
+          </div>
+        </div>
+        
+        <a href="#tarifs" class="btn btn--primary value-section__cta">
+          Voir les forfaits <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 5px;"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       TARIFS (PRICING)
+       ═══════════════════════════════════════ -->
+  <section class="section" id="tarifs">
+    <div class="container">
+      <div class="section-header section-header--center reveal">
+        <span class="section-badge">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+          Tarifs
+        </span>
+        <h2 class="section-title section-title--center">
+          Un plan pour chaque photographe
+        </h2>
+        <p class="section-subtitle section-subtitle--center">
+          Commencez gratuitement, évoluez quand vous êtes prêt. Pas de carte bancaire requise.
+        </p>
+      </div>
+
+      <!-- Toggle Facturation -->
+      <div class="pricing__toggle-container reveal">
+        <span class="pricing__toggle-label active" id="toggle-monthly-label">Facturation mensuelle</span>
+        <button class="pricing__toggle" id="pricing-toggle" role="switch" aria-checked="false" aria-label="Choisir la facturation mensuelle ou annuelle">
+          <span class="pricing__toggle-slider"></span>
+        </button>
+        <span class="pricing__toggle-label" id="toggle-yearly-label">
+          Facturation annuelle
+          <span class="pricing__discount-badge">Économisez 20%</span>
+        </span>
+      </div>
+
+      <div class="pricing__grid">
+
+        <!-- Plan Gratuit -->
+        <div class="pricing-card reveal reveal-delay-1">
+          <h3 class="pricing-card__name">Gratuit</h3>
+          <div class="pricing-card__price">
+            <span class="pricing-card__amount" data-monthly-africa="0" data-yearly-africa="0" data-monthly-europe="0" data-yearly-europe="0" data-monthly-usa="0" data-yearly-usa="0">0</span>
+            <span class="pricing-card__currency" data-currency-africa="FCFA" data-currency-europe="€" data-currency-usa="$">FCFA</span>
+          </div>
+          <p class="pricing-card__period" data-period-monthly-africa="Pour toujours" data-period-yearly-africa="Pour toujours" data-period-monthly-europe="Pour toujours" data-period-yearly-europe="Pour toujours" data-period-monthly-usa="Pour toujours" data-period-yearly-usa="Pour toujours">Pour toujours</p>
+          <div class="pricing-card__divider"></div>
+          <ul class="pricing-card__features">
+            <li class="pricing-card__feature">
+              <span class="pricing-card__feature-icon pricing-card__feature-icon--check">✓</span>
+              <span>2 galeries actives</span>
+            </li>
+            <li class="pricing-card__feature">
+              <span class="pricing-card__feature-icon pricing-card__feature-icon--check">✓</span>
+              <span>5 Go de stockage (photos & vidéos)</span>
+            </li>
+            <li class="pricing-card__feature">
+              <span class="pricing-card__feature-icon pricing-card__feature-icon--check">✓</span>
+              <span>Lien unique par galerie</span>
+            </li>
+            <li class="pricing-card__feature">
+              <span class="pricing-card__feature-icon pricing-card__feature-icon--check">✓</span>
+              <span>Sélection & téléchargement HD</span>
+            </li>
+            <li class="pricing-card__feature">
+              <span class="pricing-card__feature-icon pricing-card__feature-icon--cross">✗</span>
+              <span>Portfolio public personnalisé</span>
+            </li>
+            <li class="pricing-card__feature">
+              <span class="pricing-card__feature-icon pricing-card__feature-icon--cross">✗</span>
+              <span>Branding personnalisé</span>
+            </li>
+            <li class="pricing-card__feature">
+              <span class="pricing-card__feature-icon pricing-card__feature-icon--cross">✗</span>
+              <span>Notifications WhatsApp</span>
+            </li>
+          </ul>
+          <a href="/register?plan=free" class="btn btn--outline btn--full pricing-card__cta" id="pricing-free-cta">Commencer gratuitement</a>
+        </div>
+
+        <!-- Plan Starter -->
+        <div class="pricing-card reveal reveal-delay-2">
+          <h3 class="pricing-card__name">Starter</h3>
+          <div class="pricing-card__price">
+            <span class="pricing-card__amount" data-monthly-africa="5 000" data-yearly-africa="4 000" data-monthly-europe="8,99" data-yearly-europe="6,99" data-monthly-usa="9.99" data-yearly-usa="7.99">5 000</span>
+            <span class="pricing-card__currency" data-currency-africa="FCFA" data-currency-europe="€" data-currency-usa="$">FCFA</span>
+          </div>
+          <p class="pricing-card__period" data-period-monthly-africa="par mois" data-period-yearly-africa="par mois (facturé 48 000 FCFA/an)" data-period-monthly-europe="par mois" data-period-yearly-europe="par mois (facturé 83,88 €/an)" data-period-monthly-usa="par mois" data-period-yearly-usa="par mois (facturé 95.88 $/an)">par mois</p>
+          <div class="pricing-card__divider"></div>
+          <ul class="pricing-card__features">
+            <li class="pricing-card__feature">
+              <span class="pricing-card__feature-icon pricing-card__feature-icon--check">✓</span>
+              <span>15 galeries actives</span>
+            </li>
+            <li class="pricing-card__feature">
+              <span class="pricing-card__feature-icon pricing-card__feature-icon--check">✓</span>
+              <span>30 Go de stockage + Vidéo HD</span>
+            </li>
+            <li class="pricing-card__feature">
+              <span class="pricing-card__feature-icon pricing-card__feature-icon--check">✓</span>
+              <span>Lien unique par galerie</span>
+            </li>
+            <li class="pricing-card__feature">
+              <span class="pricing-card__feature-icon pricing-card__feature-icon--check">✓</span>
+              <span>Sélection & téléchargement HD</span>
+            </li>
+            <li class="pricing-card__feature">
+              <span class="pricing-card__feature-icon pricing-card__feature-icon--check">✓</span>
+              <span>Portfolio public & catégories (<a href="portfolio.html?admin" target="_blank" style="color: var(--accent-gold); text-decoration: underline;">Voir démo</a>)</span>
+            </li>
+            <li class="pricing-card__feature">
+              <span class="pricing-card__feature-icon pricing-card__feature-icon--check">✓</span>
+              <span>Branding personnalisé</span>
+            </li>
+            <li class="pricing-card__feature">
+              <span class="pricing-card__feature-icon pricing-card__feature-icon--cross">✗</span>
+              <span>Notifications WhatsApp</span>
+            </li>
+          </ul>
+          <a href="/register?plan=starter" class="btn btn--outline btn--full pricing-card__cta" id="pricing-starter-cta">Choisir Starter</a>
+        </div>
+
+        <!-- Plan Pro (Featured) -->
+        <div class="pricing-card pricing-card--featured reveal reveal-delay-3">
+          <span class="badge badge--popular pricing-card__badge">⭐ Populaire</span>
+          <h3 class="pricing-card__name">Pro</h3>
+          <div class="pricing-card__price">
+            <span class="pricing-card__amount" data-monthly-africa="12 000" data-yearly-africa="9 600" data-monthly-europe="18,99" data-yearly-europe="14,99" data-monthly-usa="19.99" data-yearly-usa="15.99">12 000</span>
+            <span class="pricing-card__currency" data-currency-africa="FCFA" data-currency-europe="€" data-currency-usa="$">FCFA</span>
+          </div>
+          <p class="pricing-card__period" data-period-monthly-africa="par mois" data-period-yearly-africa="par mois (facturé 115 200 FCFA/an)" data-period-monthly-europe="par mois" data-period-yearly-europe="par mois (facturé 179,88 €/an)" data-period-monthly-usa="par mois" data-period-yearly-usa="par mois (facturé 191.88 $/an)">par mois</p>
+          <div class="pricing-card__divider"></div>
+          <ul class="pricing-card__features">
+            <li class="pricing-card__feature">
+              <span class="pricing-card__feature-icon pricing-card__feature-icon--check">✓</span>
+              <span>Galeries illimitées</span>
+            </li>
+            <li class="pricing-card__feature">
+              <span class="pricing-card__feature-icon pricing-card__feature-icon--check">✓</span>
+              <span>150 Go de stockage + Vidéo Full HD/4K</span>
+            </li>
+            <li class="pricing-card__feature">
+              <span class="pricing-card__feature-icon pricing-card__feature-icon--check">✓</span>
+              <span>Lien unique par galerie</span>
+            </li>
+            <li class="pricing-card__feature">
+              <span class="pricing-card__feature-icon pricing-card__feature-icon--check">✓</span>
+              <span>Sélection & téléchargement HD</span>
+            </li>
+            <li class="pricing-card__feature">
+              <span class="pricing-card__feature-icon pricing-card__feature-icon--check">✓</span>
+              <span>Portfolio public & catégories (<a href="portfolio.html?admin" target="_blank" style="color: var(--accent-gold); text-decoration: underline;">Voir démo</a>)</span>
+            </li>
+            <li class="pricing-card__feature">
+              <span class="pricing-card__feature-icon pricing-card__feature-icon--check">✓</span>
+              <span>Branding personnalisé</span>
+            </li>
+            <li class="pricing-card__feature">
+              <span class="pricing-card__feature-icon pricing-card__feature-icon--check">✓</span>
+              <span>Notifications WhatsApp</span>
+            </li>
+          </ul>
+          <a href="/register?plan=pro" class="btn btn--primary btn--full pricing-card__cta" id="pricing-pro-cta">Choisir Pro</a>
+        </div>
+
+        <!-- Plan Studio -->
+        <div class="pricing-card reveal reveal-delay-4">
+          <h3 class="pricing-card__name">Studio</h3>
+          <div class="pricing-card__price">
+            <span class="pricing-card__amount" data-monthly-africa="25 000" data-yearly-africa="20 000" data-monthly-europe="38,99" data-yearly-europe="30,99" data-monthly-usa="39.99" data-yearly-usa="31.99">25 000</span>
+            <span class="pricing-card__currency" data-currency-africa="FCFA" data-currency-europe="€" data-currency-usa="$">FCFA</span>
+          </div>
+          <p class="pricing-card__period" data-period-monthly-africa="par mois" data-period-yearly-africa="par mois (facturé 240 000 FCFA/an)" data-period-monthly-europe="par mois" data-period-yearly-europe="par mois (facturé 371,88 €/an)" data-period-monthly-usa="par mois" data-period-yearly-usa="par mois (facturé 383.88 $/an)">par mois</p>
+          <div class="pricing-card__divider"></div>
+          <ul class="pricing-card__features">
+            <li class="pricing-card__feature">
+              <span class="pricing-card__feature-icon pricing-card__feature-icon--check">✓</span>
+              <span>Galeries illimitées</span>
+            </li>
+            <li class="pricing-card__feature">
+              <span class="pricing-card__feature-icon pricing-card__feature-icon--check">✓</span>
+              <span>750 Go de stockage + Vidéo illimitée</span>
+            </li>
+            <li class="pricing-card__feature">
+              <span class="pricing-card__feature-icon pricing-card__feature-icon--check">✓</span>
+              <span>Lien unique par galerie</span>
+            </li>
+            <li class="pricing-card__feature">
+              <span class="pricing-card__feature-icon pricing-card__feature-icon--check">✓</span>
+              <span>Sélection & téléchargement HD</span>
+            </li>
+            <li class="pricing-card__feature">
+              <span class="pricing-card__feature-icon pricing-card__feature-icon--check">✓</span>
+              <span>Portfolio public & catégories (<a href="portfolio.html?admin" target="_blank" style="color: var(--accent-gold); text-decoration: underline;">Voir démo</a>)</span>
+            </li>
+            <li class="pricing-card__feature">
+              <span class="pricing-card__feature-icon pricing-card__feature-icon--check">✓</span>
+              <span>Branding personnalisé</span>
+            </li>
+            <li class="pricing-card__feature">
+              <span class="pricing-card__feature-icon pricing-card__feature-icon--check">✓</span>
+              <span>WhatsApp + Multi-utilisateurs</span>
+            </li>
+          </ul>
+          <a href="/register?plan=studio" class="btn btn--outline btn--full pricing-card__cta" id="pricing-studio-cta">Choisir Studio</a>
+        </div>
+
+      </div>
+
+      <div class="pricing__payments reveal reveal-delay-2">
+        <p class="pricing__payments-title">Moyens de paiement acceptés</p>
+        <div class="pricing__payments-logos">
+          
+          <div class="payment-logo-container">
+            <img src="/assets/images/payments/wave-money.png" alt="Wave" style="height: 32px; width: auto; object-fit: contain;">
+          </div>
+
+          <div class="payment-logo-container">
+            <img src="/assets/images/payments/orange-money.jpg" alt="Orange Money" style="height: 32px; width: auto; object-fit: contain;">
+          </div>
+
+          <div class="payment-logo-container">
+            <img src="/assets/images/payments/mtn-money.jpg" alt="MTN MoMo" style="height: 32px; width: auto; object-fit: contain;">
+          </div>
+
+          <div class="payment-logo-container">
+            <img src="/assets/images/payments/visa.jpg" alt="VISA" style="height: 32px; width: auto; object-fit: contain;">
+          </div>
+
+          <div class="payment-logo-container">
+            <img src="/assets/images/payments/mastercard.jpg" alt="Mastercard" style="height: 32px; width: auto; object-fit: contain;">
+          </div>
+
+        </div>
+      </div>
+
+      <p class="text-center text-tertiary reveal" style="margin-top: var(--space-xl); font-size: var(--font-size-sm);">
+        Paiement par Mobile Money ou carte · Facturation en devise locale · Annulation à tout moment
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       TÉMOIGNAGES
+       ═══════════════════════════════════════ -->
+  <section class="section section--alt" id="temoignages">
+    <div class="container">
+      <div class="section-header section-header--center reveal">
+        <span class="section-badge">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          Témoignages
+        </span>
+        <h2 class="section-title section-title--center">
+          Ce que disent les photographes
+        </h2>
+        <p class="section-subtitle section-subtitle--center">
+          Ils utilisent FotoDesk au quotidien pour livrer leurs clients.
+        </p>
+      </div>
+
+      <div class="testimonials__grid">
+        <!-- Testimonial 1 -->
+        <div class="testimonial-card reveal reveal-delay-1">
+          <p class="testimonial-text">
+            "Avant FotoDesk, je passais des heures à envoyer des liens WeTransfer qui expiraient. 
+            Maintenant, je crée une galerie en 5 minutes et mon client reçoit ses photos immédiatement. 
+            C'est un gain de temps incroyable."
+          </p>
+          <div class="testimonial-author">
+            <img src="assets/images/avatar-kouame.png" alt="Photo de Kouamé Assi" class="testimonial-avatar" width="48" height="48" loading="lazy">
+            <div class="testimonial-info">
+              <span class="testimonial-name">Kouamé Assi</span>
+              <span class="testimonial-role">Photographe de mariage · Abidjan</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Testimonial 2 -->
+        <div class="testimonial-card reveal reveal-delay-2">
+          <p class="testimonial-text">
+            "Mes clients adorent pouvoir sélectionner leurs photos directement depuis leur téléphone. 
+            Plus besoin de m'envoyer des numéros de photo par WhatsApp ! 
+            FotoDesk a professionnalisé ma livraison."
+          </p>
+          <div class="testimonial-author">
+            <img src="assets/images/avatar-aminata.png" alt="Photo de Aminata Diallo" class="testimonial-avatar" width="48" height="48" loading="lazy">
+            <div class="testimonial-info">
+              <span class="testimonial-name">Aminata Diallo</span>
+              <span class="testimonial-role">Photographe portrait · Dakar</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Testimonial 3 -->
+        <div class="testimonial-card reveal reveal-delay-3">
+          <p class="testimonial-text">
+            "Le fait que tout soit optimisé pour le mobile et la 3G, c'est exactement ce qu'il nous fallait. 
+            Mes clients au Cameroun n'ont aucun problème pour accéder à leurs galeries. 
+            Et le plan gratuit m'a convaincu de tester !"
+          </p>
+          <div class="testimonial-author">
+            <img src="assets/images/avatar-moussa.png" alt="Photo de Moussa Bello" class="testimonial-avatar" width="48" height="48" loading="lazy">
+            <div class="testimonial-info">
+              <span class="testimonial-name">Moussa Bello</span>
+              <span class="testimonial-role">Photographe corporate · Douala</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       AFFILIATION
+       ═══════════════════════════════════════ -->
+  <section class="section section--alt affiliation" id="affiliation">
+    <div class="container">
+      <div class="section-header section-header--center reveal">
+        <span class="section-badge">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          Programme d'affiliation
+        </span>
+        <h2 class="section-title section-title--center">
+          Faites la promotion de FotoDesk<br>
+          <span class="text-gradient">et gagnez 20% de commission</span>
+        </h2>
+        <p class="section-subtitle section-subtitle--center">
+          Partagez FotoDesk avec vos confrères photographes. Recommandez l'outil et gagnez une commission sur leur première souscription.
+        </p>
+      </div>
+
+      <div class="affiliation__content reveal">
+        <div class="affiliation__grid">
+          <!-- Avantage 1 -->
+          <div class="affiliation__card">
+            <div class="affiliation__card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gold"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            </div>
+            <h3 class="affiliation__card-title">20% de commission</h3>
+            <p class="affiliation__card-description">
+              Pour chaque photographe qui s'abonne via votre lien, vous gagnez 20% du montant de sa première souscription (versé une seule fois).
+            </p>
+          </div>
+
+          <!-- Avantage 2 -->
+          <div class="affiliation__card">
+            <div class="affiliation__card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gold"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+            </div>
+            <h3 class="affiliation__card-title">Tableau de bord dédié</h3>
+            <p class="affiliation__card-description">
+              Suivez en temps réel le nombre de clics sur votre lien, vos inscriptions et l'historique complet de vos commissions validées.
+            </p>
+          </div>
+
+          <!-- Avantage 3 -->
+          <div class="affiliation__card">
+            <div class="affiliation__card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gold"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+            </div>
+            <h3 class="affiliation__card-title">Paiements Mobile Money</h3>
+            <p class="affiliation__card-description">
+              Retirez vos gains accumulés de manière simple et locale via Wave, Orange Money, MTN Mobile Money ou Moov dès le premier franc CFA.
+            </p>
+          </div>
+        </div>
+
+        <div class="affiliation__action-box">
+          <div class="affiliation__action-text">
+            <h3>Prêt à faire rayonner la plateforme ?</h3>
+            <p>L'inscription au programme d'affiliation est gratuite et ne prend que 2 minutes. Rejoignez notre communauté de parrains.</p>
+          </div>
+          <div class="affiliation__action-btn">
+            <a href="/affiliate/register" class="btn btn--primary btn--lg">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:6px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+              Devenir affilié maintenant
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       FAQ
+       ═══════════════════════════════════════ -->
+  <section class="section" id="faq">
+    <div class="container">
+      <div class="section-header section-header--center reveal">
+        <span class="section-badge">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          FAQ
+        </span>
+        <h2 class="section-title section-title--center">
+          Questions fréquentes
+        </h2>
+        <p class="section-subtitle section-subtitle--center">
+          Tout ce que vous devez savoir avant de commencer.
+        </p>
+      </div>
+
+      <div class="faq__list reveal">
+        <!-- FAQ 1 -->
+        <div class="accordion-item">
+          <button class="accordion-trigger" aria-expanded="false" id="faq-trigger-1">
+            <span>Dois-je payer pour utiliser FotoDesk ?</span>
+            <span class="accordion-trigger-icon">+</span>
+          </button>
+          <div class="accordion-content" id="faq-content-1" role="region" aria-labelledby="faq-trigger-1">
+            <p class="accordion-text">
+              Non ! FotoDesk propose un plan gratuit avec 2 galeries actives et 5 Go de stockage (photos & vidéos). 
+              Vous pouvez commencer sans carte bancaire et passer à un plan payant quand vous le souhaitez.
+            </p>
+          </div>
+        </div>
+
+        <!-- FAQ 2 -->
+        <div class="accordion-item">
+          <button class="accordion-trigger" aria-expanded="false" id="faq-trigger-2">
+            <span>Mon client a-t-il besoin de créer un compte ?</span>
+            <span class="accordion-trigger-icon">+</span>
+          </button>
+          <div class="accordion-content" id="faq-content-2" role="region" aria-labelledby="faq-trigger-2">
+            <p class="accordion-text">
+              Non, jamais. Votre client reçoit simplement un lien unique sur WhatsApp et accède 
+              directement à sa galerie. Aucune inscription, aucune application à installer.
+            </p>
+          </div>
+        </div>
+
+        <!-- FAQ 3 -->
+        <div class="accordion-item">
+          <button class="accordion-trigger" aria-expanded="false" id="faq-trigger-3">
+            <span>Comment mon client accède-t-il aux photos HD ?</span>
+            <span class="accordion-trigger-icon">+</span>
+          </button>
+          <div class="accordion-content" id="faq-content-3" role="region" aria-labelledby="faq-trigger-3">
+            <p class="accordion-text">
+              Votre client consulte la galerie, sélectionne ses photos favorites, valide sa sélection, 
+              puis télécharge les fichiers HD en un clic. Tout se passe directement dans le navigateur, 
+              même sur un smartphone Android basique.
+            </p>
+          </div>
+        </div>
+
+        <!-- FAQ 4 -->
+        <div class="accordion-item">
+          <button class="accordion-trigger" aria-expanded="false" id="faq-trigger-4">
+            <span>Mes photos sont-elles en sécurité ?</span>
+            <span class="accordion-trigger-icon">+</span>
+          </button>
+          <div class="accordion-content" id="faq-content-4" role="region" aria-labelledby="faq-trigger-4">
+            <p class="accordion-text">
+              Absolument. Vos photos sont stockées sur des serveurs sécurisés (Cloudflare R2). 
+              Chaque galerie est protégée par un lien unique non-devinable, et vous pouvez ajouter 
+              un code PIN pour une sécurité supplémentaire. Vous contrôlez l'activation et l'expiration de chaque lien.
+            </p>
+          </div>
+        </div>
+
+        <!-- FAQ 5 -->
+        <div class="accordion-item">
+          <button class="accordion-trigger" aria-expanded="false" id="faq-trigger-5">
+            <span>Puis-je recevoir des paiements via FotoDesk ?</span>
+            <span class="accordion-trigger-icon">+</span>
+          </button>
+          <div class="accordion-content" id="faq-content-5" role="region" aria-labelledby="faq-trigger-5">
+            <p class="accordion-text">
+              Pour le moment, FotoDesk est un outil de livraison et de validation, pas un intermédiaire 
+              de paiement. Le règlement entre vous et votre client se fait directement (cash, virement, 
+              Mobile Money) comme vous le faites déjà. Un module de paiement optionnel pourrait être 
+              ajouté à l'avenir si la demande est forte.
+            </p>
+          </div>
+        </div>
+
+        <!-- FAQ 6 -->
+        <div class="accordion-item">
+          <button class="accordion-trigger" aria-expanded="false" id="faq-trigger-6">
+            <span>Ça marche bien en 3G / avec une connexion lente ?</span>
+            <span class="accordion-trigger-icon">+</span>
+          </button>
+          <div class="accordion-content" id="faq-content-6" role="region" aria-labelledby="faq-trigger-6">
+            <p class="accordion-text">
+              Oui, c'est notre priorité. Les aperçus photos et lecteurs vidéos sont automatiquement optimisés 
+              et compressés avec un lazy loading agressif. Les médias HD originaux ne sont téléchargés que lorsque 
+              le client le demande explicitement. L'interface est conçue pour rester fluide même en 3G.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       CTA FINAL
+       ═══════════════════════════════════════ -->
+  <section class="section cta-final" id="cta-final">
+    <div class="cta-final__bg"></div>
+    <div class="container">
+      <div class="cta-final__content reveal">
+        <h2 class="cta-final__title">
+          Rejoignez les photographes qui<br>
+          <span class="text-gradient">livrent leurs photos comme des pros</span>
+        </h2>
+        <p class="cta-final__subtitle">
+          Créez votre première galerie en 2 minutes. Gratuit, sans carte bancaire, 
+          sans engagement.
+        </p>
+        <div class="cta-final__actions">
+          <a href="/register" class="btn btn--primary btn--lg" id="cta-final-primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:6px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            Créer mon compte gratuitement
+          </a>
+          <a href="#fonctionnalites" class="btn btn--secondary btn--lg" id="cta-final-secondary">
+            En savoir plus
+          </a>
+        </div>
+        <p class="cta-final__note">
+          ✓ 2 galeries gratuites · ✓ Aucune carte requise · ✓ Annulation à tout moment
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       FOOTER
+       ═══════════════════════════════════════ -->
+  <footer class="footer" id="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer__grid">
+        <!-- Brand -->
+        <div class="footer__brand">
+          <div class="footer__logo" style="display: flex; align-items: center; gap: 8px;">
+            <span style="display: flex; align-items: center;">
+              <img src="/logo.png" alt="FotoDesk Logo" style="height: 34px; width: auto; object-fit: contain; filter: brightness(0) invert(1);" />
+            </span>
+            <span style="font-size: 20px; font-weight: 600; color: #FFFFFF; letter-spacing: -0.02em;">Foto<span style="font-weight: 400; color: #FFFFFF;">Desk</span></span>
+          </div>
+          <p class="footer__description">
+            La plateforme de galeries photo privées pour les photographes professionnels 
+            en Afrique. Livrez vos photos simplement, rapidement et avec style.
+          </p>
+          <div class="footer__socials">
+            <a href="#" class="footer__social-link" aria-label="Instagram" id="social-instagram" style="display: inline-flex; align-items: center; justify-content: center;">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+            </a>
+            <a href="#" class="footer__social-link" aria-label="WhatsApp" id="social-whatsapp" style="display: inline-flex; align-items: center; justify-content: center;">
+              <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.262 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.457L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.42 9.864-9.852.002-2.631-1.019-5.105-2.876-6.964-1.857-1.859-4.335-2.88-6.97-2.88-5.437 0-9.863 4.42-9.867 9.852-.001 1.73.458 3.422 1.33 4.927l-.988 3.6 3.69-.968zm11.233-7.241c-.29-.145-1.72-.848-1.986-.944-.266-.097-.459-.145-.652.145-.193.29-.747.944-.917 1.137-.17.193-.341.217-.63.072-1.349-.672-2.332-1.117-3.267-2.723-.25-.429.25-.398.715-1.325.077-.154.039-.29-.019-.406-.058-.116-.459-1.105-.63-1.516-.167-.402-.335-.348-.459-.354l-.391-.008c-.193 0-.507.072-.773.354-.266.29-1.014.99-1.014 2.415 0 1.425 1.038 2.801 1.182 2.995.145.193 2.043 3.12 4.949 4.373.69.298 1.23.476 1.65.61.694.22 1.326.19 1.825.115.556-.083 1.72-.702 1.962-1.381.242-.678.242-1.258.17-1.381-.072-.123-.266-.193-.556-.338z"/></svg>
+            </a>
+            <a href="#" class="footer__social-link" aria-label="Twitter" id="social-twitter" style="display: inline-flex; align-items: center; justify-center: center;">
+              <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Produit -->
+        <div>
+          <h4 class="footer__column-title">Produit</h4>
+          <nav class="footer__links" aria-label="Liens produit">
+            <a href="#fonctionnalites" class="footer__link">Fonctionnalités</a>
+            <a href="#tarifs" class="footer__link">Tarifs</a>
+            <a href="#comment-ca-marche" class="footer__link">Comment ça marche</a>
+            <a href="/affiliate/register" class="footer__link">Affiliation</a>
+            <a href="#faq" class="footer__link">FAQ</a>
+          </nav>
+        </div>
+
+        <!-- Entreprise -->
+        <div>
+          <h4 class="footer__column-title">Entreprise</h4>
+          <nav class="footer__links" aria-label="Liens entreprise">
+            <a href="#" class="footer__link">À propos</a>
+            <a href="#" class="footer__link">Blog</a>
+            <a href="#" class="footer__link">Carrières</a>
+            <a href="#" class="footer__link">Contact</a>
+          </nav>
+        </div>
+
+        <!-- Support -->
+        <div>
+          <h4 class="footer__column-title">Support</h4>
+          <nav class="footer__links" aria-label="Liens support">
+            <a href="#" class="footer__link">Centre d'aide</a>
+            <a href="#" class="footer__link">Guide de démarrage</a>
+            <a href="#" class="footer__link">Communauté</a>
+            <a href="#" class="footer__link">Statut du service</a>
+          </nav>
+        </div>
+      </div>
+
+      <div class="footer__bottom">
+        <p class="footer__copyright">
+          © 2026 FotoDesk — Fait avec <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" class="inline" style="display:inline-block; vertical-align:middle; color:#EF4444; margin:0 4px;"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg> en Afrique
+        </p>
+        <nav class="footer__legal" aria-label="Liens légaux">
+          <a href="/terms" class="footer__legal-link">Conditions d'utilisation</a>
+          <a href="/privacy" class="footer__legal-link">Politique de confidentialité</a>
+          <a href="/legal" class="footer__legal-link">Mentions légales</a>
+        </nav>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script>
+    // Detect ref code in URL and track it
+    (function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const ref = urlParams.get('ref') || urlParams.get('refCode');
+      if (ref) {
+        localStorage.setItem('fotodesk_pending_ref', ref);
+        try {
+          const stored = localStorage.getItem('fotodesk_affiliates_v1');
+          if (stored) {
+            const affiliates = JSON.parse(stored);
+            const index = affiliates.findIndex(a => a.refCode.toLowerCase() === ref.toLowerCase());
+            if (index !== -1) {
+              affiliates[index].clicks += 1;
+              localStorage.setItem('fotodesk_affiliates_v1', JSON.stringify(affiliates));
+              
+              // Increment signup count when they reach registration
+              // we will also count clicks and signups
+            }
+          }
+        } catch(e) {
+          console.error("Referral click tracking failed", e);
+        }
+      }
+    })();
+  </script>
+  <script src="js/main.js"></script>
+</body>
+</html>
+

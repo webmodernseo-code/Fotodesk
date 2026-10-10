@@ -1,0 +1,4706 @@
+# Changelog
+
+All notable changes to PicPeak will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [3.167.5-beta.0](https://github.com/PicPeak/picpeak/compare/v3.167.4-beta.0...v3.167.5-beta.0) (2026-10-08)
+
+
+### Bug Fixes
+
+* **media:** enforce native process budgets and execution fencing ([#1892](https://github.com/PicPeak/picpeak/issues/1892)) ([daf9899](https://github.com/PicPeak/picpeak/commit/daf989948f3335d8632c17101aec4e977bab4962))
+
+## [3.167.4-beta.0](https://github.com/PicPeak/picpeak/compare/v3.167.3-beta.0...v3.167.4-beta.0) (2026-10-08)
+
+
+### Bug Fixes
+
+* **images:** bound native image processing resources ([#1882](https://github.com/PicPeak/picpeak/issues/1882)) ([29e82c2](https://github.com/PicPeak/picpeak/commit/29e82c284109c18c635b0a79b96ede2be1613e54))
+
+## [3.167.3-beta.0](https://github.com/PicPeak/picpeak/compare/v3.167.2-beta.0...v3.167.3-beta.0) (2026-10-08)
+
+
+### Bug Fixes
+
+* **backup:** create complete standalone restore points ([#1859](https://github.com/PicPeak/picpeak/issues/1859)) ([a0cfe03](https://github.com/PicPeak/picpeak/commit/a0cfe031277e4526cd9957fb05740b66d3bb50b0))
+* bound public upload ingress and lifetime capacity ([#1875](https://github.com/PicPeak/picpeak/issues/1875)) ([a4231bb](https://github.com/PicPeak/picpeak/commit/a4231bb21f796b05e24eccff57df7458472c3f2d))
+* **security:** enforce CRM document ownership ([#1884](https://github.com/PicPeak/picpeak/issues/1884)) ([f47accd](https://github.com/PicPeak/picpeak/commit/f47accd6fff07c7310d4d9b78c09cc6d66770a21))
+* **upload:** bound authenticated upload admission ([#1876](https://github.com/PicPeak/picpeak/issues/1876)) ([697e4b7](https://github.com/PicPeak/picpeak/commit/697e4b745e4e3bcde59624c5113a874580336524))
+
+## [3.167.2-beta.0](https://github.com/PicPeak/picpeak/compare/v3.167.1-beta.0...v3.167.2-beta.0) (2026-10-08)
+
+
+### Bug Fixes
+
+* **analytics:** isolate telemetry from application credentials ([#1856](https://github.com/PicPeak/picpeak/issues/1856)) ([98019bf](https://github.com/PicPeak/picpeak/commit/98019bf39aaa2c0b2f9375b2a7478c25849736c9))
+* **auth:** harden client links and transfer upload codes ([#1845](https://github.com/PicPeak/picpeak/issues/1845)) ([bfef9e7](https://github.com/PicPeak/picpeak/commit/bfef9e70a3f7fa533a013717d508c3cf66068e6f))
+* **auth:** protect account recovery secrets at rest ([#1848](https://github.com/PicPeak/picpeak/issues/1848)) ([42f4ad1](https://github.com/PicPeak/picpeak/commit/42f4ad11bcbed1504772a2d1c3a2a45df45e6227))
+* **backup:** authenticate standard recovery manifests ([#1865](https://github.com/PicPeak/picpeak/issues/1865)) ([d458c3c](https://github.com/PicPeak/picpeak/commit/d458c3c5ff134a767087c966fd83b3b898620d3c))
+* **backup:** pin rsync SSH destinations and require approved host keys ([#1868](https://github.com/PicPeak/picpeak/issues/1868)) ([ccaf88c](https://github.com/PicPeak/picpeak/commit/ccaf88c085f488dab4dd2e0c5da6849587881f01))
+* **db:** verify PostgreSQL TLS across pools and native clients ([#1852](https://github.com/PicPeak/picpeak/issues/1852)) ([706711d](https://github.com/PicPeak/picpeak/commit/706711d0a8e48aa9f7306c17dba3a78bc791a0d8))
+* enforce gallery original-asset authorization ([#1878](https://github.com/PicPeak/picpeak/issues/1878)) ([13171bb](https://github.com/PicPeak/picpeak/commit/13171bbc0369c2010927245f31d98a5ed7b132a2))
+* **mail:** bind SMTP and IMAP connections to vetted DNS answers ([#1872](https://github.com/PicPeak/picpeak/issues/1872)) ([1137d21](https://github.com/PicPeak/picpeak/commit/1137d21d23d3326b288fe2c67036b91edf6b18c7))
+* **mail:** bound retained intake bytes and lifecycle ([#1888](https://github.com/PicPeak/picpeak/issues/1888)) ([7979157](https://github.com/PicPeak/picpeak/commit/7979157dea54312bffcf6e8c9d08ee97d611b174))
+* scope external media sources to their owners ([#1880](https://github.com/PicPeak/picpeak/issues/1880)) ([7d88c98](https://github.com/PicPeak/picpeak/commit/7d88c98626b02ae2d3024eb04b5b85f7aeecee1e))
+* **security:** tighten production network and cookie defaults ([#1850](https://github.com/PicPeak/picpeak/issues/1850)) ([6fe8c94](https://github.com/PicPeak/picpeak/commit/6fe8c94f7b1a6b230e63f037eb12d5a23b6839e5))
+* **workflows:** enforce owner scope on execution data ([#1843](https://github.com/PicPeak/picpeak/issues/1843)) ([b10e817](https://github.com/PicPeak/picpeak/commit/b10e81786b161446974af54b16c2b20efa242c44))
+
+## [3.167.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.167.0-beta.0...v3.167.1-beta.0) (2026-10-08)
+
+
+### Bug Fixes
+
+* **deps:** close the six open Trivy findings ([#1841](https://github.com/PicPeak/picpeak/issues/1841)) ([c2519ec](https://github.com/PicPeak/picpeak/commit/c2519eca03124a7007fb47a4566daa0ca6ce411a))
+
+## [3.167.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.166.0-beta.0...v3.167.0-beta.0) (2026-10-08)
+
+
+### Features
+
+* **events:** gallery team members, review of their uploads, and per-photo approve / reject ([#1858](https://github.com/PicPeak/picpeak/issues/1858)) ([ca8cd5b](https://github.com/PicPeak/picpeak/commit/ca8cd5b288b5e8362daf867a73d5e14be8a28d18))
+
+## [3.166.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.165.3-beta.0...v3.166.0-beta.0) (2026-10-07)
+
+
+### Features
+
+* **delivery:** "your complete gallery is ready" also reaches assigned customer accounts ([#1837](https://github.com/PicPeak/picpeak/issues/1837)) ([be10fd4](https://github.com/PicPeak/picpeak/commit/be10fd494b6eadd5fb6df2809fe7e74810e82d84))
+
+## [3.165.3-beta.0](https://github.com/PicPeak/picpeak/compare/v3.165.2-beta.0...v3.165.3-beta.0) (2026-10-07)
+
+
+### Bug Fixes
+
+* **admin:** gallery page — settings panes scroll on their own, header actions reordered, customer accounts on the Overview ([#1833](https://github.com/PicPeak/picpeak/issues/1833)) ([b1d8669](https://github.com/PicPeak/picpeak/commit/b1d86692c0cb8bb36c40edd3040fcb8a39f7f7d7))
+
+## [3.165.2-beta.0](https://github.com/PicPeak/picpeak/compare/v3.165.1-beta.0...v3.165.2-beta.0) (2026-10-06)
+
+
+### Bug Fixes
+
+* **email:** keep info panel text readable on any email palette ([#1835](https://github.com/PicPeak/picpeak/issues/1835)) ([d223e00](https://github.com/PicPeak/picpeak/commit/d223e00cc11503df0398ca30acffa8d4e371b9d1))
+
+## [3.165.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.165.0-beta.0...v3.165.1-beta.0) (2026-10-06)
+
+
+### Bug Fixes
+
+* **backup:** do not back up the local backup's own destination ([#1827](https://github.com/PicPeak/picpeak/issues/1827)) ([2014d3b](https://github.com/PicPeak/picpeak/commit/2014d3bd11c1ee970ff74868d9962aaae412e1be))
+* **storage:** do not read an unreachable storage backend as a broken rendition ([#1825](https://github.com/PicPeak/picpeak/issues/1825)) ([3367279](https://github.com/PicPeak/picpeak/commit/33672794124f796304f5e765f04653d6ed559e8b))
+
+## [3.165.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.164.0-beta.0...v3.165.0-beta.0) (2026-10-06)
+
+
+### Features
+
+* **events:** announce galleries to the customer email and every assigned customer account ([#1819](https://github.com/PicPeak/picpeak/issues/1819)) ([30e7e30](https://github.com/PicPeak/picpeak/commit/30e7e30d42884fac756248221aee447e40e089c2))
+* **updater:** request in-app updates from the admin UI ([#1818](https://github.com/PicPeak/picpeak/issues/1818)) ([9170f2c](https://github.com/PicPeak/picpeak/commit/9170f2c0d9fda5d65f6ad71dc297e6a9b11e55c6))
+
+
+### Bug Fixes
+
+* **gallery:** galleries made from a quote or contract open from their share link; import from Settings › Photo source ([#1834](https://github.com/PicPeak/picpeak/issues/1834)) ([1fbba12](https://github.com/PicPeak/picpeak/commit/1fbba12bd13501b71bba4d5a6928fd71148fe474))
+* **gallery:** show camera RAW with its largest preview and the camera's rotation ([#1784](https://github.com/PicPeak/picpeak/issues/1784)) ([5698166](https://github.com/PicPeak/picpeak/commit/56981666e4090d08bde89ecf35c3cb70d1566c5d))
+
+## [3.164.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.163.0-beta.0...v3.164.0-beta.0) (2026-10-06)
+
+
+### Features
+
+* **gallery:** nested folders and two-stage delivery with a first look ([#1826](https://github.com/PicPeak/picpeak/issues/1826)) ([8337d48](https://github.com/PicPeak/picpeak/commit/8337d4805ee7b6755fc416f2b3e5da84f0e5a351))
+
+## [3.163.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.162.0-beta.0...v3.163.0-beta.0) (2026-10-06)
+
+
+### Features
+
+* **admin:** gallery settings as a split view, save bar pinned to the window bottom ([#1820](https://github.com/PicPeak/picpeak/issues/1820)) ([fa7e3e1](https://github.com/PicPeak/picpeak/commit/fa7e3e1575b7d299f6dce558b2891b002b06aaa4))
+
+## [3.162.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.161.0-beta.0...v3.162.0-beta.0) (2026-10-06)
+
+
+### Features
+
+* **uploads:** accept camera RAW at the gate and in the file picker ([#1783](https://github.com/PicPeak/picpeak/issues/1783)) ([382d9e2](https://github.com/PicPeak/picpeak/commit/382d9e2a934ec43b7a2d4cc52e5ec0d82c2a2052))
+
+## [3.161.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.160.0-beta.0...v3.161.0-beta.0) (2026-10-05)
+
+
+### Features
+
+* **gallery:** copy the selected or favourited filenames for a RAW editor search ([#1797](https://github.com/PicPeak/picpeak/issues/1797)) ([4652ef2](https://github.com/PicPeak/picpeak/commit/4652ef21847085f4c8aeae22619164f89ee11e3b))
+* **gallery:** filter by own star rating and select the filtered photos ([#1800](https://github.com/PicPeak/picpeak/issues/1800)) ([f093d46](https://github.com/PicPeak/picpeak/commit/f093d4661b98afd9d6f8847087ebba81534ed250))
+* **gallery:** link to a single photo with ?photo= ([#1799](https://github.com/PicPeak/picpeak/issues/1799)) ([04b29a6](https://github.com/PicPeak/picpeak/commit/04b29a617a79ddab03b5c32cde4889eba185ea5e))
+* **gallery:** rate a photo from the grid tile ([#1796](https://github.com/PicPeak/picpeak/issues/1796)) ([21b4274](https://github.com/PicPeak/picpeak/commit/21b4274adbfb76b7b62882878324f2439f309e07))
+* **notifications:** clear the bell per admin with notification_dismissals ([#1813](https://github.com/PicPeak/picpeak/issues/1813)) ([b2ca7b9](https://github.com/PicPeak/picpeak/commit/b2ca7b9d8990e118fd28fa500b16df259bb7cfee))
+* **upload:** drop a folder onto the admin uploader ([#1795](https://github.com/PicPeak/picpeak/issues/1795)) ([44d6dea](https://github.com/PicPeak/picpeak/commit/44d6dea2dc453c2f45e11a917aa31f573721867c))
+
+
+### Bug Fixes
+
+* **security:** close the contained findings of the October security scan ([#1809](https://github.com/PicPeak/picpeak/issues/1809)) ([16e91d6](https://github.com/PicPeak/picpeak/commit/16e91d6f80ea207cd98339b86906208144f4f5e7))
+
+
+### Performance Improvements
+
+* **gallery:** skip offscreen tile work in every layout ([#1798](https://github.com/PicPeak/picpeak/issues/1798)) ([b300408](https://github.com/PicPeak/picpeak/commit/b3004083c57e126ccb9c4e9c55aec2712efe5d13))
+
+## [3.160.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.159.0-beta.0...v3.160.0-beta.0) (2026-10-05)
+
+
+### Features
+
+* **gallery:** carry source_filename on the guest photo list ([#1802](https://github.com/PicPeak/picpeak/issues/1802)) ([0c0d0b9](https://github.com/PicPeak/picpeak/commit/0c0d0b9b017f450f30a462de8cf13b21f29adbc2))
+
+
+### Bug Fixes
+
+* **archives:** clear the event's child rows before deleting it ([#1790](https://github.com/PicPeak/picpeak/issues/1790)) ([e452cb4](https://github.com/PicPeak/picpeak/commit/e452cb4fdbe87b9c35a03041e0d8040aa1b6e3b8))
+* **db:** four PostgreSQL-only query defects (audit trail, XMP label, visitors alias, case-insensitive search) ([#1791](https://github.com/PicPeak/picpeak/issues/1791)) ([9fcb887](https://github.com/PicPeak/picpeak/commit/9fcb8875b8531803723fd1b13e6677a534d88dcb))
+* **downloads:** invalidate in-flight zips and answer a failed single-file send ([#1792](https://github.com/PicPeak/picpeak/issues/1792)) ([8101c7b](https://github.com/PicPeak/picpeak/commit/8101c7bab8e57ae7f9feee7fe7c9d2f2680a479d))
+* **events:** let an admin clear the customer contact, and refuse a resend with no recipient ([#1793](https://github.com/PicPeak/picpeak/issues/1793)) ([bc0c99d](https://github.com/PicPeak/picpeak/commit/bc0c99d0b886fa0b06d882e3e812c1537496d41f))
+* **expiry:** compare expires_at by value on SQLite whatever shape it was stored in ([#1788](https://github.com/PicPeak/picpeak/issues/1788)) ([ba42888](https://github.com/PicPeak/picpeak/commit/ba428882fff5b9f94a2fb07abfc33c83a2fdbbde))
+* **gallery:** send the event date as a calendar date, not a timestamp ([#1801](https://github.com/PicPeak/picpeak/issues/1801)) ([5cb1348](https://github.com/PicPeak/picpeak/commit/5cb13481a9fbb22a52d0d34814f6b02e3da4dc62))
+* **notifications:** send activity timestamps as UTC so the bell and dashboard do not show them in the future ([#1816](https://github.com/PicPeak/picpeak/issues/1816)) ([9f1b128](https://github.com/PicPeak/picpeak/commit/9f1b128d40c583c1c7192f562bb5a3324f79f3ab))
+
+## [3.159.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.158.2-beta.0...v3.159.0-beta.0) (2026-10-05)
+
+
+### Features
+
+* **updater:** opt-in in-app updater and its file contract ([#1811](https://github.com/PicPeak/picpeak/issues/1811)) ([bbe4427](https://github.com/PicPeak/picpeak/commit/bbe442748e771fa5759015001cba5eb6016f54d7))
+
+## [3.158.2-beta.0](https://github.com/PicPeak/picpeak/compare/v3.158.1-beta.0...v3.158.2-beta.0) (2026-10-02)
+
+
+### Bug Fixes
+
+* **backup:** local destination test names what blocks the path and where it is resolved ([#1778](https://github.com/PicPeak/picpeak/issues/1778)) ([97ee1d0](https://github.com/PicPeak/picpeak/commit/97ee1d031eb0cdcec589429e6d3b44a53654ebf4))
+
+## [3.158.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.158.0-beta.0...v3.158.1-beta.0) (2026-10-02)
+
+
+### Bug Fixes
+
+* **transfers:** link previews show the transfer name and branding tagline ([#1774](https://github.com/PicPeak/picpeak/issues/1774)) ([b1e93f8](https://github.com/PicPeak/picpeak/commit/b1e93f86d8a9cccef425b7dc89f70be35b3d31c9))
+
+## [3.158.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.157.0-beta.0...v3.158.0-beta.0) (2026-10-02)
+
+
+### Features
+
+* **photos:** natural filename order, capture-date sort and sortable headers in the event photo list ([#1773](https://github.com/PicPeak/picpeak/issues/1773)) ([09424e1](https://github.com/PicPeak/picpeak/commit/09424e1e96261e2a50c84d19affd6002a52ebaee))
+
+## [3.157.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.156.1-beta.0...v3.157.0-beta.0) (2026-10-02)
+
+
+### Features
+
+* **video:** opt-in browser-playable copies of videos ([#1761](https://github.com/PicPeak/picpeak/issues/1761)) ([db5e050](https://github.com/PicPeak/picpeak/commit/db5e0509a9757ac2685decbdfa95401657559b8a))
+
+## [3.156.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.156.0-beta.0...v3.156.1-beta.0) (2026-10-02)
+
+
+### Bug Fixes
+
+* **video:** note the missing poster frame on the tile and finish the media wording ([#1760](https://github.com/PicPeak/picpeak/issues/1760)) ([b61402c](https://github.com/PicPeak/picpeak/commit/b61402cb8bf431ef3f792f94b78a51fdd76bc1be))
+
+## [3.156.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.155.1-beta.0...v3.156.0-beta.0) (2026-10-02)
+
+
+### Features
+
+* **admin:** the brand in the sidebar and header goes to the dashboard ([#1762](https://github.com/PicPeak/picpeak/issues/1762)) ([76492c1](https://github.com/PicPeak/picpeak/commit/76492c11836fdf0e79e8cecfbc18e004e0cde9cc))
+
+## [3.155.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.155.0-beta.0...v3.155.1-beta.0) (2026-10-01)
+
+
+### Documentation
+
+* **frontend:** UX guide and styling-guide gaps (stacked on [#1747](https://github.com/PicPeak/picpeak/issues/1747)) ([#1756](https://github.com/PicPeak/picpeak/issues/1756)) ([e3a1b69](https://github.com/PicPeak/picpeak/commit/e3a1b696f5de522e077dfee2c7ce98b73d34cd78))
+
+## [3.155.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.154.1-beta.0...v3.155.0-beta.0) (2026-10-01)
+
+
+### Features
+
+* **admin:** one gallery page, support role, global theme with override, folders in one step ([#1747](https://github.com/PicPeak/picpeak/issues/1747)) ([09ea6b7](https://github.com/PicPeak/picpeak/commit/09ea6b7a5ad3146a9e75d952011e63c02c803b85))
+
+## [3.154.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.154.0-beta.0...v3.154.1-beta.0) (2026-10-01)
+
+
+### Bug Fixes
+
+* **deps:** close the sixteen open Trivy findings on the aio image ([#1757](https://github.com/PicPeak/picpeak/issues/1757)) ([f214df6](https://github.com/PicPeak/picpeak/commit/f214df62905472bfd70ea97730fb3c450d25bb9f))
+
+## [3.154.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.153.0-beta.0...v3.154.0-beta.0) (2026-10-01)
+
+
+### Features
+
+* **usage:** count a delivered webhook as webhook use under usage.v6 ([#1743](https://github.com/PicPeak/picpeak/issues/1743)) ([2aaa12f](https://github.com/PicPeak/picpeak/commit/2aaa12fb5dfea0bedbc262a991aa9b4851102184))
+
+## [3.153.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.152.0-beta.0...v3.153.0-beta.0) (2026-10-01)
+
+
+### Features
+
+* **admin:** count and filter videos, and import them from external folders ([#1738](https://github.com/PicPeak/picpeak/issues/1738)) ([b81352f](https://github.com/PicPeak/picpeak/commit/b81352fe1946b2b2120eed2634547af6eb571df8))
+
+
+### Bug Fixes
+
+* **admin:** stop the branding theme greying out the product usage tab ([#1742](https://github.com/PicPeak/picpeak/issues/1742)) ([8704fb9](https://github.com/PicPeak/picpeak/commit/8704fb943d16d04905c8a7f32cb57620f213dc89))
+* **admin:** type the warnWriteNotes translator as TFunction ([#1746](https://github.com/PicPeak/picpeak/issues/1746)) ([6edea1e](https://github.com/PicPeak/picpeak/commit/6edea1ea622b91cd34172ddf588cb09fd93d4a39))
+* **gallery:** cut the hero rendition at the event's focal point ([#1744](https://github.com/PicPeak/picpeak/issues/1744)) ([2c38498](https://github.com/PicPeak/picpeak/commit/2c38498959e00dfb1ddeadf883e17438dc7e64b1))
+* **gallery:** fetch the lightbox slide on screen ahead of its neighbours ([#1736](https://github.com/PicPeak/picpeak/issues/1736)) ([c9ffe05](https://github.com/PicPeak/picpeak/commit/c9ffe05aae536100fcd8a8b9dd4b6a773ac47295))
+
+## [3.152.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.151.2-beta.0...v3.152.0-beta.0) (2026-10-01)
+
+
+### Features
+
+* **transfers:** split PicTransfer into send and request, and give uploads their own type policy ([#1735](https://github.com/PicPeak/picpeak/issues/1735)) ([4d55ed6](https://github.com/PicPeak/picpeak/commit/4d55ed6ea55dd55a6f6cf14995abd078abe57c3d))
+
+
+### Bug Fixes
+
+* **admin:** remove a back arrow that led out of the admin, and give editors a named exit ([#1730](https://github.com/PicPeak/picpeak/issues/1730)) ([bd9f9da](https://github.com/PicPeak/picpeak/commit/bd9f9da5e5b861e91c32e2a7d0fc0a0dfa2a6cfd))
+* **gallery:** sort and search by the original camera filename ([#1702](https://github.com/PicPeak/picpeak/issues/1702)) ([d27830f](https://github.com/PicPeak/picpeak/commit/d27830fb74800897d589ecca966da58d7745ecb3))
+
+## [3.151.2-beta.0](https://github.com/PicPeak/picpeak/compare/v3.151.1-beta.0...v3.151.2-beta.0) (2026-09-30)
+
+
+### Bug Fixes
+
+* **deps:** close the four open Trivy findings on the backend image ([#1726](https://github.com/PicPeak/picpeak/issues/1726)) ([bb3c720](https://github.com/PicPeak/picpeak/commit/bb3c72056aa209771aac76ac1e6f1d70e92ebf4d))
+* **security:** close the findings of the 2026-09-29 security review and Codex audit ([#1728](https://github.com/PicPeak/picpeak/issues/1728)) ([3c29ce0](https://github.com/PicPeak/picpeak/commit/3c29ce086373a82e73638077ac86f492823a34c4))
+
+## [3.151.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.151.0-beta.0...v3.151.1-beta.0) (2026-09-29)
+
+
+### Bug Fixes
+
+* **admin:** keep the sidebar brand row while a section is open ([#1722](https://github.com/PicPeak/picpeak/issues/1722)) ([b692a53](https://github.com/PicPeak/picpeak/commit/b692a5391d3bef6172b249870c7a2376ae330545))
+
+## [3.151.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.150.0-beta.0...v3.151.0-beta.0) (2026-09-29)
+
+
+### Features
+
+* **admin:** eight sidebar entries, language in Settings, search across the admin ([#1718](https://github.com/PicPeak/picpeak/issues/1718)) ([7606b0a](https://github.com/PicPeak/picpeak/commit/7606b0a80187d5dc269849b0a839b470f86e6e8e))
+
+## [3.150.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.149.0-beta.0...v3.150.0-beta.0) (2026-09-29)
+
+
+### Features
+
+* **events:** sort the events list by any column it shows, filter by type ([#1717](https://github.com/PicPeak/picpeak/issues/1717)) ([01094d9](https://github.com/PicPeak/picpeak/commit/01094d94930127feed7098c45de88e6f39c892dd))
+
+## [3.149.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.148.2-beta.0...v3.149.0-beta.0) (2026-09-28)
+
+
+### Features
+
+* **gallery-story:** selection mode with download selected and favourite selected ([#1719](https://github.com/PicPeak/picpeak/issues/1719)) ([0275048](https://github.com/PicPeak/picpeak/commit/0275048b6ce0614ab6fcbe6845dd7fefcc5de909))
+
+## [3.148.2-beta.0](https://github.com/PicPeak/picpeak/compare/v3.148.1-beta.0...v3.148.2-beta.0) (2026-09-28)
+
+
+### Bug Fixes
+
+* **backup:** individual backup run delete route the History table already called ([#1714](https://github.com/PicPeak/picpeak/issues/1714)) ([c294880](https://github.com/PicPeak/picpeak/commit/c294880216200ed5f3eb53584ef461bb5e4c3589))
+* **gallery-story:** legible hero title, natural aspect grid option, Download All in the nav ([#1713](https://github.com/PicPeak/picpeak/issues/1713)) ([d1bffd3](https://github.com/PicPeak/picpeak/commit/d1bffd3de56acf8ac799607a5f9f7ea356f11a0e))
+
+## [3.148.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.148.0-beta.0...v3.148.1-beta.0) (2026-09-28)
+
+
+### Bug Fixes
+
+* **documents:** two follow-ups to [#1658](https://github.com/PicPeak/picpeak/issues/1658) — the VAT note is an invoice statement, and a reference stays in the meta block ([#1690](https://github.com/PicPeak/picpeak/issues/1690)) ([7766804](https://github.com/PicPeak/picpeak/commit/7766804899768341b78a65d5d795cef4283407b6))
+
+## [3.148.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.147.0-beta.0...v3.148.0-beta.0) (2026-09-28)
+
+
+### Features
+
+* **styling:** UI tokens as the single source, STYLING.md, lint rule and codemod ([#1692](https://github.com/PicPeak/picpeak/issues/1692)) ([f7fe33f](https://github.com/PicPeak/picpeak/commit/f7fe33f4acecf802db1de41446eacd06d79b2086))
+
+## [3.147.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.146.0-beta.0...v3.147.0-beta.0) (2026-09-28)
+
+
+### Features
+
+* **admin:** upload progress bar replaces the blocking modal, cards lose their shadow ([#1691](https://github.com/PicPeak/picpeak/issues/1691)) ([27bc170](https://github.com/PicPeak/picpeak/commit/27bc170f6bd33e75268acf20b7463a34c34bc6dc))
+
+## [3.146.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.145.1-beta.0...v3.146.0-beta.0) (2026-09-28)
+
+
+### Features
+
+* **admin:** one sidebar, sections take over the menu, one page header ([#1689](https://github.com/PicPeak/picpeak/issues/1689)) ([fcca6d0](https://github.com/PicPeak/picpeak/commit/fcca6d02e5b18a8b306b7f3c9c36350699684e4a))
+* **settings:** one sticky save bar with dirty state and a leave guard on every settings tab ([#1693](https://github.com/PicPeak/picpeak/issues/1693)) ([2cb6152](https://github.com/PicPeak/picpeak/commit/2cb6152c137606f20c8f45de4bf16b8c5225a6a3))
+
+## [3.145.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.145.0-beta.0...v3.145.1-beta.0) (2026-09-27)
+
+
+### Bug Fixes
+
+* **events:** move the objects through the storage backend when an event is renamed ([#1696](https://github.com/PicPeak/picpeak/issues/1696)) ([9bbe784](https://github.com/PicPeak/picpeak/commit/9bbe7848c7365ff977008c447b63c27153b6e653))
+* **gallery:** fetch the hero ahead of Mosaic's tiles, and lazy-load Mosaic ([#1697](https://github.com/PicPeak/picpeak/issues/1697)) ([74216de](https://github.com/PicPeak/picpeak/commit/74216de62d0ad75c68949fe5e0fc529d2899e736))
+
+## [3.145.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.144.2-beta.0...v3.145.0-beta.0) (2026-09-25)
+
+
+### Features
+
+* **admin:** make Client Access findable when creating an event ([#1686](https://github.com/PicPeak/picpeak/issues/1686)) ([421584d](https://github.com/PicPeak/picpeak/commit/421584d0827efbef9f0430a80728b1ab9e03de0d))
+* **gallery:** a camera button on the guest upload for phones whose picker hides the camera ([#1687](https://github.com/PicPeak/picpeak/issues/1687)) ([e8516d3](https://github.com/PicPeak/picpeak/commit/e8516d36ff369a40e7811aa9916b0d038ee280cf))
+
+## [3.144.2-beta.0](https://github.com/PicPeak/picpeak/compare/v3.144.1-beta.0...v3.144.2-beta.0) (2026-09-25)
+
+
+### Bug Fixes
+
+* **documents:** compact, consistent quote and invoice PDFs ([#1658](https://github.com/PicPeak/picpeak/issues/1658)) ([df83400](https://github.com/PicPeak/picpeak/commit/df834007443ea6c15e9b2b78e98cde0ca1fb8489))
+
+## [3.144.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.144.0-beta.0...v3.144.1-beta.0) (2026-09-25)
+
+
+### Bug Fixes
+
+* **downloads:** keep EXIF, XMP and IPTC on resized and watermarked downloads ([#1678](https://github.com/PicPeak/picpeak/issues/1678)) ([d416c04](https://github.com/PicPeak/picpeak/commit/d416c049f8297c2c7358dfa6c924b2dc1ad709ad))
+* **email:** queued mail left to the column default never came due on SQLite ([#1681](https://github.com/PicPeak/picpeak/issues/1681)) ([ec1dbac](https://github.com/PicPeak/picpeak/commit/ec1dbac6b3ce2ed13c607a2cc9f78e64b07e8b55))
+
+## [3.144.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.143.0-beta.0...v3.144.0-beta.0) (2026-09-25)
+
+
+### Features
+
+* **i18n:** complete the Slovenian locale ([#1676](https://github.com/PicPeak/picpeak/issues/1676)) ([d773c76](https://github.com/PicPeak/picpeak/commit/d773c76bea88bfbf5077372730d48871a7e7cedd))
+
+## [3.143.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.142.2-beta.0...v3.143.0-beta.0) (2026-09-25)
+
+
+### Features
+
+* **i18n:** complete Brazilian Portuguese for guest-facing screens ([#1657](https://github.com/PicPeak/picpeak/issues/1657)) ([8fafcca](https://github.com/PicPeak/picpeak/commit/8fafcca27815e3a4c66c5c8fa445dbdd667642ae))
+
+## [3.142.2-beta.0](https://github.com/PicPeak/picpeak/compare/v3.142.1-beta.0...v3.142.2-beta.0) (2026-09-25)
+
+
+### Bug Fixes
+
+* **audit:** ISO processing claim, tunable watcher window, issuer on every auxiliary jwt.verify ([#1673](https://github.com/PicPeak/picpeak/issues/1673)) ([e507c17](https://github.com/PicPeak/picpeak/commit/e507c17e6511177f7c96e5169516c7f327d3151d))
+* **security:** generic admin 500 bodies, no swallowed stats writes, tighter preview and analytics sandboxes ([#1672](https://github.com/PicPeak/picpeak/issues/1672)) ([652e5ba](https://github.com/PicPeak/picpeak/commit/652e5ba826a1ee54adec4606dccd82ccf210b159))
+* **setup:** super_admin-only wizard completion, documented photos mounts, typed customer admin envelopes ([#1671](https://github.com/PicPeak/picpeak/issues/1671)) ([bbbc0ff](https://github.com/PicPeak/picpeak/commit/bbbc0ffbc1002906e60d51b81573651be939dbc6))
+
+## [3.142.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.142.0-beta.0...v3.142.1-beta.0) (2026-09-24)
+
+
+### Bug Fixes
+
+* **archives:** read, restore and download event archives through the storage backend ([#1659](https://github.com/PicPeak/picpeak/issues/1659)) ([c606de3](https://github.com/PicPeak/picpeak/commit/c606de332847a1b8e6fc0c5194713bac01198668))
+* **auth:** audit cleanup bundle: dead change-password route, single backup mount, stricter roles fallback, one replica ([#1661](https://github.com/PicPeak/picpeak/issues/1661)) ([4dfd463](https://github.com/PicPeak/picpeak/commit/4dfd463205b60d86080e2508323bf4b1fd3be0d7))
+* **backup:** approvable internal S3 endpoints, a real connection test and honest backup status ([#1642](https://github.com/PicPeak/picpeak/issues/1642)) ([4634f09](https://github.com/PicPeak/picpeak/commit/4634f09379ba6b0cbe3b04acb3dbde82b0a28e3e))
+* **backup:** ask for the rsync SSH key file path, not the key ([#1644](https://github.com/PicPeak/picpeak/issues/1644)) ([dc7d5e6](https://github.com/PicPeak/picpeak/commit/dc7d5e616e77de17071eea0ebaf3a93d82c06db8))
+* **backup:** stop the form from moving a cron schedule, and mark the selected destination ([#1643](https://github.com/PicPeak/picpeak/issues/1643)) ([d2efcd1](https://github.com/PicPeak/picpeak/commit/d2efcd150106e7b051dbb8eb3e2b9938e0e85006))
+* **docker:** mount /backup in the production compose and let the entrypoint own it ([#1664](https://github.com/PicPeak/picpeak/issues/1664)) ([14c94cd](https://github.com/PicPeak/picpeak/commit/14c94cd4c057c7bd88488930edf136d28e3805a5))
+* **events:** require at least six characters for a client password ([#1666](https://github.com/PicPeak/picpeak/issues/1666)) ([82ae07a](https://github.com/PicPeak/picpeak/commit/82ae07af87f860b065243282b8ddc19c4e91fd23))
+* **gallery:** serve still images at enhanced and maximum protection instead of a dead token bounce ([#1667](https://github.com/PicPeak/picpeak/issues/1667)) ([87b4ef3](https://github.com/PicPeak/picpeak/commit/87b4ef3ada16b13426148b6e406acf031e5642ed))
+* **images:** decide a resize is unneeded from the delivered orientation ([#1645](https://github.com/PicPeak/picpeak/issues/1645)) ([2c3f1b5](https://github.com/PicPeak/picpeak/commit/2c3f1b5c57d00c5283ccbad5bd3118274e14bb8a))
+* **security:** contain watermark and archive paths on read and on .picpeak import ([#1660](https://github.com/PicPeak/picpeak/issues/1660)) ([89b579f](https://github.com/PicPeak/picpeak/commit/89b579f8fee9b8b2226472e0b39bf7fddabd44ce))
+* **security:** pin rsync host keys, longer upload codes with a per-network lockout, constant-time image token compare ([#1662](https://github.com/PicPeak/picpeak/issues/1662)) ([599bf03](https://github.com/PicPeak/picpeak/commit/599bf034645d6b52cbfbb644e0b231acfb5771d5))
+* **transfers:** stream downloads through the error-handling helper ([#1663](https://github.com/PicPeak/picpeak/issues/1663)) ([e933fb3](https://github.com/PicPeak/picpeak/commit/e933fb36fae021c2770d6c047f31ec09dcb8cbe9))
+
+## [3.142.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.141.2-beta.0...v3.142.0-beta.0) (2026-09-24)
+
+
+### Features
+
+* **api:** resized renditions and preview images on the v1 photo routes ([#1628](https://github.com/PicPeak/picpeak/issues/1628)) ([16e7fdf](https://github.com/PicPeak/picpeak/commit/16e7fdf292542945d2287ed4bcf0c377d3092260))
+
+## [3.141.2-beta.0](https://github.com/PicPeak/picpeak/compare/v3.141.1-beta.0...v3.141.2-beta.0) (2026-09-23)
+
+
+### Documentation
+
+* **contributing:** host PR screenshots on the pr-assets branch ([#1637](https://github.com/PicPeak/picpeak/issues/1637)) ([cfa6b24](https://github.com/PicPeak/picpeak/commit/cfa6b24f4f0f677e8baa920542ca5a1d6c83931c))
+
+## [3.141.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.141.0-beta.0...v3.141.1-beta.0) (2026-09-23)
+
+
+### Bug Fixes
+
+* **backup:** store document paths relative to the storage root ([#1580](https://github.com/PicPeak/picpeak/issues/1580)) ([951f8f2](https://github.com/PicPeak/picpeak/commit/951f8f20b3d0280f90bca42c47033168b4b0dd77))
+
+## [3.141.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.140.0-beta.0...v3.141.0-beta.0) (2026-09-23)
+
+
+### Features
+
+* **contracts:** signing lifecycle, declarations, reminders, integrity report and key rotation ([#1577](https://github.com/PicPeak/picpeak/issues/1577)) ([68d9cbd](https://github.com/PicPeak/picpeak/commit/68d9cbde9621fbf934bb48d66f99ae857c75853c))
+
+## [3.140.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.139.0-beta.0...v3.140.0-beta.0) (2026-09-23)
+
+
+### Features
+
+* **contracts:** render worker, publish check, placeholder picker, editor UX, pre-send review, PDF layout and uploaded fonts ([#1579](https://github.com/PicPeak/picpeak/issues/1579)) ([5cc734f](https://github.com/PicPeak/picpeak/commit/5cc734f7ab438e9df856a66d1ca470fe1daa0664))
+
+## [3.139.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.138.0-beta.0...v3.139.0-beta.0) (2026-09-23)
+
+
+### Features
+
+* **documents:** document pages, requests, notifications, formats, scanner and abuse signals ([#1578](https://github.com/PicPeak/picpeak/issues/1578)) ([44f39d2](https://github.com/PicPeak/picpeak/commit/44f39d226995df112845f5d455f8b7278f79c122))
+
+## [3.138.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.137.0-beta.0...v3.138.0-beta.0) (2026-09-23)
+
+
+### Features
+
+* **crm:** customer group filters, bulk assignment, create flow and segments ([#1576](https://github.com/PicPeak/picpeak/issues/1576)) ([6b03e73](https://github.com/PicPeak/picpeak/commit/6b03e737859e113c708e7f22d8ad4dc10ca35ce2))
+* **gallery:** uploader names and photo credits ([#1569](https://github.com/PicPeak/picpeak/issues/1569)) ([d1989ef](https://github.com/PicPeak/picpeak/commit/d1989ef6eea762059eb0ceebb94c71cb7aa3d686))
+
+## [3.137.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.136.0-beta.0...v3.137.0-beta.0) (2026-09-23)
+
+
+### Features
+
+* **downloads:** per-event download limit ([#1568](https://github.com/PicPeak/picpeak/issues/1568)) ([f131c8b](https://github.com/PicPeak/picpeak/commit/f131c8b254e9df5aac01867624ad03e9c2002bd1))
+
+
+### Bug Fixes
+
+* **db:** scope pg_indexes lookups to the current schema ([#1629](https://github.com/PicPeak/picpeak/issues/1629)) ([95ecfc6](https://github.com/PicPeak/picpeak/commit/95ecfc6f40d886c36bee92a4f714fb216bc73b32))
+* **security:** cap feedback and protected-image requests per network ([#1575](https://github.com/PicPeak/picpeak/issues/1575)) ([06dcd5e](https://github.com/PicPeak/picpeak/commit/06dcd5ea859ed199560aa1f2afeec6cf593b3445))
+
+## [3.136.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.135.3-beta.0...v3.136.0-beta.0) (2026-09-23)
+
+
+### Features
+
+* **api:** download original photos and videos with an API token ([#1582](https://github.com/PicPeak/picpeak/issues/1582)) ([1b505c1](https://github.com/PicPeak/picpeak/commit/1b505c1f244835de9f0fa2d27e9713af6af9c142))
+
+
+### Bug Fixes
+
+* bump nodemon for minimatch and split restore roots on path.delimiter ([#1613](https://github.com/PicPeak/picpeak/issues/1613)) ([525e11b](https://github.com/PicPeak/picpeak/commit/525e11b61efa16ff4f2edaa9f9e38b85b06de1d0))
+* **contracts:** claim a contract before converting it to an invoice ([#1608](https://github.com/PicPeak/picpeak/issues/1608)) ([e4209f5](https://github.com/PicPeak/picpeak/commit/e4209f55c0499ac77c20d398b2c40de10675e0c0))
+* **contracts:** release a quote's converted_contract_id when its contract dies unsigned ([#1601](https://github.com/PicPeak/picpeak/issues/1601)) ([fd49cad](https://github.com/PicPeak/picpeak/commit/fd49cad2c6032be77b2f58b946444a23aa903be2))
+* **crm:** cancel and redact queued email on customer erasure ([#1598](https://github.com/PicPeak/picpeak/issues/1598)) ([fcfcbe3](https://github.com/PicPeak/picpeak/commit/fcfcbe30a1cf661ad057c8a4c3d698b36ba477b3))
+* **customer-portal:** clear the query cache on logout and session loss ([#1604](https://github.com/PicPeak/picpeak/issues/1604)) ([aedb773](https://github.com/PicPeak/picpeak/commit/aedb7732518414f953f834e685f9a599d7143d2a))
+* **documents:** bound the PDF check queue and refuse without a worker ([#1619](https://github.com/PicPeak/picpeak/issues/1619)) ([105f6be](https://github.com/PicPeak/picpeak/commit/105f6be4d0eb35325a34e933839710c4c23c016d))
+* **documents:** make the purge claim survive a crash mid-delete ([#1599](https://github.com/PicPeak/picpeak/issues/1599)) ([cc1a57b](https://github.com/PicPeak/picpeak/commit/cc1a57bf265bd063f901be83c621bb33005f138a))
+* **feedback:** sweep stale feedback_rate_limits rows ([#1597](https://github.com/PicPeak/picpeak/issues/1597)) ([b9bb5ad](https://github.com/PicPeak/picpeak/commit/b9bb5adc287c97dc9eb9b356bb7cb0b06e0ca062))
+* gallery auto-login race, download fallback, jest env, create-event toast ([#1611](https://github.com/PicPeak/picpeak/issues/1611)) ([a58af39](https://github.com/PicPeak/picpeak/commit/a58af39e29866f73879838144e1e2164c70c83fd))
+* **gallery:** re-key legacy feedback identities on first contact ([#1606](https://github.com/PicPeak/picpeak/issues/1606)) ([73f305d](https://github.com/PicPeak/picpeak/commit/73f305d556dc73090e1acf4e8c42e4fffe6f8dc9))
+* **nginx:** forward Host with port via $http_host ([#1612](https://github.com/PicPeak/picpeak/issues/1612)) ([d7612cc](https://github.com/PicPeak/picpeak/commit/d7612cc6141e537a06932231e9644786f16ee652))
+* **restore:** clear tables the archive's manifest doesn't list ([#1600](https://github.com/PicPeak/picpeak/issues/1600)) ([0e30965](https://github.com/PicPeak/picpeak/commit/0e30965f39380982dd701d03dfd23fc334d4901b))
+* **security:** count an IPv6 /64 as one client in the feedback and secure-image limiters ([#1570](https://github.com/PicPeak/picpeak/issues/1570)) ([10086f3](https://github.com/PicPeak/picpeak/commit/10086f304ea502f86052c2c8636f8b9a6d68ca2b))
+
+## [3.135.3-beta.0](https://github.com/PicPeak/picpeak/compare/v3.135.2-beta.0...v3.135.3-beta.0) (2026-09-23)
+
+
+### Bug Fixes
+
+* tighten admin permission boundaries (backup manifest, settings writers, SSO email linking, Super Admin accounts, workflow emails) ([#1540](https://github.com/PicPeak/picpeak/issues/1540)) ([5e705db](https://github.com/PicPeak/picpeak/commit/5e705dbb0d84ecb11bfa1397b0d8b8820632c441))
+
+## [3.135.2-beta.0](https://github.com/PicPeak/picpeak/compare/v3.135.1-beta.0...v3.135.2-beta.0) (2026-09-22)
+
+
+### Bug Fixes
+
+* **security:** enforce account, gallery and integration safeguards ([#1571](https://github.com/PicPeak/picpeak/issues/1571)) ([74bd6c8](https://github.com/PicPeak/picpeak/commit/74bd6c8844a9eaea2dbfd76ff7f365b84a2d1506))
+
+## [3.135.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.135.0-beta.0...v3.135.1-beta.0) (2026-09-21)
+
+
+### Bug Fixes
+
+* **portal:** colour every customer-surface status through the theme tokens ([#1552](https://github.com/PicPeak/picpeak/issues/1552)) ([1f2b306](https://github.com/PicPeak/picpeak/commit/1f2b3066edcb9e3abc10afc7b93a160e945bd3f3))
+
+## [3.135.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.134.1-beta.0...v3.135.0-beta.0) (2026-09-21)
+
+
+### Features
+
+* **contracts:** freeze what a contract costs, not only what it says ([#1548](https://github.com/PicPeak/picpeak/issues/1548)) ([e87e979](https://github.com/PicPeak/picpeak/commit/e87e97910da29a169c631a86348d443574862157))
+* **crm:** customer groups with colour chips, filtering and archiving ([#1539](https://github.com/PicPeak/picpeak/issues/1539)) ([760e62d](https://github.com/PicPeak/picpeak/commit/760e62decbdaeca47231911e805f56daab3325dc))
+
+
+### Bug Fixes
+
+* **branding:** name the second save button on the Branding page ([#1551](https://github.com/PicPeak/picpeak/issues/1551)) ([941542b](https://github.com/PicPeak/picpeak/commit/941542b9b4321bd434f5976395bf92eabcd987ac))
+* **contracts:** close the signing gaps found auditing issue 1446 ([#1545](https://github.com/PicPeak/picpeak/issues/1545)) ([559fdc4](https://github.com/PicPeak/picpeak/commit/559fdc4c7b929523d5e9d3b2d19901d6eed74db0))
+* **documents:** close the gaps the issue 1444 audit found in what shipped ([#1549](https://github.com/PicPeak/picpeak/issues/1549)) ([5048813](https://github.com/PicPeak/picpeak/commit/5048813512d6c754415dd78f13b1b034f51865cf))
+* **gallery:** stop lightbox pinch-zoom flickering in touchscreen Safari ([#1542](https://github.com/PicPeak/picpeak/issues/1542)) ([6d2e842](https://github.com/PicPeak/picpeak/commit/6d2e842274cddc87a2986098284d51867e9a0b49))
+* **security:** close the IPv6 rate-limit bypass and stop answering scanner probes with the SPA shell ([#1554](https://github.com/PicPeak/picpeak/issues/1554)) ([2dbc2b6](https://github.com/PicPeak/picpeak/commit/2dbc2b69206cd701ab669ffcba0f56791d6ef4af))
+* **transfers:** keep files picked in the create dialog ([#1543](https://github.com/PicPeak/picpeak/issues/1543)) ([1e276fe](https://github.com/PicPeak/picpeak/commit/1e276fe6324baaf0a1c6449496447ea671043055))
+* **video:** let the admin regenerate button repair video thumbnails ([#1557](https://github.com/PicPeak/picpeak/issues/1557)) ([2260e55](https://github.com/PicPeak/picpeak/commit/2260e55d36ce782eac362a1d81c5a53a127d5660))
+
+## [3.134.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.134.0-beta.0...v3.134.1-beta.0) (2026-09-20)
+
+
+### Bug Fixes
+
+* **video:** regenerate missing thumbnails for already-uploaded videos ([#1417](https://github.com/PicPeak/picpeak/issues/1417)) ([5f387ee](https://github.com/PicPeak/picpeak/commit/5f387eec1c9c19a6231e2fb276afd5bd879a5b46))
+
+## [3.134.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.133.1-beta.0...v3.134.0-beta.0) (2026-09-18)
+
+
+### Features
+
+* **crm:** quote templates, service catalogue, contract designer, signatures v2 and the customer portal ([#1464](https://github.com/PicPeak/picpeak/issues/1464)) ([32fe2ba](https://github.com/PicPeak/picpeak/commit/32fe2ba02af9e54f5049825f96bedd9652d81608))
+
+## [3.133.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.133.0-beta.0...v3.133.1-beta.0) (2026-09-17)
+
+
+### Bug Fixes
+
+* **invoices:** refuse a payment-check link whose expiry can't be read ([#1535](https://github.com/PicPeak/picpeak/issues/1535)) ([d7f9633](https://github.com/PicPeak/picpeak/commit/d7f96333686216f5aa5fc6b919182aed663b9a60))
+
+## [3.133.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.132.10-beta.0...v3.133.0-beta.0) (2026-09-17)
+
+
+### Features
+
+* **accounting:** record an append-only change history for accounting records ([#1529](https://github.com/PicPeak/picpeak/issues/1529)) ([54f7f3d](https://github.com/PicPeak/picpeak/commit/54f7f3d8d78167f16027dfe5a7a197c4cf2f4adf))
+* **accounting:** record changes to accounting configuration and customer billing data ([#1531](https://github.com/PicPeak/picpeak/issues/1531)) ([9505e66](https://github.com/PicPeak/picpeak/commit/9505e66cf70e07c419c379c7916399a32a9de9d9))
+
+
+### Bug Fixes
+
+* **deps:** update vulnerable test tooling dependencies ([#1522](https://github.com/PicPeak/picpeak/issues/1522)) ([7b11ce7](https://github.com/PicPeak/picpeak/commit/7b11ce75ba879db11f39bd3764243a19a60643a9))
+* **gallery:** stop returning personal feedback columns from my-feedback ([#1526](https://github.com/PicPeak/picpeak/issues/1526)) ([e6279ab](https://github.com/PicPeak/picpeak/commit/e6279ab43b250f71c88f7abe9e8fd18772281da0))
+* **guests:** harden guest merge validation, auditing and concurrent likes ([#1527](https://github.com/PicPeak/picpeak/issues/1527)) ([045e667](https://github.com/PicPeak/picpeak/commit/045e667d0aa23913d2cfd656ab640a610ef65c9e))
+* **invoices:** allocate standalone contract invoice numbers atomically ([#1520](https://github.com/PicPeak/picpeak/issues/1520)) ([8b8da87](https://github.com/PicPeak/picpeak/commit/8b8da87f80de6f5199b01f01bc04c5310b891ea6))
+
+## [3.132.10-beta.0](https://github.com/PicPeak/picpeak/compare/v3.132.9-beta.0...v3.132.10-beta.0) (2026-09-16)
+
+
+### Bug Fixes
+
+* **guests:** preserve feedback ownership when merging identities ([#1517](https://github.com/PicPeak/picpeak/issues/1517)) ([65047a7](https://github.com/PicPeak/picpeak/commit/65047a7448bbed5e11ca19e026aa09c606f9f4f3))
+
+## [3.132.9-beta.0](https://github.com/PicPeak/picpeak/compare/v3.132.8-beta.0...v3.132.9-beta.0) (2026-09-16)
+
+
+### Bug Fixes
+
+* **crm:** preserve saved line-item order and validate parent references ([#1510](https://github.com/PicPeak/picpeak/issues/1510)) ([bfec89a](https://github.com/PicPeak/picpeak/commit/bfec89a232ec3ac7d73ea0980ea5179867123c4b))
+* **crm:** return the draft id when invoicing a monthly or manual customer ([#1512](https://github.com/PicPeak/picpeak/issues/1512)) ([9dc050e](https://github.com/PicPeak/picpeak/commit/9dc050e80ef8b1796adb1fe4eeb6e44c2de610b5))
+
+## [3.132.8-beta.0](https://github.com/PicPeak/picpeak/compare/v3.132.7-beta.0...v3.132.8-beta.0) (2026-09-15)
+
+
+### Bug Fixes
+
+* **gallery:** store in-app browser user agents longer than 255 characters ([#1507](https://github.com/PicPeak/picpeak/issues/1507)) ([b5a858f](https://github.com/PicPeak/picpeak/commit/b5a858f06dccdc9cec3170300a6b229bba403237))
+
+## [3.132.7-beta.0](https://github.com/PicPeak/picpeak/compare/v3.132.6-beta.0...v3.132.7-beta.0) (2026-09-15)
+
+
+### Bug Fixes
+
+* **backup:** test the database backup directory a real backup writes to ([#1504](https://github.com/PicPeak/picpeak/issues/1504)) ([fe3de96](https://github.com/PicPeak/picpeak/commit/fe3de968d4709c629d5322ab13e14e4d52e3aac6))
+
+## [3.132.6-beta.0](https://github.com/PicPeak/picpeak/compare/v3.132.5-beta.0...v3.132.6-beta.0) (2026-09-15)
+
+
+### Bug Fixes
+
+* **admin:** limit events, archives and event records to what each role may act on ([#1483](https://github.com/PicPeak/picpeak/issues/1483)) ([e5157ba](https://github.com/PicPeak/picpeak/commit/e5157baeb0ad28bff61731eaefd0aa145d6fb3f9))
+* **backend:** enforce single-use and cap limits under concurrent requests ([#1486](https://github.com/PicPeak/picpeak/issues/1486)) ([8db8b8e](https://github.com/PicPeak/picpeak/commit/8db8b8e203d6def6e1d84e60e85538dbf4d2ac99))
+* **backup:** pin every restore download from S3 to the validated endpoint address ([#1477](https://github.com/PicPeak/picpeak/issues/1477)) ([8ec559f](https://github.com/PicPeak/picpeak/commit/8ec559fbf762921d4efe70e3d23087ab7d647af7))
+* **backup:** verify restore dumps, bound imports and keep secrets apart ([#1491](https://github.com/PicPeak/picpeak/issues/1491)) ([9f0e815](https://github.com/PicPeak/picpeak/commit/9f0e81503e8d3091c5d6bcae9b3efdb6a93f32eb))
+* **backup:** write the database dump where the backend can reach it ([#1502](https://github.com/PicPeak/picpeak/issues/1502)) ([acdced6](https://github.com/PicPeak/picpeak/commit/acdced685840caceb902cfef0886e943506d398e))
+* **email:** keep mail passwords and account links out of reach of other servers and readers ([#1485](https://github.com/PicPeak/picpeak/issues/1485)) ([89beb01](https://github.com/PicPeak/picpeak/commit/89beb01f969b80dbc00b55e20ff79086dc0e618d))
+* **frontend:** keep custom head HTML out of the admin UI, drop dead feedback limits ([#1489](https://github.com/PicPeak/picpeak/issues/1489)) ([c95d207](https://github.com/PicPeak/picpeak/commit/c95d2070979d5a7f17a8d9ae57f2932e4a3831c9))
+* **gallery:** end gallery sessions when their password, portal session or admin idle time ends ([#1497](https://github.com/PicPeak/picpeak/issues/1497)) ([4791c88](https://github.com/PicPeak/picpeak/commit/4791c886cae424cd080e7cb87c6c44ccc12f2701))
+* **gallery:** enforce category downloads, hidden-photo feedback and photo caps for guests ([#1495](https://github.com/PicPeak/picpeak/issues/1495)) ([dfc8ade](https://github.com/PicPeak/picpeak/commit/dfc8ade545d2c5a0081346cb226a4b9f149e36d2))
+* **permissions:** keep SSO role mappings, backup destinations and restores within the actor's own power ([#1493](https://github.com/PicPeak/picpeak/issues/1493)) ([8c9d933](https://github.com/PicPeak/picpeak/commit/8c9d933e1db25ff5fc20b9329fda9cf71c015c27))
+* **uploads:** serve and accept only image files from the public logo trees ([#1478](https://github.com/PicPeak/picpeak/issues/1478)) ([3a7a85c](https://github.com/PicPeak/picpeak/commit/3a7a85c2808eaaacda077d728d2b590b32a878bd))
+
+
+### Documentation
+
+* **security:** mark the 3.46.x stable line as end of life ([#1481](https://github.com/PicPeak/picpeak/issues/1481)) ([34cc9e3](https://github.com/PicPeak/picpeak/commit/34cc9e3503ab9267edae944f25cbdbd633a48bc7))
+
+## [3.132.5-beta.0](https://github.com/PicPeak/picpeak/compare/v3.132.4-beta.0...v3.132.5-beta.0) (2026-09-15)
+
+
+### Bug Fixes
+
+* **contracts:** accept PDF files in the signed-contract uploads ([#1471](https://github.com/PicPeak/picpeak/issues/1471)) ([d8fec13](https://github.com/PicPeak/picpeak/commit/d8fec139db2bac1dd480ec20c6524319a0b1bd8f))
+
+## [3.132.4-beta.0](https://github.com/PicPeak/picpeak/compare/v3.132.3-beta.0...v3.132.4-beta.0) (2026-09-15)
+
+
+### Bug Fixes
+
+* **contracts:** keep signing tokens out of admin views and make signature writes atomic ([#1469](https://github.com/PicPeak/picpeak/issues/1469)) ([72367ff](https://github.com/PicPeak/picpeak/commit/72367ffa6ed3cc5570bc2ad32288237a6c0ab173))
+* **contracts:** make saving a contract draft work and fail safely ([#1460](https://github.com/PicPeak/picpeak/issues/1460)) ([16c15ca](https://github.com/PicPeak/picpeak/commit/16c15cacc3dcdd097c434ac558763cbd95d515f1))
+* **crm:** stop quote saves, hour entries and payments stalling on SQLite ([#1462](https://github.com/PicPeak/picpeak/issues/1462)) ([82bea56](https://github.com/PicPeak/picpeak/commit/82bea560d2f998bd9f608ff452159a342a5f639d))
+* **crm:** verify the customer before a contract or quote link shows or acts on their data ([#1465](https://github.com/PicPeak/picpeak/issues/1465)) ([5c1f0da](https://github.com/PicPeak/picpeak/commit/5c1f0da51ed37594dba93d6c09a3788859a39d45))
+* **gallery:** tell an admin preview blocked on a password change what to do ([#1454](https://github.com/PicPeak/picpeak/issues/1454)) ([d7c2c58](https://github.com/PicPeak/picpeak/commit/d7c2c5814a46ef3243f55413bca67cad87f0b4fe))
+* **images:** resolve the protected-image client address through trust proxy ([#1467](https://github.com/PicPeak/picpeak/issues/1467)) ([6159fc2](https://github.com/PicPeak/picpeak/commit/6159fc2aa92aa715896d58bcd424ac39e9c06dc2))
+* **uploads:** accept iPhone DNGs in both byte orders and under any reported type ([#1458](https://github.com/PicPeak/picpeak/issues/1458)) ([3c59c84](https://github.com/PicPeak/picpeak/commit/3c59c84dd68b0752b0ef4499b1c07e4555b4ae43))
+
+## [3.132.3-beta.0](https://github.com/PicPeak/picpeak/compare/v3.132.2-beta.0...v3.132.3-beta.0) (2026-09-14)
+
+
+### Bug Fixes
+
+* **gallery:** honour must_change_password on the admin preview ([#1439](https://github.com/PicPeak/picpeak/issues/1439)) ([d64728e](https://github.com/PicPeak/picpeak/commit/d64728ed8299ad4492a115775a8a888cd257e4b7))
+
+## [3.132.2-beta.0](https://github.com/PicPeak/picpeak/compare/v3.132.1-beta.0...v3.132.2-beta.0) (2026-09-14)
+
+
+### Bug Fixes
+
+* **api:** stop the roles fallback selecting the column that triggered it ([#1436](https://github.com/PicPeak/picpeak/issues/1436)) ([e861306](https://github.com/PicPeak/picpeak/commit/e861306e47abfe86ea2b8c64cefcae08364d091d))
+* **auth:** keep must_change_password in the roles-join fallback ([#1434](https://github.com/PicPeak/picpeak/issues/1434)) ([ced21fb](https://github.com/PicPeak/picpeak/commit/ced21fb13e8a3b81b22436b92dc4dab793d033be))
+
+## [3.132.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.132.0-beta.0...v3.132.1-beta.0) (2026-09-14)
+
+
+### Bug Fixes
+
+* **archives:** stop restore from dropping videos and rewriting the row ([#1425](https://github.com/PicPeak/picpeak/issues/1425)) ([d37c0c8](https://github.com/PicPeak/picpeak/commit/d37c0c8eadc4cd15e587b228df79fb3d862a08b2))
+
+## [3.132.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.131.8-beta.0...v3.132.0-beta.0) (2026-09-13)
+
+
+### Features
+
+* **admin:** upload single files above the batch cap through the chunked API ([#1431](https://github.com/PicPeak/picpeak/issues/1431)) ([c448572](https://github.com/PicPeak/picpeak/commit/c44857259ca97677dcb68776488a0980841f4f74))
+
+## [3.131.8-beta.0](https://github.com/PicPeak/picpeak/compare/v3.131.7-beta.0...v3.131.8-beta.0) (2026-09-12)
+
+
+### Bug Fixes
+
+* **frontend:** allow blob: in the CSP media-src directive ([#1427](https://github.com/PicPeak/picpeak/issues/1427)) ([7d7ed04](https://github.com/PicPeak/picpeak/commit/7d7ed043de44df4921bf1af1fc1e5ab941f7675d))
+* **gallery:** keep the video controls reachable while paused, and go fullscreen on iOS ([#1426](https://github.com/PicPeak/picpeak/issues/1426)) ([03bc520](https://github.com/PicPeak/picpeak/commit/03bc5207c198cfde3dafb8743fb4a125a65e0dd5))
+
+## [3.131.7-beta.0](https://github.com/PicPeak/picpeak/compare/v3.131.6-beta.0...v3.131.7-beta.0) (2026-09-11)
+
+
+### Bug Fixes
+
+* **admin:** keep header-style tiles from overflowing their cards ([#1422](https://github.com/PicPeak/picpeak/issues/1422)) ([7cd7654](https://github.com/PicPeak/picpeak/commit/7cd7654f99967080724d7498b72bea4986ae825d))
+
+## [3.131.6-beta.0](https://github.com/PicPeak/picpeak/compare/v3.131.5-beta.0...v3.131.6-beta.0) (2026-09-11)
+
+
+### Bug Fixes
+
+* **gallery:** cap how many cached zips rebuild at once in the background ([#1418](https://github.com/PicPeak/picpeak/issues/1418)) ([98d2560](https://github.com/PicPeak/picpeak/commit/98d25601b465ecc44d0875b52891073720fabbbc))
+
+## [3.131.5-beta.0](https://github.com/PicPeak/picpeak/compare/v3.131.4-beta.0...v3.131.5-beta.0) (2026-09-11)
+
+
+### Bug Fixes
+
+* **gallery:** stop the pre-zip build leaking storage reads ([#1402](https://github.com/PicPeak/picpeak/issues/1402)) ([f094cc0](https://github.com/PicPeak/picpeak/commit/f094cc06a78e776795e60cb3b11e8653681a2f31))
+
+## [3.131.4-beta.0](https://github.com/PicPeak/picpeak/compare/v3.131.3-beta.0...v3.131.4-beta.0) (2026-09-11)
+
+
+### Bug Fixes
+
+* **backend:** bump sharp, nodemailer, multer, js-yaml, joi for security fixes ([#1374](https://github.com/PicPeak/picpeak/issues/1374)) ([f6b81fa](https://github.com/PicPeak/picpeak/commit/f6b81fabf05ab0bbce48e63bbdf3812b30aa10de))
+* **backend:** contain and sanitize the SQLite restore source path ([#1384](https://github.com/PicPeak/picpeak/issues/1384)) ([316bcbd](https://github.com/PicPeak/picpeak/commit/316bcbd67965ddec74801308a722b506bb8da265))
+* **backend:** enforce event ownership on short URL deletion ([#1379](https://github.com/PicPeak/picpeak/issues/1379)) ([e290207](https://github.com/PicPeak/picpeak/commit/e290207934708f8bf41676aec39a43474f0f6172))
+* **backend:** reject a replayed TOTP code within its validity window ([#1389](https://github.com/PicPeak/picpeak/issues/1389)) ([cdde937](https://github.com/PicPeak/picpeak/commit/cdde937d7fce130d67e331bd968cb2c4734902d4))
+* **backend:** require actor to hold every permission of a role they grant ([#1378](https://github.com/PicPeak/picpeak/issues/1378)) ([59ea83c](https://github.com/PicPeak/picpeak/commit/59ea83c84efdcf6d488853a25ba05f1d15ef1150))
+* **backend:** shorten payment-check token TTL and notify admin on use ([#1385](https://github.com/PicPeak/picpeak/issues/1385)) ([e324791](https://github.com/PicPeak/picpeak/commit/e3247911a071b5277d877a1fa0a39c544d3a03e8))
+* **backend:** use the strong password generator for resets and enforce must_change_password ([#1387](https://github.com/PicPeak/picpeak/issues/1387)) ([b798d8e](https://github.com/PicPeak/picpeak/commit/b798d8e4c19541da6ee1f58c2756182817b6c716))
+* **backend:** validate business-profile logo uploads by content, not filename ([#1381](https://github.com/PicPeak/picpeak/issues/1381)) ([abc9601](https://github.com/PicPeak/picpeak/commit/abc960170b1eac0fa1f3110015e8fce671d428ab))
+* **backend:** validate event id before using it in the logo storage filename ([#1382](https://github.com/PicPeak/picpeak/issues/1382)) ([38b0e1d](https://github.com/PicPeak/picpeak/commit/38b0e1d5842217030e7dd48247e523ded4b19c58))
+* **backend:** validate the S3 endpoint host before the restore download ([#1383](https://github.com/PicPeak/picpeak/issues/1383)) ([ec03089](https://github.com/PicPeak/picpeak/commit/ec03089d57c88ff0f7c21b6a4947ffb9ef9771f9))
+* **gallery:** bound and reclaim storage reads in the remaining zip builders ([#1410](https://github.com/PicPeak/picpeak/issues/1410)) ([70f5a8c](https://github.com/PicPeak/picpeak/commit/70f5a8c54e096f70c030d63414d5954190cb68a8))
+* **gallery:** keep an admin draft preview out of the guest share-login flow ([f92d4bb](https://github.com/PicPeak/picpeak/commit/f92d4bb2d9c2ea84f59dd4cfaa3a4272f1eec56b))
+* **gallery:** keep videos playable under enhanced and maximum protection ([#1404](https://github.com/PicPeak/picpeak/issues/1404)) ([1080388](https://github.com/PicPeak/picpeak/commit/1080388f28b846553cd670c66e9632275eb9c994))
+* **gallery:** let an admin preview a draft through its short share URL ([f92d4bb](https://github.com/PicPeak/picpeak/commit/f92d4bb2d9c2ea84f59dd4cfaa3a4272f1eec56b))
+* **gallery:** let an admin preview a draft through its short share URL ([#1405](https://github.com/PicPeak/picpeak/issues/1405)) ([f92d4bb](https://github.com/PicPeak/picpeak/commit/f92d4bb2d9c2ea84f59dd4cfaa3a4272f1eec56b))
+* **upload:** let the csrf gate pass application/octet-stream chunks ([#1401](https://github.com/PicPeak/picpeak/issues/1401)) ([7c0c5c1](https://github.com/PicPeak/picpeak/commit/7c0c5c1cda3921cbd9404dd77d64bdec7a9ae2aa))
+* **upload:** stop buffering a chunk body before anything checks its size ([#1406](https://github.com/PicPeak/picpeak/issues/1406)) ([4622478](https://github.com/PicPeak/picpeak/commit/4622478e44d5e63da031a2f27c5a5c335282eacb))
+
+## [3.131.3-beta.0](https://github.com/PicPeak/picpeak/compare/v3.131.2-beta.0...v3.131.3-beta.0) (2026-09-10)
+
+
+### Bug Fixes
+
+* **video:** try metadata extraction and thumbnail generation independently ([#1371](https://github.com/PicPeak/picpeak/issues/1371)) ([a2bf1f6](https://github.com/PicPeak/picpeak/commit/a2bf1f644c78734fc9a86a24d441b7a70bdb38fb))
+
+## [3.131.2-beta.0](https://github.com/PicPeak/picpeak/compare/v3.131.1-beta.0...v3.131.2-beta.0) (2026-09-09)
+
+
+### Bug Fixes
+
+* **backup:** honor the configured database-backup destination path ([#1366](https://github.com/PicPeak/picpeak/issues/1366)) ([15cd5ed](https://github.com/PicPeak/picpeak/commit/15cd5ede82171f5869342de869903f55c73f3871))
+
+## [3.131.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.131.0-beta.0...v3.131.1-beta.0) (2026-09-08)
+
+
+### Bug Fixes
+
+* **usage:** explain and de-emphasize the pending-packet button lock ([#1363](https://github.com/PicPeak/picpeak/issues/1363)) ([9f4b9ba](https://github.com/PicPeak/picpeak/commit/9f4b9bab46264d83dcdf698ce5bc318703eb10ee))
+
+## [3.131.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.130.2-beta.0...v3.131.0-beta.0) (2026-09-08)
+
+
+### Features
+
+* **setup:** add anonymous usage-reporting opt-in to the first-run wizard ([8d0c329](https://github.com/PicPeak/picpeak/commit/8d0c32902dd78324286a7585188d0c292692c8ec))
+* **setup:** add product usage consent to the first-run wizard ([539f5db](https://github.com/PicPeak/picpeak/commit/539f5db2b5e28dc42742fbbbe082fc3c23a7263e))
+* **usage:** prompt existing admins once for usage reporting after an update ([59ef2ee](https://github.com/PicPeak/picpeak/commit/59ef2ee9af74e97e042934e6ea5fab3b0b687617))
+* **usage:** prompt existing admins once for usage reporting after an update ([d20f801](https://github.com/PicPeak/picpeak/commit/d20f80112f95c7d718f936ea14aadf7eb0accdea))
+
+
+### Bug Fixes
+
+* complete graceful shutdown and revoke tokens without expiry ([411d459](https://github.com/PicPeak/picpeak/commit/411d459338289cae7dce8cddbe7c78dae3d4f449))
+* interrupt idle worker waits during shutdown ([a31a2e2](https://github.com/PicPeak/picpeak/commit/a31a2e25e2666989ee226c0d7884e23f50fe58da))
+* retain revocations for tokens without expiry ([662516a](https://github.com/PicPeak/picpeak/commit/662516a5ad2a0aadd87dfff3fba4f2456e88a69d))
+* **setup:** refresh usage state after accepting consent ([a5f7b38](https://github.com/PicPeak/picpeak/commit/a5f7b38e02f20e66047431c5cb04e6f34c60c689))
+* **setup:** require the full usage reporting disclosure ([9168bdd](https://github.com/PicPeak/picpeak/commit/9168bdd5048b4419db7b0f4444375f54c06f5bbb))
+* **usage:** cap the update-prompt modal height so it scrolls on short viewports ([c61a6b0](https://github.com/PicPeak/picpeak/commit/c61a6b089e56beec1de5c106440764518f507012))
+* **usage:** classify prompt acknowledgement in privacy coverage ([fb2f833](https://github.com/PicPeak/picpeak/commit/fb2f8333dca79b9cada9f349671920e34db38d5d))
+* **usage:** preserve consent choices and make the prompt accessible ([9a437ee](https://github.com/PicPeak/picpeak/commit/9a437ee9e19f6ecb8bff8747de71d3a9527d9512))
+* **usage:** synchronize setup consent and dismissal state ([77b4aab](https://github.com/PicPeak/picpeak/commit/77b4aab61a54d92b46fdc93fce5a075e3dc1d794))
+
+## [3.130.2-beta.0](https://github.com/PicPeak/picpeak/compare/v3.130.1-beta.0...v3.130.2-beta.0) (2026-09-08)
+
+
+### Bug Fixes
+
+* enforce gallery access and consolidate gallery workflows ([#1357](https://github.com/PicPeak/picpeak/issues/1357)) ([f0e6d2d](https://github.com/PicPeak/picpeak/commit/f0e6d2dfb12460cb1d003802f346e2026fa1c016))
+
+## [3.130.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.130.0-beta.0...v3.130.1-beta.0) (2026-09-08)
+
+
+### Bug Fixes
+
+* **images:** probe and clean up preview tiers under the extension the encoder actually wrote ([#1355](https://github.com/PicPeak/picpeak/issues/1355)) ([acb25a9](https://github.com/PicPeak/picpeak/commit/acb25a9a1ce9887e51ff769d98f65379a5a1b803))
+* **images:** single-flight lazy rendition generation and keep the old rendition during replacement ([#1350](https://github.com/PicPeak/picpeak/issues/1350)) ([c97341e](https://github.com/PicPeak/picpeak/commit/c97341e4547257aab57fb746bad4203a1adaf560))
+
+
+### Documentation
+
+* define security support across stable and main ([#1351](https://github.com/PicPeak/picpeak/issues/1351)) ([0e459b3](https://github.com/PicPeak/picpeak/commit/0e459b3293ce9132ee8bb8324c6e76692e580cc5))
+* refresh repository support and community links ([#1349](https://github.com/PicPeak/picpeak/issues/1349)) ([f83cbe9](https://github.com/PicPeak/picpeak/commit/f83cbe9109c5c7b25a0b50e0f0e3244d32421e7e))
+
+## [3.130.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.129.0-beta.0...v3.130.0-beta.0) (2026-09-07)
+
+
+### Features
+
+* **external-media:** watch reference folders and import new files automatically ([#1345](https://github.com/PicPeak/picpeak/issues/1345)) ([8cc7d7d](https://github.com/PicPeak/picpeak/commit/8cc7d7d14a93c5d4c397eaf928361c70810b7e0a))
+
+
+### Bug Fixes
+
+* **events:** drop non-canonical keys from the event update before any check runs ([#1346](https://github.com/PicPeak/picpeak/issues/1346)) ([810801a](https://github.com/PicPeak/picpeak/commit/810801a9ab5df49cf47cd7bf9446fe6a54e6808d))
+
+## [3.129.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.128.0-beta.0...v3.129.0-beta.0) (2026-09-07)
+
+
+### Features
+
+* **cms:** keep the editor toolbar in reach on long pages ([#1335](https://github.com/PicPeak/picpeak/issues/1335)) ([d6a0c4a](https://github.com/PicPeak/picpeak/commit/d6a0c4aff52bab268799e9f7c2c5b62f2410c958))
+* **security:** opt-in recoverable gallery passwords ([#1341](https://github.com/PicPeak/picpeak/issues/1341)) ([fb9da72](https://github.com/PicPeak/picpeak/commit/fb9da72f1402aa8aee7ce0e575907789ed9faf33))
+
+## [3.128.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.127.2-beta.0...v3.128.0-beta.0) (2026-09-07)
+
+
+### Features
+
+* **settings:** expose the API rate limiter in the Security tab ([#1338](https://github.com/PicPeak/picpeak/issues/1338)) ([8017370](https://github.com/PicPeak/picpeak/commit/80173702712ffd2a8150d2f8326e1455fce1036a))
+* **usage:** distinguish real edits and template delivery with v5 consent ([#1339](https://github.com/PicPeak/picpeak/issues/1339)) ([5c1e38d](https://github.com/PicPeak/picpeak/commit/5c1e38d921f7973633d6f9d12fde4c7588214d31))
+
+
+### Bug Fixes
+
+* **email:** scrub gallery passwords from the sent-mail archive ([#1340](https://github.com/PicPeak/picpeak/issues/1340)) ([69754f8](https://github.com/PicPeak/picpeak/commit/69754f8a2cc99eec318a310a60609894d757f515))
+
+## [3.127.2-beta.0](https://github.com/PicPeak/picpeak/compare/v3.127.1-beta.0...v3.127.2-beta.0) (2026-09-07)
+
+
+### Documentation
+
+* **security:** correct the rate limiter defaults and how they are set ([#1336](https://github.com/PicPeak/picpeak/issues/1336)) ([9bbdca9](https://github.com/PicPeak/picpeak/commit/9bbdca9fc5db1b3610b92f395f30e5545fc42995))
+
+## [3.127.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.127.0-beta.0...v3.127.1-beta.0) (2026-09-07)
+
+
+### Bug Fixes
+
+* **usage:** stop WebKit collapsing the consent dialog to its header and footer ([79eb6d7](https://github.com/PicPeak/picpeak/commit/79eb6d72eb170ab4e7f4bf33d7cf2d97cd5fbaa8))
+* **usage:** stop WebKit collapsing the consent dialog to its header and footer ([9d18868](https://github.com/PicPeak/picpeak/commit/9d18868a072094ac393651abe767bc190f0b140f))
+
+## [3.127.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.126.3-beta.0...v3.127.0-beta.0) (2026-09-07)
+
+
+### Features
+
+* **usage:** open the portal signed in, and rewrite the German copy ([a02fa08](https://github.com/PicPeak/picpeak/commit/a02fa08f696f8476c07df0acc329633e489fcd30))
+* **usage:** open the portal signed in, with the credential never in a served URL ([f114f3e](https://github.com/PicPeak/picpeak/commit/f114f3e876f81a06b9ea28598f326bcbbc5901af))
+* **usage:** plain link to the public usage portal, German opt-in copy ([a16ff85](https://github.com/PicPeak/picpeak/commit/a16ff855dd4bdcefcac5b29b31a8c596df46957e))
+* **usage:** plain link to the public usage portal, German opt-in copy ([7e40579](https://github.com/PicPeak/picpeak/commit/7e4057921721919c27c40c6e46c755c5e03d6d86))
+
+
+### Bug Fixes
+
+* **analytics:** send Umami page views through track(), not the removed trackView() ([5b8c13f](https://github.com/PicPeak/picpeak/commit/5b8c13feb635ffaf8cb6c2a20d78f4972d304539))
+* **gallery:** honor canvas settings in the Premium lightbox ([fde0558](https://github.com/PicPeak/picpeak/commit/fde055881145c937092bfa4dd7f4c0e1b19fb538))
+* **gallery:** honor canvas settings in the Premium lightbox ([9edce85](https://github.com/PicPeak/picpeak/commit/9edce856ff59802b727e2ae610d3783efea006eb))
+* **gallery:** keep canvas rendering in the lightbox, render tiles as &lt;img&gt; ([0986f7f](https://github.com/PicPeak/picpeak/commit/0986f7f7ac0e53b759928872cd5ffccb1b28f27d))
+* **i18n:** rewrite the German product-usage copy ([35cbcef](https://github.com/PicPeak/picpeak/commit/35cbcefed20f7d8aaf6724fce261266ef20838a4))
+* **security:** bump sanitize-html to 2.17.7 ([7c968e7](https://github.com/PicPeak/picpeak/commit/7c968e74bb339c2953ae98984e46c3d848be39cf))
+* **security:** bump sanitize-html to 2.17.7 ([6583178](https://github.com/PicPeak/picpeak/commit/65831785a2f1a52b0d3045b4a0b34fbfb37e94ca))
+* **security:** stop a gallery viewer's own image fetches spending the anonymous budget ([ac24319](https://github.com/PicPeak/picpeak/commit/ac243191351b12ab4046cf35a9caa5317f993d3d))
+* **security:** stop a gallery viewer's own image fetches spending the anonymous budget ([7b2dd3f](https://github.com/PicPeak/picpeak/commit/7b2dd3fab1b03966ca3ca1e13d0ce75b17c4bae8))
+* **setup:** require Node 22.12 for sanitize-html ([e06d0b4](https://github.com/PicPeak/picpeak/commit/e06d0b45138688d49037c65e45a1916252da9feb))
+
+## [3.126.3-beta.0](https://github.com/PicPeak/picpeak/compare/v3.126.2-beta.0...v3.126.3-beta.0) (2026-09-06)
+
+
+### Bug Fixes
+
+* **usage:** introduce consented v4 download restriction reporting ([5306fe3](https://github.com/PicPeak/picpeak/commit/5306fe378c8d7787d50ba926ad80f9ca6a85d136))
+* **usage:** introduce consented v4 without changing historical reports ([ef8a52f](https://github.com/PicPeak/picpeak/commit/ef8a52f02c4afa10dbc5fccafb6030b1aedc936c))
+
+## [3.126.2-beta.0](https://github.com/PicPeak/picpeak/compare/v3.126.1-beta.0...v3.126.2-beta.0) (2026-09-06)
+
+
+### Bug Fixes
+
+* **gallery:** release grid tiles once they are far enough out of view ([b3937d0](https://github.com/PicPeak/picpeak/commit/b3937d0b8c54c8ddf8a428be88aa444ab2b4f2d2))
+* **gallery:** retry a failed image fetch once the tile is back on screen ([c4b03a8](https://github.com/PicPeak/picpeak/commit/c4b03a831f843ec447a54d712aefa89c9761e8e8))
+* **gallery:** retry a failed image fetch once the tile is back on screen ([77ae94e](https://github.com/PicPeak/picpeak/commit/77ae94e649f367bb0a44166d3215ce1884c660d2))
+
+## [3.126.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.126.0-beta.0...v3.126.1-beta.0) (2026-09-06)
+
+
+### Bug Fixes
+
+* **usage:** preserve compatibility with old and partial reports ([b801f3a](https://github.com/PicPeak/picpeak/commit/b801f3a6b8d74ece0e6d6be136a43bc58f458e47))
+* **usage:** preserve report contracts with compatible receiver validation ([7ca783f](https://github.com/PicPeak/picpeak/commit/7ca783f89b8ed735ec3e69306a837c0f40e0670b))
+
+## [3.126.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.125.0-beta.0...v3.126.0-beta.0) (2026-09-06)
+
+
+### Features
+
+* **usage:** add beta capabilities and gallery/photo totals with explicit consent ([b0bb65d](https://github.com/PicPeak/picpeak/commit/b0bb65d0d28124548c2b746f4c52c79f1b1f7542))
+
+## [3.125.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.124.1-beta.0...v3.125.0-beta.0) (2026-09-06)
+
+
+### Features
+
+* add opt-in product usage and feedback ([#1110](https://github.com/PicPeak/picpeak/issues/1110)) ([35b42bb](https://github.com/PicPeak/picpeak/commit/35b42bba9d57e89599f8efaeb1c89a778e96d8da))
+* expand opt-in capability coverage with versioned consent ([a738259](https://github.com/PicPeak/picpeak/commit/a7382591bfd73c841ea91fe821e2ab739c2990d0))
+
+
+### Bug Fixes
+
+* **usage:** close the QA findings on opt-in product usage ([1e8b6f1](https://github.com/PicPeak/picpeak/commit/1e8b6f1b0f98f7242de132abceae62afdb592f65))
+* **usage:** let an operator clear a participation the collector never accepted ([e40bc47](https://github.com/PicPeak/picpeak/commit/e40bc474bc65f1a167fc4012b28ce0ce65ea9575))
+
+
+### Documentation
+
+* **usage:** state in the consent dialog that the connection only runs outwards ([c741dc2](https://github.com/PicPeak/picpeak/commit/c741dc22c579e495b4c0514e4c222f06279aaf7d))
+
+## [3.124.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.124.0-beta.0...v3.124.1-beta.0) (2026-09-05)
+
+
+### Bug Fixes
+
+* remove the fragmentation handling stranded by [#1303](https://github.com/PicPeak/picpeak/issues/1303) ([5dda14f](https://github.com/PicPeak/picpeak/commit/5dda14f7271265506a17acec5d253d9912784692))
+
+## [3.124.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.123.0-beta.0...v3.124.0-beta.0) (2026-09-05)
+
+
+### Features
+
+* **newsletters:** warn about deliverability before a large send ([0536c86](https://github.com/PicPeak/picpeak/commit/0536c86ec9014bf3b64c6590841e863525d90326))
+* **newsletters:** warn about deliverability before a large send ([49197be](https://github.com/PicPeak/picpeak/commit/49197be3293bac4c312352b3915d9d7fd9973c29))
+
+
+### Bug Fixes
+
+* **gallery:** give the Grid layout a lazy-loading pre-load band ([#1287](https://github.com/PicPeak/picpeak/issues/1287)) ([b1e5287](https://github.com/PicPeak/picpeak/commit/b1e5287351b43a347957e0b7a32d4c81d00ba11b))
+* **gallery:** image-loading follow-ups — pre-load band, decode release, sanitizer dedup ([905fc59](https://github.com/PicPeak/picpeak/commit/905fc595e3c15d55e00347807047acbe58c9b5bc))
+* **gallery:** release the canvas decode when it is drawn, not at unmount ([fbe9757](https://github.com/PicPeak/picpeak/commit/fbe9757a53b1cbe460837534cc3319d990180b61)), closes [#1287](https://github.com/PicPeak/picpeak/issues/1287)
+* **gallery:** release the canvas-mode decode, and drop a now-duplicate sanitizer ([be8d79e](https://github.com/PicPeak/picpeak/commit/be8d79e9c4b6148a0b3f8a1f81f05fbf5fbf6880))
+* **gallery:** remove the inert image-protection prop surface from AuthenticatedImage ([1f316ef](https://github.com/PicPeak/picpeak/commit/1f316ef91cd2f74ac7ae68751fc00b9a3ccff410))
+* **gallery:** remove the inert image-protection prop surface from AuthenticatedImage ([e734e41](https://github.com/PicPeak/picpeak/commit/e734e41c412cede1be5efbe27aab617d59faee9d)), closes [#1297](https://github.com/PicPeak/picpeak/issues/1297)
+* **newsletters:** make the warning's duration and queue claim honest ([7b4a65e](https://github.com/PicPeak/picpeak/commit/7b4a65ecc79d93715c52d82e9d7adb2665540536))
+* remove the image-fragmentation surface ([ae23b1a](https://github.com/PicPeak/picpeak/commit/ae23b1adea03fb6b46aac0079f6e523b97e3594e))
+* remove the image-fragmentation surface ([967224c](https://github.com/PicPeak/picpeak/commit/967224c030b9cd721fb0217d0763e1ec1978c51e))
+* **security:** apply image-security defaults on every creation path ([ab6c33d](https://github.com/PicPeak/picpeak/commit/ab6c33d9eb485cc3ed05187a98a22f51926cc125)), closes [#1296](https://github.com/PicPeak/picpeak/issues/1296)
+* **security:** apply the Image-security defaults instead of storing them ([#1296](https://github.com/PicPeak/picpeak/issues/1296)) ([2e9bd54](https://github.com/PicPeak/picpeak/commit/2e9bd540c97001d274c6288800a86a164174ae9c))
+* **security:** apply the Image-security defaults instead of storing them ([#1296](https://github.com/PicPeak/picpeak/issues/1296)) ([8ca3610](https://github.com/PicPeak/picpeak/commit/8ca3610514dc9e16c1c14c82fce529042b728e47))
+* **security:** check for an escaped identifier before consuming the escape ([b6dc099](https://github.com/PicPeak/picpeak/commit/b6dc0991ce04b574a03aff9cd579f0333b11048e)), closes [#1264](https://github.com/PicPeak/picpeak/issues/1264)
+* **security:** close the remaining image-security default gaps ([19c518a](https://github.com/PicPeak/picpeak/commit/19c518aaa50f1bd8fb7cef260a55bf3d5f3eb7f3)), closes [#1296](https://github.com/PicPeak/picpeak/issues/1296)
+* **security:** close two CSS url() bypasses the sanitizer dedup exposed ([1cf8274](https://github.com/PicPeak/picpeak/commit/1cf82746b72c2639547871e4e479d390760b7c1d))
+* **security:** decode settings at the API boundary and honour the transaction ([0e560eb](https://github.com/PicPeak/picpeak/commit/0e560ebb193d8243ed4de059ea150f3f64fa1409)), closes [#1296](https://github.com/PicPeak/picpeak/issues/1296)
+* **security:** one settings decoder, and the last creation path ([0deef25](https://github.com/PicPeak/picpeak/commit/0deef2584f4a6287bb947bdc545f585ae30aab67)), closes [#1296](https://github.com/PicPeak/picpeak/issues/1296)
+* **security:** re-check inline CSS after template substitution ([027afb6](https://github.com/PicPeak/picpeak/commit/027afb608667ae072465fdf173751fa79f75110d)), closes [#1264](https://github.com/PicPeak/picpeak/issues/1264)
+* **security:** reject array values for every field on the event update ([933f2d8](https://github.com/PicPeak/picpeak/commit/933f2d8e0ee0685128f2e8f8bed5169a06b4116c)), closes [#1296](https://github.com/PicPeak/picpeak/issues/1296)
+* **security:** reject array values on the event update route too ([8f3436f](https://github.com/PicPeak/picpeak/commit/8f3436f17d6390a776c4258c53475d4c6038a63e)), closes [#1296](https://github.com/PicPeak/picpeak/issues/1296)
+* **security:** strip control characters before scanning CSS for url() ([99f54a3](https://github.com/PicPeak/picpeak/commit/99f54a39546591d21df5ca11149770a161c447d9)), closes [#1264](https://github.com/PicPeak/picpeak/issues/1264)
+* **security:** use CSS whitespace, not JavaScript's, in the url() reader ([4196e83](https://github.com/PicPeak/picpeak/commit/4196e83a5f0427984fc16538783a1f7418a10837)), closes [#1264](https://github.com/PicPeak/picpeak/issues/1264)
+* **security:** validate CSS urls last, after every pass that moves text ([1151e96](https://github.com/PicPeak/picpeak/commit/1151e96144a9ada7170461e829d2f3d5dcc8edb2)), closes [#1264](https://github.com/PicPeak/picpeak/issues/1264)
+
+## [3.123.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.122.7-beta.0...v3.123.0-beta.0) (2026-09-04)
+
+
+### Features
+
+* **crm:** newsletter campaigns behind a newsletters flag ([#1264](https://github.com/PicPeak/picpeak/issues/1264)) ([fc59540](https://github.com/PicPeak/picpeak/commit/fc595409b48960ed2988f4bea1a07260f96e24b6))
+* **email:** global signature footer from the business profile ([#1264](https://github.com/PicPeak/picpeak/issues/1264)) ([b6e40b9](https://github.com/PicPeak/picpeak/commit/b6e40b9a2ac48571fcb11a9a0688f61cecec56f4))
+
+
+### Bug Fixes
+
+* **cms:** enable the Tailwind typography plugin so prose classes work ([#1288](https://github.com/PicPeak/picpeak/issues/1288)) ([de3a7f7](https://github.com/PicPeak/picpeak/commit/de3a7f70bf74e477b152040c63975815854a477e))
+* **gallery:** bound concurrent image fetches and abort them on unmount ([#1287](https://github.com/PicPeak/picpeak/issues/1287)) ([4afe7a6](https://github.com/PicPeak/picpeak/commit/4afe7a6f0862fff8fd9cf9aae0249be7c90d6ff1))
+* **gallery:** show a guest their own likes when feedback sharing is off ([#1286](https://github.com/PicPeak/picpeak/issues/1286)) ([8f98f6b](https://github.com/PicPeak/picpeak/commit/8f98f6bdec4b719815a256afb257648c11bdb552))
+* **security:** make the CSS sanitizer's remote-URL block actually block ([a7d0972](https://github.com/PicPeak/picpeak/commit/a7d0972b1323b173a190bfb8cd05fa235a2d96f6))
+
+## [3.122.7-beta.0](https://github.com/PicPeak/picpeak/compare/v3.122.6-beta.0...v3.122.7-beta.0) (2026-09-03)
+
+
+### Bug Fixes
+
+* **security:** batch 1 — zxcvbn DoS, revocation forgery, unlink traversals, stored Content-Type, edge middleware ([ea394b5](https://github.com/PicPeak/picpeak/commit/ea394b5ee5f7a5bca953198dd9681f767d4fe43c))
+* **security:** bound password input before zxcvbn, and drop the legacy media mounts ([14cd5ea](https://github.com/PicPeak/picpeak/commit/14cd5eacb32ea5526e5226aa998b8a9478768fea))
+* **security:** chunked-upload init checks the size cap before the type allow-list ([0ac006b](https://github.com/PicPeak/picpeak/commit/0ac006bb95562398df1add4ffd85736f6599deaa))
+* **security:** close four middleware gaps around the API edge ([839bf4e](https://github.com/PicPeak/picpeak/commit/839bf4e46440a938d749dc0ec48841a9c4891475))
+* **security:** contain logo, favicon and PDF-logo unlinks to their upload directories ([3e46530](https://github.com/PicPeak/picpeak/commit/3e465300721895e34ebd676b4d65d58f7dced257))
+* **security:** enforce the strength-endpoint validators, and stop the generator spinning ([054cd6f](https://github.com/PicPeak/picpeak/commit/054cd6f82f08a1997ef68da56e07e04369a68f1b))
+* **security:** harden four smaller gallery and contract paths, drop the unmounted photo auth middleware ([835312e](https://github.com/PicPeak/picpeak/commit/835312e8e630da69c5a5b43f00f61ed496c113f7))
+* **security:** never serve a photo under its stored MIME, and stop trusting the chunked-upload type ([063977d](https://github.com/PicPeak/picpeak/commit/063977d97d264e1788643980291330dceaefca31))
+* **security:** stop reflecting submitted passwords in validation errors ([903e471](https://github.com/PicPeak/picpeak/commit/903e4717530e09e1421bb1a43e2e2d53e248ffae))
+* **security:** stop reflecting submitted values in validation errors everywhere, cap credential lengths, close the login timing oracle ([40a8a98](https://github.com/PicPeak/picpeak/commit/40a8a9882ab959680d3bd3906f158d92a8fc7104))
+* **security:** verify the signature before writing a token to the revocation list ([0ca0e4a](https://github.com/PicPeak/picpeak/commit/0ca0e4a9226f9a55a165ebc236c8d6d319de585f))
+
+
+### Documentation
+
+* document the upload allow-list and the chunked-upload type rule ([f3b062a](https://github.com/PicPeak/picpeak/commit/f3b062a3a7000a5c794edd8bc6cfe4a02a456027))
+* move the upload file-types page to the docs repository ([659aa77](https://github.com/PicPeak/picpeak/commit/659aa77a9e26f2c1a04c3d985898cdb099d69a2c))
+
+## [3.122.6-beta.0](https://github.com/PicPeak/picpeak/compare/v3.122.5-beta.0...v3.122.6-beta.0) (2026-09-03)
+
+
+### Bug Fixes
+
+* **gallery:** follow the input in use, not the device's primary pointer ([#1275](https://github.com/PicPeak/picpeak/issues/1275)) ([a87e688](https://github.com/PicPeak/picpeak/commit/a87e6884846d8bebcf9261c4aa32a0ee1ef8fabc))
+
+## [3.122.5-beta.0](https://github.com/PicPeak/picpeak/compare/v3.122.4-beta.0...v3.122.5-beta.0) (2026-09-02)
+
+
+### Bug Fixes
+
+* **crm:** label the two invitation conflicts and stop guessing after a 5xx ([bc90b4d](https://github.com/PicPeak/picpeak/commit/bc90b4db6209954ba354faf4dd1c76c1bcd6478d))
+* **crm:** stop the invitation UI claiming more than it can know ([6bb12c6](https://github.com/PicPeak/picpeak/commit/6bb12c6612ae104c2480515d16feccc77145b47c))
+* **crm:** tell the admin whether a customer's invitation actually went out ([1b8e5f8](https://github.com/PicPeak/picpeak/commit/1b8e5f83d780c9e6753b45e269207ddb6f0ed98e))
+* **crm:** tell the admin whether a customer's invitation actually went out ([#1261](https://github.com/PicPeak/picpeak/issues/1261)) ([b9c29fc](https://github.com/PicPeak/picpeak/commit/b9c29fcf9bf67d559f85c3ad5f3b595fb87a722f))
+* **email:** compare queue timestamps in JS, and make retry actually send ([89db469](https://github.com/PicPeak/picpeak/commit/89db469f061fcbe5bdd101587f17fff32826c699))
+* **email:** make waiting rows read-only, and time the grace from when due ([4deac22](https://github.com/PicPeak/picpeak/commit/4deac229aca1738d61163a63c3ec1353144971b3))
+* **email:** read naive SQLite timestamps as UTC, and page the candidates ([98aa06a](https://github.com/PicPeak/picpeak/commit/98aa06aeff18e23e655b14f671fe53441033fe14))
+* **email:** show a queue nobody is working instead of reporting all-clear ([73d8675](https://github.com/PicPeak/picpeak/commit/73d867521aff9536e95b334192ebf8d131ddc72c))
+* **email:** show a queue nobody is working instead of reporting all-clear ([#1262](https://github.com/PicPeak/picpeak/issues/1262)) ([ec1df70](https://github.com/PicPeak/picpeak/commit/ec1df704b4c5dc0c32b733c4b861da3465600dc5))
+* **email:** wire the settings status card, and cap-aware truncation ([2d403f7](https://github.com/PicPeak/picpeak/commit/2d403f7fb2b1fed9030375d691a055e3a9d42391))
+* **gallery:** decide the overlay by pointer capability, not viewport width ([d027488](https://github.com/PicPeak/picpeak/commit/d0274886e6e8e7d61f4a237f583eab2cde5cdac6))
+* **gallery:** stop invisible overlay controls swallowing mobile taps ([c0d3479](https://github.com/PicPeak/picpeak/commit/c0d34796cdb1b541d501734afd929fa7089832e3))
+* **gallery:** stop invisible overlay controls swallowing mobile taps ([#1263](https://github.com/PicPeak/picpeak/issues/1263)) ([db197e7](https://github.com/PicPeak/picpeak/commit/db197e76855cd9d8e418af6e2e8d8d2cbabe6c02))
+
+## [3.122.4-beta.0](https://github.com/PicPeak/picpeak/compare/v3.122.3-beta.0...v3.122.4-beta.0) (2026-09-02)
+
+
+### Bug Fixes
+
+* **guests:** keep guest identity across a tab close ([#1265](https://github.com/PicPeak/picpeak/issues/1265)) ([f722bda](https://github.com/PicPeak/picpeak/commit/f722bdaf4be54f3e07f6f5e41ae0efce22d854a6))
+
+## [3.122.3-beta.0](https://github.com/PicPeak/picpeak/compare/v3.122.2-beta.0...v3.122.3-beta.0) (2026-09-02)
+
+
+### Bug Fixes
+
+* **accounting:** allow creating a customer from the picker ([be39929](https://github.com/PicPeak/picpeak/commit/be399294767d8cf029dff3664bdc120180c8be82))
+* **accounting:** let "bill to a customer" work with the portal off ([3790156](https://github.com/PicPeak/picpeak/commit/3790156fc9d613b2f1769f7ffd1181fb4db694b1))
+* **admin:** interpolate activity and notification message values ([78b1ddd](https://github.com/PicPeak/picpeak/commit/78b1ddd0db08d32ff3cc671c9b818d8a94138234))
+* **admin:** portal the update-available modal to document.body ([ac50f0b](https://github.com/PicPeak/picpeak/commit/ac50f0b48bf206be6eb1de3c0dabe3756fd5974a))
+* **analytics:** serve self-hosted trackers same-origin so CSP stops blocking ([3468550](https://github.com/PicPeak/picpeak/commit/34685505bea01fb26dc90ab0f655ffa5e36957b2))
+* **analytics:** warn about the CSP allowlist on every tracker provider ([3489610](https://github.com/PicPeak/picpeak/commit/3489610cb8d9334198daffd9bf86ae488061f4b8))
+* **archives:** run search, filter and sort server-side ([fc7cb22](https://github.com/PicPeak/picpeak/commit/fc7cb226f42efe054ebc9c8b4596d292e9f940c9))
+* **archives:** sort and total on real archive sizes, escape LIKE wildcards ([da6e34d](https://github.com/PicPeak/picpeak/commit/da6e34d6a3d6fa8a05efc9bec5ba7f3652b5d00a))
+* **calendar:** don't put a fixed reference date in the month header ([76a1453](https://github.com/PicPeak/picpeak/commit/76a1453fa73a8200c81cd9fcf33eb46881d39464))
+* **categories:** validate category name length instead of 500ing ([5fa04e6](https://github.com/PicPeak/picpeak/commit/5fa04e647e0810c86c3a3b2ecba5f53a3859e8d8))
+* close the remaining 2026-09-01 QA items, warnings and follow-on defects ([cad699a](https://github.com/PicPeak/picpeak/commit/cad699a5bed24b67425bdd4ef84fbb694feae029))
+* **contracts:** add tooltips to the ellipsized block-library names ([d16137b](https://github.com/PicPeak/picpeak/commit/d16137bb2ad11eda2384a531ae8ee47668ebc05c))
+* **contracts:** widen the block-library list column ([bd44708](https://github.com/PicPeak/picpeak/commit/bd44708a036a7cf9863e9931764db45aa0931acd))
+* **email:** derive preview sample data from each template's variables ([1be2740](https://github.com/PicPeak/picpeak/commit/1be27404fae5974a765cf28ea98a34a5e4f8b8e6))
+* **email:** give every template a real display name in the config UI ([355fe4f](https://github.com/PicPeak/picpeak/commit/355fe4ff43900763b0e07a9fecc0d8ef3a33c8c0))
+* **email:** give gallery_created a real German translation ([73b08a7](https://github.com/PicPeak/picpeak/commit/73b08a7b5cd3fc87f2590b4ea0714dbbb5c672e0))
+* **email:** repair and seed the gallery lifecycle templates ([41e1de7](https://github.com/PicPeak/picpeak/commit/41e1de78186eda12f8f53f4d3454a6d3b7b110b0))
+* **events:** add archive_size to the immutable column deny-set ([57dd084](https://github.com/PicPeak/picpeak/commit/57dd084763e33bf45f29eb1cc8fcd365f54c5bd1))
+* **events:** guard create-event submit against re-entrant submissions ([c19e944](https://github.com/PicPeak/picpeak/commit/c19e944b995dfb6c54c0cb5da5772700000613d8))
+* **events:** honour ?tab=, show a load error, and stop lying about uploads ([504a8b6](https://github.com/PicPeak/picpeak/commit/504a8b6faeab7293ff7e171d23a0d00735c42fc9))
+* **events:** rename a shadowing local and bound the photo-cap input ([758dc00](https://github.com/PicPeak/picpeak/commit/758dc005df69d15c85eaf0f7a293d82390400765))
+* **events:** render a not-found state instead of hanging on a 404 ([c2428aa](https://github.com/PicPeak/picpeak/commit/c2428aa23a77c7f4910f39066ebe69c12dac6125))
+* **events:** return 409 instead of 500 when a slug is taken ([afc5779](https://github.com/PicPeak/picpeak/commit/afc5779ce74944fa84e275c4676860f1ef5163bf))
+* **feedback:** align word-filter severity vocabulary with the admin UI ([6f7aa59](https://github.com/PicPeak/picpeak/commit/6f7aa59fadc8ffaef8c9e1188c5b9e0a9e110229))
+* **feedback:** make the "block" severity tier actually reject ([814f205](https://github.com/PicPeak/picpeak/commit/814f205da0784c3eef1fe909b734cfb193707d38))
+* **gallery:** no-store private JSON, and give guest uploads a real status ([a28f96b](https://github.com/PicPeak/picpeak/commit/a28f96b3047f44b81d1fd59f2849e490584546cf))
+* **gallery:** restore the download CTA under headerStyle "none" ([4c6ca49](https://github.com/PicPeak/picpeak/commit/4c6ca49b1739946bb61f31b8b81aad66585d825e))
+* **gallery:** show a guest's own upload without a hard reload ([18715b5](https://github.com/PicPeak/picpeak/commit/18715b5efd879b7b8f697c749c4d44a908f7f8d8))
+* **gallery:** stop browser zoom tripping the devtools viewport heuristic ([72894e2](https://github.com/PicPeak/picpeak/commit/72894e22c2dd0ab610613b95947a252e9e786640))
+* **gallery:** stop devtools protection from breaking the whole page ([9d4bd7a](https://github.com/PicPeak/picpeak/commit/9d4bd7ab30a6dbfc3815a6d027a44618665f50f7))
+* **i18n:** make i18n:ci pass by fixing the extractor config ([5dbb435](https://github.com/PicPeak/picpeak/commit/5dbb43549c26c5c26bb0029c6a57084eed4ae675))
+* **middleware:** log ownership lookup failures; drop dead auth surface ([42ba835](https://github.com/PicPeak/picpeak/commit/42ba8351c102fdae6b5e0f6112b5cd45b42ccca1))
+* **migrations:** judge each German field on its own in migration 195 ([4515632](https://github.com/PicPeak/picpeak/commit/4515632300c6d30658f228653f21f2f59da8face))
+* per-field template guard, LIKE escaping, wait for all uploads ([da8fcc8](https://github.com/PicPeak/picpeak/commit/da8fcc82ef901aec17e05333546fd93d61a1b246))
+* **photos:** emit visibility and processing_status from the list mapper ([fe5ac91](https://github.com/PicPeak/picpeak/commit/fe5ac9162dcd9747afe85c155eb84fbd2d8a3eb5))
+* **photos:** treat category_id 0 as uncategorized instead of storing it ([3f6c81a](https://github.com/PicPeak/picpeak/commit/3f6c81a8460145562931a0bc3248b84e62a40bae))
+* **quotes:** enforce the status state machine, and correct the table ([103863c](https://github.com/PicPeak/picpeak/commit/103863cbabe2bc45fdf44b369a1e2f85c4e2e763))
+* resolve the 2026-09-01 QA run findings ([#1](https://github.com/PicPeak/picpeak/issues/1)-[#21](https://github.com/PicPeak/picpeak/issues/21)) and repo-health debt ([9b63399](https://github.com/PicPeak/picpeak/commit/9b63399c48514ca321c4f8eef7255b52c0237c91))
+* **search:** match the original filename, and honour the date-format setting ([15fdd70](https://github.com/PicPeak/picpeak/commit/15fdd70a0865c085edd472349351861dcff66bed))
+* **search:** stop escapeLikePattern corrupting bound search values ([a89057d](https://github.com/PicPeak/picpeak/commit/a89057df1df1eb0ccc8727a86c86d9081a50c6b9))
+* **security:** actually apply the general API rate limiter ([b0f33c1](https://github.com/PicPeak/picpeak/commit/b0f33c1744a7ab6af115203a52ee68d88a309a3c))
+* **security:** apply per-IP rate limiting to credential endpoints ([50e8ed6](https://github.com/PicPeak/picpeak/commit/50e8ed6e58e4e365af2cba874895e01030e0070c))
+* **security:** close the case-sensitivity bypass in the API rate limiter ([a929aff](https://github.com/PicPeak/picpeak/commit/a929affd7e737fd3d89591f2fb3fe21116479329))
+* **security:** raise the general limiter's fallback budget to 300 ([19e125d](https://github.com/PicPeak/picpeak/commit/19e125d814b157d9fbafa3a56cc13982b47f9366))
+* **security:** rate-limit the password-change endpoints per IP too ([5a0c9f5](https://github.com/PicPeak/picpeak/commit/5a0c9f53b046cd4e93f951fac9e3a9b9603de7e8))
+* **settings:** clear the accounting flag when its parent is turned off ([3e16b81](https://github.com/PicPeak/picpeak/commit/3e16b81be801513704f07592a67e959f30a8ee0a))
+* **settings:** derive the sidebar preview from the real sidebar declaration ([c6cb018](https://github.com/PicPeak/picpeak/commit/c6cb01865e05786f7e218b78423a38000b69eb78))
+* **settings:** don't crash on a fresh load before permissions resolve ([673f055](https://github.com/PicPeak/picpeak/commit/673f05556d0f33e59a325714e5a2679a3c4356b6))
+* **settings:** remove the duplicated section heading on 11 tabs ([3acb452](https://github.com/PicPeak/picpeak/commit/3acb45209069ab8366d97d7ea3db796ce4cad33a))
+* **types:** resolve the TypeScript build:check backlog ([6e5755d](https://github.com/PicPeak/picpeak/commit/6e5755de02bc6ee5561e1bde4cc3ff6210b81233))
+* **ui:** drop themed text colours from the last three admin surfaces ([22cada9](https://github.com/PicPeak/picpeak/commit/22cada90820af9f9f68d280f7d05bee11de2c21f))
+* **ui:** stop branding-theme text colour rendering headings invisible ([da9ceb1](https://github.com/PicPeak/picpeak/commit/da9ceb14caca562a45c5c7bc56e07a11c6327d1c))
+* **upload:** enforce the chunked-upload cap on bytes received, not declared ([77b11ab](https://github.com/PicPeak/picpeak/commit/77b11ab874b6bdaae005e9699f45d1f24226cb6b))
+* **upload:** enforce the configured per-file size limit on admin uploads ([e18ab0d](https://github.com/PicPeak/picpeak/commit/e18ab0d84270fcc7903e3cc92db14a8ed2532ee7))
+* **upload:** scope category ids, stop temp-file leaks, split the video cap ([7c9baff](https://github.com/PicPeak/picpeak/commit/7c9baff7517caa8f298fe33c1c35131d00a2ab9f))
+* **users:** give the cancel-invitation dialog a distinct confirm label ([31ffbc8](https://github.com/PicPeak/picpeak/commit/31ffbc8ae40f3b913649ac11a1f5f5b1a14a130f))
+* **webhooks:** write delivery timestamps as ISO strings ([c5c5a6b](https://github.com/PicPeak/picpeak/commit/c5c5a6b0c87ad7a3797e7f8ab695c5f64abfacf8))
+* **workflows:** restore the once-per-process seed guard ([a7d45dd](https://github.com/PicPeak/picpeak/commit/a7d45ddd0d59e5ef08a8de023900a89d58ed5df8))
+
+
+### Documentation
+
+* **analytics:** state the tracker proxy's trust model ([23a433f](https://github.com/PicPeak/picpeak/commit/23a433f4110d887f3306b89e1e81abe42fbe8f2b))
+
+## [3.122.2-beta.0](https://github.com/PicPeak/picpeak/compare/v3.122.1-beta.0...v3.122.2-beta.0) (2026-09-01)
+
+
+### Bug Fixes
+
+* **upload:** let Android guests reach the camera without breaking video ([#1244](https://github.com/PicPeak/picpeak/issues/1244)) ([66989d7](https://github.com/PicPeak/picpeak/commit/66989d70f143fa5d86bdc95b4f1b3d8c0ff0dac5))
+
+## [3.122.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.122.0-beta.0...v3.122.1-beta.0) (2026-09-01)
+
+
+### Bug Fixes
+
+* **archives:** restore categories for original-filename archives on main too ([#1252](https://github.com/PicPeak/picpeak/issues/1252)) ([a35d2ba](https://github.com/PicPeak/picpeak/commit/a35d2bad66ff1099f0ebcb697878c44f44d14392))
+* **events:** apply the gallery password policy to publish and send-later ([#1253](https://github.com/PicPeak/picpeak/issues/1253)) ([6938bad](https://github.com/PicPeak/picpeak/commit/6938bad107335af54dd8bfe42822219a03921b8b))
+
+## [3.122.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.121.4-beta.0...v3.122.0-beta.0) (2026-09-01)
+
+
+### Features
+
+* **events:** publish without notifying, and send the gallery email later ([#1235](https://github.com/PicPeak/picpeak/issues/1235)) ([#1241](https://github.com/PicPeak/picpeak/issues/1241)) ([1ef2b3c](https://github.com/PicPeak/picpeak/commit/1ef2b3c85b9410b4ca3c5c4601f6cbb2c866f187))
+
+
+### Bug Fixes
+
+* **events:** delete stored objects when cascading an event delete ([#1051](https://github.com/PicPeak/picpeak/issues/1051)) ([202c553](https://github.com/PicPeak/picpeak/commit/202c553a08fe81f0e3413051a19bf3f4390392f1))
+* single-photo gallery downloads 404 on S3 storage backends ([#1048](https://github.com/PicPeak/picpeak/issues/1048)) ([bb2f709](https://github.com/PicPeak/picpeak/commit/bb2f709fdd9def642117cd52a59a4506d5ce7aff))
+
+## [3.121.4-beta.0](https://github.com/PicPeak/picpeak/compare/v3.121.3-beta.0...v3.121.4-beta.0) (2026-09-01)
+
+
+### Bug Fixes
+
+* **auth:** treat zxcvbn suggestions as advice, not blocking errors ([#1050](https://github.com/PicPeak/picpeak/issues/1050)) ([4f352de](https://github.com/PicPeak/picpeak/commit/4f352dec39634d35f2752707a9babbbfd2ecf921))
+
+## [3.121.3-beta.0](https://github.com/PicPeak/picpeak/compare/v3.121.2-beta.0...v3.121.3-beta.0) (2026-08-30)
+
+
+### Bug Fixes
+
+* **archives:** take the restored category from the manifest ([#1240](https://github.com/PicPeak/picpeak/issues/1240)) ([0d340f4](https://github.com/PicPeak/picpeak/commit/0d340f4e813dd8c1c0cdcacd3abb96607b0de5b5))
+
+## [3.121.2-beta.0](https://github.com/PicPeak/picpeak/compare/v3.121.1-beta.0...v3.121.2-beta.0) (2026-08-29)
+
+
+### Bug Fixes
+
+* **watcher:** stop re-importing a photo whose file was replaced ([#1226](https://github.com/PicPeak/picpeak/issues/1226)) ([#1237](https://github.com/PicPeak/picpeak/issues/1237)) ([6ca8baa](https://github.com/PicPeak/picpeak/commit/6ca8baab23a659b1329dded05002722fd9eaddbc))
+
+## [3.121.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.121.0-beta.0...v3.121.1-beta.0) (2026-08-29)
+
+
+### Bug Fixes
+
+* **email:** keep the webhook payload out of the logs, and bound the response read ([#1225](https://github.com/PicPeak/picpeak/issues/1225)) ([#1233](https://github.com/PicPeak/picpeak/issues/1233)) ([0d41fe5](https://github.com/PicPeak/picpeak/commit/0d41fe5bf145bff5b5db48090868ec74e9980842))
+
+## [3.121.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.120.0-beta.0...v3.121.0-beta.0) (2026-08-29)
+
+
+### Features
+
+* **email:** webhook transport as an alternative to SMTP ([#1225](https://github.com/PicPeak/picpeak/issues/1225)) ([#1231](https://github.com/PicPeak/picpeak/issues/1231)) ([d62407f](https://github.com/PicPeak/picpeak/commit/d62407f431b8e34c228ecefb9338df325fbd97a3))
+
+
+### Bug Fixes
+
+* **export:** name the camera master in photo exports, not the delivered render ([#1229](https://github.com/PicPeak/picpeak/issues/1229)) ([#1230](https://github.com/PicPeak/picpeak/issues/1230)) ([f4c054a](https://github.com/PicPeak/picpeak/commit/f4c054a661e8cb52e1f75a2445b07a427ad613f2))
+* **feedback:** name the camera original in the exports, not just the stored file ([#1224](https://github.com/PicPeak/picpeak/issues/1224)) ([#1228](https://github.com/PicPeak/picpeak/issues/1228)) ([4f684eb](https://github.com/PicPeak/picpeak/commit/4f684eb482ee3bef9a6d4d3e63fe35be0cb99700))
+
+## [3.120.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.119.0-beta.0...v3.120.0-beta.0) (2026-08-28)
+
+
+### Features
+
+* **api:** Lightroom round-trip — read proofing marks, put finished edits back ([#745](https://github.com/PicPeak/picpeak/issues/745)) ([#1165](https://github.com/PicPeak/picpeak/issues/1165)) ([8db8527](https://github.com/PicPeak/picpeak/commit/8db8527f9ea3edda7e3267512d4cb1eadaaa95d7))
+
+## [3.119.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.118.0-beta.0...v3.119.0-beta.0) (2026-08-28)
+
+
+### Features
+
+* **admin:** shift-click range selection in the photo grid ([#1212](https://github.com/PicPeak/picpeak/issues/1212)) ([#1213](https://github.com/PicPeak/picpeak/issues/1213)) ([f18bc56](https://github.com/PicPeak/picpeak/commit/f18bc568c88dabcd305595f365838ab6470b975f))
+
+
+### Bug Fixes
+
+* **gallery:** make the returning-guest recovery findable ([#1210](https://github.com/PicPeak/picpeak/issues/1210)) ([#1217](https://github.com/PicPeak/picpeak/issues/1217)) ([1f3f7e9](https://github.com/PicPeak/picpeak/commit/1f3f7e9c0299806eb6b981669c1ba3ec811ab266))
+* **guests:** surface duplicate guest registrations, and stop making so many ([#1210](https://github.com/PicPeak/picpeak/issues/1210)) ([#1216](https://github.com/PicPeak/picpeak/issues/1216)) ([5c85e0c](https://github.com/PicPeak/picpeak/commit/5c85e0c0e42a826eb7f63f2be8ed1a3908ca0d91))
+
+## [3.118.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.117.0-beta.0...v3.118.0-beta.0) (2026-08-28)
+
+
+### Features
+
+* **feedback:** a third identity mode with one shared colour tag per photo ([#1197](https://github.com/PicPeak/picpeak/issues/1197)) ([#1208](https://github.com/PicPeak/picpeak/issues/1208)) ([22e00f8](https://github.com/PicPeak/picpeak/commit/22e00f80b6f2afe3f0721a29f5eeab0835e4c2c0))
+
+## [3.117.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.116.1-beta.0...v3.117.0-beta.0) (2026-08-28)
+
+
+### Features
+
+* **gallery:** folders that contain photos instead of filtering them ([#1160](https://github.com/PicPeak/picpeak/issues/1160)) ([#1161](https://github.com/PicPeak/picpeak/issues/1161)) ([0a36ca6](https://github.com/PicPeak/picpeak/commit/0a36ca605662db5ff6d215ea7164e13b166b3121))
+
+
+### Bug Fixes
+
+* **admin:** the "Uncategorized" photo filter returns every photo ([#1211](https://github.com/PicPeak/picpeak/issues/1211)) ([#1214](https://github.com/PicPeak/picpeak/issues/1214)) ([a490b64](https://github.com/PicPeak/picpeak/commit/a490b649542371c70493feb79b0af844deeae006))
+* **setup:** put the setup token where a NAS user can find it ([#1218](https://github.com/PicPeak/picpeak/issues/1218)) ([#1219](https://github.com/PicPeak/picpeak/issues/1219)) ([696c69a](https://github.com/PicPeak/picpeak/commit/696c69a6d02e6f1cf01d83470825215feacacd00))
+
+## [3.116.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.116.0-beta.0...v3.116.1-beta.0) (2026-08-27)
+
+
+### Bug Fixes
+
+* **images:** fence the capture-date backfill on the file it read ([#1201](https://github.com/PicPeak/picpeak/issues/1201)) ([#1204](https://github.com/PicPeak/picpeak/issues/1204)) ([cec8eff](https://github.com/PicPeak/picpeak/commit/cec8eff70ce55d93bdb0b582ec39de400711892b))
+
+## [3.116.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.115.4-beta.0...v3.116.0-beta.0) (2026-08-26)
+
+
+### Features
+
+* **auth:** make the admin "Remember me" checkbox actually do something ([#1186](https://github.com/PicPeak/picpeak/issues/1186)) ([#1195](https://github.com/PicPeak/picpeak/issues/1195)) ([d3e9a7c](https://github.com/PicPeak/picpeak/commit/d3e9a7cf0d55aaf0c83bd32031f00259da2af11f))
+
+
+### Bug Fixes
+
+* **gallery:** show colour labels in the Carousel layout ([#1189](https://github.com/PicPeak/picpeak/issues/1189)) ([#1196](https://github.com/PicPeak/picpeak/issues/1196)) ([da80216](https://github.com/PicPeak/picpeak/commit/da802169a87602d34d89f58eb311d1e99b40e8bd))
+
+## [3.115.4-beta.0](https://github.com/PicPeak/picpeak/compare/v3.115.3-beta.0...v3.115.4-beta.0) (2026-08-26)
+
+
+### Bug Fixes
+
+* **images:** backfill orientation for libraries that predate the fix ([#1199](https://github.com/PicPeak/picpeak/issues/1199)) ([edef4d7](https://github.com/PicPeak/picpeak/commit/edef4d73653e92a3e884f703c7ac578e4288ba41))
+* **images:** respect EXIF orientation in thumbnails, heroes and previews ([#1194](https://github.com/PicPeak/picpeak/issues/1194)) ([c18f54e](https://github.com/PicPeak/picpeak/commit/c18f54ede065c47fec47aca0e0c35c139ae4410a))
+
+## [3.115.3-beta.0](https://github.com/PicPeak/picpeak/compare/v3.115.2-beta.0...v3.115.3-beta.0) (2026-08-26)
+
+
+### Bug Fixes
+
+* **admin:** gate the dimension repair as system maintenance ([#1182](https://github.com/PicPeak/picpeak/issues/1182)) ([3991dc3](https://github.com/PicPeak/picpeak/commit/3991dc3ccb67e4e33a91b171dd9eb77c0c262502))
+* **admin:** make "Storage used" report storage used ([#1164](https://github.com/PicPeak/picpeak/issues/1164)) ([#1170](https://github.com/PicPeak/picpeak/issues/1170)) ([849a580](https://github.com/PicPeak/picpeak/commit/849a5807b7174d05e7f4769c8984843e0d0805e2))
+* **admin:** move the maintenance sweeps' run state into the database ([#1181](https://github.com/PicPeak/picpeak/issues/1181)) ([#1184](https://github.com/PicPeak/picpeak/issues/1184)) ([05e23ef](https://github.com/PicPeak/picpeak/commit/05e23ef1a1c78b426a21d3106ca5d732958c31a6))
+* **external-media:** record capture dates on import, and backfill existing libraries ([#1172](https://github.com/PicPeak/picpeak/issues/1172)) ([#1179](https://github.com/PicPeak/picpeak/issues/1179)) ([410b8f8](https://github.com/PicPeak/picpeak/commit/410b8f8f6f7258c285446b3454164c9a20f2280f))
+* **gallery:** show other guests' colour labels in the grid ([#1178](https://github.com/PicPeak/picpeak/issues/1178)) ([#1180](https://github.com/PicPeak/picpeak/issues/1180)) ([51d20c5](https://github.com/PicPeak/picpeak/commit/51d20c5920ec6cd5aa9bbe8504fd2aa59c180545))
+* **gallery:** stop the lightbox loading originals to display a photo ([#1166](https://github.com/PicPeak/picpeak/issues/1166)) ([#1169](https://github.com/PicPeak/picpeak/issues/1169)) ([77953c1](https://github.com/PicPeak/picpeak/commit/77953c15c12affd1987bd2e78bac815ffa64d0fc))
+* **previews:** preserve alpha and animation in the preview tier ([#1171](https://github.com/PicPeak/picpeak/issues/1171)) ([1366d6d](https://github.com/PicPeak/picpeak/commit/1366d6d14cd07e05ede043ff8cfb368cddc76362))
+
+## [3.115.2-beta.0](https://github.com/PicPeak/picpeak/compare/v3.115.1-beta.0...v3.115.2-beta.0) (2026-08-26)
+
+
+### Bug Fixes
+
+* **external-media:** store external paths from the media root ([#1163](https://github.com/PicPeak/picpeak/issues/1163)) ([#1168](https://github.com/PicPeak/picpeak/issues/1168)) ([a7b74bc](https://github.com/PicPeak/picpeak/commit/a7b74bcd87fa9700351331e65a631e31c89d1354))
+
+## [3.115.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.115.0-beta.0...v3.115.1-beta.0) (2026-08-26)
+
+
+### Bug Fixes
+
+* **external-media:** one row per external file per event ([#1162](https://github.com/PicPeak/picpeak/issues/1162)) ([#1167](https://github.com/PicPeak/picpeak/issues/1167)) ([06da1b9](https://github.com/PicPeak/picpeak/commit/06da1b9f7eefa5ff216a068f64fa648f49e7084a))
+
+## [3.115.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.114.0-beta.0...v3.115.0-beta.0) (2026-08-23)
+
+
+### Features
+
+* **faces:** make "not the same person" survive a re-scan ([#1132](https://github.com/PicPeak/picpeak/issues/1132)) ([#1145](https://github.com/PicPeak/picpeak/issues/1145)) ([c305ad4](https://github.com/PicPeak/picpeak/commit/c305ad41469bd04647e71ba768bfce26f20c4c96))
+
+
+### Bug Fixes
+
+* **gallery:** a guest's own hidden feedback is hidden from them too ([#1150](https://github.com/PicPeak/picpeak/issues/1150)) ([#1153](https://github.com/PicPeak/picpeak/issues/1153)) ([2c81888](https://github.com/PicPeak/picpeak/commit/2c81888eafadc083a4654464ea6e955abc7e8704))
+* **gallery:** guest filters respect show_feedback_to_guests, and marks survive a mid-write clear ([#1147](https://github.com/PicPeak/picpeak/issues/1147)) ([00b20b2](https://github.com/PicPeak/picpeak/commit/00b20b2d72ffb9a8418cda4479d1e34df1b65ccf))
+* **gallery:** no Logout button on galleries that don't require a password ([#1149](https://github.com/PicPeak/picpeak/issues/1149)) ([#1152](https://github.com/PicPeak/picpeak/issues/1152)) ([e4a8be8](https://github.com/PicPeak/picpeak/commit/e4a8be8e7e8ede850f07a43c229c3e4e28e0e59f))
+* **scripts:** regenerate-thumbnails resolves external sources through ensureThumbnail ([#1148](https://github.com/PicPeak/picpeak/issues/1148)) ([#1151](https://github.com/PicPeak/picpeak/issues/1151)) ([b581267](https://github.com/PicPeak/picpeak/commit/b5812670318a852b4731d326f15f2623e0302395))
+
+## [3.114.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.113.0-beta.0...v3.114.0-beta.0) (2026-08-23)
+
+
+### Features
+
+* **gallery:** colour labels for client proofing, and one global default per feedback type ([#1044](https://github.com/PicPeak/picpeak/issues/1044)) ([#1137](https://github.com/PicPeak/picpeak/issues/1137)) ([e2844d1](https://github.com/PicPeak/picpeak/commit/e2844d190969269e53dfac9a74ebd8fe94e042dc))
+
+## [3.113.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.112.0-beta.0...v3.113.0-beta.0) (2026-08-22)
+
+
+### Features
+
+* **faces:** consolidate look-alike clusters after a scan, and suggest the rest ([#1107](https://github.com/PicPeak/picpeak/issues/1107)) ([3583c92](https://github.com/PicPeak/picpeak/commit/3583c924dae999e5edf6bf86c4611a035c9bd986))
+
+
+### Bug Fixes
+
+* **gallery:** a missing thumbnail tier must not take the backend down ([#1128](https://github.com/PicPeak/picpeak/issues/1128)) ([f735d26](https://github.com/PicPeak/picpeak/commit/f735d26422ddd7e4f83cdbaf6fa10c2120dc82a4))
+* **gallery:** give masonry tiles their real shape back ([#1130](https://github.com/PicPeak/picpeak/issues/1130), [#1131](https://github.com/PicPeak/picpeak/issues/1131)) ([87115b2](https://github.com/PicPeak/picpeak/commit/87115b28e8aa4d955adc6534103d4cf1fb15485b))
+* **thumbnails:** regenerate external photos instead of dropping their tiers ([#1129](https://github.com/PicPeak/picpeak/issues/1129)) ([97d92f8](https://github.com/PicPeak/picpeak/commit/97d92f8428e28852011456ab5785e1f70dce5e8b))
+
+
+### Documentation
+
+* **faces:** link the face-recognition guidance from where people look ([#1125](https://github.com/PicPeak/picpeak/issues/1125)) ([25fbefc](https://github.com/PicPeak/picpeak/commit/25fbefc703c0531060203bcdb3910a590a6bfdb2))
+
+## [3.112.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.111.1-beta.0...v3.112.0-beta.0) (2026-08-22)
+
+
+### Features
+
+* **deploy:** make the all-in-one image installable without a shell ([#1124](https://github.com/PicPeak/picpeak/issues/1124)) ([7223118](https://github.com/PicPeak/picpeak/commit/7223118b894ffa47bf8dedca5f77077983d29d52))
+
+## [3.111.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.111.0-beta.0...v3.111.1-beta.0) (2026-08-22)
+
+
+### Bug Fixes
+
+* **faces:** dark-mode styling for the People surfaces ([#1106](https://github.com/PicPeak/picpeak/issues/1106)) ([#1126](https://github.com/PicPeak/picpeak/issues/1126)) ([24e11df](https://github.com/PicPeak/picpeak/commit/24e11df2991856753541aaaed380974a5eb267e4))
+
+## [3.111.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.110.0-beta.0...v3.111.0-beta.0) (2026-08-21)
+
+
+### Features
+
+* **faces:** show a detected face in its source photo, outlined ([#1120](https://github.com/PicPeak/picpeak/issues/1120)) ([38c27d0](https://github.com/PicPeak/picpeak/commit/38c27d097c593283c253208bb3bb547cb2512c32))
+
+## [3.110.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.109.0-beta.0...v3.110.0-beta.0) (2026-08-21)
+
+
+### Features
+
+* **faces:** let the photographer choose which photo represents a person ([#1119](https://github.com/PicPeak/picpeak/issues/1119)) ([bbce3cd](https://github.com/PicPeak/picpeak/commit/bbce3cd2a2822a3c53bbb9acdd60c0c3c41a5d7c))
+* **gallery:** responsive grid thumbnails ([#1095](https://github.com/PicPeak/picpeak/issues/1095)) ([#1109](https://github.com/PicPeak/picpeak/issues/1109)) ([887bdbe](https://github.com/PicPeak/picpeak/commit/887bdbe6e5cdc7db2f57674dd94b5308dfed0dff))
+
+
+### Bug Fixes
+
+* **security:** let cors() own Access-Control-Allow-Origin on protected images ([#1118](https://github.com/PicPeak/picpeak/issues/1118)) ([0077623](https://github.com/PicPeak/picpeak/commit/00776234fd6683186c08ffcb510d1145586ad7e9))
+* **ui:** stop iOS Safari zooming in on 14px form fields ([#1113](https://github.com/PicPeak/picpeak/issues/1113)) ([d241919](https://github.com/PicPeak/picpeak/commit/d24191960476d042e9c99d852db782c25e8340f9))
+
+## [3.109.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.108.1-beta.0...v3.109.0-beta.0) (2026-08-21)
+
+
+### Features
+
+* **setup:** configure the public address and SMTP in the wizard, not .env ([#1104](https://github.com/PicPeak/picpeak/issues/1104)) ([9431b9f](https://github.com/PicPeak/picpeak/commit/9431b9f0949e8e51c486019224ca92f46443c50e))
+
+## [3.108.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.108.0-beta.0...v3.108.1-beta.0) (2026-08-20)
+
+
+### Bug Fixes
+
+* **faces:** face avatars were cropped against a cropped rendition ([#1100](https://github.com/PicPeak/picpeak/issues/1100)) ([b3a7ab2](https://github.com/PicPeak/picpeak/commit/b3a7ab27ea6ecbae30f5b3eb5716c861b3660a73))
+
+## [3.108.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.107.5-beta.0...v3.108.0-beta.0) (2026-08-20)
+
+
+### Features
+
+* **gallery:** sized preview tiers so phones stop pulling 1920px ([#1095](https://github.com/PicPeak/picpeak/issues/1095)) ([#1099](https://github.com/PicPeak/picpeak/issues/1099)) ([011f6ae](https://github.com/PicPeak/picpeak/commit/011f6ae7eca48b41b98f4d4beab0aceaa9d34e6c))
+
+
+### Bug Fixes
+
+* **faces:** defer on unreachable storage, and commit the import path first ([#1097](https://github.com/PicPeak/picpeak/issues/1097)) ([0b886ed](https://github.com/PicPeak/picpeak/commit/0b886ed9428b31831c86ad4ddafd0c0a98e4ac3a))
+
+## [3.107.5-beta.0](https://github.com/PicPeak/picpeak/compare/v3.107.4-beta.0...v3.107.5-beta.0) (2026-08-20)
+
+
+### Documentation
+
+* **readme:** point the single-container install at a tag that exists ([2a84efe](https://github.com/PicPeak/picpeak/commit/2a84efef719e15998a693947f80ed2aa9931ff85))
+* **readme:** point the single-container install at a tag that exists ([e47c103](https://github.com/PicPeak/picpeak/commit/e47c103c2a9011e45cd43c8476a0683e8896db2b))
+
+## [3.107.4-beta.0](https://github.com/PicPeak/picpeak/compare/v3.107.3-beta.0...v3.107.4-beta.0) (2026-08-20)
+
+
+### Documentation
+
+* **docker:** Hub pages for aio + ml, and the image table in the README ([899c9b3](https://github.com/PicPeak/picpeak/commit/899c9b34072ca73ddc4391b74ead43ef4157b235))
+
+## [3.107.3-beta.0](https://github.com/PicPeak/picpeak/compare/v3.107.2-beta.0...v3.107.3-beta.0) (2026-08-20)
+
+
+### Bug Fixes
+
+* **faces:** scan external/reference photos instead of skipping them ([#1090](https://github.com/PicPeak/picpeak/issues/1090)) ([#1091](https://github.com/PicPeak/picpeak/issues/1091)) ([576924f](https://github.com/PicPeak/picpeak/commit/576924fa574c0fdbaf167a885216ad3ee6ebf66b))
+
+## [3.107.2-beta.0](https://github.com/PicPeak/picpeak/compare/v3.107.1-beta.0...v3.107.2-beta.0) (2026-08-19)
+
+
+### Bug Fixes
+
+* **faces:** restore the :beta image tag and surface sidecar health ([#1087](https://github.com/PicPeak/picpeak/issues/1087)) ([37a15e3](https://github.com/PicPeak/picpeak/commit/37a15e3d49de5cad83b7e7b466153a732e64c45e))
+
+## [3.107.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.107.0-beta.0...v3.107.1-beta.0) (2026-08-19)
+
+
+### Bug Fixes
+
+* **preview:** generate lightbox previews for external/reference photos ([#1078](https://github.com/PicPeak/picpeak/issues/1078)) ([#1079](https://github.com/PicPeak/picpeak/issues/1079)) ([af7970b](https://github.com/PicPeak/picpeak/commit/af7970b069d219e32d22c005dd5adf4204d0d514))
+
+## [3.107.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.106.0-beta.0...v3.107.0-beta.0) (2026-08-18)
+
+
+### Features
+
+* **faces:** People in this gallery — face recognition via an optional ML sidecar ([#1074](https://github.com/PicPeak/picpeak/issues/1074)) ([#1075](https://github.com/PicPeak/picpeak/issues/1075)) ([b69dd13](https://github.com/PicPeak/picpeak/commit/b69dd134d0f5b1570ace261af4541d36771e62cd))
+
+## [3.106.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.105.1-beta.0...v3.106.0-beta.0) (2026-08-18)
+
+
+### Features
+
+* **docker:** all-in-one image ([#1042](https://github.com/PicPeak/picpeak/issues/1042)) — my version of [#1067](https://github.com/PicPeak/picpeak/issues/1067) ([#1068](https://github.com/PicPeak/picpeak/issues/1068)) ([0874a30](https://github.com/PicPeak/picpeak/commit/0874a30ac94483e5a725bf2bb047dca11880129c))
+
+## [3.105.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.105.0-beta.0...v3.105.1-beta.0) (2026-08-16)
+
+
+### Bug Fixes
+
+* **gallery:** make per-event banner overrides actually work, both banners ([#440](https://github.com/PicPeak/picpeak/issues/440), [#932](https://github.com/PicPeak/picpeak/issues/932)) ([#1064](https://github.com/PicPeak/picpeak/issues/1064)) ([52db982](https://github.com/PicPeak/picpeak/commit/52db9826610a41f156b4878c142abfc71dea8b07))
+
+## [3.105.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.104.1-beta.0...v3.105.0-beta.0) (2026-08-16)
+
+
+### Features
+
+* **gallery:** info banner above the photo grid ([#932](https://github.com/PicPeak/picpeak/issues/932)) ([#1063](https://github.com/PicPeak/picpeak/issues/1063)) ([b48fa62](https://github.com/PicPeak/picpeak/commit/b48fa62eea5117c3e09bb6c8a7d3dc02931ee8f9))
+
+## [3.104.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.104.0-beta.0...v3.104.1-beta.0) (2026-08-16)
+
+
+### Bug Fixes
+
+* **pdf:** RFC 6266-encode Content-Disposition on quote/invoice PDFs ([#1024](https://github.com/PicPeak/picpeak/issues/1024)) ([#1055](https://github.com/PicPeak/picpeak/issues/1055)) ([3a11e6e](https://github.com/PicPeak/picpeak/commit/3a11e6ebb5542a526a92c66f12e13d5a30aba7b2))
+
+## [3.104.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.103.1-beta.0...v3.104.0-beta.0) (2026-08-16)
+
+
+### Features
+
+* **backup:** open sqlite → pg .picpeak restore as the supported upgrade direction ([#1041](https://github.com/PicPeak/picpeak/issues/1041)) ([#1043](https://github.com/PicPeak/picpeak/issues/1043)) ([8809564](https://github.com/PicPeak/picpeak/commit/8809564aadc1782484e0369ddbf03850530680a6))
+
+## [3.103.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.103.0-beta.0...v3.103.1-beta.0) (2026-08-16)
+
+
+### Bug Fixes
+
+* **storage:** add S3 client timeouts so a dropped connection can't wedge uploads ([#1049](https://github.com/PicPeak/picpeak/issues/1049)) ([3600231](https://github.com/PicPeak/picpeak/commit/3600231d5f059cb7fd7250430a26bf0b0396a87f))
+
+## [3.103.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.102.2-beta.0...v3.103.0-beta.0) (2026-08-16)
+
+
+### Features
+
+* **permissions:** granular permission gating + role editor & presets ([#747](https://github.com/PicPeak/picpeak/issues/747), phase 1 of [#743](https://github.com/PicPeak/picpeak/issues/743)) ([#1045](https://github.com/PicPeak/picpeak/issues/1045)) ([b118695](https://github.com/PicPeak/picpeak/commit/b118695474b30f848e79d0ce8f52e051b5b8217b))
+
+## [3.102.2-beta.0](https://github.com/PicPeak/picpeak/compare/v3.102.1-beta.0...v3.102.2-beta.0) (2026-08-13)
+
+
+### Bug Fixes
+
+* **docker:** default NODE_ENV=production so non-compose deploys don't fall back to SQLite ([#1038](https://github.com/PicPeak/picpeak/issues/1038)) ([#1039](https://github.com/PicPeak/picpeak/issues/1039)) ([6de30e5](https://github.com/PicPeak/picpeak/commit/6de30e5bf17b54601e64d1b0b6a31d8877aa642d))
+* **events:** make event_date/expires_at nullable on SQLite ([#1029](https://github.com/PicPeak/picpeak/issues/1029)) ([#1035](https://github.com/PicPeak/picpeak/issues/1035)) ([671c4db](https://github.com/PicPeak/picpeak/commit/671c4dbd56fde69d512c09af2e928f1899c5ad8a))
+* **feedback:** persist guest feedback settings, unshadow the guest route ([#1030](https://github.com/PicPeak/picpeak/issues/1030)) ([#1031](https://github.com/PicPeak/picpeak/issues/1031)) ([89dc962](https://github.com/PicPeak/picpeak/commit/89dc9623c154493eb50f94a25da3e774e8c215b1))
+* **gallery:** coerce SQLite 0/1 booleans in the guest surface ([#1028](https://github.com/PicPeak/picpeak/issues/1028)) ([#1034](https://github.com/PicPeak/picpeak/issues/1034)) ([34ee311](https://github.com/PicPeak/picpeak/commit/34ee31141b0e6b93c75ea91fd6d82ca35f72eacb))
+
+## [3.102.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.102.0-beta.0...v3.102.1-beta.0) (2026-08-11)
+
+
+### Documentation
+
+* flip README links to docs.picpeak.app + delete docs/_to-migrate ([#1000](https://github.com/PicPeak/picpeak/issues/1000) phase 3) ([#1023](https://github.com/PicPeak/picpeak/issues/1023)) ([27dedb1](https://github.com/PicPeak/picpeak/commit/27dedb13f390f956690e667d41ed532bce697eb4))
+
+## [3.102.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.101.5-beta.0...v3.102.0-beta.0) (2026-08-11)
+
+
+### Features
+
+* **downloads:** per-gallery download resolutions ([#858](https://github.com/PicPeak/picpeak/issues/858)) ([#1022](https://github.com/PicPeak/picpeak/issues/1022)) ([8e35737](https://github.com/PicPeak/picpeak/commit/8e3573788b1bde8768d023e779ea3361c91f6223))
+
+## [3.101.5-beta.0](https://github.com/PicPeak/picpeak/compare/v3.101.4-beta.0...v3.101.5-beta.0) (2026-08-10)
+
+
+### Bug Fixes
+
+* **slideshow:** stop "no crop" fit letterboxing a pre-cropped frame ([#1015](https://github.com/PicPeak/picpeak/issues/1015)) ([#1018](https://github.com/PicPeak/picpeak/issues/1018)) ([75bfad2](https://github.com/PicPeak/picpeak/commit/75bfad2b6ae2e7a9a622d0c648df30db83c69b14))
+
+## [3.101.4-beta.0](https://github.com/PicPeak/picpeak/compare/v3.101.3-beta.0...v3.101.4-beta.0) (2026-08-10)
+
+
+### Bug Fixes
+
+* **deps:** bump nanoid and js-yaml out of two HIGH advisories ([#1013](https://github.com/PicPeak/picpeak/issues/1013)) ([e3830cd](https://github.com/PicPeak/picpeak/commit/e3830cd9219ad4e81b556c7682e0f48a806f1620))
+
+## [3.101.3-beta.0](https://github.com/PicPeak/picpeak/compare/v3.101.2-beta.0...v3.101.3-beta.0) (2026-08-10)
+
+
+### Bug Fixes
+
+* **auth:** issuer-tag the oversize SSO logout marker ([#798](https://github.com/PicPeak/picpeak/issues/798)) ([#1010](https://github.com/PicPeak/picpeak/issues/1010)) ([a607cea](https://github.com/PicPeak/picpeak/commit/a607cea11018e68aea8797160dbde7f34b8eca44))
+
+## [3.101.2-beta.0](https://github.com/PicPeak/picpeak/compare/v3.101.1-beta.0...v3.101.2-beta.0) (2026-08-10)
+
+
+### Bug Fixes
+
+* **branding:** route the gallery footer through &lt;PoweredBy /&gt; ([#1008](https://github.com/PicPeak/picpeak/issues/1008)) ([1bf19a7](https://github.com/PicPeak/picpeak/commit/1bf19a7caf45b7f800b3650b2cd2365ea89cb169))
+
+## [3.101.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.101.0-beta.0...v3.101.1-beta.0) (2026-08-10)
+
+
+### Documentation
+
+* slim README to a lean router, stage deep content for docs-site migration ([#1001](https://github.com/PicPeak/picpeak/issues/1001)) ([ddebd50](https://github.com/PicPeak/picpeak/commit/ddebd50d3fd3750f97f13a07afb38447601e3889))
+
+## [3.101.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.100.2-beta.0...v3.101.0-beta.0) (2026-08-09)
+
+
+### Features
+
+* **transfers:** add PicTransfer — cross-event file transfers ([#998](https://github.com/PicPeak/picpeak/issues/998)) ([2e495d7](https://github.com/PicPeak/picpeak/commit/2e495d7c489c3195c6e1c042ec4ac35fe90cf4ba))
+
+## [3.100.2-beta.0](https://github.com/PicPeak/picpeak/compare/v3.100.1-beta.0...v3.100.2-beta.0) (2026-08-09)
+
+
+### Bug Fixes
+
+* **branding:** hide "Powered by PicPeak" on every page, not only the gallery ([#999](https://github.com/PicPeak/picpeak/issues/999)) ([3bb4f1a](https://github.com/PicPeak/picpeak/commit/3bb4f1a1a894a6bbc4b1610c3585b73e38f1753d))
+
+## [3.100.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.100.0-beta.0...v3.100.1-beta.0) (2026-08-04)
+
+
+### Documentation
+
+* the retired registry path freezes, it does not stop serving ([#995](https://github.com/PicPeak/picpeak/issues/995)) ([b9e4259](https://github.com/PicPeak/picpeak/commit/b9e42591f53d3e5dbee136f4ee53020461c3e2ba))
+
+## [3.100.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.99.2-beta.0...v3.100.0-beta.0) (2026-08-04)
+
+
+### Features
+
+* **admin:** surface the registry move through the update check ([#993](https://github.com/PicPeak/picpeak/issues/993)) ([137a42f](https://github.com/PicPeak/picpeak/commit/137a42f259692999fe88b75bbe6652d34893ef11))
+* **gallery:** admin preview skips the password on protected galleries ([#981](https://github.com/PicPeak/picpeak/issues/981)) ([f006615](https://github.com/PicPeak/picpeak/commit/f00661511c3f3b4fc338be860965244b0ee3b611))
+
+
+### Bug Fixes
+
+* **security:** vet the destination project when linking a deal ([#991](https://github.com/PicPeak/picpeak/issues/991)) ([0c8ad6b](https://github.com/PicPeak/picpeak/commit/0c8ad6bbedb00ba443c20c7ab00b58925d6b9b5c))
+
+## [3.99.2-beta.0](https://github.com/PicPeak/picpeak/compare/v3.99.1-beta.0...v3.99.2-beta.0) (2026-08-04)
+
+
+### Bug Fixes
+
+* **deps:** bump ip-address, brace-expansion and postcss for open CVEs ([#987](https://github.com/PicPeak/picpeak/issues/987)) ([6c03fea](https://github.com/PicPeak/picpeak/commit/6c03feaef5ef9be694445728f5d5a4ddabafd5c1))
+
+## [3.99.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.99.0-beta.0...v3.99.1-beta.0) (2026-08-04)
+
+
+### Bug Fixes
+
+* **accounting:** gate cross-add counters on the permission their endpoint checks ([#984](https://github.com/PicPeak/picpeak/issues/984)) ([4b53b64](https://github.com/PicPeak/picpeak/commit/4b53b64277a6e3b1d3e94b8cc3bb705aa33629ec))
+
+## [3.99.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.98.6-beta.0...v3.99.0-beta.0) (2026-08-03)
+
+
+### Features
+
+* **accounting:** re-bill proof attachment, CRM panel & hours↔re-bills cross-add ([#979](https://github.com/PicPeak/picpeak/issues/979)) ([165cebd](https://github.com/PicPeak/picpeak/commit/165cebdb5c744cb3c3c26cc9cd4182cb5fa85143))
+
+## [3.98.6-beta.0](https://github.com/PicPeak/picpeak/compare/v3.98.5-beta.0...v3.98.6-beta.0) (2026-08-03)
+
+
+### Bug Fixes
+
+* **auth:** fail closed when the adminAuth roles join errors ([#974](https://github.com/PicPeak/picpeak/issues/974)) ([6699855](https://github.com/PicPeak/picpeak/commit/6699855c931657c7af7860e9bdd097da303a3a26))
+* **projects:** stop the cockpit offering email controls the API rejects ([#976](https://github.com/PicPeak/picpeak/issues/976)) ([67592fc](https://github.com/PicPeak/picpeak/commit/67592fc56956b1ec4db696483efd2a285bffb6f4))
+
+## [3.98.5-beta.0](https://github.com/PicPeak/picpeak/compare/v3.98.4-beta.0...v3.98.5-beta.0) (2026-08-02)
+
+
+### Bug Fixes
+
+* **security:** enforce project ownership on project + project-email routes (GHSA-wrg5, GHSA-93x4) ([#960](https://github.com/PicPeak/picpeak/issues/960)) ([7c0c0a5](https://github.com/PicPeak/picpeak/commit/7c0c0a5b7ff5758ec07ac64ab5c0c81818cca96d))
+
+## [3.98.4-beta.0](https://github.com/PicPeak/picpeak/compare/v3.98.3-beta.0...v3.98.4-beta.0) (2026-08-02)
+
+
+### Bug Fixes
+
+* **security:** backup/restore hardening — public-dir DB dump, restore path allowlist, gunzip bound, manifest keying ([#956](https://github.com/PicPeak/picpeak/issues/956)) ([0d4c308](https://github.com/PicPeak/picpeak/commit/0d4c30884e21a43401f7e8acc0f31e5ab1f77bba))
+* **security:** bound inbound-mail resources, redact secrets from logs (GHSA-2qf9, pgmp, r794) ([#959](https://github.com/PicPeak/picpeak/issues/959)) ([1b4e5fe](https://github.com/PicPeak/picpeak/commit/1b4e5fee3efd1a7fb980476d45551971225df50c))
+* **security:** enforce event ownership on the v1 API surface (GHSA-9697) ([#957](https://github.com/PicPeak/picpeak/issues/957)) ([e2ce95e](https://github.com/PicPeak/picpeak/commit/e2ce95ee48105f6e04150334df77a866a1c60a83))
+* **security:** escape brand tokens, block tracker redirects, trim logo diagnostic (GHSA-j347, mw76, 29vm) ([#961](https://github.com/PicPeak/picpeak/issues/961)) ([164129b](https://github.com/PicPeak/picpeak/commit/164129b8f5bbf8a68d743930a72bdb95b88fdee3))
+* **security:** scope dashboard stats/analytics/activity to the caller's events (GHSA-c2jj, gqx7, jhcf) ([#958](https://github.com/PicPeak/picpeak/issues/958)) ([da855cf](https://github.com/PicPeak/picpeak/commit/da855cfef9e74b0b1e77d54c39008c998ab3e20b))
+
+## [3.98.3-beta.0](https://github.com/PicPeak/picpeak/compare/v3.98.2-beta.0...v3.98.3-beta.0) (2026-08-02)
+
+
+### Bug Fixes
+
+* **security:** authz/ownership gaps (token binding, auth revocation, feedback/customer ownership, token logging) ([#950](https://github.com/PicPeak/picpeak/issues/950)) ([c2ce12c](https://github.com/PicPeak/picpeak/commit/c2ce12c039d5564e4457fdbbd50a06bbcfec4d6a))
+* **security:** neutralize spreadsheet formulas in all CSV/export cell-writers (CSV injection cluster) ([#948](https://github.com/PicPeak/picpeak/issues/948)) ([8f91c2c](https://github.com/PicPeak/picpeak/commit/8f91c2ca99de09d64b32a292c5f7fe86e63f9787))
+* **security:** redact gallery share tokens from analytics tracking (GHSA-7m6c) ([#952](https://github.com/PicPeak/picpeak/issues/952)) ([1c8f7d5](https://github.com/PicPeak/picpeak/commit/1c8f7d58a88b867c07d8d9699c20866c334dfa73))
+* **security:** unauth share_token leak (HIGH) + restore path-traversal, logo file-read, branding path keys ([#946](https://github.com/PicPeak/picpeak/issues/946)) ([9050aff](https://github.com/PicPeak/picpeak/commit/9050affd8dd0d5dff0514a8a7cb677fc2d410fca))
+
+## [3.98.2-beta.0](https://github.com/PicPeak/picpeak/compare/v3.98.1-beta.0...v3.98.2-beta.0) (2026-08-01)
+
+
+### Bug Fixes
+
+* **security:** block guest access to hidden/client-only photos across bulk + secure routes ([#939](https://github.com/PicPeak/picpeak/issues/939)) ([8a87c92](https://github.com/PicPeak/picpeak/commit/8a87c9274b2950a500ed1d17bc30fa573fcbf0c0))
+* **security:** bump sanitize-html to 2.17.5 (CVE-2026-53606) ([#937](https://github.com/PicPeak/picpeak/issues/937)) ([fe615c8](https://github.com/PicPeak/picpeak/commit/fe615c82e48de42399d8be47f796878835b90c5d))
+* **security:** close authorization/ownership gaps (token scope, mass-assignment, category hero, project docs) ([#943](https://github.com/PicPeak/picpeak/issues/943)) ([82d6871](https://github.com/PicPeak/picpeak/commit/82d68711cf7b74b9c81a0eed3fd0905d668d5df7))
+* **security:** resolve DNS before vetting external hostnames (SSRF cluster) ([#941](https://github.com/PicPeak/picpeak/issues/941)) ([b700569](https://github.com/PicPeak/picpeak/commit/b7005692b33595cf9df52892ce2f94342ca21fe5))
+
+## [3.98.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.98.0-beta.0...v3.98.1-beta.0) (2026-08-01)
+
+
+### Bug Fixes
+
+* **uploads:** prevent cross-photo contamination from filename collisions and non-atomic writes ([#931](https://github.com/PicPeak/picpeak/issues/931)) ([#933](https://github.com/PicPeak/picpeak/issues/933)) ([defeae9](https://github.com/PicPeak/picpeak/commit/defeae96349e4b68a2db6d66ad68b255e98f9e3b))
+
+## [3.98.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.97.6-beta.0...v3.98.0-beta.0) (2026-07-31)
+
+
+### Features
+
+* **gallery:** mouse-wheel zoom at cursor in the lightbox ([#885](https://github.com/PicPeak/picpeak/issues/885)) ([#927](https://github.com/PicPeak/picpeak/issues/927)) ([926a4a5](https://github.com/PicPeak/picpeak/commit/926a4a540d6f6a1e134ca4e611f850edf6338378))
+* **gallery:** multi-select feedback filters + sort direction controls ([#889](https://github.com/PicPeak/picpeak/issues/889)) ([#929](https://github.com/PicPeak/picpeak/issues/929)) ([3bcded7](https://github.com/PicPeak/picpeak/commit/3bcded78a448f5b099e87a73c7f1e44e859882aa))
+* **gallery:** per-event toggle to hide the logo on the password page ([#894](https://github.com/PicPeak/picpeak/issues/894)) ([#928](https://github.com/PicPeak/picpeak/issues/928)) ([08ff9f2](https://github.com/PicPeak/picpeak/commit/08ff9f20e73a12bc89fad539781c4f48972f48e1))
+
+## [3.97.6-beta.0](https://github.com/PicPeak/picpeak/compare/v3.97.5-beta.0...v3.97.6-beta.0) (2026-07-30)
+
+
+### Bug Fixes
+
+* **security:** close GHSA-g94x (cross-gallery photo read) + GHSA-pv6w (admin DB export) ([#924](https://github.com/PicPeak/picpeak/issues/924)) ([03087c7](https://github.com/PicPeak/picpeak/commit/03087c798c8414505fcd694df7cd53bc08126b32))
+
+## [3.97.5-beta.0](https://github.com/PicPeak/picpeak/compare/v3.97.4-beta.0...v3.97.5-beta.0) (2026-07-30)
+
+
+### Bug Fixes
+
+* **admin:** code-review follow-ups on [#910](https://github.com/PicPeak/picpeak/issues/910)/[#916](https://github.com/PicPeak/picpeak/issues/916) (MIME resolver + expiry reactivity) ([#921](https://github.com/PicPeak/picpeak/issues/921)) ([252475f](https://github.com/PicPeak/picpeak/commit/252475fce2ce8d5e16915c4d3558576ad720189b))
+
+## [3.97.4-beta.0](https://github.com/PicPeak/picpeak/compare/v3.97.3-beta.0...v3.97.4-beta.0) (2026-07-29)
+
+
+### Bug Fixes
+
+* **admin:** expose view/download counters in the admin photos list ([#895](https://github.com/PicPeak/picpeak/issues/895) follow-up) ([#914](https://github.com/PicPeak/picpeak/issues/914)) ([aca3c8e](https://github.com/PicPeak/picpeak/commit/aca3c8e4bc33e74c81c4d2f2a15baf490c967134))
+* **admin:** stop marking events expired up to 24h early ([#909](https://github.com/PicPeak/picpeak/issues/909)) ([#916](https://github.com/PicPeak/picpeak/issues/916)) ([487f55f](https://github.com/PicPeak/picpeak/commit/487f55f2d9463d85898555472cd66ae69d1d0f31))
+
+## [3.97.3-beta.0](https://github.com/PicPeak/picpeak/compare/v3.97.2-beta.0...v3.97.3-beta.0) (2026-07-29)
+
+
+### Bug Fixes
+
+* **admin:** serve videos with their real MIME type in the admin photo view ([#908](https://github.com/PicPeak/picpeak/issues/908)) ([#910](https://github.com/PicPeak/picpeak/issues/910)) ([67c56c5](https://github.com/PicPeak/picpeak/commit/67c56c5b61fc9a25f5d0b7346fb042211bc1d1de))
+
+## [3.97.2-beta.0](https://github.com/PicPeak/picpeak/compare/v3.97.1-beta.0...v3.97.2-beta.0) (2026-07-29)
+
+
+### Bug Fixes
+
+* **analytics:** make per-photo view/download counters actually count ([#895](https://github.com/PicPeak/picpeak/issues/895)) ([#904](https://github.com/PicPeak/picpeak/issues/904)) ([78116e2](https://github.com/PicPeak/picpeak/commit/78116e2e8bf681c5483f06e9b1490dc8239e8576))
+
+## [3.97.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.97.0-beta.0...v3.97.1-beta.0) (2026-07-29)
+
+
+### Bug Fixes
+
+* **tests:** raise migration-boot hook timeout pins to the 120s default ([#900](https://github.com/PicPeak/picpeak/issues/900)) ([d9ad982](https://github.com/PicPeak/picpeak/commit/d9ad982373861cd05f23167f1e2e50eaebfb7bba))
+
+## [3.97.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.96.1-beta.0...v3.97.0-beta.0) (2026-07-29)
+
+
+### Features
+
+* **feedback:** let guests remove their star rating ([#884](https://github.com/PicPeak/picpeak/issues/884)) ([#893](https://github.com/PicPeak/picpeak/issues/893)) ([6a048d0](https://github.com/PicPeak/picpeak/commit/6a048d08bd5d1d16f5ec2d2e580831086a32c71b))
+
+## [3.96.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.96.0-beta.0...v3.96.1-beta.0) (2026-07-29)
+
+
+### Bug Fixes
+
+* **gallery:** keep the lightbox toolbar from masking the photo ([#888](https://github.com/PicPeak/picpeak/issues/888)) ([#892](https://github.com/PicPeak/picpeak/issues/892)) ([ec66cd2](https://github.com/PicPeak/picpeak/commit/ec66cd2684b5ee608f23304ec0da029f38a3eed4))
+
+## [3.96.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.95.5-beta.0...v3.96.0-beta.0) (2026-07-29)
+
+
+### Features
+
+* **gallery:** quick return from zoomed to fit-to-screen in the lightbox ([#886](https://github.com/PicPeak/picpeak/issues/886)) ([#891](https://github.com/PicPeak/picpeak/issues/891)) ([97f6889](https://github.com/PicPeak/picpeak/commit/97f68899a221e3bc9b4e30c7d9a19eb16f062ba6))
+
+## [3.95.5-beta.0](https://github.com/PicPeak/picpeak/compare/v3.95.4-beta.0...v3.95.5-beta.0) (2026-07-29)
+
+
+### Bug Fixes
+
+* **gallery:** don't close the lightbox when clicking beside the photo ([#883](https://github.com/PicPeak/picpeak/issues/883)) ([#890](https://github.com/PicPeak/picpeak/issues/890)) ([34c2992](https://github.com/PicPeak/picpeak/commit/34c2992521fcb4a495398f27f6044d696b4d17c3))
+
+## [3.95.4-beta.0](https://github.com/PicPeak/picpeak/compare/v3.95.3-beta.0...v3.95.4-beta.0) (2026-07-27)
+
+
+### Bug Fixes
+
+* sync gallery feedback filters after lightbox like/rating in simple mode ([#882](https://github.com/PicPeak/picpeak/issues/882)) ([33f1bc4](https://github.com/PicPeak/picpeak/commit/33f1bc42a9441cba4c4cef81217a3073bbfd4e8b))
+
+## [3.95.3-beta.0](https://github.com/PicPeak/picpeak/compare/v3.95.2-beta.0...v3.95.3-beta.0) (2026-07-27)
+
+
+### Bug Fixes
+
+* **security:** close 5 Trivy alerts — postcss/tar bumps + drop npm from the runtime image ([#878](https://github.com/PicPeak/picpeak/issues/878)) ([08be2b8](https://github.com/PicPeak/picpeak/commit/08be2b84f18073b63fa131c692c50b6df849a0ca))
+
+## [3.95.2-beta.0](https://github.com/PicPeak/picpeak/compare/v3.95.1-beta.0...v3.95.2-beta.0) (2026-07-27)
+
+
+### Bug Fixes
+
+* **backup:** make backup settings actually apply ([#871](https://github.com/PicPeak/picpeak/issues/871)) ([#874](https://github.com/PicPeak/picpeak/issues/874)) ([a2e7234](https://github.com/PicPeak/picpeak/commit/a2e723413e64819f0d8c0c03636ed04af42a47e4))
+
+## [3.95.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.95.0-beta.0...v3.95.1-beta.0) (2026-07-26)
+
+
+### Bug Fixes
+
+* **security:** bump backend deps to close all 14 open Trivy code-scanning alerts ([#869](https://github.com/PicPeak/picpeak/issues/869)) ([38b8d47](https://github.com/PicPeak/picpeak/commit/38b8d476d17d5a28724dbd81c79d57e23d65a2fa))
+
+## [3.95.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.94.2-beta.0...v3.95.0-beta.0) (2026-07-24)
+
+
+### Features
+
+* **auth:** OIDC logout-to-IdP — phase 3 ([#798](https://github.com/PicPeak/picpeak/issues/798)) ([#865](https://github.com/PicPeak/picpeak/issues/865)) ([219d07b](https://github.com/PicPeak/picpeak/commit/219d07b04adf54756317d3cc3069f834aa2b460e))
+
+## [3.94.2-beta.0](https://github.com/PicPeak/picpeak/compare/v3.94.1-beta.0...v3.94.2-beta.0) (2026-07-23)
+
+
+### Bug Fixes
+
+* **gallery:** block password form in Instagram in-app browser and unmask login errors ([#863](https://github.com/PicPeak/picpeak/issues/863)) ([323dcae](https://github.com/PicPeak/picpeak/commit/323dcae91702b8a77d2db801b63398a76f16fee2))
+
+## [3.94.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.94.0-beta.0...v3.94.1-beta.0) (2026-07-22)
+
+
+### Bug Fixes
+
+* **tests:** raise jest timeouts to survive the growing migration chain ([#860](https://github.com/PicPeak/picpeak/issues/860)) ([40eb03f](https://github.com/PicPeak/picpeak/commit/40eb03f0d80458f6c7dc4f6e6430668451edadac))
+
+## [3.94.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.93.0-beta.0...v3.94.0-beta.0) (2026-07-22)
+
+
+### Features
+
+* **auth:** OIDC role mapping + login policy — phase 2 ([#798](https://github.com/PicPeak/picpeak/issues/798)) ([#854](https://github.com/PicPeak/picpeak/issues/854)) ([f8a95d2](https://github.com/PicPeak/picpeak/commit/f8a95d29d2feb5f651ff6a0bcfa1b5b1540f114a))
+* **feedback:** emoji reactions on photos ([#839](https://github.com/PicPeak/picpeak/issues/839)) ([#855](https://github.com/PicPeak/picpeak/issues/855)) ([3d6c984](https://github.com/PicPeak/picpeak/commit/3d6c9848dcbace1d1ce74890460e369854be65c7))
+* **gallery:** reveal mode — hide gallery from guests until reveal ([#838](https://github.com/PicPeak/picpeak/issues/838)) ([#856](https://github.com/PicPeak/picpeak/issues/856)) ([2f05fcc](https://github.com/PicPeak/picpeak/commit/2f05fcc39deaf226a6cc8796ebee9b40bc89e9ae))
+
+
+### Bug Fixes
+
+* **dates:** normalize SQLite epoch timestamps at remaining API surfaces ([#485](https://github.com/PicPeak/picpeak/issues/485) follow-up) ([#857](https://github.com/PicPeak/picpeak/issues/857)) ([c6ec93e](https://github.com/PicPeak/picpeak/commit/c6ec93eef9f18e8867e86691800a60379bb16591))
+
+## [3.93.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.92.2-beta.0...v3.93.0-beta.0) (2026-07-19)
+
+
+### Features
+
+* **events:** gallery QR code + printable table-card/poster PDFs ([#847](https://github.com/PicPeak/picpeak/issues/847)) ([60cdd07](https://github.com/PicPeak/picpeak/commit/60cdd07085c750cee358cbe59420668cbc538473))
+* **notifications:** surface guest activity in the admin bell ([#849](https://github.com/PicPeak/picpeak/issues/849)) ([cb5b319](https://github.com/PicPeak/picpeak/commit/cb5b319f1022655fbc1e442d0d1e6d8337f0e637))
+* **slideshow:** guest-scannable share-link QR overlay ([#848](https://github.com/PicPeak/picpeak/issues/848)) ([e8dad4b](https://github.com/PicPeak/picpeak/commit/e8dad4b40ddb816cc2f9a94be456f793adce20d7))
+
+
+### Bug Fixes
+
+* **crm:** pass trx to logActivity inside transactions — audit rows silently lost on SQLite ([#851](https://github.com/PicPeak/picpeak/issues/851)) ([a6a3c9f](https://github.com/PicPeak/picpeak/commit/a6a3c9f9f8ecb84500d5ac68e90639c362f2461a))
+
+## [3.92.2-beta.0](https://github.com/PicPeak/picpeak/compare/v3.92.1-beta.0...v3.92.2-beta.0) (2026-07-19)
+
+
+### Bug Fixes
+
+* **file-watcher:** bound concurrent photo processing ([#846](https://github.com/PicPeak/picpeak/issues/846)) ([8337a71](https://github.com/PicPeak/picpeak/commit/8337a716b169e66f8edf8619c64622e6853dae81))
+* **security:** read the password-complexity key the settings UI writes ([#843](https://github.com/PicPeak/picpeak/issues/843)) ([8060fed](https://github.com/PicPeak/picpeak/commit/8060fedf6aaea5359c3bf04696fd00ec8500b51a))
+* **uploads:** keep videos when thumbnail generation fails ([#845](https://github.com/PicPeak/picpeak/issues/845)) ([0310c46](https://github.com/PicPeak/picpeak/commit/0310c46fdd5b03274f761abfb4c8b552e2f8b666))
+
+## [3.92.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.92.0-beta.0...v3.92.1-beta.0) (2026-07-19)
+
+
+### Bug Fixes
+
+* **uploads:** support configured raw formats ([f7fd893](https://github.com/PicPeak/picpeak/commit/f7fd89387be80ea9b3b5c11d06828a4c1a0d4af5))
+
+## [3.92.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.91.0-beta.0...v3.92.0-beta.0) (2026-07-18)
+
+
+### Features
+
+* **uploads:** DNG / camera-RAW support via embedded-preview extraction ([#821](https://github.com/PicPeak/picpeak/issues/821)) ([8c260c4](https://github.com/PicPeak/picpeak/commit/8c260c4eebedb69f349505d0befbbb5afb182b2c))
+
+## [3.91.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.90.2-beta.0...v3.91.0-beta.0) (2026-07-18)
+
+
+### Features
+
+* **uploads:** HEIC/HEIF support + dynamic format hint on guest upload ([#821](https://github.com/PicPeak/picpeak/issues/821)) ([ee9d2f7](https://github.com/PicPeak/picpeak/commit/ee9d2f70d3342d65edb795a688f0f5f611429964))
+
+
+### Bug Fixes
+
+* **gallery:** serve JPEG preview for non-displayable originals in lightbox (codex review of [#832](https://github.com/PicPeak/picpeak/issues/832)) ([808d305](https://github.com/PicPeak/picpeak/commit/808d3055497bb4e4a372acafa49ef9baf257f008))
+* **uploads:** register HEIC/HEIF with the file validator + fix admin format hint (codex review of [#832](https://github.com/PicPeak/picpeak/issues/832)) ([c9b64d9](https://github.com/PicPeak/picpeak/commit/c9b64d9c1a8744c9ee5e068366a500ae0dab36bc))
+
+## [3.90.2-beta.0](https://github.com/PicPeak/picpeak/compare/v3.90.1-beta.0...v3.90.2-beta.0) (2026-07-17)
+
+
+### Bug Fixes
+
+* **events:** accept hero_logo_visible: null on create/update ([#822](https://github.com/PicPeak/picpeak/issues/822)) ([0245e44](https://github.com/PicPeak/picpeak/commit/0245e445cafd165ada3c5a15abb258ae2c1c857e))
+* **events:** accept hero_logo_visible: null on create/update ([#822](https://github.com/PicPeak/picpeak/issues/822)) ([b97b130](https://github.com/PicPeak/picpeak/commit/b97b130cadebaef38e59cc227fa6578ac886110f))
+* **update:** target docker-compose.production.yml in dashboard update steps ([51a505e](https://github.com/PicPeak/picpeak/commit/51a505e3798895e544f943673e81a365265f319c))
+* **update:** target docker-compose.production.yml in dashboard update steps + gate mailhog ([2a0361a](https://github.com/PicPeak/picpeak/commit/2a0361a83b4ca0a600bb4fd447e338533ce63420))
+* **uploads:** apply configured max file size to guest uploads ([#613](https://github.com/PicPeak/picpeak/issues/613) follow-up) ([29f1d23](https://github.com/PicPeak/picpeak/commit/29f1d23a0a645208f22453e62d99fe79b55c7db4))
+* **uploads:** apply configured max file size to guest uploads ([#613](https://github.com/PicPeak/picpeak/issues/613) follow-up) ([1e38d84](https://github.com/PicPeak/picpeak/commit/1e38d84808ee2a2b176c75d5ec4975fba710e63c))
+* **uploads:** tighten guest max-file-size setting (codex review of [#823](https://github.com/PicPeak/picpeak/issues/823)) ([43c6d22](https://github.com/PicPeak/picpeak/commit/43c6d22bdd93179865703da6350094c9b95388d8))
+* **uploads:** tighten guest max-file-size setting (codex review of [#823](https://github.com/PicPeak/picpeak/issues/823)) ([e03d13e](https://github.com/PicPeak/picpeak/commit/e03d13efde843c7a7275cd41c855b402538756e7))
+
+## [3.90.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.90.0-beta.0...v3.90.1-beta.0) (2026-07-17)
+
+
+### Bug Fixes
+
+* **security:** remove unguarded legacy /api/events router (GHSA-4j34-x562-5vfq) ([e7ca8bd](https://github.com/PicPeak/picpeak/commit/e7ca8bdb7f30d999039125c0f0ef89bdc92d5a69))
+* **security:** remove unguarded legacy /api/events router (GHSA-4j34-x562-5vfq) ([6cd546e](https://github.com/PicPeak/picpeak/commit/6cd546e86ae38819c0fdc24044f86106503fa020))
+
+## [3.90.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.89.0-beta.0...v3.90.0-beta.0) (2026-07-16)
+
+
+### Features
+
+* **auth:** OIDC SSO for admin users — phase 1 ([f12606b](https://github.com/PicPeak/picpeak/commit/f12606b4e0d2fbe4f2f57a345b393448063d6614))
+
+## [3.89.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.88.1-beta.0...v3.89.0-beta.0) (2026-07-16)
+
+
+### Features
+
+* **security:** harden .picpeak restore robustness — sessions, roles, sequences ([a77c2c2](https://github.com/PicPeak/picpeak/commit/a77c2c2c573a79f0194ff2b911acaa5f46c11f26))
+* **security:** harden .picpeak restore robustness — sessions, roles, sequences ([340d91b](https://github.com/PicPeak/picpeak/commit/340d91bdd53a595694edfa6f3d691b240a2babcd))
+
+
+### Bug Fixes
+
+* **security:** close 4 open security advisories (backup takeover, share-login bypass, ZIP slip, chunked-upload traversal) ([7ebc232](https://github.com/PicPeak/picpeak/commit/7ebc2326204ad0572e6a1fc121b5d232da06cec3))
+* **security:** harden .picpeak restore operator-preservation (GHSA-qxfx follow-up) ([38fd41a](https://github.com/PicPeak/picpeak/commit/38fd41aad3fcb12a249aaa2eb3d98fbffbde537a))
+* **security:** preserve current admin on .picpeak restore (GHSA-qxfx-4493-4v8f) ([348894e](https://github.com/PicPeak/picpeak/commit/348894efefa5a7b49d32feb22a98045b93076138))
+* **security:** reject ZIP-slip entries in archive/backup restore (GHSA-jfhw-fj23-fx6x) ([9cd6b08](https://github.com/PicPeak/picpeak/commit/9cd6b08441e8633751b9fb73daca5ca0555c950b))
+* **security:** sanitize chunked-upload filename (GHSA-pc72-jf53-w28j) ([31bc01c](https://github.com/PicPeak/picpeak/commit/31bc01cb4bbf65b48b3a5c3c94ad35e487df9fcc))
+* **security:** share-login must not bypass gallery password (GHSA-9hmx-68vc-qpqw) ([7dace04](https://github.com/PicPeak/picpeak/commit/7dace044dcc1c3b5a13c4704510c87616632618c))
+
+## [3.88.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.88.0-beta.0...v3.88.1-beta.0) (2026-07-16)
+
+
+### Bug Fixes
+
+* **security:** mask backup credentials on read + unblock MFA login during maintenance ([eadf282](https://github.com/PicPeak/picpeak/commit/eadf282755829cb51e6ea37221be31d8c9af41c5))
+* **security:** mask backup credentials on read + unblock MFA login during maintenance ([07f2c90](https://github.com/PicPeak/picpeak/commit/07f2c900556738e993fb63764210b541d7692c9d))
+
+## [3.88.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.87.0-beta.0...v3.88.0-beta.0) (2026-07-15)
+
+
+### Features
+
+* **setup:** event-types step in first-run wizard + un-hardcode event type dependencies ([109aba8](https://github.com/PicPeak/picpeak/commit/109aba859820bf80440d056baf183ecf2657fee3))
+* **setup:** event-types step in first-run wizard + un-hardcode event type deps ([#800](https://github.com/PicPeak/picpeak/issues/800)) ([7eb6357](https://github.com/PicPeak/picpeak/commit/7eb6357b4a9bf3914674a63afa386a5fcf8c2161))
+
+
+### Bug Fixes
+
+* **event-types:** harden setup window + catalog validation (codex review) ([f8ba669](https://github.com/PicPeak/picpeak/commit/f8ba6697163b4d9aa0fa0014cb5b0810371c04ae))
+* **event-types:** un-hardcode event type dependencies in v1 API and CRM ([d64eef8](https://github.com/PicPeak/picpeak/commit/d64eef8abf2915230b3cdd38a3bbb8af1a12c6d2))
+* **event-types:** un-hardcode event type dependencies in v1 API and CRM ([#800](https://github.com/PicPeak/picpeak/issues/800)) ([5da1c3a](https://github.com/PicPeak/picpeak/commit/5da1c3a12f603a230091426b1d7be0eac83da22c))
+* **gallery:** show feedback filter chips on desktop for galleries without categories ([0751a08](https://github.com/PicPeak/picpeak/commit/0751a08aa661a430c1609cd8c118347291cbaa14))
+* **gallery:** show feedback filter chips on desktop for galleries without categories ([#802](https://github.com/PicPeak/picpeak/issues/802)) ([b928338](https://github.com/PicPeak/picpeak/commit/b9283386a57431ac8bd395347f9acb9bbdf82e8e))
+
+## [3.87.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.86.0-beta.0...v3.87.0-beta.0) (2026-07-11)
+
+
+### Features
+
+* **invoices:** configurable VAT note under MwSt. line + fix multi-page page-number overlap ([#794](https://github.com/PicPeak/picpeak/issues/794)) ([ffd4a7e](https://github.com/PicPeak/picpeak/commit/ffd4a7eee64b6418df1c9cc6843d86dc0f41d2ec))
+* **invoices:** configurable VAT/free-text note + fix multi-page page-number overlap ([#794](https://github.com/PicPeak/picpeak/issues/794)) ([1476884](https://github.com/PicPeak/picpeak/commit/1476884dd04202f5f18d50d458b6176b0535c71b))
+
+## [3.86.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.85.0-beta.0...v3.86.0-beta.0) (2026-07-10)
+
+
+### Features
+
+* **categories:** per-event category ordering — global default + override ([#782](https://github.com/PicPeak/picpeak/issues/782)) ([d51112e](https://github.com/PicPeak/picpeak/commit/d51112e761d2fd83f1939841fbf4c05e625fc34d))
+* **categories:** per-event category ordering — global default + override ([#782](https://github.com/PicPeak/picpeak/issues/782)) ([4698402](https://github.com/PicPeak/picpeak/commit/4698402b5493cfbdb1e2b6d81c6f58829e17a703))
+
+
+### Bug Fixes
+
+* **categories:** address PR [#790](https://github.com/PicPeak/picpeak/issues/790) review — event ownership, migration renumber, nits ([a4b4485](https://github.com/PicPeak/picpeak/commit/a4b4485d322514690c5400ca7ab9a91bc25c3e48))
+
+## [3.85.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.84.1-beta.0...v3.85.0-beta.0) (2026-07-10)
+
+
+### Features
+
+* **slideshow:** per-event play order + category filter ([#202](https://github.com/PicPeak/picpeak/issues/202)) ([5467642](https://github.com/PicPeak/picpeak/commit/54676424f2f7ed50e74cb8e144cbdaa5a96e65c3))
+
+## [3.84.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.84.0-beta.0...v3.84.1-beta.0) (2026-07-10)
+
+
+### Bug Fixes
+
+* **ci:** publish v-prefixed image tags via type=ref,event=tag ([#668](https://github.com/PicPeak/picpeak/issues/668)) ([1f3bc3c](https://github.com/PicPeak/picpeak/commit/1f3bc3c3430414b5b6cb2141d887a8b5855a04af))
+* **ci:** publish v-prefixed image tags via type=ref,event=tag ([#668](https://github.com/PicPeak/picpeak/issues/668)) ([39db7bf](https://github.com/PicPeak/picpeak/commit/39db7bf6cb5c39fcdf71c875a4aaf704f34447fa))
+
+## [3.84.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.83.1-beta.0...v3.84.0-beta.0) (2026-07-10)
+
+
+### Features
+
+* **admin:** GitHub repo button in the sidebar footer ([#778](https://github.com/PicPeak/picpeak/issues/778)) ([279e047](https://github.com/PicPeak/picpeak/commit/279e0472c71c6a37ba091a9c7a31f5571c0a8df6))
+* **admin:** GitHub repo button in the sidebar footer ([#778](https://github.com/PicPeak/picpeak/issues/778)) ([d3d7df4](https://github.com/PicPeak/picpeak/commit/d3d7df46f214028ba89063079d356bc0430083f5))
+
+
+### Bug Fixes
+
+* **ci:** publish v-prefixed image tags so :vX.Y.Z resolves ([#668](https://github.com/PicPeak/picpeak/issues/668)) ([2ee4146](https://github.com/PicPeak/picpeak/commit/2ee4146d9a6fd026e7b7be3ba774de9a0cf6e96a))
+* **ci:** publish v-prefixed image tags so :vX.Y.Z resolves ([#668](https://github.com/PicPeak/picpeak/issues/668)) ([784d059](https://github.com/PicPeak/picpeak/commit/784d059c3da5b36e2b6794ebf2e34bc15c8a9824))
+
+
+### Documentation
+
+* **releasing:** align stable version to main on promote (Option A) ([df5aeab](https://github.com/PicPeak/picpeak/commit/df5aeaba416726cc0123f32ddf88e4a30dc28908))
+* **releasing:** align stable version to main on promote (Option A) ([5dea0c9](https://github.com/PicPeak/picpeak/commit/5dea0c969558f50833973ff742257780f5842612))
+
+## [3.83.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.83.0-beta.0...v3.83.1-beta.0) (2026-07-09)
+
+
+### Bug Fixes
+
+* **release:** target stable in release-please + undo bogus 2.7.0 bump ([274ef0c](https://github.com/PicPeak/picpeak/commit/274ef0cd731765b057a5d62d5f41c14cb3a1564b))
+* **release:** target stable in release-please.yml + undo the bogus 2.7.0 bump ([65ac6ed](https://github.com/PicPeak/picpeak/commit/65ac6eddacb79857e9a9651d3c869e7bfdd92887))
+
+## [3.83.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.82.6-beta.0...v3.83.0-beta.0) (2026-07-08)
+
+
+### Features
+
+* **messages:** create/select quote, contract, invoice, gallery from a message ([0dbf863](https://github.com/PicPeak/picpeak/commit/0dbf863f60b919560b766f78b107ebac9612bd9d))
+* **messages:** search bar + Archive/Delete with Archived & Deleted folders ([99d5996](https://github.com/PicPeak/picpeak/commit/99d5996561a2dcff2d431692d5bab5c7286d1f6f))
+* **messages:** unified Messages email client (flag-gated, default off) ([a71b9b5](https://github.com/PicPeak/picpeak/commit/a71b9b5ed721df17b61062ae3a2361d448c95cf7))
+
+
+### Bug Fixes
+
+* **messages:** PR [#769](https://github.com/PicPeak/picpeak/issues/769) nits — server-side search, bare-email recipient, DE i18n ([1e08a4f](https://github.com/PicPeak/picpeak/commit/1e08a4fb156d34ee8ddff69b0a7612001aa6d67e))
+* **messages:** PR [#769](https://github.com/PicPeak/picpeak/issues/769) review — escape reply sender (XSS), gate backend routes, exact customer match ([bb235e7](https://github.com/PicPeak/picpeak/commit/bb235e72e58359f55f8aeccf2f22c671584fdbd7))
+* **messages:** show the resolved customer's name in the doc-action modal ([2c5c1d5](https://github.com/PicPeak/picpeak/commit/2c5c1d561bbe567b9d7615e7c2d071d08bb6d63c))
+
+## [3.82.6-beta.0](https://github.com/PicPeak/picpeak/compare/v3.82.5-beta.0...v3.82.6-beta.0) (2026-07-07)
+
+
+### Bug Fixes
+
+* **workflows:** backfill existing invoices + anchor dunning grace to due date when enabled ([#750](https://github.com/PicPeak/picpeak/issues/750)) ([9596342](https://github.com/PicPeak/picpeak/commit/9596342d6a9ef107193cfc123487a8061f4a91ca))
+* **workflows:** scope dunning backfill to its own flow via targetWorkflowId ([da3a77d](https://github.com/PicPeak/picpeak/commit/da3a77dac40a892158167aec939a1458d488a951))
+
+## [3.82.5-beta.0](https://github.com/PicPeak/picpeak/compare/v3.82.4-beta.0...v3.82.5-beta.0) (2026-07-07)
+
+
+### Bug Fixes
+
+* **admin:** stop the event-date field crashing the page on backspace ([760a201](https://github.com/PicPeak/picpeak/commit/760a201b6070a4edfe8192bcddce948c5f0c3fec))
+
+## [3.82.4-beta.0](https://github.com/PicPeak/picpeak/compare/v3.82.3-beta.0...v3.82.4-beta.0) (2026-07-07)
+
+
+### Bug Fixes
+
+* **email,ui:** billing emails follow customer language + readable payment-check confirmation ([0c2d319](https://github.com/PicPeak/picpeak/commit/0c2d319fc1ed67843cc60afdcaea5807ea49226f))
+* **email,ui:** billing emails follow customer language + readable payment-check confirmation ([fcc3e91](https://github.com/PicPeak/picpeak/commit/fcc3e9195d6f63b2dffddfa72a867a3e32325e81))
+* **email:** sibling billing emails follow customer language too ([c0008be](https://github.com/PicPeak/picpeak/commit/c0008be39bc8a9d354e48ce8d6bd89662bc53ebb))
+
+## [3.82.3-beta.0](https://github.com/PicPeak/picpeak/compare/v3.82.2-beta.0...v3.82.3-beta.0) (2026-07-06)
+
+
+### Bug Fixes
+
+* **branding:** make 'Show logo in hero' a true global toggle with per-event override ([#756](https://github.com/PicPeak/picpeak/issues/756)) ([a88da99](https://github.com/PicPeak/picpeak/commit/a88da99c8d35c0c7cb7f96a235e984edad74ac7c))
+* **branding:** make 'Show logo in hero' a true global toggle with per-event override ([#756](https://github.com/PicPeak/picpeak/issues/756)) ([96fe478](https://github.com/PicPeak/picpeak/commit/96fe478bf87a3350185206b3d6f15133138b995d))
+* **branding:** unify hero logo SIZE the same way as visibility ([#756](https://github.com/PicPeak/picpeak/issues/756)) ([60b03b1](https://github.com/PicPeak/picpeak/commit/60b03b17287539b3ad5e5d32f4eda8622f0575e4))
+
+## [3.82.2-beta.0](https://github.com/PicPeak/picpeak/compare/v3.82.1-beta.0...v3.82.2-beta.0) (2026-07-05)
+
+
+### Bug Fixes
+
+* **og:** broaden social-crawler coverage (Bluesky Cardyb, WeChat-scraper, fediverse, etc.) ([a0a28a4](https://github.com/PicPeak/picpeak/commit/a0a28a47777db9ca9e60a5134c8d86503c060e79))
+* **og:** route branded short URLs + slideshow links to OG, add Viber ([#699](https://github.com/PicPeak/picpeak/issues/699)) ([0dffe0c](https://github.com/PicPeak/picpeak/commit/0dffe0ce92339e0608b3ef660e84c31a62f4a98c))
+* **og:** route branded short URLs + slideshow to OG handler, add Viber ([#699](https://github.com/PicPeak/picpeak/issues/699)) ([a87ad77](https://github.com/PicPeak/picpeak/commit/a87ad77d8d5215c88f5d95cc7aebaa1769938ec0))
+
+## [3.82.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.82.0-beta.0...v3.82.1-beta.0) (2026-07-05)
+
+
+### Bug Fixes
+
+* **invoices:** correct payment-check email template key so dunning email sends ([9a76333](https://github.com/PicPeak/picpeak/commit/9a763337b658299aae0d7c985071c4a775000f99))
+* **invoices:** correct payment-check email template key so dunning email sends ([3682de1](https://github.com/PicPeak/picpeak/commit/3682de195b46eae692db3ff4a1476b00d3a6e216))
+
+## [3.82.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.81.0-beta.0...v3.82.0-beta.0) (2026-07-03)
+
+
+### Features
+
+* **setup:** final community step ([#732](https://github.com/PicPeak/picpeak/issues/732)) + fix create-admin button overflow ([#730](https://github.com/PicPeak/picpeak/issues/730)) ([a5f49e3](https://github.com/PicPeak/picpeak/commit/a5f49e32350564ee4d3894f33e9611e9244cc994))
+* **setup:** final community/thank-you step ([#732](https://github.com/PicPeak/picpeak/issues/732)); fix create-admin button overflow ([#730](https://github.com/PicPeak/picpeak/issues/730)) ([dadaaee](https://github.com/PicPeak/picpeak/commit/dadaaeea7781cb62811256b512003e5c4d6ad95e))
+
+## [3.81.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.80.0-beta.0...v3.81.0-beta.0) (2026-07-03)
+
+
+### Features
+
+* admin two-factor authentication (TOTP) with recovery codes + CLI reset ([cf07361](https://github.com/PicPeak/picpeak/commit/cf073615effa8a91e19374ad3e9924e6e7322950))
+* **admin-ui:** TOTP MFA enrollment + two-step login; remove stub 2FA toggle ([96e3c68](https://github.com/PicPeak/picpeak/commit/96e3c68b9d6b35a82abcad664a6da7b19150b4fd))
+* **auth:** admin TOTP MFA — enrollment, login challenge, recovery, CLI reset ([72e2ef6](https://github.com/PicPeak/picpeak/commit/72e2ef6721b0572ed34455de901aa357eacd8c76))
+
+
+### Bug Fixes
+
+* event creation 500s on PostgreSQL (NaN slideshow seed) + stray "0" boolean renders ([b187f58](https://github.com/PicPeak/picpeak/commit/b187f588b4d12af7a7849f8558c0085573d4af76))
+* **security:** close cross-event thumbnail leak, bulk-op ownership bypass, + hardening ([081f3ed](https://github.com/PicPeak/picpeak/commit/081f3edcdffc65a77000cc638e364ea9dc03767f))
+* **security:** cross-event thumbnail leak, bulk-op ownership bypass + auth hardening ([b732974](https://github.com/PicPeak/picpeak/commit/b732974779803b67097c81ae6bce2de0f2910794))
+
+## [3.80.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.79.1-beta.0...v3.80.0-beta.0) (2026-07-03)
+
+
+### Features
+
+* **backup:** fold .picpeak restore into the Restore wizard's Upload source ([86324e7](https://github.com/PicPeak/picpeak/commit/86324e7da75069e61686b1b77495f02c33b12e1a))
+* first-run setup wizard (feature selection + config) and portable .picpeak backup roundtrip ([e513e83](https://github.com/PicPeak/picpeak/commit/e513e8345b73e37ebedc9c9ec09665ffc5773e23))
+* **setup:** add restore-from-backup branch to the first-run wizard ([a95ee47](https://github.com/PicPeak/picpeak/commit/a95ee473ae7fb2bf3c94c610724476701145d113))
+* **setup:** per-feature config step after feature selection ([07b450a](https://github.com/PicPeak/picpeak/commit/07b450a954a53781d23a71749552e4101c637777))
+
+
+### Bug Fixes
+
+* **backup:** address .picpeak review — table filter, superuser guard, tests ([fa7665c](https://github.com/PicPeak/picpeak/commit/fa7665c5b1ad18a4db4f0b59eb4c197a3c9a36e2))
+* **setup:** keep the first-run wizard light regardless of dark mode ([d4b143f](https://github.com/PicPeak/picpeak/commit/d4b143f313d00f2a30abcbc1a880c140d7455e7b))
+
+## [3.79.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.79.0-beta.0...v3.79.1-beta.0) (2026-07-02)
+
+
+### Bug Fixes
+
+* **settings:** remove duplicate Mail import that broke the dev server ([5b535f8](https://github.com/PicPeak/picpeak/commit/5b535f86580275eda768fa2d85a8c94bd701f832))
+* **settings:** remove duplicate Mail import that crashes the dev server ([4aa6583](https://github.com/PicPeak/picpeak/commit/4aa6583baef55e2c12e9cde7d391156436de518f))
+
+## [3.79.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.78.0-beta.0...v3.79.0-beta.0) (2026-07-02)
+
+
+### Features
+
+* setup wizard + argument-driven unattended install ([681619f](https://github.com/PicPeak/picpeak/commit/681619f0a14070309342a9f908a5bbc8a57d47d8))
+* **setup:** step-by-step wizard + argument-driven unattended install ([d35c413](https://github.com/PicPeak/picpeak/commit/d35c413651bc10f177a683a8057ad92c03b1cf00))
+
+## [3.78.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.77.3-beta.0...v3.78.0-beta.0) (2026-07-02)
+
+
+### Features
+
+* zero-config first run — in-browser admin bootstrap + auto-generated secrets ([bafc96f](https://github.com/PicPeak/picpeak/commit/bafc96f468e3b5cca2ec3291e7b568886755099d))
+
+
+### Bug Fixes
+
+* **ci:** enable release-PR auto-merge with the PAT, not GITHUB_TOKEN ([e08a33d](https://github.com/PicPeak/picpeak/commit/e08a33d9ea273dc18877743f71f59d64bfc3dfb5))
+* enable release-PR auto-merge with the PAT so releases actually publish ([97b9853](https://github.com/PicPeak/picpeak/commit/97b9853709fb59a900d70bb2a6bf365d98ae4f86))
+
+## [3.77.3-beta.0](https://github.com/PicPeak/picpeak/compare/v3.77.2-beta.0...v3.77.3-beta.0) (2026-07-02)
+
+
+### Bug Fixes
+
+* set GH_REPO in release-please auto-merge step ([d00d52a](https://github.com/PicPeak/picpeak/commit/d00d52a2215dfcae34086cf3e10fe4da0aef09c9))
+
+## [3.77.2-beta.0](https://github.com/PicPeak/picpeak/compare/v3.77.1-beta.0...v3.77.2-beta.0) (2026-07-02)
+
+
+### Bug Fixes
+
+* auto-publish release-please PRs without manual approval ([fb64ec0](https://github.com/PicPeak/picpeak/commit/fb64ec0910f8c3ecffb40d85e4f3a08f73503671))
+* **ci:** auto-publish release-please PRs without manual approval ([#719](https://github.com/PicPeak/picpeak/issues/719)) ([a3e7232](https://github.com/PicPeak/picpeak/commit/a3e7232b8ed012b8449a76d3e4ea3c5daddd5514))
+
+## [3.77.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.77.0-beta.0...v3.77.1-beta.0) (2026-07-02)
+
+
+### Documentation
+
+* require screenshots for UI changes in PRs ([f5b4aa7](https://github.com/PicPeak/picpeak/commit/f5b4aa7a5bc321ffbd33f1c1b92003435a7ee842))
+* require screenshots for UI changes in PRs ([8ca7477](https://github.com/PicPeak/picpeak/commit/8ca74776f4d3f7be930a713afe4ac4de594adedd))
+
+## [3.77.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.76.2-beta.0...v3.77.0-beta.0) (2026-07-01)
+
+
+### Features
+
+* admin photos list/grid toggle + upload failure report ([#707](https://github.com/PicPeak/picpeak/issues/707), [#708](https://github.com/PicPeak/picpeak/issues/708)) ([e873f7c](https://github.com/PicPeak/picpeak/commit/e873f7c98ce108b090d70a3b7df2d2929699e997))
+* admin photos list/grid toggle + upload failure report ([#707](https://github.com/PicPeak/picpeak/issues/707), [#708](https://github.com/PicPeak/picpeak/issues/708)) ([6f95796](https://github.com/PicPeak/picpeak/commit/6f95796b7c19829197eaff0d4934ad9b84d0e2f3))
+
+## [3.76.2-beta.0](https://github.com/PicPeak/picpeak/compare/v3.76.1-beta.0...v3.76.2-beta.0) (2026-06-30)
+
+
+### Bug Fixes
+
+* **ci:** whatsnew highlights — set GH_REPO so gh runs without a checkout ([3feed0f](https://github.com/PicPeak/picpeak/commit/3feed0fae6a5792a7192a529942e08d9872b7e6e))
+* **ci:** whatsnew highlights — set GH_REPO so gh runs without a checkout ([2a5f0a8](https://github.com/PicPeak/picpeak/commit/2a5f0a8601ba5cb28243b39278ecdc0892388a96))
+
+## [3.76.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.76.0-beta.0...v3.76.1-beta.0) (2026-06-30)
+
+
+### Bug Fixes
+
+* **whatsnew:** decode HTML entities and trim em-dash detail in fallback bullets ([5582644](https://github.com/PicPeak/picpeak/commit/5582644dc49330549be2a3a4cdd5b1ba0f21a294))
+
+## [3.76.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.75.1-beta.0...v3.76.0-beta.0) (2026-06-30)
+
+
+### Features
+
+* **gallery:** branded URL shortener — /s/&lt;slug&gt; with OG injection ([#699](https://github.com/PicPeak/picpeak/issues/699)) ([a0f7033](https://github.com/PicPeak/picpeak/commit/a0f7033ffc812f92d56e2eac7bd2f498b95ef83b))
+
+## [3.75.1-beta.0](https://github.com/PicPeak/picpeak/compare/v3.75.0-beta.0...v3.75.1-beta.0) (2026-06-30)
+
+
+### Bug Fixes
+
+* **og:** rich social previews for share-token + slideshow URLs ([#699](https://github.com/PicPeak/picpeak/issues/699)) ([25bf7bb](https://github.com/PicPeak/picpeak/commit/25bf7bb5239420da078749bac270196df6968581))
+* **og:** rich social previews for share-token + slideshow URLs ([#699](https://github.com/PicPeak/picpeak/issues/699)) ([1b8747d](https://github.com/PicPeak/picpeak/commit/1b8747dc82763ba6b4da3a55045cab8740da2a13))
+
+## [3.75.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.74.0-beta.0...v3.75.0-beta.0) (2026-06-30)
+
+
+### Features
+
+* **updates:** "What's New" highlights after update + pre-update teaser ([a1a73bf](https://github.com/PicPeak/picpeak/commit/a1a73bf75ff3fcd0833fdf7922a35ad09f19439b))
+* **updates:** "What's New" highlights after update + pre-update teaser ([500cf85](https://github.com/PicPeak/picpeak/commit/500cf8522e556575bd74d4c71d38a83fb2596b5e))
+
+
+### Documentation
+
+* **readme:** credit [@the-luap](https://github.com/the-luap) as creator/lead maintainer ([3528f6b](https://github.com/PicPeak/picpeak/commit/3528f6b8b7e2b537b111f7787d48459a976ef744))
+* **readme:** credit [@the-luap](https://github.com/the-luap) as creator/lead maintainer ([748238e](https://github.com/PicPeak/picpeak/commit/748238e8caf198e3899954804e61a2e179058957))
+
+## [3.74.0-beta.0](https://github.com/PicPeak/picpeak/compare/v3.73.0-beta.0...v3.74.0-beta.0) (2026-06-29)
+
+
+### Features
+
+* **admin:** in-app migration banner for the org rename ([0213347](https://github.com/PicPeak/picpeak/commit/02133478bd2684c562d11cc122cf5059832ff76a))
+* **admin:** in-app migration banner for the org rename ([#669](https://github.com/PicPeak/picpeak/issues/669)) ([2a4bf3b](https://github.com/PicPeak/picpeak/commit/2a4bf3b868c6733d0b865c8c0e977ba84d6e6453))
+
+
+### Documentation
+
+* branch model + migration-to-org guide + PR template ([166ef47](https://github.com/PicPeak/picpeak/commit/166ef47611a248c4d517e26d390d87d21f077ca1))
+* branch model + migration-to-org guide + PR-template target hint ([d606fcd](https://github.com/PicPeak/picpeak/commit/d606fcd5a425fed3c968ec06b071a386bf558c28))
+* prominent migration banner at the top of README ([14bd3e1](https://github.com/PicPeak/picpeak/commit/14bd3e1a6c6cf74378d6f316024584d8941cbcd5))
+* prominent migration banner at the top of README ([#669](https://github.com/PicPeak/picpeak/issues/669)) ([5839bba](https://github.com/PicPeak/picpeak/commit/5839bba72a56cc29077f63f7daa038995fb09dfb))
+
+## [3.73.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.72.0-beta.0...v3.73.0-beta.0) (2026-06-29)
+
+
+### Features
+
+* **dashboard:** revenue "year" tile toggles 365 days ↔ calendar YTD ([d1c9e02](https://github.com/the-luap/picpeak/commit/d1c9e02bcf50b6c08eebc85acdbfba29bfee84ac))
+* **invoices:** surface monthly/manual accumulator drafts in the Bills list ([e457656](https://github.com/the-luap/picpeak/commit/e457656b9d06bb420c9d0985fe15c30d6c88aed9))
+
+
+### Bug Fixes
+
+* **invoices:** add bank transfer to the mark-paid method list ([e96ef4c](https://github.com/the-luap/picpeak/commit/e96ef4c5a35bc9e575bc3419fb318a3ee9df1bd6))
+* **invoices:** badge held (unsent, no send date) invoices as "Draft" ([e4367e0](https://github.com/the-luap/picpeak/commit/e4367e028a5228ef50c4bbd522d0777bc7340b52))
+* **invoices:** show "Draft" on the invoice detail page for accumulator drafts ([ca09442](https://github.com/the-luap/picpeak/commit/ca0944293f66b6465a577340e63d592598915092))
+* **reminders:** wrap is_active/is_archived wheres in formatBoolean ([b9d9138](https://github.com/the-luap/picpeak/commit/b9d91385b43de7ede508884f7cf78b5cf785f853))
+
+## [3.72.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.71.3-beta.0...v3.72.0-beta.0) (2026-06-28)
+
+
+### Features
+
+* **workflows:** booking cutover — wire booking actions + hold documents behind approval gates ([ec33ec7](https://github.com/the-luap/picpeak/commit/ec33ec7670a4feb1108d1bcbfe34727f63cc8cf9))
+
+
+### Bug Fixes
+
+* **workflows:** defer quote.accepted/declined emit until the 15-min response window locks ([539a837](https://github.com/the-luap/picpeak/commit/539a83711d1996dc9c262365f2c511e7bc445add))
+* **workflows:** make the dashboard pending-approvals card items clickable too ([6e20d58](https://github.com/the-luap/picpeak/commit/6e20d58487c5e20b08e1d1b4ddd4e76f9e922a79))
+
+## [3.71.3-beta.0](https://github.com/the-luap/picpeak/compare/v3.71.2-beta.0...v3.71.3-beta.0) (2026-06-27)
+
+
+### Bug Fixes
+
+* **events:** wire customer notifications into both public API entry points ([#647](https://github.com/the-luap/picpeak/issues/647)) ([f017542](https://github.com/the-luap/picpeak/commit/f01754247cdb94c5935ad5abbda116841f6c7fba))
+
+## [3.71.2-beta.0](https://github.com/the-luap/picpeak/compare/v3.71.1-beta.0...v3.71.2-beta.0) (2026-06-27)
+
+
+### Bug Fixes
+
+* event-reminder, email-language & gallery-publish bugs surfaced during workflow testing ([c8714ca](https://github.com/the-luap/picpeak/commit/c8714ca42f4d82d50fe611b2a630260ebecbe740))
+
+## [3.71.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.71.0-beta.0...v3.71.1-beta.0) (2026-06-26)
+
+
+### Bug Fixes
+
+* **admin:** stack publish-gallery dialog CTAs so the German label fits ([#670](https://github.com/the-luap/picpeak/issues/670)) ([748af98](https://github.com/the-luap/picpeak/commit/748af98f3d3f8c00695b82e94d741a0e10a39a81))
+
+## [3.71.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.70.0-beta.0...v3.71.0-beta.0) (2026-06-25)
+
+
+### Features
+
+* admin-configurable workflow engine + dunning/Mahngebühr rework (RFC — feedback welcome) ([15be3b8](https://github.com/the-luap/picpeak/commit/15be3b8d32965eedc08d46ccc525c65a3bf34de6))
+* **workflows:** per-quote booking-workflow picker + quote→invoice (no gallery) built-in ([d14f1d8](https://github.com/the-luap/picpeak/commit/d14f1d850cc995b2cb1119ba0424f123feba50ec))
+* **workflows:** pre-event reminder picks the template GROUP on the block, type stays automatic ([10d091b](https://github.com/the-luap/picpeak/commit/10d091b55e0c44738b4001a71def6416a8f0aeb0))
+* **workflows:** route webhook node through the delivery pipeline (full Option 1) ([675e41a](https://github.com/the-luap/picpeak/commit/675e41a2f72c8c23fa5c36b13bc6b95abcb9d570))
+* **workflows:** warn when disabling a built-in (reverts to legacy, not off) ([c5f131c](https://github.com/the-luap/picpeak/commit/c5f131cec32826331722ef3705c5f5422e31726d))
+
+
+### Bug Fixes
+
+* **crm:** pre-event reminder resolves recipient from the event row, not a non-existent column ([5fbe514](https://github.com/the-luap/picpeak/commit/5fbe514db6e386eee2eeade548bccbb5bbc5b422))
+* **event-types:** renaming a type's slug cascades to events, quotes + reminder template ([415c93a](https://github.com/the-luap/picpeak/commit/415c93a512f74898d0225ce2e9298f24cc12f60d))
+* **workflows:** close review blockers — prefetch-safe approvals + loud gate-edge failure ([98ab717](https://github.com/the-luap/picpeak/commit/98ab717043e3fdefac0934bf8f4621d523b15e9a))
+* **workflows:** harden graph validation + refuse enabling unimplemented flows ([d927464](https://github.com/the-luap/picpeak/commit/d927464778272bd862aa01903179672f4d47368a))
+* **workflows:** matchFilter strict equality + accurate comment ([dee8d40](https://github.com/the-luap/picpeak/commit/dee8d40bb3235a908bba514a97a62d3a91a6e131))
+* **workflows:** ship built-ins disabled for first beta + enabled-based mutex + admin sentinel ([5893ecb](https://github.com/the-luap/picpeak/commit/5893ecb27a0365a79ec04336c5a122b31d31db0e))
+* **workflows:** wire a real, SSRF-guarded webhook action (was a silent no-op) ([af7eea8](https://github.com/the-luap/picpeak/commit/af7eea8b43e37905a79138bcde4b1026dea13050))
+
+## [3.70.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.69.1-beta.0...v3.70.0-beta.0) (2026-06-23)
+
+
+### Features
+
+* **analytics:** pluggable trackers — Umami + Rybbit + Custom ([#663](https://github.com/the-luap/picpeak/issues/663) Phase 1) ([83461fe](https://github.com/the-luap/picpeak/commit/83461fe5d4d44006482167464d92e70546cf7377))
+
+## [3.69.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.69.0-beta.0...v3.69.1-beta.0) (2026-06-23)
+
+
+### Bug Fixes
+
+* **analytics:** admin dashboard reads correct fields + Umami device API ([#661](https://github.com/the-luap/picpeak/issues/661)) ([349f566](https://github.com/the-luap/picpeak/commit/349f566e87b33c59f61eb28b8abc5f889e6285d6))
+* **analytics:** admin dashboard reads correct fields + Umami device API ([#661](https://github.com/the-luap/picpeak/issues/661)) ([7534447](https://github.com/the-luap/picpeak/commit/7534447b6c0df4290fd8dac12270673097096f1b))
+
+## [3.69.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.68.1-beta.0...v3.69.0-beta.0) (2026-06-22)
+
+
+### Features
+
+* **feedback:** per-guest favorite + like caps with mobile-friendly limit modal ([#655](https://github.com/the-luap/picpeak/issues/655)) ([3ac7017](https://github.com/the-luap/picpeak/commit/3ac70177efc237b8169278208983b0de3629bc72))
+* **feedback:** per-guest favorite + like caps with mobile-friendly limit modal ([#655](https://github.com/the-luap/picpeak/issues/655)) ([f2814e4](https://github.com/the-luap/picpeak/commit/f2814e4a4ce3aa9affc232243d615a15a1aae0c0))
+
+
+### Bug Fixes
+
+* **i18n:** replace ASCII quote with U+201D in DE perGuestLimitsDesc ([98e97e3](https://github.com/the-luap/picpeak/commit/98e97e3cf214c96cdefd99bfedd6724f0b85c41c))
+
+## [3.68.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.68.0-beta.0...v3.68.1-beta.0) (2026-06-22)
+
+
+### Bug Fixes
+
+* **gallery:** unbreak password entry in Instagram in-app browser ([#654](https://github.com/the-luap/picpeak/issues/654)) ([6193ab7](https://github.com/the-luap/picpeak/commit/6193ab7f6aafd94b6e2e432ddf170361fd306d4e))
+* **gallery:** unbreak password entry in Instagram in-app browser ([#654](https://github.com/the-luap/picpeak/issues/654)) ([b1bfd48](https://github.com/the-luap/picpeak/commit/b1bfd4838e7104e4f85695e180b20222206073ac))
+* **test:** raise bootCrmDb beforeAll timeout on slideshow suites ([f4b6b89](https://github.com/the-luap/picpeak/commit/f4b6b8941a30a20615cc87627a0663ff6d03c932))
+
+## [3.68.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.67.1-beta.0...v3.68.0-beta.0) (2026-06-21)
+
+
+### Features
+
+* **whatsapp:** admin-selectable template parameters + reorder ([#647](https://github.com/the-luap/picpeak/issues/647) follow-up) ([80e8ec5](https://github.com/the-luap/picpeak/commit/80e8ec5bc71f0653d56f1087521f5207aee0ba8f))
+
+## [3.67.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.67.0-beta.0...v3.67.1-beta.0) (2026-06-21)
+
+
+### Bug Fixes
+
+* **branding+whatsapp:** preserve customCss through preset switches ([#645](https://github.com/the-luap/picpeak/issues/645)) + admin-pinned WhatsApp template language ([#647](https://github.com/the-luap/picpeak/issues/647)) ([cde028e](https://github.com/the-luap/picpeak/commit/cde028e9199a9ddb09957a87590732f4bd4d7a7b))
+
+## [3.67.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.66.1-beta.0...v3.67.0-beta.0) (2026-06-21)
+
+
+### Features
+
+* Live Slideshow ("Diashow") — fullscreen, auto-updating projector view for live events ([4356393](https://github.com/the-luap/picpeak/commit/4356393b4433dd6b4147388688766b9464294c89))
+* **slideshow:** add image fit setting (fill vs black bars) ([b5c73e0](https://github.com/the-luap/picpeak/commit/b5c73e05bd41b262f864e8c700b1d38582b3817f))
+* **slideshow:** admin ui for live slideshow ([385b05a](https://github.com/the-luap/picpeak/commit/385b05adcf6a4acb7939e372328a55df7dae5e08))
+* **slideshow:** backend api for live slideshow ([dea5e0f](https://github.com/the-luap/picpeak/commit/dea5e0f8a6421c056868c2d9bea11e5bf1ee106a))
+* **slideshow:** db columns for live slideshow ([1029dd0](https://github.com/the-luap/picpeak/commit/1029dd05bdb9ca0a97ad86100145221850648651))
+* **slideshow:** en/de strings for live slideshow ([cb761ee](https://github.com/the-luap/picpeak/commit/cb761ee621aa553cf210c4224b6cbbf7bf2ef0cb))
+* **slideshow:** gate behind a feature flag + move globals to a Settings tab ([69367b4](https://github.com/the-luap/picpeak/commit/69367b45be1c13d87e73e72da34a1f41a5849dfe))
+* **slideshow:** public fullscreen slideshow viewer ([fd02254](https://github.com/the-luap/picpeak/commit/fd02254f78bd1860780355ebaa68293d58ce18b3))
+
+
+### Bug Fixes
+
+* **slideshow:** deny display-only token on download/upload/feedback (PR [#646](https://github.com/the-luap/picpeak/issues/646) review) ([e36b330](https://github.com/the-luap/picpeak/commit/e36b3309ca66404d189d5b218cc1f0eba925e4c7))
+* **slideshow:** dip-to-white/black no longer flickers the image ([db8388c](https://github.com/the-luap/picpeak/commit/db8388c79e44f5d254d984810bd62bfb11effd0f))
+* **slideshow:** drop updated_at from event writes ([1e40f82](https://github.com/the-luap/picpeak/commit/1e40f8296ca59ff0395f6cc09ee452ab62653cdc))
+* **slideshow:** feature flag is a master kill-switch, not just admin UI ([759784a](https://github.com/the-luap/picpeak/commit/759784a4d1cfe7e67c825293760169ad6904f090))
+* **slideshow:** fill the viewport instead of black bars ([6ec46de](https://github.com/the-luap/picpeak/commit/6ec46de0e7bb821ea4e4a7fc2318792b810c3f36))
+* **slideshow:** read globals from app_settings, not the missing settings table ([0f4388d](https://github.com/the-luap/picpeak/commit/0f4388d68ab85049c46e7af566d35f4fbf6e4d02))
+* **slideshow:** surface backend error in the live slideshow card ([056f938](https://github.com/the-luap/picpeak/commit/056f9381de5dbe90243bea409b587b4910050cbf))
+
+
+### Performance Improvements
+
+* **slideshow:** cache global settings to cut /state DB reads (PR [#646](https://github.com/the-luap/picpeak/issues/646) review) ([a995131](https://github.com/the-luap/picpeak/commit/a995131f4266e112c96c6e8cedd5158995ebe899))
+
+
+### Documentation
+
+* **slideshow:** add Live Slideshow guide + README entries ([16013d1](https://github.com/the-luap/picpeak/commit/16013d1cf9ad82ee052f905f9702feffde7b67eb))
+
+## [3.66.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.66.0-beta.0...v3.66.1-beta.0) (2026-06-19)
+
+
+### Bug Fixes
+
+* **deps:** bump qs/brace-expansion overrides + add uuid override for node-cron ([d705059](https://github.com/the-luap/picpeak/commit/d705059d3c2904184f037bbe0208fe128fdb9b63))
+* **security:** close BOLA on photo-export + NAT64 SSRF in URL guard ([b8211e9](https://github.com/the-luap/picpeak/commit/b8211e9944da9e7b1c43a25e2f24c8a2425000cf))
+* **security:** close NAT64 SSRF + photo-export BOLA + sweep Trivy alerts (GHSA-wmjx-pc37-272r, GHSA-9v4w-jrhx-g5wr) ([6f40db8](https://github.com/the-luap/picpeak/commit/6f40db859751efc2c931bc981a48148808fd3701))
+
+## [3.66.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.65.1-beta.0...v3.66.0-beta.0) (2026-06-19)
+
+
+### Features
+
+* **categories:** per-category download permissions ([#640](https://github.com/the-luap/picpeak/issues/640) part B) ([820f483](https://github.com/the-luap/picpeak/commit/820f4835f1f5a41cbef6816c387ef9ec3dafd526))
+* **common:** generic Promise-based ConfirmDialog primitive ([#640](https://github.com/the-luap/picpeak/issues/640) part C) ([a3fcb5b](https://github.com/the-luap/picpeak/commit/a3fcb5bc9e82849ebe1f55620e8aa7e60ccd973f))
+* **feedback:** export shape toggle — per-action vs per-guest pivot ([#640](https://github.com/the-luap/picpeak/issues/640) part E) ([fabd67a](https://github.com/the-luap/picpeak/commit/fabd67aecd6caf308956e5b4cb9df7dd44452142))
+* **whatsapp:** WhatsApp Business API notification channel ([#640](https://github.com/the-luap/picpeak/issues/640) part D) ([78c8e9d](https://github.com/the-luap/picpeak/commit/78c8e9d9f91d56e07e04df4ed90fb05ccdfb69d2))
+
+
+### Bug Fixes
+
+* **archives:** stream-extract restore for &gt;2 GiB + preserve original_filename via manifest ([#640](https://github.com/the-luap/picpeak/issues/640)) ([e4e79a0](https://github.com/the-luap/picpeak/commit/e4e79a0b3a6d3ddbbc2f3cebdcadc89307147248))
+* **i18n:** wrap WhatsApp token show/hide aria-label through t() ([a8bb7b4](https://github.com/the-luap/picpeak/commit/a8bb7b439f6f57af9653ce283c951070bd52f3c2))
+* **settings:** hoist tab-visibility useEffect above isLoading early return ([49bfb45](https://github.com/the-luap/picpeak/commit/49bfb45332993b919ad4f949a0cd912a85888620))
+
+## [3.65.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.65.0-beta.0...v3.65.1-beta.0) (2026-06-18)
+
+
+### Bug Fixes
+
+* **i18n:** sweep activity-type translations + Events / API Tokens / Webhooks settings tabs ([f17c654](https://github.com/the-luap/picpeak/commit/f17c654e146683683f347ae2cd46de9cf3e47989))
+
+## [3.65.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.64.0-beta.0...v3.65.0-beta.0) (2026-06-18)
+
+
+### Features
+
+* **accounting:** consolidate VAT/financial config into Settings → Accounting ([dc7b87b](https://github.com/the-luap/picpeak/commit/dc7b87bb874e22ac6902fd2d48531ecdb6108c88))
+* **accounting:** explain dispositions inline, drop markup from pass-through ([9a023c0](https://github.com/the-luap/picpeak/commit/9a023c019750ebcd8d21e005aaf9a77a32cb34a3))
+* **accounting:** incoming-invoice workflow v2 + VAT/financial settings consolidation ([b527915](https://github.com/the-luap/picpeak/commit/b5279155ea4c545e13bab8bde46a39cfccf107fe))
+* **accounting:** invoices force-enable the Accounting master ([51837c3](https://github.com/the-luap/picpeak/commit/51837c3a88f711b164fafe2c7677e1a91c7542f9))
+* **accounting:** re-categorize incoming invoices, note field, pending re-bill pool ([36a8e42](https://github.com/the-luap/picpeak/commit/36a8e42f90f15a1ba96d9c4f004fa542d33e4937))
+* **accounting:** supplier-country tax default + configurable default output VAT code ([267b121](https://github.com/the-luap/picpeak/commit/267b121d66994bc57b10cd0694ab0e4320b163d9))
+
+
+### Bug Fixes
+
+* **accounting:** address the-luap PR [#636](https://github.com/the-luap/picpeak/issues/636) review ([707c5d0](https://github.com/the-luap/picpeak/commit/707c5d027798bdafb9fe09d7efcbd9ea65330076))
+* **accounting:** tax-report storno totals + hours-line date on Postgres ([db9e41d](https://github.com/the-luap/picpeak/commit/db9e41d19846b31b29c5c1be2ee06a7958bb43b0))
+* **crm:** editor totals box computed VAT 100× too small ([e9b297c](https://github.com/the-luap/picpeak/commit/e9b297c162a19da31d53de377b90bfd5cda1b0a7))
+* **hours:** move logActivity out of the entry transactions (SQLite deadlock) ([348955b](https://github.com/the-luap/picpeak/commit/348955b261713fc9f0b48391a1d4117f6f8c873f))
+
+## [3.64.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.63.0-beta.0...v3.64.0-beta.0) (2026-06-18)
+
+
+### Features
+
+* **admin/exports:** inline preview modal with copy-to-clipboard ([#631](https://github.com/the-luap/picpeak/issues/631)) ([fc5c1ae](https://github.com/the-luap/picpeak/commit/fc5c1ae93f87678fcc16bc84a14a60a59b1a3c7b))
+* **admin/exports:** inline preview modal with copy-to-clipboard ([#631](https://github.com/the-luap/picpeak/issues/631)) ([27b5f7e](https://github.com/the-luap/picpeak/commit/27b5f7e4b68e43345cd99dd5cc77308dcd7ec98b))
+
+## [3.63.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.62.0-beta.0...v3.63.0-beta.0) (2026-06-17)
+
+
+### Features
+
+* **events:** duplicate-gallery action ([#626](https://github.com/the-luap/picpeak/issues/626)) ([e985d25](https://github.com/the-luap/picpeak/commit/e985d25207671cbfefcdda9775a96eadf2fe0698))
+
+
+### Bug Fixes
+
+* **events:** publish-from-draft email carries the real password ([#627](https://github.com/the-luap/picpeak/issues/627)) ([83b568e](https://github.com/the-luap/picpeak/commit/83b568ee2ddc007b7d981fd4b46b69810f0165c3))
+* **gallery:** admin edits to welcome_message land for returning guests ([#625](https://github.com/the-luap/picpeak/issues/625)) ([ea6245c](https://github.com/the-luap/picpeak/commit/ea6245cfdea67bd4668e2100f295433a3d29f7f1))
+* **upload:** auto-throttle on low-memory hosts + correct documented RAM minimum ([#628](https://github.com/the-luap/picpeak/issues/628)) ([714a9f6](https://github.com/the-luap/picpeak/commit/714a9f6fb1f48ba1316cc240054d5128749581d8))
+
+## [3.62.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.61.0-beta.0...v3.62.0-beta.0) (2026-06-17)
+
+
+### Features
+
+* **accounting:** add a Banana "Income & Expense" (cash-book) export format ([445d6d7](https://github.com/the-luap/picpeak/commit/445d6d7b6d6b0692d5b7c0a3dd0ca8b71dfad6ef))
+* **accounting:** bill editor VAT dropdown + GET returns vat_code snapshot ([2479d87](https://github.com/the-luap/picpeak/commit/2479d87afc5b094a5323bca0b67e6404ce05a4e2))
+* **accounting:** clearer tax-export window + gate journal export on accounting flag ([3edd832](https://github.com/the-luap/picpeak/commit/3edd8321035c48d6b3e8b157d4b94075657fc7a0))
+* **accounting:** data-driven revenue-rate VAT map (multi-country) ([873be91](https://github.com/the-luap/picpeak/commit/873be910a5e88a6d942f116c2bcfecfef9161024))
+* **accounting:** move Chart of accounts into Settings → Accounting ([97795f6](https://github.com/the-luap/picpeak/commit/97795f6d1ed25d23396a76b63c225b110ddc315e))
+* **accounting:** move Treuhänder export onto the Tax page ([b1f73c1](https://github.com/the-luap/picpeak/commit/b1f73c1df9408ddae821760eb8ed57c726d2e056))
+* **accounting:** relocate VAT codes + rate maps into Settings → Accounting ([4ff5b84](https://github.com/the-luap/picpeak/commit/4ff5b84cb66e40be960c2be7a67334cf0cc98be2))
+* **accounting:** scope the tax-report export to income-only or cost-only ([9f3b286](https://github.com/the-luap/picpeak/commit/9f3b28684ff36b131420cd975df634a29d660323))
+* **accounting:** snapshot the chosen VAT code on quote/invoice create + storno ([5b52969](https://github.com/the-luap/picpeak/commit/5b52969e36a41bbc08a98e0bca1ce0e937d77f56))
+* **accounting:** snapshot vat_code on quotes/invoices + export prefers it (foundation) ([0a7dc1c](https://github.com/the-luap/picpeak/commit/0a7dc1cf5da17a5bef204f6680844c8ab2b44269))
+* **accounting:** tax report VAT-payable honours registration + reclaim ([d7107aa](https://github.com/the-luap/picpeak/commit/d7107aaf0adf5e03f08085c7691b6530b15ed702))
+* **accounting:** unify tax report into one signed, typed, sortable ledger ([fd1dd81](https://github.com/the-luap/picpeak/commit/fd1dd81e8dfc790d960a7e6d888beba895a23461))
+* **accounting:** VAT registration + reclaim-country settings in the Accounting tab ([4d87684](https://github.com/the-luap/picpeak/commit/4d876848823bce2c79e629308c92206c64d9893d))
+* **accounting:** VAT registration/reclaim settings + un-gated VAT-codes read ([fbbbb8a](https://github.com/the-luap/picpeak/commit/fbbbb8ab7335f07ecf48e217632c7011bd7c88cd))
+* **accounting:** VAT-code dropdown in the quote editor (+ reusable VatRateSelect) ([6e1924b](https://github.com/the-luap/picpeak/commit/6e1924bae8b50dbb8460e151c1d9a79553fddb19))
+* **branding:** force color mode = standard look; hide overridden theme controls ([4749e22](https://github.com/the-luap/picpeak/commit/4749e222dc41695a2494a3b740952745bb854d4e))
+
+
+### Bug Fixes
+
+* **accounting:** Banana export is now a tab-separated .txt (actually importable) ([a195067](https://github.com/the-luap/picpeak/commit/a19506749a449ec0a628da776af5a5bea8a2e46e))
+* **accounting:** Banana I&E export uses the 'Category' column (not 'ContraAccount') ([53a16f9](https://github.com/the-luap/picpeak/commit/53a16f9f6f9b11c224b3ff5f337f8a7fe4dbfc38))
+* **accounting:** emit ISO dates in exports (Postgres returns Date objects) ([0c0fb29](https://github.com/the-luap/picpeak/commit/0c0fb29770d7559b8b35a1b2a0aae1315485d875))
+* **accounting:** label the outgoing-invoice totals block in the tax summary ([f3e77e7](https://github.com/the-luap/picpeak/commit/f3e77e78079c6869a3a5de062a90f1a04fecde3c))
+* **accounting:** PR [#622](https://github.com/the-luap/picpeak/issues/622) blockers — CSV formula injection + IMAP double-ingest race ([cd6d578](https://github.com/the-luap/picpeak/commit/cd6d57839b4753b2848620c5960332cc945580ce))
+* **accounting:** PR [#622](https://github.com/the-luap/picpeak/issues/622) concerns — flag-cache, customer master gate, VAT-unconfigured, helpers, page cap ([a93b6dc](https://github.com/the-luap/picpeak/commit/a93b6dc232375e1362e091c8868a409b1335dcae))
+* **accounting:** tax report cost side queried a non-existent column ([ab65a47](https://github.com/the-luap/picpeak/commit/ab65a470a009d33558a7167dd2c3c649f785e686))
+* **accounting:** tidy the tax-export scope selector styling ([8deb7e0](https://github.com/the-luap/picpeak/commit/8deb7e0741a5bf559cb9f9b78350821dc84bdb53))
+* **accounting:** UTF-8 BOM on the ledger export so Banana reads it correctly ([74144da](https://github.com/the-luap/picpeak/commit/74144da45fc0a7a2c2e88d17a23b584ba77e9262))
+* **branding:** force lock = light/dark only; Branding stays the full preset, galleries hide color+mode ([a7c1913](https://github.com/the-luap/picpeak/commit/a7c19135bb9645a7f95d5fe76581098db305394f))
+* **branding:** when a force lock is active, collapse the theme customizer to just the Force control ([1ac653a](https://github.com/the-luap/picpeak/commit/1ac653ad1b9f47af8cb24cb53ffa60a1e95192fc))
+* **crm:** admin surfaces follow the admin light/dark toggle, not the gallery theme ([#620](https://github.com/the-luap/picpeak/issues/620)) ([d3266a0](https://github.com/the-luap/picpeak/commit/d3266a0d1c458e8ae9c57ccd2f650e699544d2d6))
+* **flags:** close CRM/accounting feature-gating gaps from the audit ([03fa3d8](https://github.com/the-luap/picpeak/commit/03fa3d82962d6d6f3cd9630e01258013d567865e))
+* **settings:** don't insert non-existent created_at into app_settings ([8621338](https://github.com/the-luap/picpeak/commit/8621338c489cbd5194da6ac22d1fe1bd9d730cb0))
+
+
+### Documentation
+
+* **readme:** add CRM + accounting to features, tax disclaimer, update contributor ([116743b](https://github.com/the-luap/picpeak/commit/116743ba438505a52b021f80f678c5a0094d20d4))
+
+## [3.61.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.60.6-beta.0...v3.61.0-beta.0) (2026-06-13)
+
+
+### Features
+
+* **projects:** Project Overview cockpit — link (multiple) quotes/contracts/hours into projects ([58f93ae](https://github.com/the-luap/picpeak/commit/58f93ae71350cc4a100f15a1a11f478750dace91))
+
+
+### Bug Fixes
+
+* **projects:** "one customer matches" rule for deal-lineage attach ([f74d8d4](https://github.com/the-luap/picpeak/commit/f74d8d4e8cd9fa040e067ffd751b183a9673161b))
+* **projects:** address review — cross-customer guards + email/queue hardening ([9d13880](https://github.com/the-luap/picpeak/commit/9d13880f2b177a1a090c4685798e199a1f47b5ec))
+* **projects:** enforce single-customer projects (guard event attach + re-label) ([4b1e85c](https://github.com/the-luap/picpeak/commit/4b1e85c8555b03cbed4abbd80e9cb45b831df6bf))
+
+## [3.60.6-beta.0](https://github.com/the-luap/picpeak/compare/v3.60.5-beta.0...v3.60.6-beta.0) (2026-06-10)
+
+
+### Bug Fixes
+
+* **gallery:** guest upload honours general_max_files_per_upload + i18n placeholder interpolates ([#613](https://github.com/the-luap/picpeak/issues/613)) ([40a4aa2](https://github.com/the-luap/picpeak/commit/40a4aa2d85d93c9dc1faa69f0e6f8524ff917e29))
+* **gallery:** guest upload honours general_max_files_per_upload + i18n placeholder interpolates ([#613](https://github.com/the-luap/picpeak/issues/613)) ([69b5186](https://github.com/the-luap/picpeak/commit/69b5186582d56c42cec520abbe5454171f9f666b))
+
+## [3.60.5-beta.0](https://github.com/the-luap/picpeak/compare/v3.60.4-beta.0...v3.60.5-beta.0) (2026-06-09)
+
+
+### Bug Fixes
+
+* **admin/events:** delete cascade orphaned photo folders because it read a non-existent column ([#608](https://github.com/the-luap/picpeak/issues/608)) ([284680e](https://github.com/the-luap/picpeak/commit/284680e0357db20177e45ab4ab01de0fbcac2a98))
+* **admin/events:** delete cascade orphaned photo folders because it read a non-existent column ([#608](https://github.com/the-luap/picpeak/issues/608)) ([457c956](https://github.com/the-luap/picpeak/commit/457c9563869156bc4773d873661a75d5115b25db))
+
+## [3.60.4-beta.0](https://github.com/the-luap/picpeak/compare/v3.60.3-beta.0...v3.60.4-beta.0) (2026-06-08)
+
+
+### Bug Fixes
+
+* **admin:** graceful logo-img fallback + show sidebar widgets during perm hydration ([#523](https://github.com/the-luap/picpeak/issues/523) follow-up 2) ([f51b9cf](https://github.com/the-luap/picpeak/commit/f51b9cf8df2dfba07590b35cc63def689df98c4a))
+* **admin:** logo-img fallback + sidebar perm hydration + filename NFD transliteration ([#523](https://github.com/the-luap/picpeak/issues/523) follow-up 2, [#607](https://github.com/the-luap/picpeak/issues/607)) ([fcd3ca3](https://github.com/the-luap/picpeak/commit/fcd3ca36c659eafa47c036f622da8114433b1c74))
+* **downloads:** transliterate accented characters in filename via NFD instead of dropping them ([#607](https://github.com/the-luap/picpeak/issues/607)) ([620163f](https://github.com/the-luap/picpeak/commit/620163f2db77cda40b81edcac79a32cbb4fd278f))
+
+## [3.60.3-beta.0](https://github.com/the-luap/picpeak/compare/v3.60.2-beta.0...v3.60.3-beta.0) (2026-06-04)
+
+
+### Bug Fixes
+
+* **security:** re-apply SVG CSP on the direct favicon route (PR [#603](https://github.com/the-luap/picpeak/issues/603) blocker) ([1214b6b](https://github.com/the-luap/picpeak/commit/1214b6b762ce6c763b9a28389c17905d8e47d87f))
+
+## [3.60.2-beta.0](https://github.com/the-luap/picpeak/compare/v3.60.1-beta.0...v3.60.2-beta.0) (2026-06-04)
+
+
+### Bug Fixes
+
+* **admin-header:** skeleton brand block + move LanguageSelector into profile menu on &lt;sm ([#523](https://github.com/the-luap/picpeak/issues/523) follow-up) ([b48b5b0](https://github.com/the-luap/picpeak/commit/b48b5b0000fd95bc149335614eb062dd373fc50a))
+* **admin-header:** skeleton brand block + move LanguageSelector into profile menu on &lt;sm ([#523](https://github.com/the-luap/picpeak/issues/523) follow-up) ([fe10191](https://github.com/the-luap/picpeak/commit/fe10191b82546473f035435731bf6d6ecca2efd6))
+
+## [3.60.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.60.0-beta.0...v3.60.1-beta.0) (2026-06-02)
+
+
+### Bug Fixes
+
+* **notifications:** restore /clear-all route the frontend already calls ([#597](https://github.com/the-luap/picpeak/issues/597)) ([940fc60](https://github.com/the-luap/picpeak/commit/940fc607400afa528f7f464c1d41541f46a4070d))
+
+## [3.60.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.59.1-beta.0...v3.60.0-beta.0) (2026-06-02)
+
+
+### Features
+
+* **restore:** docker-logs visibility + ADMIN_CREDENTIALS.txt restore notice ([3322a1d](https://github.com/the-luap/picpeak/commit/3322a1d998bedf39274dbb473b44e7b1e7cbff51))
+
+
+### Bug Fixes
+
+* **backup-ui:** respect general_date_format + general_time_format ([09f6a1a](https://github.com/the-luap/picpeak/commit/09f6a1af6acfce5ef0da173fb3c17a16bb679047))
+* **restore:** coerce pg bigint counts to Number before comparing (PR [#596](https://github.com/the-luap/picpeak/issues/596) round 2) ([354fbed](https://github.com/the-luap/picpeak/commit/354fbed18220b47167b9bf6b11b3881fc120b7ae))
+* **restore:** hoist preservedMeta above SQLite/PG split (PR [#596](https://github.com/the-luap/picpeak/issues/596) blocker) ([a23fa3b](https://github.com/the-luap/picpeak/commit/a23fa3bb12cd05a922c0fb860ae97ffd3fe2baff))
+* **restore:** move operator-meta replay after post-restore verification (PR [#596](https://github.com/the-luap/picpeak/issues/596) round 3) ([20e3092](https://github.com/the-luap/picpeak/commit/20e3092c146dd9151b6e7a370f885154f0adeecc))
+* **restore:** set was_successful=true on the completed update ([7988c18](https://github.com/the-luap/picpeak/commit/7988c189723fa4639413b3a5339c148521c92c11))
+
+
+### Documentation
+
+* consolidate disaster-recovery into Backup & Restore guide ([43cb0ea](https://github.com/the-luap/picpeak/commit/43cb0ea4bfc4f241a55d2681f14c064df6b87920))
+
+## [3.59.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.59.0-beta.0...v3.59.1-beta.0) (2026-05-31)
+
+
+### Bug Fixes
+
+* **admin-header:** hide wordmark on &lt;sm when logo also shows ([#523](https://github.com/the-luap/picpeak/issues/523)) ([c246fd3](https://github.com/the-luap/picpeak/commit/c246fd3cc89962d626218029ab3da1346a726246))
+* **admin-header:** truncate long company names on narrow widths ([#523](https://github.com/the-luap/picpeak/issues/523) regression) ([e7cf834](https://github.com/the-luap/picpeak/commit/e7cf834325e8686613fbbee78d52213cb3ba98b1))
+* **api/v1/events:** also honour require_password + branding defaults ([#592](https://github.com/the-luap/picpeak/issues/592) follow-up) ([2d44b1a](https://github.com/the-luap/picpeak/commit/2d44b1ab2d251a4fc752cfeb645cb2126c0da3b7))
+* **api/v1/events:** honour global devtools-detection default on create ([#592](https://github.com/the-luap/picpeak/issues/592)) ([2304b25](https://github.com/the-luap/picpeak/commit/2304b2562465f8c86c82f2155fbdce264e68fdb3))
+* **bug-batch:** [#523](https://github.com/the-luap/picpeak/issues/523) [#564](https://github.com/the-luap/picpeak/issues/564) [#590](https://github.com/the-luap/picpeak/issues/590) [#591](https://github.com/the-luap/picpeak/issues/591) [#592](https://github.com/the-luap/picpeak/issues/592) ([c68a03c](https://github.com/the-luap/picpeak/commit/c68a03c20e70b8049ed851d41e20143813935a3a))
+* **csp:** external bootstrap script to survive strict reverse-proxy CSP ([#564](https://github.com/the-luap/picpeak/issues/564)) ([dcc629c](https://github.com/the-luap/picpeak/commit/dcc629cad23ce0ca89aabb6f8b1eacfde599774e))
+* **gallery:** preserve per-viewer is_liked across hard refresh ([#590](https://github.com/the-luap/picpeak/issues/590) follow-up) ([791e997](https://github.com/the-luap/picpeak/commit/791e9974eb4c81cc4b095f9b604eccd708fb3a66))
+* **gallery:** toggle (not add) the local liked set on click ([#590](https://github.com/the-luap/picpeak/issues/590)) ([d292b9f](https://github.com/the-luap/picpeak/commit/d292b9fa10bffe5d751629b900c606763fa8e73a))
+* **nginx:** defensive large_client_header_buffers bump ([#591](https://github.com/the-luap/picpeak/issues/591)) ([c83e883](https://github.com/the-luap/picpeak/commit/c83e88348fbd473fb1de041cebabd3ace65d4d98))
+
+## [3.59.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.58.0-beta.0...v3.59.0-beta.0) (2026-05-29)
+
+
+### Features
+
+* **admin/users:** reactivate + delete actions for deactivated admin users ([c4a9b36](https://github.com/the-luap/picpeak/commit/c4a9b3636fc7a9209ae724acb7c8cffe141d93ea))
+* **admin/users:** reactivate + delete actions for deactivated admin users ([dfcebcc](https://github.com/the-luap/picpeak/commit/dfcebccee98a551980ad2be78a8356fd39894f8a))
+
+## [3.58.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.57.2-beta.0...v3.58.0-beta.0) (2026-05-29)
+
+
+### Features
+
+* **i18n:** add Slovenian (sl) language support ([433af15](https://github.com/the-luap/picpeak/commit/433af1514687b5c103e72db800954f96fd42b9b8))
+
+## [3.57.2-beta.0](https://github.com/the-luap/picpeak/compare/v3.57.1-beta.0...v3.57.2-beta.0) (2026-05-29)
+
+
+### Documentation
+
+* list CRM under Beta Features + note dev-compose rebuild gotcha ([1ed4804](https://github.com/the-luap/picpeak/commit/1ed48046cbba1df3710cee197943521aedd1fe3d))
+
+## [3.57.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.57.0-beta.0...v3.57.1-beta.0) (2026-05-29)
+
+
+### Bug Fixes
+
+* **email:** preserve dots + subaddresses across all normalization sites ([de9a924](https://github.com/the-luap/picpeak/commit/de9a924c77faebc2d0c1ff230a52d8da313259e8))
+
+## [3.57.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.56.0-beta.0...v3.57.0-beta.0) (2026-05-29)
+
+
+### Features
+
+* **admin:** clickable version links + update-available modal with changelog & upgrade command ([48cf112](https://github.com/the-luap/picpeak/commit/48cf1121e546e112cd37d94f7924a808c020dd8f))
+
+
+### Documentation
+
+* **release:** establish stable-channel cadence + promotion process ([e537923](https://github.com/the-luap/picpeak/commit/e537923857b4b6000d715bba23a78f8685b44ee6))
+
+## [3.56.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.55.0-beta.0...v3.56.0-beta.0) (2026-05-29)
+
+
+### Features
+
+* CRM module — quotes, contracts, invoices, hours, calendar, tax ([5f0fcc2](https://github.com/the-luap/picpeak/commit/5f0fcc225c29ce0f4410c5aba5ecd5a3a6d07259))
+
+
+### Bug Fixes
+
+* **crm:** thread trx through sequence-claim sites to unblock SQLite ([d1aecaa](https://github.com/the-luap/picpeak/commit/d1aecaa1804c0039744eb79a4032d1ed923e0b85))
+* **quote-response:** compute minutes-remaining for the DE changeWithin string ([5ce0b6e](https://github.com/the-luap/picpeak/commit/5ce0b6edc3fef41f2f22dd585a668f471ac47a2e))
+
+## [3.55.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.54.7-beta.0...v3.55.0-beta.0) (2026-05-27)
+
+
+### Features
+
+* **lightbox:** multi-photo Web Share save-to-Photos on iOS ([#557](https://github.com/the-luap/picpeak/issues/557)) ([d5823c7](https://github.com/the-luap/picpeak/commit/d5823c79d9a187461c0126adcff7f4374cd0e8aa))
+
+
+### Bug Fixes
+
+* **events:** preserve branding inheritance when saving events with null color_theme ([d5a37df](https://github.com/the-luap/picpeak/commit/d5a37df2c41425511dc8a1f974088bebb768f0d5))
+* **lightbox+events:** Android download lag, multi-photo Web Share re-land, theme branding inheritance ([e016f51](https://github.com/the-luap/picpeak/commit/e016f510b6cc57a9ed1b59e2ee24fedd5d7097c3))
+* **lightbox:** eliminate download lag on Android by skipping the blob round-trip ([0479521](https://github.com/the-luap/picpeak/commit/04795219a0b66fdd1ef73748d803adfdfc0d676f))
+
+## [3.54.7-beta.0](https://github.com/the-luap/picpeak/compare/v3.54.6-beta.0...v3.54.7-beta.0) (2026-05-26)
+
+
+### Bug Fixes
+
+* **lightbox:** restrict Web Share save-to-Photos path to iOS ([#554](https://github.com/the-luap/picpeak/issues/554)) ([578397b](https://github.com/the-luap/picpeak/commit/578397bc6b27b56ccf3bf1f2f244e0e0053c493a))
+* **lightbox:** restrict Web Share save-to-Photos path to iOS ([#554](https://github.com/the-luap/picpeak/issues/554)) ([2a309c7](https://github.com/the-luap/picpeak/commit/2a309c75a74be3af3eb67758f8d65f801ef3019a))
+
+## [3.54.6-beta.0](https://github.com/the-luap/picpeak/compare/v3.54.5-beta.0...v3.54.6-beta.0) (2026-05-25)
+
+
+### Bug Fixes
+
+* **api/v1:** accept color_theme + create feedback row on event create ([#550](https://github.com/the-luap/picpeak/issues/550)) ([7ef0e40](https://github.com/the-luap/picpeak/commit/7ef0e40e7cee2ab6eeea4fe75c558e930e31241d))
+* **api/v1:** accept color_theme + create feedback row on event create ([#550](https://github.com/the-luap/picpeak/issues/550)) ([1b521e7](https://github.com/the-luap/picpeak/commit/1b521e761c3e2cc6c885d03ef746aa7e77e6f067))
+
+## [3.54.5-beta.0](https://github.com/the-luap/picpeak/compare/v3.54.4-beta.0...v3.54.5-beta.0) (2026-05-22)
+
+
+### Bug Fixes
+
+* **nginx:** honour outer X-Forwarded-Proto when behind a reverse proxy ([#547](https://github.com/the-luap/picpeak/issues/547)) ([b351d17](https://github.com/the-luap/picpeak/commit/b351d17ee99528dd4251e74dfc47cd1fe289d9c3))
+* **nginx:** honour outer X-Forwarded-Proto when behind a reverse proxy ([#547](https://github.com/the-luap/picpeak/issues/547)) ([5488de3](https://github.com/the-luap/picpeak/commit/5488de3383d33d8a037587dd9112d36ea035c465))
+
+## [3.54.4-beta.0](https://github.com/the-luap/picpeak/compare/v3.54.3-beta.0...v3.54.4-beta.0) (2026-05-21)
+
+
+### Bug Fixes
+
+* recover three orphaned commits from [#527](https://github.com/the-luap/picpeak/issues/527) (BRAND_TITLE runtime, Web Share, pan zoom) ([9607b46](https://github.com/the-luap/picpeak/commit/9607b4666c0abf22e54b43be3e87e3243db2cdbc))
+
+## [3.54.3-beta.0](https://github.com/the-luap/picpeak/compare/v3.54.2-beta.0...v3.54.3-beta.0) (2026-05-21)
+
+
+### Bug Fixes
+
+* **lightbox:** fill the heart icon when liked ([#538](https://github.com/the-luap/picpeak/issues/538) follow-up) ([3e39112](https://github.com/the-luap/picpeak/commit/3e39112a1276c194259d936dad813f3b0fc2dc3f))
+* **lightbox:** fill the heart icon when liked ([#538](https://github.com/the-luap/picpeak/issues/538) follow-up) ([600c29d](https://github.com/the-luap/picpeak/commit/600c29db8a75fa44e72da55bc5288908de614d9d))
+
+## [3.54.2-beta.0](https://github.com/the-luap/picpeak/compare/v3.54.1-beta.0...v3.54.2-beta.0) (2026-05-20)
+
+
+### Bug Fixes
+
+* **feedback:** three guest-mode bugs from [#538](https://github.com/the-luap/picpeak/issues/538) (filter, like state, count leak) ([c900be9](https://github.com/the-luap/picpeak/commit/c900be92dd490b21aabb10fd56b6fbc3da444ee0))
+* **feedback:** three guest-mode bugs reported in [#538](https://github.com/the-luap/picpeak/issues/538) ([5311588](https://github.com/the-luap/picpeak/commit/5311588baf3c6acfc971cb014a142d6b4b153aa1))
+
+## [3.54.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.54.0-beta.0...v3.54.1-beta.0) (2026-05-20)
+
+
+### Bug Fixes
+
+* **public-site:** honor dark theme surface colors ([8b72721](https://github.com/the-luap/picpeak/commit/8b727218127db2a738ad5a4381358076c1575c8a))
+
+## [3.54.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.53.0-beta.0...v3.54.0-beta.0) (2026-05-20)
+
+
+### Features
+
+* **install:** skip legacy chain when modern bootstrap fingerprint detected ([#530](https://github.com/the-luap/picpeak/issues/530)) ([8f0108c](https://github.com/the-luap/picpeak/commit/8f0108ce233f457d6a0f4f3dbc3e1b0a7217e74e))
+
+
+### Bug Fixes
+
+* **install:** skip legacy chain on recovery-state DBs + schema-drift CI ([#530](https://github.com/the-luap/picpeak/issues/530)) ([a0ebc97](https://github.com/the-luap/picpeak/commit/a0ebc97cdd871041ff3cfdcc7276c413ac89d24f))
+
+## [3.53.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.52.1-beta.0...v3.53.0-beta.0) (2026-05-19)
+
+
+### Features
+
+* **events:** default Guest Feedback ON via admin setting ([#520](https://github.com/the-luap/picpeak/issues/520)) ([3465b55](https://github.com/the-luap/picpeak/commit/3465b55abc98e52cf58ba46b811f4ec115d53012))
+
+
+### Bug Fixes
+
+* **bug-batch-518:** lightbox comments toggle + further fixes ([633a2ae](https://github.com/the-luap/picpeak/commit/633a2ae72405ae1fc885cb710ed896476ffee467))
+* **header:** hide language name on mobile to free the title ([#523](https://github.com/the-luap/picpeak/issues/523)) ([4b4ecfd](https://github.com/the-luap/picpeak/commit/4b4ecfdf7143c8f353355ecd6d5ee14bbf50c9bb))
+* **lightbox:** hide comments toggle when allow_comments=false ([#518](https://github.com/the-luap/picpeak/issues/518)) ([d44e1ad](https://github.com/the-luap/picpeak/commit/d44e1adba7a444b03511e9402cd39d25fe5acafe))
+* **og:** brandable static title + wider crawler UA coverage ([#521](https://github.com/the-luap/picpeak/issues/521)) ([b960639](https://github.com/the-luap/picpeak/commit/b96063903513fcc4cbe0e72f59ccbc37d7b1c0ab))
+
+## [3.52.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.52.0-beta.0...v3.52.1-beta.0) (2026-05-18)
+
+
+### Bug Fixes
+
+* **install:** self-chowning entrypoint kills fresh-install restart loop ([#484](https://github.com/the-luap/picpeak/issues/484)) ([42c5cda](https://github.com/the-luap/picpeak/commit/42c5cda38c0deeb4e61554e9e4a913bd5cd0b980))
+
+## [3.52.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.51.5-beta.0...v3.52.0-beta.0) (2026-05-18)
+
+
+### Features
+
+* **api/v1:** accept category_id on POST /events/:id/photos ([2d5a2ad](https://github.com/the-luap/picpeak/commit/2d5a2ad78a5f6c101315214399a9c158ff0549da))
+* **api/v1:** accept category_id on POST /events/:id/photos ([6901e26](https://github.com/the-luap/picpeak/commit/6901e2661ed74e69f19c52ce046ee911b818d463))
+
+
+### Bug Fixes
+
+* **api/v1:** scope category lookup to event_owned or global ([92bb9e1](https://github.com/the-luap/picpeak/commit/92bb9e1a12f77ce5e8c1286716198362b2bfdff2))
+
+## [3.51.5-beta.0](https://github.com/the-luap/picpeak/compare/v3.51.4-beta.0...v3.51.5-beta.0) (2026-05-17)
+
+
+### Bug Fixes
+
+* **email:** parse JSON-encoded language setting before using as locale ([ebc7da2](https://github.com/the-luap/picpeak/commit/ebc7da21bea90ff84f5351bef4fd3c2605d3a68f))
+
+## [3.51.4-beta.0](https://github.com/the-luap/picpeak/compare/v3.51.3-beta.0...v3.51.4-beta.0) (2026-05-17)
+
+
+### Bug Fixes
+
+* **categories:** strip diacritics from auto-generated slugs ([a747eb3](https://github.com/the-luap/picpeak/commit/a747eb351d1cf0ed269751cb685b504993d33dde))
+
+## [3.51.3-beta.0](https://github.com/the-luap/picpeak/compare/v3.51.2-beta.0...v3.51.3-beta.0) (2026-05-16)
+
+
+### Bug Fixes
+
+* **i18n:** settings page resets UI language to server default ([482e91b](https://github.com/the-luap/picpeak/commit/482e91bbf8b8deee361ffc8b031094fb99cc569d))
+
+## [3.51.2-beta.0](https://github.com/the-luap/picpeak/compare/v3.51.1-beta.0...v3.51.2-beta.0) (2026-05-16)
+
+
+### Bug Fixes
+
+* **i18n:** drive customer "Preferred language" select from SUPPORTED_LANGUAGES ([#510](https://github.com/the-luap/picpeak/issues/510)) ([51890e1](https://github.com/the-luap/picpeak/commit/51890e1aa5bacb5cfb5c9dc6e59770bd18406a66))
+
+## [3.51.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.51.0-beta.0...v3.51.1-beta.0) (2026-05-16)
+
+
+### Bug Fixes
+
+* **install:** silence clean-install postgres log noise ([#484](https://github.com/the-luap/picpeak/issues/484)) ([99e60a2](https://github.com/the-luap/picpeak/commit/99e60a243321a06f659d811babbcda9ffef655c4))
+* **install:** silence clean-install postgres log noise ([#484](https://github.com/the-luap/picpeak/issues/484)) ([86b33d4](https://github.com/the-luap/picpeak/commit/86b33d4ddaf98e1f32473832b0f89565750174e5))
+
+## [3.51.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.50.0-beta.0...v3.51.0-beta.0) (2026-05-14)
+
+
+### Features
+
+* **downloads:** preserve original camera filenames on download (opt-in) ([#493](https://github.com/the-luap/picpeak/issues/493)) ([826e43e](https://github.com/the-luap/picpeak/commit/826e43ebac940782be234630c50bbd54a3250f98))
+
+## [3.50.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.49.6-beta.0...v3.50.0-beta.0) (2026-05-14)
+
+
+### Features
+
+* **lightbox:** medium-resolution preview tier ([#492](https://github.com/the-luap/picpeak/issues/492)) ([3083c74](https://github.com/the-luap/picpeak/commit/3083c748b92fe7800044125524d053f5eeb28d4a))
+* **lightbox:** medium-resolution preview tier ([#492](https://github.com/the-luap/picpeak/issues/492)) ([61f1d13](https://github.com/the-luap/picpeak/commit/61f1d132104f485cfde9bd874e1c0ffdc042c4af))
+
+## [3.49.6-beta.0](https://github.com/the-luap/picpeak/compare/v3.49.5-beta.0...v3.49.6-beta.0) (2026-05-14)
+
+
+### Bug Fixes
+
+* **install:** defer events.hero_photo_id FK to break circular reference ([#484](https://github.com/the-luap/picpeak/issues/484)) ([62b3ed6](https://github.com/the-luap/picpeak/commit/62b3ed636414d358c0c73712b732207fc6fa1200))
+* **install:** defer events.hero_photo_id FK to break circular reference ([#484](https://github.com/the-luap/picpeak/issues/484)) ([87834a7](https://github.com/the-luap/picpeak/commit/87834a7fff57a53bb1060ad7061dd6d279922f42))
+
+## [3.49.5-beta.0](https://github.com/the-luap/picpeak/compare/v3.49.4-beta.0...v3.49.5-beta.0) (2026-05-14)
+
+
+### Bug Fixes
+
+* **admin-users:** normalise date fields to ISO across DB drivers ([#485](https://github.com/the-luap/picpeak/issues/485)) ([d300426](https://github.com/the-luap/picpeak/commit/d3004263905edeffe59065e201f203a6768b4384))
+* **admin-users:** normalise date fields to ISO across DB drivers ([#485](https://github.com/the-luap/picpeak/issues/485)) ([b6b58d0](https://github.com/the-luap/picpeak/commit/b6b58d0659fc8caee68a65e112780a1122d55907))
+
+## [3.49.4-beta.0](https://github.com/the-luap/picpeak/compare/v3.49.3-beta.0...v3.49.4-beta.0) (2026-05-14)
+
+
+### Bug Fixes
+
+* **install:** drop racy migration step + add missing frontend container ([#484](https://github.com/the-luap/picpeak/issues/484)) ([d4155c4](https://github.com/the-luap/picpeak/commit/d4155c46117eb1db6255ebac0ea47e6fc3e99801))
+* **install:** silence pg healthcheck noise + drop legacy workers container ([#484](https://github.com/the-luap/picpeak/issues/484)) ([d39406b](https://github.com/the-luap/picpeak/commit/d39406b2414cdfcae84e8175d90821dd3a5287bb))
+* **install:** silence pg healthcheck noise + drop legacy workers container ([#484](https://github.com/the-luap/picpeak/issues/484)) ([0b0b1bb](https://github.com/the-luap/picpeak/commit/0b0b1bb2d529dbaae8e49891d8d5e8019b971838))
+
+## [3.49.3-beta.0](https://github.com/the-luap/picpeak/compare/v3.49.2-beta.0...v3.49.3-beta.0) (2026-05-14)
+
+
+### Bug Fixes
+
+* **promo-banner:** center by default + admin alignment selector ([#482](https://github.com/the-luap/picpeak/issues/482)) ([d1034ce](https://github.com/the-luap/picpeak/commit/d1034ce1c65c31b06005cfd0c047dba3251579ab))
+* **promo-banner:** center by default + admin alignment selector ([#482](https://github.com/the-luap/picpeak/issues/482)) ([a803491](https://github.com/the-luap/picpeak/commit/a803491cf477c0d62e23d6a019e0d252e2c537f8))
+
+## [3.49.2-beta.0](https://github.com/the-luap/picpeak/compare/v3.49.1-beta.0...v3.49.2-beta.0) (2026-05-13)
+
+
+### Bug Fixes
+
+* **ci:** pin TRIVY_PLATFORM per matrix arch (post-[#477](https://github.com/the-luap/picpeak/issues/477) follow-up) ([6750f5d](https://github.com/the-luap/picpeak/commit/6750f5d3b06f6312629e81c4c84100c572746b69))
+* **ci:** pin TRIVY_PLATFORM per matrix arch (post-[#477](https://github.com/the-luap/picpeak/issues/477) follow-up) ([c3256dc](https://github.com/the-luap/picpeak/commit/c3256dc6bf49a2352dfe38b804d757683bb3ac22))
+
+## [3.49.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.49.0-beta.0...v3.49.1-beta.0) (2026-05-13)
+
+
+### Bug Fixes
+
+* **ci:** scan multi-arch images per-arch by digest, pin trivy-action ([#476](https://github.com/the-luap/picpeak/issues/476)) ([1144e9d](https://github.com/the-luap/picpeak/commit/1144e9d1625eb69d8e2a53b1a3aa1b515798fc80))
+
+## [3.49.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.48.1-beta.0...v3.49.0-beta.0) (2026-05-13)
+
+
+### Features
+
+* **og:** per-event opt-in to use hero photo as social-share preview ([#474](https://github.com/the-luap/picpeak/issues/474)) ([d856340](https://github.com/the-luap/picpeak/commit/d856340f0d230ad26539ba1088f739f03aaafc13))
+* **og:** per-event opt-in to use hero photo as social-share preview ([#474](https://github.com/the-luap/picpeak/issues/474)) ([0bc7e2a](https://github.com/the-luap/picpeak/commit/0bc7e2af171d1a4c6e91ba541d293b90c17c111b))
+
+## [3.48.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.48.0-beta.0...v3.48.1-beta.0) (2026-05-12)
+
+
+### Bug Fixes
+
+* **customer-routes:** Cache-Control: no-store on customer endpoints ([#470](https://github.com/the-luap/picpeak/issues/470)) ([3122dd0](https://github.com/the-luap/picpeak/commit/3122dd08a8bc08deb937236aaa3f750119a979b9))
+
+## [3.48.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.47.2-beta.0...v3.48.0-beta.0) (2026-05-12)
+
+
+### Features
+
+* **customers:** "Manage galleries" dialog on customer detail page ([6d1af7a](https://github.com/the-luap/picpeak/commit/6d1af7a0113b6e3de44ab9bf2645591f4d6d68b4))
+* **customers:** "Manage galleries" dialog with immediate access revocation + section reorder + portal-flag revert ([9be9296](https://github.com/the-luap/picpeak/commit/9be9296eb58d7733d0b5f8ce6eb48e9832f65e7c))
+* **customers:** email customer when admin adds new gallery access ([c02c947](https://github.com/the-luap/picpeak/commit/c02c947463011de80d9af3e947fc6d1caadc3313))
+* **customers:** replace-assignments endpoint for a single customer ([5377b88](https://github.com/the-luap/picpeak/commit/5377b88e0e0c27ecde18c2a366fb7d06f279f2ec))
+* **gallery:** revoke customer-minted JWTs when assignment is removed ([55a5846](https://github.com/the-luap/picpeak/commit/55a5846f6f802a1bc1910bb046325fe272a1b584))
+
+
+### Bug Fixes
+
+* **customer:** don't log customer out on transient session-refresh errors ([9e418c7](https://github.com/the-luap/picpeak/commit/9e418c759ce508adf6025e0740468d8229938ffe))
+
+
+### Reverts
+
+* **customer-portal:** make the global flag UI-only, drop the kill-switch middleware ([3f44193](https://github.com/the-luap/picpeak/commit/3f4419356a4f30509052a6d00b71485af2c17f85))
+
+## [3.47.2-beta.0](https://github.com/the-luap/picpeak/compare/v3.47.1-beta.0...v3.47.2-beta.0) (2026-05-11)
+
+
+### Bug Fixes
+
+* **activity-log:** smart feature_flags_updated rendering + 33 missing activity types ([4703fd5](https://github.com/the-luap/picpeak/commit/4703fd574f57bfab327ffefec5986bb08b240c95))
+
+## [3.47.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.47.0-beta.0...v3.47.1-beta.0) (2026-05-11)
+
+
+### Bug Fixes
+
+* **features:** customer-portal card uses 'Clients' to match sidebar wording ([441cc41](https://github.com/the-luap/picpeak/commit/441cc419377055a5872f71afb19036cc5c932b58))
+* **features:** customer-portal card uses 'Clients' to match sidebar wording ([dec2f5d](https://github.com/the-luap/picpeak/commit/dec2f5d3d2224b0d66f02bb9a562b4ddeaac77df))
+
+## [3.47.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.46.3-beta.0...v3.47.0-beta.0) (2026-05-11)
+
+
+### Features
+
+* **email-templates:** categorise + link to feature flags ([84c06af](https://github.com/the-luap/picpeak/commit/84c06affb73687529e35dbbac15801deb41dc4f2))
+* **email-templates:** categorise + sub-categorise + link to feature flags ([2cae3fe](https://github.com/the-luap/picpeak/commit/2cae3fe47deb667af5991ae1a90e3b5698693119))
+* **email-templates:** group Templates UI by category + Feature off chip ([5ec26fc](https://github.com/the-luap/picpeak/commit/5ec26fc9981028163cab122e229c83cdbbf35828))
+* **email-templates:** group Templates UI by category with core sub-sections ([53eecb6](https://github.com/the-luap/picpeak/commit/53eecb6f83ff75f1f3c75d68cee5e46d114ac8d1))
+* **email-templates:** seed missing locale translations + post-075 templates ([e3150e4](https://github.com/the-luap/picpeak/commit/e3150e42130cacf19dc7beadb8c86c76c0fff340))
+* **email-templates:** seed missing nl/pt/ru/fr translations ([358f7ee](https://github.com/the-luap/picpeak/commit/358f7ee99e2941ad179d5859178b35a80886542f))
+
+
+### Bug Fixes
+
+* **email-templates:** backfill subcategory + customer password reset translations ([2343a16](https://github.com/the-luap/picpeak/commit/2343a162df070cd5bd6abdc331bc5ca4aa283132))
+
+## [3.46.3-beta.0](https://github.com/the-luap/picpeak/compare/v3.46.2-beta.0...v3.46.3-beta.0) (2026-05-11)
+
+
+### Bug Fixes
+
+* **branding:** socials + promo round-trip from DB to form ([#460](https://github.com/the-luap/picpeak/issues/460)) ([bd2288e](https://github.com/the-luap/picpeak/commit/bd2288e6a01786cec0649b3326189e9737db359e))
+* **branding:** socials + promo round-trip from DB to form ([#460](https://github.com/the-luap/picpeak/issues/460)) ([ae64a6a](https://github.com/the-luap/picpeak/commit/ae64a6acbc119f78394e65cee7bf49910e1c7013))
+
+## [3.46.2-beta.0](https://github.com/the-luap/picpeak/compare/v3.46.1-beta.0...v3.46.2-beta.0) (2026-05-11)
+
+
+### Bug Fixes
+
+* **customer-portal:** post-merge fixes for event save, theme fonts, and customer→gallery handoff ([9776d8a](https://github.com/the-luap/picpeak/commit/9776d8a6fcccb5e19e7c652b7e47557213d85731))
+* **events:** CustomerAccountPicker hooks order crashed /admin/events/new ([2a7ae07](https://github.com/the-luap/picpeak/commit/2a7ae0702dfc56e69bf845ded19888c29519414a))
+
+## [3.46.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.46.0-beta.0...v3.46.1-beta.0) (2026-05-11)
+
+
+### Bug Fixes
+
+* **import:** capture photo dimensions in fileWatcher + s3AutoImporter ([#447](https://github.com/the-luap/picpeak/issues/447)) ([5b14854](https://github.com/the-luap/picpeak/commit/5b148542e6f2396ce47e3b6c301f186f9af9adec))
+
+## [3.46.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.45.1-beta.0...v3.46.0-beta.0) (2026-05-11)
+
+
+### Features
+
+* **branding:** Customer dashboard header toggles in Branding page ([b252cb6](https://github.com/the-luap/picpeak/commit/b252cb67eb3645224a279fbbe9c14871438473f8))
+* customer accounts ([#354](https://github.com/the-luap/picpeak/issues/354)) — recurring logins, profile, password reset, branded customer surface ([fe52953](https://github.com/the-luap/picpeak/commit/fe5295373b0bfeec1e81086206ffab7ce1b91094))
+* **customers:** customer portal ([#354](https://github.com/the-luap/picpeak/issues/354)) on top of feature-flags reorg ([087ef45](https://github.com/the-luap/picpeak/commit/087ef45942a8a51d09af2cd8ec85aca330f6cf7f))
+
+
+### Bug Fixes
+
+* **auth:** restore COOKIE_SECURE='auto' default for production ([adfa29e](https://github.com/the-luap/picpeak/commit/adfa29e91eeea52aa672e38269c389a5178d9e5a))
+* **customer:** unwrap /customer/* from RequireFeature gate ([da08a58](https://github.com/the-luap/picpeak/commit/da08a5828ab855365a2a2a6f4854b09eb409907a))
+* **server:** drop missing requireCustomerPortal middleware import ([4fa7225](https://github.com/the-luap/picpeak/commit/4fa72257329942a6b598fa90c83c6bca7586fe33))
+* **server:** mount /api/admin/feature-flags route ([f048011](https://github.com/the-luap/picpeak/commit/f048011324bfa4cee8f89b0131b68dd520446ca2))
+
+## [3.45.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.45.0-beta.0...v3.45.1-beta.0) (2026-05-10)
+
+
+### Bug Fixes
+
+* **create-event:** branding-default theme survives eventTypes refetch ([d62c529](https://github.com/the-luap/picpeak/commit/d62c529b0278a9ac790b22f46f49004df71112ea))
+* **create-event:** branding-default theme survives eventTypes refetch ([#323](https://github.com/the-luap/picpeak/issues/323)-B) ([37d487d](https://github.com/the-luap/picpeak/commit/37d487db86fe9fc11facff6d2c0bb9a24e6f6277))
+
+## [3.45.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.44.2-beta.0...v3.45.0-beta.0) (2026-05-10)
+
+
+### Features
+
+* **footer:** hideable legal links + socials + promo banner ([#441](https://github.com/the-luap/picpeak/issues/441) + [#440](https://github.com/the-luap/picpeak/issues/440)) ([f3505c2](https://github.com/the-luap/picpeak/commit/f3505c2631cc5b4ae13a0f0d593a1ddd95fefdcb))
+
+## [3.44.2-beta.0](https://github.com/the-luap/picpeak/compare/v3.44.1-beta.0...v3.44.2-beta.0) (2026-05-10)
+
+
+### Bug Fixes
+
+* **events:** clamp page state when totalPages drops below current page ([#442](https://github.com/the-luap/picpeak/issues/442)) ([b4e30a4](https://github.com/the-luap/picpeak/commit/b4e30a4293c77e6dc34e955741ee113b9d530718))
+* **events:** clamp page state when totalPages drops below current page ([#442](https://github.com/the-luap/picpeak/issues/442)) ([9c4a96f](https://github.com/the-luap/picpeak/commit/9c4a96fe977b7a0907f5dea99491385195b76184))
+
+## [3.44.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.44.0-beta.0...v3.44.1-beta.0) (2026-05-10)
+
+
+### Bug Fixes
+
+* **events:** admins can clear expiration on edit even when 'Require expiration' is ON ([#426](https://github.com/the-luap/picpeak/issues/426)) ([3fd8af3](https://github.com/the-luap/picpeak/commit/3fd8af3d56b54f81cc20b75109cc212d23fc84c1))
+* **events:** admins can clear expiration on edit even when "Require expiration" is ON ([#426](https://github.com/the-luap/picpeak/issues/426)) ([e544561](https://github.com/the-luap/picpeak/commit/e54456135cc8605fad949a955261cecc3f986355))
+
+## [3.44.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.43.3-beta.0...v3.44.0-beta.0) (2026-05-10)
+
+
+### Features
+
+* **settings:** Features tab + sidebar reorg with feature-flag gating ([c3798e1](https://github.com/the-luap/picpeak/commit/c3798e19c8f928eac0ca1d7694d1ecfd78a1e437))
+* **settings:** Features tab + sidebar reorg with feature-flag gating ([15e3336](https://github.com/the-luap/picpeak/commit/15e333681fe4ce94afa8e5b477b339b179d0195a))
+
+## [3.43.3-beta.0](https://github.com/the-luap/picpeak/compare/v3.43.2-beta.0...v3.43.3-beta.0) (2026-05-09)
+
+
+### Bug Fixes
+
+* **gallery:** serve thumbnails / photos / hero via storage abstraction ([#432](https://github.com/the-luap/picpeak/issues/432)) ([d3007b0](https://github.com/the-luap/picpeak/commit/d3007b0dd29d37a46ce26e8b4eb15908e0f8e3d2))
+
+## [3.43.2-beta.0](https://github.com/the-luap/picpeak/compare/v3.43.1-beta.0...v3.43.2-beta.0) (2026-05-09)
+
+
+### Documentation
+
+* **contributing:** update branch reference from main to beta ([ed37caf](https://github.com/the-luap/picpeak/commit/ed37caf3d898d9b2db985e6c6ff203457fd4aa38))
+
+## [3.43.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.43.0-beta.0...v3.43.1-beta.0) (2026-05-09)
+
+
+### Bug Fixes
+
+* **event:** correct updating client access ([d00f6fa](https://github.com/the-luap/picpeak/commit/d00f6fa7de59bdbd30efe9ce824e795cf05616f4))
+* **event:** ensure client share token is generated only when necessary ([916580a](https://github.com/the-luap/picpeak/commit/916580adefd464417729e418aa1727b67566fea3))
+
+## [3.43.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.42.7-beta.0...v3.43.0-beta.0) (2026-05-09)
+
+
+### Features
+
+* **localization:** add French translations for fit options in thumbnails ([2c12885](https://github.com/the-luap/picpeak/commit/2c1288583fe787c1514c3cace0e2d92a212bb3a3))
+* **localization:** add i18next configuration and CLI commands for localization management ([74e87b9](https://github.com/the-luap/picpeak/commit/74e87b968b3152603dbfca72fae06372b7c7f519))
+* **localization:** add i18next extraction helper & refactor backup configuration component to tsx ([e7228b0](https://github.com/the-luap/picpeak/commit/e7228b07805a40aa67ccb7e3592848218eabbca2))
+* **localization:** add missing translations ([86ee6c8](https://github.com/the-luap/picpeak/commit/86ee6c80aa1f26b2ad47775337ebed301193e662))
+* **localization:** improve English translations for clarity and consistency ([46b99c6](https://github.com/the-luap/picpeak/commit/46b99c629215832e66d9215a210fd6eaf8c89fb4))
+* **localization:** update thumbnail settings and add fit options translations ([5fc427c](https://github.com/the-luap/picpeak/commit/5fc427c74b5cdda6ce1568006d9a94abdc692b3b))
+* **translations:** add French language support and improve localization handling ([a5db4bd](https://github.com/the-luap/picpeak/commit/a5db4bd46e6a5cc84c9563588f90d3461c277528))
+
+
+### Documentation
+
+* **localization:** enhance French language support and improve i18next configuration ([d1bc5e0](https://github.com/the-luap/picpeak/commit/d1bc5e030f55c15bf09f37b97f8e1608578a2395))
+
+## [Unreleased]
+
+### Bug Fixes
+
+* **event:** fix updating client access ([ee85e1d](https://github.com/the-luap/picpeak/commit/ee85e1d))
+
+### Features
+
+* **i18n:** add French (fr) language support with full translation coverage
+* **i18n:** add i18next configuration with language detection and namespace setup
+* **i18n:** add CLI commands for localization management (extraction, validation)
+* **i18n:** add `i18nextExtractionHelper` developer script for auditing missing translation keys
+* **i18n:** complete and restructure translation files for EN, DE, NL, PT, RU with consistent key naming
+
+### Code Refactoring
+
+* **admin:** convert `BackupConfiguration`, `BackupDashboard`, and `BackupManagement` from JSX to TSX with full i18n support
+* **admin:** remove stale `.d.ts` declaration files replaced by TSX components
+* **i18n:** clean up `useLocalizedTimeAgo` hook and update `useLocalizedDate`
+
+## [3.42.7-beta.0](https://github.com/the-luap/picpeak/compare/v3.42.6-beta.0...v3.42.7-beta.0) (2026-05-09)
+
+
+### Bug Fixes
+
+* **auth:** default COOKIE_SECURE to 'auto' in production + first-install UX ([#427](https://github.com/the-luap/picpeak/issues/427)) ([e1c9382](https://github.com/the-luap/picpeak/commit/e1c93823c4a3095dd2afa618f393a061806f18a3))
+
+## [3.42.6-beta.0](https://github.com/the-luap/picpeak/compare/v3.42.5-beta.0...v3.42.6-beta.0) (2026-05-09)
+
+
+### Bug Fixes
+
+* **external-media:** pre-generate thumbnails so reference-mode galleries load fast ([#423](https://github.com/the-luap/picpeak/issues/423)) ([e2ffd9f](https://github.com/the-luap/picpeak/commit/e2ffd9f93d228f9e16408fe424c65b26db67ac8e))
+* **external-media:** pre-generate thumbnails so reference-mode galleries load fast ([#423](https://github.com/the-luap/picpeak/issues/423)) ([f3d0f16](https://github.com/the-luap/picpeak/commit/f3d0f161c9e554a5149e6b4eafdb0ac42bebf277))
+
+## [3.42.5-beta.0](https://github.com/the-luap/picpeak/compare/v3.42.4-beta.0...v3.42.5-beta.0) (2026-05-08)
+
+
+### Bug Fixes
+
+* **admin:** test email always sends, regardless of update availability ([#418](https://github.com/the-luap/picpeak/issues/418)) ([9326a42](https://github.com/the-luap/picpeak/commit/9326a427b32458dfdaa01530bac66cda84ed7b72))
+
+## [3.42.4-beta.0](https://github.com/the-luap/picpeak/compare/v3.42.3-beta.0...v3.42.4-beta.0) (2026-05-08)
+
+
+### Bug Fixes
+
+* **events:** typed-DELETE confirmation for bulk delete ([#417](https://github.com/the-luap/picpeak/issues/417)) ([e165ee5](https://github.com/the-luap/picpeak/commit/e165ee5d9fa805c704a64f91c9514bf0ab75b5b8))
+* **events:** typed-DELETE confirmation for bulk delete ([#417](https://github.com/the-luap/picpeak/issues/417)) ([99e420b](https://github.com/the-luap/picpeak/commit/99e420b1b9783a1d6b4eb892c09d0af3340bf314))
+
+## [3.42.3-beta.0](https://github.com/the-luap/picpeak/compare/v3.42.2-beta.0...v3.42.3-beta.0) (2026-05-07)
+
+
+### Bug Fixes
+
+* **create-event:** re-apply Branding theme on stale→fresh settings ([#323](https://github.com/the-luap/picpeak/issues/323)-B) ([401abf7](https://github.com/the-luap/picpeak/commit/401abf7a27cb73dd7fb8399f4c05644c95767093))
+* **security:** scan triage cleanup — drop dead deps, harden Docker/nginx/postMessage ([7abfeb9](https://github.com/the-luap/picpeak/commit/7abfeb91cc7bbb9b6853146dbfe16b8d9835bcb3))
+* **security:** scan triage cleanup — drop dead deps, harden Docker/nginx/postMessage ([6b6191a](https://github.com/the-luap/picpeak/commit/6b6191a4260650e21c45f6153cac1b142bf8483a))
+
+## [3.42.2-beta.0](https://github.com/the-luap/picpeak/compare/v3.42.1-beta.0...v3.42.2-beta.0) (2026-05-07)
+
+
+### Bug Fixes
+
+* **security:** patch 18 dependency CVEs (axios + transitives + nodemailer + i18next-http-backend) ([b7d6ca0](https://github.com/the-luap/picpeak/commit/b7d6ca0b65e652b50d957380f93ed16e151e94a8))
+* **security:** patch 18 dependency CVEs (axios + transitives) ([523f499](https://github.com/the-luap/picpeak/commit/523f49916bea44697d40f61e0b6e44b83decc4b9))
+
+## [3.42.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.42.0-beta.0...v3.42.1-beta.0) (2026-05-07)
+
+
+### Bug Fixes
+
+* **gallery:** WCAG-safe Download button text + extract HeaderDownloadButton ([#401](https://github.com/the-luap/picpeak/issues/401) follow-ups) ([04e928d](https://github.com/the-luap/picpeak/commit/04e928d7621743d9d99797f0996f8c7aa50e7b2d))
+* **gallery:** WCAG-safe Download button text + extract HeaderDownloadButton ([#401](https://github.com/the-luap/picpeak/issues/401) follow-ups) ([0c80abd](https://github.com/the-luap/picpeak/commit/0c80abd57b806b9df01429a093c30c12c80c0601))
+
+## [3.42.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.41.0-beta.0...v3.42.0-beta.0) (2026-05-07)
+
+
+### Features
+
+* **gallery:** icon-only menu, accent Download CTA ([#386](https://github.com/the-luap/picpeak/issues/386)) ([876b35b](https://github.com/the-luap/picpeak/commit/876b35b4a512f70cfc19561e35ce9d915a599547))
+
+## [3.41.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.40.1-beta.0...v3.41.0-beta.0) (2026-05-06)
+
+
+### Features
+
+* **branding:** 8-token CI palette + force color mode + dark-mode consistency ([8050927](https://github.com/the-luap/picpeak/commit/80509276074b8125b6d676839afabb0b6f89206f))
+* **branding:** force color mode (dark or light) site-wide ([5a162fc](https://github.com/the-luap/picpeak/commit/5a162fc8bec47a49cb1bcaa92ff72e197e8d2e42))
+* **branding:** inline force color mode with auto-save + clearer palette help text ([67d7d8d](https://github.com/the-luap/picpeak/commit/67d7d8d3fa25ceab0eda02b291f2e220b222f84a))
+* **email:** expand email palette to 8 tokens + Sync from Branding button ([47b6b39](https://github.com/the-luap/picpeak/commit/47b6b39f3a942aee93b970031d95a952cb769d09))
+* **events:** Sync from Branding button in gallery theme customizer + clarified default inheritance ([bdbe7b8](https://github.com/the-luap/picpeak/commit/bdbe7b80a13b8b215ac544ba9105100e792eeda2))
+* **i18n:** add Brazilian Portuguese (pt-BR) locale ([375f512](https://github.com/the-luap/picpeak/commit/375f51285b5db9c0dfcc04761d24927282e57796))
+* **i18n:** improve pt locale with pt-BR phrasings, remove duplicate pt-BR file ([f25559c](https://github.com/the-luap/picpeak/commit/f25559c0e76776f7cfe8d187e1fea05e751bbafe))
+* **theme:** expand color settings to 8-token CI palette + alt button ([114aab5](https://github.com/the-luap/picpeak/commit/114aab57771a4bba03a9e5c616c75a37c9b25969))
+
+
+### Bug Fixes
+
+* **admin:** tab underlines use accent (not accent-dark) for proper highlight color ([565ae45](https://github.com/the-luap/picpeak/commit/565ae45ca71e46166c8bbfc0eb0b6da92d74f120))
+* **branding:** admin sidebar uses accent-dark, primary buttons follow CI token ([fc2bce3](https://github.com/the-luap/picpeak/commit/fc2bce3a01f02b2d131ca4ce1c8e81fc9dc62755))
+* **branding:** comprehensive sweep — replace remaining primary-* legacy colors with accent tokens ([578a174](https://github.com/the-luap/picpeak/commit/578a1745b8d010eeeb261d3452fd192b1ec7bcf8))
+* **branding:** selected-state accent colors, force-mode actually flips galleries, compact color picker layout ([5b410ed](https://github.com/the-luap/picpeak/commit/5b410ed9f87daad8e96345a86897f2a9e9419802))
+* **branding:** working tooltips, high-contrast selected states, gallery chrome follows accent ([b19bb0c](https://github.com/the-luap/picpeak/commit/b19bb0c6208744f329cb3e99f4e26a83f191710a))
+* **cms:** apply dark mode to CMS editor, public CMS, and admin modals ([d2a10f6](https://github.com/the-luap/picpeak/commit/d2a10f6523655488267d6f68835d7adb46dcf962))
+* **theme:** centralise force-mode enforcement inside ThemeContext so every gallery flips ([21188f4](https://github.com/the-luap/picpeak/commit/21188f48d76dd29bc1251bcc6faf9d6d96c805b5))
+
+## [3.40.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.40.0-beta.0...v3.40.1-beta.0) (2026-05-04)
+
+
+### Bug Fixes
+
+* **auth:** /auth/session must enforce session timeout symmetrically ([#350](https://github.com/the-luap/picpeak/issues/350) recurrence) ([c8e09c2](https://github.com/the-luap/picpeak/commit/c8e09c2a2a7d0920901560317eecd773b83251c0))
+* **auth:** /auth/session must enforce session timeout symmetrically ([#350](https://github.com/the-luap/picpeak/issues/350) recurrence) ([b106da1](https://github.com/the-luap/picpeak/commit/b106da1ededa27fc8727f2c0e74a9182e6e9c895))
+
+## [3.40.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.39.1-beta.0...v3.40.0-beta.0) (2026-05-04)
+
+
+### Features
+
+* **branding:** per-family generic fallback via meta.json ([dcff451](https://github.com/the-luap/picpeak/commit/dcff4515721482e06c2ef1c1eb34f9e12754c07c))
+* **branding:** self-hosted webfonts with filesystem scanner ([d04bf28](https://github.com/the-luap/picpeak/commit/d04bf288084144bf53ef0ba988fa32ed703d7351))
+
+
+### Bug Fixes
+
+* **fonts:** drop immutable Cache-Control to allow font replacement rollout ([5703fcb](https://github.com/the-luap/picpeak/commit/5703fcb80680155e3b637dd5fc15c430de963c40))
+
+
+### Documentation
+
+* **fonts:** cache rollout, stale-list note, meta.json ([bd0e052](https://github.com/the-luap/picpeak/commit/bd0e052b1a1847718151a16117dacc6c42a2178e))
+
+## [3.39.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.39.0-beta.0...v3.39.1-beta.0) (2026-05-04)
+
+
+### Documentation
+
+* **readme:** add Contributors section with @Luca-Timo and @Rekoo-PS ([c60ab74](https://github.com/the-luap/picpeak/commit/c60ab74ae2daabc4b11fea1f1b2df728294b03c8))
+* **readme:** add Contributors section with @Luca-Timo and @Rekoo-PS ([dbe0a30](https://github.com/the-luap/picpeak/commit/dbe0a3055bd2c71981cb7d9cf43c2b22b9e3276c))
+
+## [3.39.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.38.0-beta.0...v3.39.0-beta.0) (2026-05-04)
+
+
+### Features
+
+* **gallery:** decouple header style from layout, add banner option ([1f1a856](https://github.com/the-luap/picpeak/commit/1f1a856083b1966ed4b32a23a14442f1727cecef))
+
+## [3.38.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.37.0-beta.0...v3.38.0-beta.0) (2026-05-04)
+
+
+### Features
+
+* **events:** bulk delete with password confirmation ([#384](https://github.com/the-luap/picpeak/issues/384)) ([647aea2](https://github.com/the-luap/picpeak/commit/647aea21ae42fe0d089bf45568702617a25b98e4))
+
+## [3.37.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.36.0-beta.0...v3.37.0-beta.0) (2026-05-04)
+
+
+### Features
+
+* **events:** add Photos column to admin events list ([#384](https://github.com/the-luap/picpeak/issues/384)) ([d561db8](https://github.com/the-luap/picpeak/commit/d561db802b04db8fbb38819a22e840532e775ef0))
+* **events:** add Photos column to admin events list ([#384](https://github.com/the-luap/picpeak/issues/384)) ([ffb4318](https://github.com/the-luap/picpeak/commit/ffb4318a1f667e273cd59805673b125d2f17699b))
+
+## [3.36.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.35.0-beta.0...v3.36.0-beta.0) (2026-05-04)
+
+
+### Features
+
+* **events:** prefill admin email + admin picker on event creation ([3fe8e61](https://github.com/the-luap/picpeak/commit/3fe8e61bd1175e35dcb61604447e5d9c2e902ec5))
+
+## [3.35.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.34.2-beta.0...v3.35.0-beta.0) (2026-05-04)
+
+
+### Features
+
+* **events:** tree view for external media folder picker ([cdd40ac](https://github.com/the-luap/picpeak/commit/cdd40acb4591d4eb8f80a79c69201556eab1bfd0))
+* **events:** tree view for external media folder picker ([f927b09](https://github.com/the-luap/picpeak/commit/f927b09c70f3b6a5c81c3726609a29680b96b6fc))
+
+
+### Bug Fixes
+
+* **events:** match scrollbar to theme in external folder tree picker ([bd42ee1](https://github.com/the-luap/picpeak/commit/bd42ee1ce03b8f6e7b011b53f2c71453be931cc6))
+
+## [3.34.2-beta.0](https://github.com/the-luap/picpeak/compare/v3.34.1-beta.0...v3.34.2-beta.0) (2026-05-04)
+
+
+### Bug Fixes
+
+* **docker:** install system ffmpeg on Alpine, drop broken bundled binary ([3ab8a64](https://github.com/the-luap/picpeak/commit/3ab8a64a24f1600e674f77d39139e33857b4dfc8))
+* **docker:** install system ffmpeg on Alpine, drop broken bundled binary ([96818c7](https://github.com/the-luap/picpeak/commit/96818c7ae8de0d8fd478cd901ea25a3272eee85d))
+
+## [3.34.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.34.0-beta.0...v3.34.1-beta.0) (2026-05-03)
+
+
+### Bug Fixes
+
+* **cms:** nl/pt/ru i18n + gate external_url in public response ([08d0462](https://github.com/the-luap/picpeak/commit/08d046276bf259e8511b01415141f51b8484f967))
+* **cms:** nl/pt/ru i18n + gate external_url in public response ([bce5c1f](https://github.com/the-luap/picpeak/commit/bce5c1f725043965c2499515f18e93e9578bd204))
+
+## [3.34.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.33.2-beta.0...v3.34.0-beta.0) (2026-05-03)
+
+
+### Features
+
+* **cms:** add external URL toggle for imprint and privacy pages ([b2c8161](https://github.com/the-luap/picpeak/commit/b2c8161a43c2d0b09d6783e791b3f26862254824))
+* **cms:** add per-page external URL override — backend ([66423bb](https://github.com/the-luap/picpeak/commit/66423bb65e83b6204509c9a98d783ba8255c3364))
+* **cms:** admin UI for external imprint/privacy URL ([a4e3d10](https://github.com/the-luap/picpeak/commit/a4e3d10fb0c97ea07c4b08d16c0947945d8a7576))
+* **cms:** redirect legal links to external URL when configured ([c5bba50](https://github.com/the-luap/picpeak/commit/c5bba505ac92b5257f6bb1c069b8bc23ea6a5a1b))
+
+## [3.33.2-beta.0](https://github.com/the-luap/picpeak/compare/v3.33.1-beta.0...v3.33.2-beta.0) (2026-05-03)
+
+
+### Bug Fixes
+
+* **events:** admin-set password on reset, full-URL gallery_link in all emails ([0d1f82d](https://github.com/the-luap/picpeak/commit/0d1f82d31a2f9e30bf193496ac203eaf8dfd856b))
+* **events:** admin-set password on reset, full-URL gallery_link in all emails ([ff50c74](https://github.com/the-luap/picpeak/commit/ff50c74e1912ccba60f7ccdbead92b76de91388b))
+
+## [3.33.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.33.0-beta.0...v3.33.1-beta.0) (2026-05-03)
+
+
+### Bug Fixes
+
+* **email:** render conditionals, localise password placeholders, fix caller/template variable drift ([0767203](https://github.com/the-luap/picpeak/commit/07672038d4ac31fc601adfb2338104223856ba71))
+* **email:** render conditionals, localise password placeholders, fix caller/template variable drift ([e8052ad](https://github.com/the-luap/picpeak/commit/e8052adf1d2f1717652ac5d6b8cd8bcc01787189))
+
+## [3.33.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.32.5-beta.0...v3.33.0-beta.0) (2026-05-02)
+
+
+### Features
+
+* native multi-arch Docker images (Apple Silicon, ARM64 Linux) ([df30618](https://github.com/the-luap/picpeak/commit/df3061893d154152b75b8ab0d07e0b1e0078431d))
+
+## [3.32.5-beta.0](https://github.com/the-luap/picpeak/compare/v3.32.4-beta.0...v3.32.5-beta.0) (2026-05-02)
+
+
+### Bug Fixes
+
+* **theme:** kill initial white frame + theme-aware skeleton tiles ([#358](https://github.com/the-luap/picpeak/issues/358) follow-up) ([f529c9e](https://github.com/the-luap/picpeak/commit/f529c9e3d72f0e3496951dfa5d160afda9a1ac51))
+* **theme:** kill initial white frame + theme-aware skeleton tiles ([#358](https://github.com/the-luap/picpeak/issues/358) follow-up) ([1a530ae](https://github.com/the-luap/picpeak/commit/1a530aeaa2d61b34d9721a555b71631c7101c58e))
+
+## [3.32.4-beta.0](https://github.com/the-luap/picpeak/compare/v3.32.3-beta.0...v3.32.4-beta.0) (2026-05-01)
+
+
+### Bug Fixes
+
+* **events:** stop mapping branding_logo_position onto hero_logo_position ([af2b062](https://github.com/the-luap/picpeak/commit/af2b0628cb4f79a147366665d35c098012071216))
+* **events:** stop mapping branding_logo_position onto hero_logo_position ([ef1c875](https://github.com/the-luap/picpeak/commit/ef1c875f6ec1e02657006cb09cd0b1d868ec2fc0))
+* **theme:** pre-React bootstrap to kill white-flash on dark galleries ([#358](https://github.com/the-luap/picpeak/issues/358)) ([07b41e6](https://github.com/the-luap/picpeak/commit/07b41e691d2e8a71f775c667d805a2f9adc10590))
+* **theme:** pre-React bootstrap to kill white-flash on dark galleries ([#358](https://github.com/the-luap/picpeak/issues/358)) ([f81a872](https://github.com/the-luap/picpeak/commit/f81a8728e67b313ac43f55c94fb635abf9beca05))
+
+## [3.32.3-beta.0](https://github.com/the-luap/picpeak/compare/v3.32.2-beta.0...v3.32.3-beta.0) (2026-05-01)
+
+
+### Bug Fixes
+
+* **auth:** /auth/session must verify issuer claim like adminAuth ([#350](https://github.com/the-luap/picpeak/issues/350)) ([83dedbc](https://github.com/the-luap/picpeak/commit/83dedbcd45e34a924594dd83f6e3561f776576fb))
+* **auth:** make /auth/session verify the issuer claim like adminAuth ([#350](https://github.com/the-luap/picpeak/issues/350)) ([88a6c6a](https://github.com/the-luap/picpeak/commit/88a6c6a7fba7e1419a021f4870518f0b76ac6494))
+* **events:** coerce expires_in_days to Number before addDays ([e5712d8](https://github.com/the-luap/picpeak/commit/e5712d8ffe2f0ed980e1df5e1263876af7202b76))
+* **events:** coerce expires_in_days to Number before addDays ([db29d0e](https://github.com/the-luap/picpeak/commit/db29d0e2788f63cc9eb0a43ec58313387acb0c0d))
+
+## [3.32.2-beta.0](https://github.com/the-luap/picpeak/compare/v3.32.1-beta.0...v3.32.2-beta.0) (2026-05-01)
+
+
+### Bug Fixes
+
+* events search/counters ([#346](https://github.com/the-luap/picpeak/issues/346)), lazy gallery skeleton ([#321](https://github.com/the-luap/picpeak/issues/321)), smooth lightbox swipe ([#348](https://github.com/the-luap/picpeak/issues/348)) ([6229b38](https://github.com/the-luap/picpeak/commit/6229b38bac90cc0c538a72688efae3be77a3bb08))
+* **events:** server-side search/pagination to remove first-100 cap ([#346](https://github.com/the-luap/picpeak/issues/346)) ([a5b20ca](https://github.com/the-luap/picpeak/commit/a5b20ca3fe77df665d4a9744413d7ee4054858f0))
+* **gallery:** lazy-render skeleton grid for fast loads ([#321](https://github.com/the-luap/picpeak/issues/321) follow-up) ([d9d8137](https://github.com/the-luap/picpeak/commit/d9d81372b80f7d44dca54b7993f52c36574048c9))
+* **lightbox:** smooth carousel swipe + drop instructional hint ([#348](https://github.com/the-luap/picpeak/issues/348)) ([743086d](https://github.com/the-luap/picpeak/commit/743086d3cb9100fb163bc9d04d968e5b611a1f99))
+
+## [3.32.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.32.0-beta.0...v3.32.1-beta.0) (2026-04-30)
+
+
+### Documentation
+
+* move documentation to docs.picpeak.app, drop in-repo copies ([02ed5d4](https://github.com/the-luap/picpeak/commit/02ed5d400736f966283a138dedde2455448067ff))
+* move documentation to docs.picpeak.app, drop in-repo copies ([0faf9b3](https://github.com/the-luap/picpeak/commit/0faf9b32816f5f94aa584d2336cdb1e0b7082239))
+
+## [3.32.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.31.1-beta.0...v3.32.0-beta.0) (2026-04-29)
+
+
+### Features
+
+* **webhooks:** enrich event.* payloads with customer contact + share_token ([#341](https://github.com/the-luap/picpeak/issues/341)) ([7ea4801](https://github.com/the-luap/picpeak/commit/7ea4801544fd5cd8bca1907a71b5c4e96ee77649))
+* **webhooks:** enrich event.* payloads with customer contact + share_token ([#341](https://github.com/the-luap/picpeak/issues/341)) ([1e69d5f](https://github.com/the-luap/picpeak/commit/1e69d5ff71ac2d1d133b0e40637b437d7cc8bc4f))
+
+## [3.31.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.31.0-beta.0...v3.31.1-beta.0) (2026-04-28)
+
+
+### Bug Fixes
+
+* **events:** show customer phone in event details view ([#331](https://github.com/the-luap/picpeak/issues/331)) ([4c73d22](https://github.com/the-luap/picpeak/commit/4c73d228ed98b8ec05bec2824aee7ce066a184e1))
+* **gallery:** single-finger swipe nav in mobile lightbox ([#332](https://github.com/the-luap/picpeak/issues/332)) ([4c8eba0](https://github.com/the-luap/picpeak/commit/4c8eba0cb43635d92a53d90c58b19007136c1c12))
+* **gallery:** use ref for swipe-start to avoid stale-closure miss ([#332](https://github.com/the-luap/picpeak/issues/332)) ([fcddfe0](https://github.com/the-luap/picpeak/commit/fcddfe094b2a01963f7b420afa886e7d5dae4390))
+* **lightbox:** mobile toolbar clipping + iOS safe-area + viewport-fit ([#336](https://github.com/the-luap/picpeak/issues/336)) ([42a7ae4](https://github.com/the-luap/picpeak/commit/42a7ae4be8fe7b12104ae036465c9c4117606378))
+* mobile lightbox + share previews + customer phone bug triage ([1e40677](https://github.com/the-luap/picpeak/commit/1e4067713ce9a808a7b49319bc262e5c9a6599c6))
+* **share:** OG/Twitter-card metadata for gallery share URLs ([#333](https://github.com/the-luap/picpeak/issues/333)) ([5275621](https://github.com/the-luap/picpeak/commit/5275621fcd38f1ec09b54595163ecd5e63614b1a))
+
+## [3.31.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.30.0-beta.0...v3.31.0-beta.0) (2026-04-28)
+
+
+### Features
+
+* **frontend:** dedupe /public/settings via shared usePublicSettings hook ([#325](https://github.com/the-luap/picpeak/issues/325)) ([3d4ae4d](https://github.com/the-luap/picpeak/commit/3d4ae4d7e9f9995d93563e8092e05215362afb3b))
+* native S3 storage backend ([#328](https://github.com/the-luap/picpeak/issues/328)) + presigned download follow-up ([1b717ce](https://github.com/the-luap/picpeak/commit/1b717ce5ededa343d2fbb7e1c3493b4434743565))
+* outbound webhooks for event/photo lifecycle ([#327](https://github.com/the-luap/picpeak/issues/327)) ([c488f48](https://github.com/the-luap/picpeak/commit/c488f481caacf0d63dafc47f509e8de2708bc30f))
+* presigned download UI + S3 prefix walker auto-importer (follow-ups) ([446d80a](https://github.com/the-luap/picpeak/commit/446d80a4cc5eb0389994e29585b2a98dad373db2))
+* S3 storage + webhooks + settings dedupe + backup fixes ([06d54be](https://github.com/the-luap/picpeak/commit/06d54bec4d0afc4a1b9ba6f2449ed7d79f1d3e8f))
+
+
+### Bug Fixes
+
+* **backup:** cron schedule mapping + manifest format detection + bigint coerce ([ab4095f](https://github.com/the-luap/picpeak/commit/ab4095f5928b1476009cddfd3444d6f5b58b034d))
+* **backup:** incremental backups against S3 + jsonb stats parsing ([e232f9f](https://github.com/the-luap/picpeak/commit/e232f9f2cf54aeba1e16d769397428206a0f1801))
+
+## [3.30.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.29.1-beta.0...v3.30.0-beta.0) (2026-04-27)
+
+
+### Features
+
+* customisable 404 + gallery-not-found pages via CMS ([#324](https://github.com/the-luap/picpeak/issues/324)) ([4f77905](https://github.com/the-luap/picpeak/commit/4f77905b87bea474b3d2496350996deaad041230))
+* optional customer phone field gated by global toggle ([#322](https://github.com/the-luap/picpeak/issues/322)) ([be6cb28](https://github.com/the-luap/picpeak/commit/be6cb28c8097d2277c1af2a32cf8bc88ebbc7136))
+* public v1 API + token management + OpenAPI docs ([#322](https://github.com/the-luap/picpeak/issues/322)) ([808b15b](https://github.com/the-luap/picpeak/commit/808b15bafbcdab6ea55aff7f0e507153f513a70a))
+
+
+### Bug Fixes
+
+* dedupe parallel admin 401 redirects to /admin/login ([038e84c](https://github.com/the-luap/picpeak/commit/038e84cae7f56a0a1af8c71b85881ca5d320c6e3))
+* floor password_changed_at when comparing against JWT iat ([793e410](https://github.com/the-luap/picpeak/commit/793e410554b461522fbe24014dfd3baa915da2bb))
+* theme picker buttons no longer submit the parent form ([#326](https://github.com/the-luap/picpeak/issues/326)) ([2eead52](https://github.com/the-luap/picpeak/commit/2eead523193ccb7f23eb767097ad9698e8312833))
+* theme save without Live Preview, Branding default on new events, gallery loading flicker ([#323](https://github.com/the-luap/picpeak/issues/323), [#321](https://github.com/the-luap/picpeak/issues/321)) ([822be9a](https://github.com/the-luap/picpeak/commit/822be9a9b2716f1832a4cb6fccd53602e3cbab51))
+* theme-preset match loop ignores extra fields like logoUrl ([#323](https://github.com/the-luap/picpeak/issues/323)) ([b63a877](https://github.com/the-luap/picpeak/commit/b63a8774c4b44733b903736b2ca5a472a884055e))
+
+
+### Documentation
+
+* add Buy Me a Coffee badge + Support section ([46bc894](https://github.com/the-luap/picpeak/commit/46bc894d917bd55dbd9bafaa64fd38db21488b81))
+
+## [3.29.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.29.0-beta.0...v3.29.1-beta.0) (2026-04-26)
+
+
+### Bug Fixes
+
+* address bugs and feature requests from discussion [#317](https://github.com/the-luap/picpeak/issues/317) ([6cfff6f](https://github.com/the-luap/picpeak/commit/6cfff6f6a6dbdc5bc1e9fe4fbce5795cdb1855c6))
+* discussion [#317](https://github.com/the-luap/picpeak/issues/317) issues and [#318](https://github.com/the-luap/picpeak/issues/318) archive crash ([2f2f405](https://github.com/the-luap/picpeak/commit/2f2f405d9bc2831b3bbe2ca7fbf726d61382dc38))
+* prevent backend crash on archive when admin_email is null ([#318](https://github.com/the-luap/picpeak/issues/318)) ([e4b0f96](https://github.com/the-luap/picpeak/commit/e4b0f961b75952b6907cc2291fa256215c09c80c))
+
+## [3.29.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.28.3-beta.0...v3.29.0-beta.0) (2026-04-23)
+
+
+### Features
+
+* pre-zip download all and photo replacement by name ([#312](https://github.com/the-luap/picpeak/issues/312), [#313](https://github.com/the-luap/picpeak/issues/313)) ([d3f1206](https://github.com/the-luap/picpeak/commit/d3f12068164a6bfe6c4a3817ad2fc2e8ed7abf4f))
+* pre-zip download all and photo replacement by name ([#312](https://github.com/the-luap/picpeak/issues/312), [#313](https://github.com/the-luap/picpeak/issues/313)) ([e18afd3](https://github.com/the-luap/picpeak/commit/e18afd3e6b0b5a4cdb4873fb227d1b1d2bf35f21))
+
+## [3.28.3-beta.0](https://github.com/the-luap/picpeak/compare/v3.28.2-beta.0...v3.28.3-beta.0) (2026-04-13)
+
+
+### Bug Fixes
+
+* revert /api prefix in adminPhotos.js to avoid double-prefix ([094276d](https://github.com/the-luap/picpeak/commit/094276d3cc7117eee30e4bcbce487e54f0eacb29))
+* revert /api prefix in adminPhotos.js to avoid double-prefix ([#307](https://github.com/the-luap/picpeak/issues/307)) ([ceb2a09](https://github.com/the-luap/picpeak/commit/ceb2a09f483b4754fda232c5c1f7acb8971aac10))
+
+## [3.28.2-beta.0](https://github.com/the-luap/picpeak/compare/v3.28.1-beta.0...v3.28.2-beta.0) (2026-04-12)
+
+
+### Bug Fixes
+
+* display welcome message in gallery and fix guest thumbnail URLs ([#306](https://github.com/the-luap/picpeak/issues/306), [#307](https://github.com/the-luap/picpeak/issues/307)) ([b05c36a](https://github.com/the-luap/picpeak/commit/b05c36ac810a557a2ac088ab7bec39bb76f9a2ae))
+* display welcome message in gallery and fix guest thumbnail URLs ([#306](https://github.com/the-luap/picpeak/issues/306), [#307](https://github.com/the-luap/picpeak/issues/307)) ([9323bef](https://github.com/the-luap/picpeak/commit/9323befdd99d64b85cca89af24ac1b7034d72eee))
+
+## [3.28.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.28.0-beta.0...v3.28.1-beta.0) (2026-04-12)
+
+
+### Bug Fixes
+
+* apply sort direction in gallery and respect show_feedback_to_guests ([#302](https://github.com/the-luap/picpeak/issues/302), [#303](https://github.com/the-luap/picpeak/issues/303)) ([3716ff5](https://github.com/the-luap/picpeak/commit/3716ff50854766bde588fbd6b9027f8647e59150))
+* apply sort direction in gallery view and respect show_feedback_to_guests ([#302](https://github.com/the-luap/picpeak/issues/302), [#303](https://github.com/the-luap/picpeak/issues/303)) ([dffe057](https://github.com/the-luap/picpeak/commit/dffe057772c922ab6a213e25f171157e0c2badf8))
+
+## [3.28.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.27.0-beta.0...v3.28.0-beta.0) (2026-04-11)
+
+
+### Features
+
+* add COOKIE_SECURE=auto for mixed HTTPS/HTTP deployments ([#298](https://github.com/the-luap/picpeak/issues/298)) ([b1dfbe4](https://github.com/the-luap/picpeak/commit/b1dfbe4c2fe271d8087974d02cf724f04058bdc9))
+* add COOKIE_SECURE=auto for mixed HTTPS/HTTP deployments ([#298](https://github.com/the-luap/picpeak/issues/298)) ([15a8ab4](https://github.com/the-luap/picpeak/commit/15a8ab41fd1c94e3397d300b161cd1fdd459ea05))
+
+
+### Bug Fixes
+
+* guest feedback flow bugs in Masonry grid and PhotoLightbox ([#292](https://github.com/the-luap/picpeak/issues/292)) ([54badef](https://github.com/the-luap/picpeak/commit/54badefc51b834d55530722f87c81a6ade33e35b))
+* guest feedback flow bugs in Masonry grid and PhotoLightbox ([#292](https://github.com/the-luap/picpeak/issues/292)) ([77f07e9](https://github.com/the-luap/picpeak/commit/77f07e9329e47f6ac5040f2e85d2710ebbea3ced))
+
+## [3.27.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.26.2-beta.0...v3.27.0-beta.0) (2026-04-11)
+
+
+### Features
+
+* add admin dark mode and SEO/robots.txt settings ([9c2a0d2](https://github.com/the-luap/picpeak/commit/9c2a0d272a21dfcace2ec795034e2f1adcba47e0))
+* add Apple Liquid Glass templates, image security settings, and automated releases ([6033461](https://github.com/the-luap/picpeak/commit/6033461be118ce78277ec568e1ef1ceeff7311c8))
+* add bulk category editing for photos ([#157](https://github.com/the-luap/picpeak/issues/157)) ([eca36c7](https://github.com/the-luap/picpeak/commit/eca36c70a23f18f937a9f5bddeff855e18f364c3))
+* add category hero/cover photo selection ([#163](https://github.com/the-luap/picpeak/issues/163)) ([6c30e2c](https://github.com/the-luap/picpeak/commit/6c30e2c2edd19a24d4f30a9558690bb7e2331b32))
+* add configurable upload batch size for reverse proxy compatibility ([#208](https://github.com/the-luap/picpeak/issues/208)) ([02a46e0](https://github.com/the-luap/picpeak/commit/02a46e083d68cfdb355b5a4fe4a8da7d667050b9))
+* Add CSS template system with custom gallery styling support ([0da45e6](https://github.com/the-luap/picpeak/commit/0da45e699ad998031aa56a92f2da5ee61a04e285))
+* add customizable event types with admin management ([f8881d5](https://github.com/the-luap/picpeak/commit/f8881d5bd62d449fb40917ec8c20f0eb16c1fdad))
+* add Dutch (nl) locale and fix missing translation keys across all locales ([b54a80d](https://github.com/the-luap/picpeak/commit/b54a80d251bcbb9a126e32eeaef522688bc810c6))
+* add Dutch locale and fix missing translation keys ([e32da68](https://github.com/the-luap/picpeak/commit/e32da68cbdfa430d62cbb1057ea418dc6b2f14fb))
+* add event management, gallery customization, and release automationFeature/event rename ([40ee671](https://github.com/the-luap/picpeak/commit/40ee67171d41522037bf9d4e7675b62ec564346d))
+* add Gallery Premium and Gallery Story layouts (Beta) ([e179def](https://github.com/the-luap/picpeak/commit/e179def3cceefe5fd6acd5574f2986e4f9e223ef))
+* add hero image focal point picker with anchor positioning ([#162](https://github.com/the-luap/picpeak/issues/162)) ([734868a](https://github.com/the-luap/picpeak/commit/734868abc23731b0ac9ad73e799194df1e6aa6ab))
+* add justified layout modes and aspect-ratio-aware mosaic ([#146](https://github.com/the-luap/picpeak/issues/146)) ([608bbd5](https://github.com/the-luap/picpeak/commit/608bbd50e7b31d49c7516a00e96f284fa16e2777))
+* Add justified layout modes and aspect-ratio-aware mosaic ([#146](https://github.com/the-luap/picpeak/issues/146)) ([ef2ae00](https://github.com/the-luap/picpeak/commit/ef2ae00ff20b754c2f2ed797e18c146d12d7f31a))
+* add justified/rows layout mode to masonry gallery ([#146](https://github.com/the-luap/picpeak/issues/146)) ([e081b56](https://github.com/the-luap/picpeak/commit/e081b56a44bf9fdaa3dd225d5dd4dde35bfe83d3))
+* add justified/rows layout mode to masonry gallery ([#146](https://github.com/the-luap/picpeak/issues/146)) + security fixes ([cd1d504](https://github.com/the-luap/picpeak/commit/cd1d50474f673b759c2f9401fdbe209a84773e39))
+* add multi-administrator support with RBAC and fix backup/restore for S3 ([892e47d](https://github.com/the-luap/picpeak/commit/892e47d017064d7922536f8e138bbb290a45cdc9))
+* add optional event date and expiration settings ([3079eaa](https://github.com/the-luap/picpeak/commit/3079eaa2e5d1728c2c0f315626cc253e4b08edc2))
+* add optional event date and expiration settings ([2151147](https://github.com/the-luap/picpeak/commit/2151147f2d3134448ff32130da44678e2942d73c)), closes [#118](https://github.com/the-luap/picpeak/issues/118)
+* add original filename preservation and Lightroom export support ([a59f414](https://github.com/the-luap/picpeak/commit/a59f41463f960a3a74ce3933dc7db84ee3a2018d))
+* add original filename preservation and Lightroom export support ([9872ad3](https://github.com/the-luap/picpeak/commit/9872ad3aef6488b359c5499a6dc3d8bfbfa48fde))
+* add per-event custom logo upload with bug fixes ([85170b8](https://github.com/the-luap/picpeak/commit/85170b883f504d83f1d862abb3f4e46741074826))
+* add per-event hero logo customization options ([0790a1d](https://github.com/the-luap/picpeak/commit/0790a1ddad774af89827a0a392e9fae0a945bff2))
+* add per-gallery thumbnail scale setting ([#172](https://github.com/the-luap/picpeak/issues/172)) ([#251](https://github.com/the-luap/picpeak/issues/251)) ([ee46088](https://github.com/the-luap/picpeak/commit/ee46088985ebbbb81d16e5bac23be2060c94397f))
+* add photo cap per event and Portuguese (pt-BR) locale ([1fa222e](https://github.com/the-luap/picpeak/commit/1fa222e9c4c26e525c7899e368988c6b0b08da85))
+* add photo cap per event and Portuguese locale ([088de43](https://github.com/the-luap/picpeak/commit/088de43f09f974d444f50452ef1117315c289ebc))
+* add quilted layout, fix mosaic, and backfill photo dimensions ([#146](https://github.com/the-luap/picpeak/issues/146)) ([46ed1bc](https://github.com/the-luap/picpeak/commit/46ed1bc276867a25b27bf22cd9b9d7e879a6947b))
+* add thumbnail settings UI to admin panel ([3a30fea](https://github.com/the-luap/picpeak/commit/3a30fea862034d64fbc7188fc25292594a9319e2))
+* add thumbnail settings UI to admin settings page ([#206](https://github.com/the-luap/picpeak/issues/206)) ([7d6d2f5](https://github.com/the-luap/picpeak/commit/7d6d2f56883a4402f0d97c95b0432a8a783c8024))
+* add update instructions dialog, email notifications, and capture date sorting ([50c0990](https://github.com/the-luap/picpeak/commit/50c09904a9434f988ab32a07da5d24db0e02065e)), closes [#181](https://github.com/the-luap/picpeak/issues/181)
+* add visual WYSIWYG email template editor ([#229](https://github.com/the-luap/picpeak/issues/229)) ([04a7ea8](https://github.com/the-luap/picpeak/commit/04a7ea80f95d6aeb474b145292e75f45fb85c66d))
+* **admin:** refine header layout and logo placement ([d64e7d0](https://github.com/the-luap/picpeak/commit/d64e7d08deae7ad1b6f744f447fe546115427942))
+* allow admin email updates in UI ([#36](https://github.com/the-luap/picpeak/issues/36)) ([3c2a79a](https://github.com/the-luap/picpeak/commit/3c2a79a31a0f1a44c8ec4f9a87f6fbcea9be651c))
+* beta/stable release channels with update notifications and bug fixes ([3c7dc20](https://github.com/the-luap/picpeak/commit/3c7dc2013fc3b57712ddf16db85f495b3cc7bfd7))
+* beta/stable release channels with update notifications and bug fixes ([#98](https://github.com/the-luap/picpeak/issues/98)) ([3c7dc20](https://github.com/the-luap/picpeak/commit/3c7dc2013fc3b57712ddf16db85f495b3cc7bfd7))
+* configurable upload batch size for reverse proxy compatibility ([9b7495e](https://github.com/the-luap/picpeak/commit/9b7495e0054975e66c9b5006c24a9fae63969de4))
+* configurable upload batch size for reverse proxy compatibility ([4243363](https://github.com/the-luap/picpeak/commit/424336340bef8e1629490ade154f0ceebb2a71e1))
+* decouple hero header from gallery layouts ([#158](https://github.com/the-luap/picpeak/issues/158)) ([7b8d8bd](https://github.com/the-luap/picpeak/commit/7b8d8bd92ba7a96717bb4d821b38dddc395f701a))
+* **docker:** add PUID/PGID and user mapping to avoid bind mount permission issues; feat(setup): prompt for admin email interactively; docs: PUID/PGID in .env.example ([410a33f](https://github.com/the-luap/picpeak/commit/410a33fecf1693cc75816c53ac460ec20089e2a1))
+* draft mode, admin branding, and workflow improvements ([dc98206](https://github.com/the-luap/picpeak/commit/dc98206737d1ebe43637319ce8c5b6da2e44c05d))
+* draft mode, admin branding, and workflow improvements ([40332a7](https://github.com/the-luap/picpeak/commit/40332a71db6534097940d3f9362b0fe651dba6c7))
+* dynamic website title from branding settings ([d29aab7](https://github.com/the-luap/picpeak/commit/d29aab7c70c5777451666fb7d5c7a9729dab684a))
+* **events:** add CSS template selector to event edit page ([6a6c2cd](https://github.com/the-luap/picpeak/commit/6a6c2cd34db26a53b5fb96415650e8136a74e47f))
+* gallery layouts, bulk category editing, and hero header improvements ([7037106](https://github.com/the-luap/picpeak/commit/7037106bff62593bba600d898a781f79f07b459d))
+* gallery layouts, hero customization, bulk categories & event types ([d9e00dc](https://github.com/the-luap/picpeak/commit/d9e00dc0dbd7cef0ddb4665e5306c98aac3573e3))
+* gallery layouts, hero customization, event types, and UX improvements ([#146](https://github.com/the-luap/picpeak/issues/146), [#155](https://github.com/the-luap/picpeak/issues/155)-163, [#170](https://github.com/the-luap/picpeak/issues/170), [#171](https://github.com/the-luap/picpeak/issues/171)) ([4280444](https://github.com/the-luap/picpeak/commit/4280444d70e73db09e67e18ce25bac75cf499b75))
+* **gallery/filters:** add Rated and Commented filters (UI + backend).\n\n- UI: add star (Rated) and message (Commented) buttons to feedback filter bars (desktop + mobile)\n- Backend: support filter=rated, commented, and combinations via aggregate counts/queries ([b03760a](https://github.com/the-luap/picpeak/commit/b03760ab01e21feb3578f90d065945d437d03452))
+* **gallery:** add quick Like/Favorite actions on thumbnails across layouts ([6368f10](https://github.com/the-luap/picpeak/commit/6368f1027f96107ba64964eb126911bfe185f54a))
+* **gallery:** always-visible feedback indicators on grid tiles; fallback image rendering in lightbox/hero; auto-auth from shared-link token; fix external photo resolver\n\n- GridGallery: bottom-left icons for like/rated/comment on every tile\n- Hero layout grid: added same indicators (non-intrusive icons)\n- Lightbox/Hero: add fallbackSrc to display thumbnail if original fails\n- GalleryAuth: auto-store token from /gallery/:slug/:token and hydrate event\n- Backend gallery photo route: use resolvePhotoFilePath for external-media\n\nfix(admin): move photo feedback badges to bottom-right on admin grid tiles\n\nfix(dashboard): add missing i18n keys for activity types + fallback to formatter\n\nfix(admin/feedback): correct thumbnail URL base + robust date parsing\n\nRefs: [#19](https://github.com/the-luap/picpeak/issues/19) ([6948aaa](https://github.com/the-luap/picpeak/commit/6948aaa92afc29609f85cf7fd631095f3e32ad3f))
+* **gallery:** compact vertical icon-only feedback filter in PhotoFilterBar; remove wide buttons to prevent overflow\n\n- Desktop: vertical icon stack (All/Grid, Likes, Favorites) outside scroll area\n- Mobile: vertical icon stack below categories\n- Keeps existing category bar layout and count\n\nRefs: [#19](https://github.com/the-luap/picpeak/issues/19) ([465f997](https://github.com/the-luap/picpeak/commit/465f997752fc930ac0a3ae530e9e57a378877d53))
+* **i18n:** add translations for settings tabs ([c030e87](https://github.com/the-luap/picpeak/commit/c030e872135b39701ef1f4bbb2f28bcaf4ce7fae))
+* implement 4 new features with bug fixes and refactoring plan ([77a4bfd](https://github.com/the-luap/picpeak/commit/77a4bfd49975551bf509354097f280cab3e48c7a))
+* implement beta/stable release channels with update notifications ([617e778](https://github.com/the-luap/picpeak/commit/617e778a48e0f0c24fcb8441d00ed2a816f19c03))
+* improve gallery layouts with aspect-ratio-aware masonry and mosaic modes ([#146](https://github.com/the-luap/picpeak/issues/146)) ([aacfcd5](https://github.com/the-luap/picpeak/commit/aacfcd517ea5739e834cf84627b55b3449740a5c))
+* improve hero image UX and live preview ([#163](https://github.com/the-luap/picpeak/issues/163), [#158](https://github.com/the-luap/picpeak/issues/158)) ([d63f67a](https://github.com/the-luap/picpeak/commit/d63f67a2afba1b92610382aa1012428ccacb86bd))
+* **lightbox:** keep feedback usable while navigating ([6368f10](https://github.com/the-luap/picpeak/commit/6368f1027f96107ba64964eb126911bfe185f54a)), closes [#19](https://github.com/the-luap/picpeak/issues/19)
+* Multi-administrator RBAC, CSS templates & security hardening ([#78](https://github.com/the-luap/picpeak/issues/78)) ([16b3ab0](https://github.com/the-luap/picpeak/commit/16b3ab039ae95f5641dc15a4811eb2b503f1791c))
+* multilingual email templates with translations table ([8c5996e](https://github.com/the-luap/picpeak/commit/8c5996e4ec43b2817d84cc040cfe52878ffb61d5))
+* multilingual email templates with translations table ([f50d7c0](https://github.com/the-luap/picpeak/commit/f50d7c0c51aa84a2182e450cd4b6a00777a8f9c0))
+* **native:** auto-serve SPA when dist exists (unless SERVE_FRONTEND=false); add clear logging; serve index.html for /admin ([fb16b7b](https://github.com/the-luap/picpeak/commit/fb16b7bbb8225192160c08050f1b164c36c8dc74))
+* **native:** build frontend and serve SPA from backend (SERVE_FRONTEND); fix Cannot GET /admin on native installs ([9fe10bc](https://github.com/the-luap/picpeak/commit/9fe10bcce2871a48f2409b4936d95c00249deb51))
+* **native:** serve built frontend from backend; build frontend during install/update; ensure env flags (SERVE_FRONTEND, FRONTEND_DIR) ([61ad2d6](https://github.com/the-luap/picpeak/commit/61ad2d61c137196c229817989f991e50fa389a6e))
+* new features and bug fixes for beta release ([151e1bf](https://github.com/the-luap/picpeak/commit/151e1bf50f206ae0571fa044c75b8bc9f0f40120))
+* original filename in admin UI, update dialog, and security hardening ([3ea9d5b](https://github.com/the-luap/picpeak/commit/3ea9d5b1219980032cbee7a2564c0004948923f5))
+* original filename in admin UI, update dialog, security hardening, and bug fixes ([bcf2745](https://github.com/the-luap/picpeak/commit/bcf2745ab64acb968ae4bd0710b28e78c14f340c))
+* overhaul public landing page and backup tooling ([2a4d388](https://github.com/the-luap/picpeak/commit/2a4d38813f7ab64a6bbb3a666f3c98a29443488d))
+* per-event custom logos, customizable event types, and multiple bug fixes ([4c08160](https://github.com/the-luap/picpeak/commit/4c081601e02888d7ad289acb7847aee9d6f5703f))
+* photo visibility control with client access ([#172](https://github.com/the-luap/picpeak/issues/172)) ([4a93e4e](https://github.com/the-luap/picpeak/commit/4a93e4e8cbe1b7a23a8be706291a270ccdf5bb55))
+* photo visibility control with client access ([#172](https://github.com/the-luap/picpeak/issues/172)) ([e1b6e43](https://github.com/the-luap/picpeak/commit/e1b6e43e524211c913d3d29ade5fc029df12920f))
+* pre-generate watermarks for instant lightbox loading ([1be974a](https://github.com/the-luap/picpeak/commit/1be974afbb0b7a1bdbdd140327771907a5d3c2ae)), closes [#112](https://github.com/the-luap/picpeak/issues/112)
+* pre-generated watermarks and mobile upload button improvements ([c6fdd38](https://github.com/the-luap/picpeak/commit/c6fdd38e842e1a8c0aa9cbab9fc791e6669e402d))
+* register Russian locale and add to language selector ([6f95b8c](https://github.com/the-luap/picpeak/commit/6f95b8c26cd794525e15e45d478f9ead0ec22555))
+* **select:** add per-tile checkbox selection in Admin grid and all gallery layouts; tile click opens viewer; checkbox toggles selection; auto-enable selection mode; add testids ([9fda54b](https://github.com/the-luap/picpeak/commit/9fda54bd06d37cd8f8f71056bf4f59e158cd8112))
+* **setup/docker:** auto-set PUID/PGID from invoking user and chown bind-mount folders; create missing data/events dirs ([0618b78](https://github.com/the-luap/picpeak/commit/0618b78725e85f97f0a4b4e834c17811c033c8f4))
+* **setup:** remove --admin-password; print admin credentials from ADMIN_CREDENTIALS.txt; fix ADMIN_URL to avoid /admin/admin; update native service commands ([84d0f63](https://github.com/the-luap/picpeak/commit/84d0f63d36c68532fea83e7087b1afeaa9b82f39))
+* show original filename in admin UI ([#184](https://github.com/the-luap/picpeak/issues/184)) ([0891be1](https://github.com/the-luap/picpeak/commit/0891be197fdb7d92ade5a293b8db0bed26fa6e3a))
+* sort photos by capture date with configurable default sort ([#283](https://github.com/the-luap/picpeak/issues/283)) ([8805fa5](https://github.com/the-luap/picpeak/commit/8805fa53e61c6b3672a8f6dad14d2fd17998a451))
+* sort photos by capture date with configurable default sort ([#283](https://github.com/the-luap/picpeak/issues/283)) ([633d4a0](https://github.com/the-luap/picpeak/commit/633d4a0f301e355ee9f057347f2f8dee8c5b4163))
+* support per-gallery password toggle ([5d6c061](https://github.com/the-luap/picpeak/commit/5d6c061f1c4fd20581b1e74fa114c96530b5de53))
+* visual WYSIWYG email template editor ([703c03f](https://github.com/the-luap/picpeak/commit/703c03fbee754a5291b57b885c5e82fbdd3e69e9))
+* warn about low thumbnail resolution when selecting beta themes ([ee3f6ae](https://github.com/the-luap/picpeak/commit/ee3f6ae13bf9c9fb3295286e84150e04bf9fbce4))
+* warn about low thumbnail resolution with beta themes ([aef9b4e](https://github.com/the-luap/picpeak/commit/aef9b4ed7fc443cbec8890c580759077e05e77b4))
+
+
+### Bug Fixes
+
+* add allow_user_uploads to gallery API responses ([691e3ab](https://github.com/the-luap/picpeak/commit/691e3aba09f2148afe902a0bb0139d062634e669))
+* add lightbox loading spinner and watermark cache invalidation ([050ed37](https://github.com/the-luap/picpeak/commit/050ed378199eb3b15c7c7f243792f68f858803f5))
+* Add settings translations and fix manual backup process ([#82](https://github.com/the-luap/picpeak/issues/82)) ([476fcce](https://github.com/the-luap/picpeak/commit/476fcce13f30f9f2d2f98a0c87c25fba09e9eebc))
+* add STORAGE_PATH to production docker-compose ([cdda709](https://github.com/the-luap/picpeak/commit/cdda70988664a177b351abc6a259ec39664d17ff))
+* address beta feedback - gallery layout fixes, Russian locale, email logo ([#249](https://github.com/the-luap/picpeak/issues/249)) ([486239a](https://github.com/the-luap/picpeak/commit/486239aeb9b5f56551d5aa90f0bad3008eedc3bb))
+* address Shannon security assessment findings (37 vulnerabilities) ([#254](https://github.com/the-luap/picpeak/issues/254)) ([23cd9cb](https://github.com/the-luap/picpeak/commit/23cd9cb680eb77b94a97266c3353dfc835f0cc69))
+* admin photo feedback filters have no effect ([#293](https://github.com/the-luap/picpeak/issues/293)) ([9ed8a2b](https://github.com/the-luap/picpeak/commit/9ed8a2b1994d139efd100c8fb97e6368655e5530))
+* **admin/feedback:** use correct event id when rendering photo thumbnails ([4c7b49a](https://github.com/the-luap/picpeak/commit/4c7b49a5f69a3fce4f9a0e837a082b56bb7e47d6)), closes [#19](https://github.com/the-luap/picpeak/issues/19)
+* **admin:** prevent category badge overlap in grid ([d64e7d0](https://github.com/the-luap/picpeak/commit/d64e7d08deae7ad1b6f744f447fe546115427942))
+* align backend port to 3000 across all configurations ([3a8d53f](https://github.com/the-luap/picpeak/commit/3a8d53f4927f577c4031c4bc3531e08191dc632a))
+* Align nginx backend port for production Docker deployments (v2.2.2) ([#88](https://github.com/the-luap/picpeak/issues/88)) ([e0bd19a](https://github.com/the-luap/picpeak/commit/e0bd19a74dd81bdd45be2384820830bd96769e1c))
+* apply password change fix to regular modal + longer toast delay ([#263](https://github.com/the-luap/picpeak/issues/263)) ([c63bc47](https://github.com/the-luap/picpeak/commit/c63bc47089b4b32c570bdeeb1f82bf722569875f))
+* apply password change redirect fix to regular modal too ([#263](https://github.com/the-luap/picpeak/issues/263)) ([147dc28](https://github.com/the-luap/picpeak/commit/147dc28440ca69ed970677fa221dfac00c8e2560))
+* **backup:** add lastBackup alias and totalBackups for frontend compatibility ([749100c](https://github.com/the-luap/picpeak/commit/749100c92abd2bb123b137e3d3c6bb342b8f5f00))
+* **backup:** allow manual backups when automated backups are disabled ([e6dd89e](https://github.com/the-luap/picpeak/commit/e6dd89e969fb7018633159155975bd2bd2fb0409))
+* checkbox and toggle settings not persisting after page refresh ([808ed1d](https://github.com/the-luap/picpeak/commit/808ed1d2f1164d9fd1114586c68a1f925bf73ddf)), closes [#117](https://github.com/the-luap/picpeak/issues/117)
+* CI workflow fixes for protected branches ([657c205](https://github.com/the-luap/picpeak/commit/657c205a4d8ca49070b69973f4c7a3d1418633af))
+* CI workflow fixes for protected branches ([cb01218](https://github.com/the-luap/picpeak/commit/cb012186d93403a1ac4e2d2f5283319603b290d6))
+* **ci:** add QEMU setup for multi-arch builds and skip for PRs ([0d36a27](https://github.com/the-luap/picpeak/commit/0d36a273bb58ffd0172efacd828e7171d954b41c))
+* clear notifications via API ([#35](https://github.com/the-luap/picpeak/issues/35)) ([013be18](https://github.com/the-luap/picpeak/commit/013be18d982986333e2ac24c7ede907de49690bc))
+* correct invitation activation validation and add missing translations ([991aa98](https://github.com/the-luap/picpeak/commit/991aa98f98cffd1d7785c272726615325e2c0208)), closes [#129](https://github.com/the-luap/picpeak/issues/129)
+* correct invitation email link URL path ([86fa104](https://github.com/the-luap/picpeak/commit/86fa1046d5439cb451feb164175c919c49ca219a)), closes [#129](https://github.com/the-luap/picpeak/issues/129)
+* correct storage path resolution in multiple files ([#96](https://github.com/the-luap/picpeak/issues/96)) ([0e3674b](https://github.com/the-luap/picpeak/commit/0e3674b2b0325bbcee5aa2c9ff7781da92f612d1))
+* correct storage path resolution in multiple files ([#96](https://github.com/the-luap/picpeak/issues/96)) ([3ccb815](https://github.com/the-luap/picpeak/commit/3ccb8154eb40a432aa467fb06b3f216fd0d2c6b4))
+* **cors:** scope CORS to /api only and avoid throwing on disallowed origins; prevents static asset 500s on native ([90bb21e](https://github.com/the-luap/picpeak/commit/90bb21e38bf1ba97e3fb8185b8d05f1296d745ee))
+* database migration restart bug, lightbox loading spinner, and watermark cache invalidation ([7c58749](https://github.com/the-luap/picpeak/commit/7c5874980640ae8c3d1050ce24daeb0a2aeab7a3))
+* **db:** improve PostgreSQL connection check in wait-for-db.sh ([e85a68a](https://github.com/the-luap/picpeak/commit/e85a68a386c72c276b4958599b5246e60dfac716))
+* display new password after admin password reset ([bd8b885](https://github.com/the-luap/picpeak/commit/bd8b885f7f060160eb852870d143f25ce628f3db))
+* docker compose v2 syntax and add missing ADMIN_PASSWORD to .env.example ([#189](https://github.com/the-luap/picpeak/issues/189)) ([0817443](https://github.com/the-luap/picpeak/commit/0817443e793e37c770c6a1968ecae4b9464107b0))
+* Docker Swarm DNS resolution and backup status display (v2.2.3) ([082d8ab](https://github.com/the-luap/picpeak/commit/082d8ab2054416b2a4f9e0438aa2bda0a8f4277e))
+* Docker Swarm DNS resolution and backup status display (v2.2.3) ([082d8ab](https://github.com/the-luap/picpeak/commit/082d8ab2054416b2a4f9e0438aa2bda0a8f4277e))
+* dynamic website title from branding settings ([4701edc](https://github.com/the-luap/picpeak/commit/4701edc12ecfab27cb2d1cfb0b4ed4fd53f56cc6))
+* event-specific custom CSS settings not being saved ([dadef81](https://github.com/the-luap/picpeak/commit/dadef81158972d28aa32812203500f77ed08a999)), closes [#136](https://github.com/the-luap/picpeak/issues/136)
+* events without expiration date incorrectly shown as expired ([c4f16eb](https://github.com/the-luap/picpeak/commit/c4f16eb76c909158abdb63aa4cc22f817f274dc5))
+* external media dimensions, theme race condition, email color customization ([dfae2c2](https://github.com/the-luap/picpeak/commit/dfae2c2bc6d86378c553cd847b439f7cb53a4f2a))
+* **frontend:** add missing externalMedia service and mount admin external-media routes; verify Vite build ([ab324f1](https://github.com/the-luap/picpeak/commit/ab324f192859204a3ea3c129530ccfe8f5a36968))
+* gallery thumbnails not loading (404 errors) [#96](https://github.com/the-luap/picpeak/issues/96) ([e3c3c4c](https://github.com/the-luap/picpeak/commit/e3c3c4c951c52de99bd0afd95b08d119153997b4))
+* **gallery/filters:** always apply global liked/favorited filters by aggregate counts (ignore guest_id); resolves mismatch between client guest_id and server identifier ([526dcd8](https://github.com/the-luap/picpeak/commit/526dcd8dfc030d86143cee799a88a1004d96b116))
+* **gallery/filters:** make feedback filters work globally when no guest_id is provided; remove guest_id from client photos query\n\n- Backend /api/gallery/:slug/photos: if filter present and guest_id missing, filter by like_count/favorite_count\n- Frontend useGalleryPhotos: stop passing random guestId (does not match server guest_identifier)\n\nThis makes Liked/Favorited filters reflect photos with aggregate feedback counts as expected. ([5b2561b](https://github.com/the-luap/picpeak/commit/5b2561b6f1da2665d6092ba954f8ff26df3959a4))
+* **gallery/sidebar:** compact icon-only feedback filter in sidebar (vertical, small) to avoid overflow; use GalleryFilter variant=compact ([ff89f96](https://github.com/the-luap/picpeak/commit/ff89f96e31130f75bcd7a406c5d895eac17b65de))
+* **gallery:** feedback filter headline + horizontal icons in sidebar (compact variant); ensure sidebar content scrolls (flex-col container) ([3a6d061](https://github.com/the-luap/picpeak/commit/3a6d06192a280ead8bd5d1fbfe06554e63f3346e))
+* handle legacy non-JSON logo paths when replacing logo ([0d5ce48](https://github.com/the-luap/picpeak/commit/0d5ce48dccf0c61f210725ffae15dafc5e9f7cab))
+* handle null dates in dashboard and gallery pages ([c5a8ffc](https://github.com/the-luap/picpeak/commit/c5a8ffc08cd4c53c37fe4fb9cde8519a68f1f343))
+* harden gallery downloads and per-gallery auth ([fc1bf53](https://github.com/the-luap/picpeak/commit/fc1bf534129092ca3638e4a4bc47274cd297fa5f))
+* hero header state and preview in admin theme editor ([#158](https://github.com/the-luap/picpeak/issues/158)) ([f554f46](https://github.com/the-luap/picpeak/commit/f554f463b3492346dba067c0980b52ef42dd5e70))
+* improve ghost button visibility in admin dark mode ([4912e2b](https://github.com/the-luap/picpeak/commit/4912e2bccf282134d5598a8ac80942ed46d0523c))
+* improve password validation errors and event list UX ([#170](https://github.com/the-luap/picpeak/issues/170), [#171](https://github.com/the-luap/picpeak/issues/171)) ([171abb3](https://github.com/the-luap/picpeak/commit/171abb31615484d77cf95a99cb5634afa0160adc))
+* improve photo serving, category filters, and upload chunking ([#155](https://github.com/the-luap/picpeak/issues/155), [#156](https://github.com/the-luap/picpeak/issues/156), [#161](https://github.com/the-luap/picpeak/issues/161)) ([fa4c838](https://github.com/the-luap/picpeak/commit/fa4c83812d87cfa63394e51186e320a072929d37))
+* increase upload limit to 1GB and fix category filters ([#155](https://github.com/the-luap/picpeak/issues/155), [#156](https://github.com/the-luap/picpeak/issues/156)) ([397d33a](https://github.com/the-luap/picpeak/commit/397d33a95a09e0b0986c3f6cf5965c544992a764))
+* issue [#203](https://github.com/the-luap/picpeak/issues/203) file type validation + security CVE fixes ([8017171](https://github.com/the-luap/picpeak/commit/80171713e0ffedda56f7cffb403b25a8d55634d1))
+* JSON serialize favicon and logo URLs for PostgreSQL storage ([b83f427](https://github.com/the-luap/picpeak/commit/b83f4272b584f937fea1f47656182e514b12d980))
+* lightbox watermark loading, white label translations, and dynamic footer year ([3b720ed](https://github.com/the-luap/picpeak/commit/3b720ed56ecd2ded6aec57309f8c408c63a617ef))
+* lightbox watermark loading, white label translations, and dynamic footer year ([ce8587b](https://github.com/the-luap/picpeak/commit/ce8587b24df3f53a11a74348eff8b5c5b96c5488))
+* lightbox watermark loading, white label translations, and dynamic footer year ([#108](https://github.com/the-luap/picpeak/issues/108)) ([3b720ed](https://github.com/the-luap/picpeak/commit/3b720ed56ecd2ded6aec57309f8c408c63a617ef))
+* mobile upload button not visible in gallery ([#113](https://github.com/the-luap/picpeak/issues/113)) ([cacaffa](https://github.com/the-luap/picpeak/commit/cacaffa5c39f67105c4cfb092ea62157121fb72e))
+* mobile upload button visibility in gallery ([2a2c23d](https://github.com/the-luap/picpeak/commit/2a2c23d11610e6c81684163eb4ea934a6d6104fb)), closes [#113](https://github.com/the-luap/picpeak/issues/113)
+* mobile upload button visibility in gallery ([df7dbff](https://github.com/the-luap/picpeak/commit/df7dbffbffb180e62af0d2b58326f9de0f515439)), closes [#113](https://github.com/the-luap/picpeak/issues/113)
+* mobile upload button visibility in gallery ([#113](https://github.com/the-luap/picpeak/issues/113)) ([05a5307](https://github.com/the-luap/picpeak/commit/05a5307e22dc45be4b75b2996ff9fac65dec399d))
+* mobile upload button visibility in gallery ([#113](https://github.com/the-luap/picpeak/issues/113)) ([6cb4342](https://github.com/the-luap/picpeak/commit/6cb43428d1e703267edeacda9ede050a8c4f8e0c))
+* Multi-administrator RBAC, CSS templates & security hardening ([#80](https://github.com/the-luap/picpeak/issues/80)) ([37d4e1c](https://github.com/the-luap/picpeak/commit/37d4e1cb6132346699a90aebfbaec83d84f931f4))
+* **native/http:** disable CSP upgrade-insecure-requests and HSTS unless ENABLE_HSTS=true; prevents HTTPS upgrades on HTTP installs ([24b4a31](https://github.com/the-luap/picpeak/commit/24b4a314a9e97b6c640ca29067e95028a23a8973))
+* **native:** correct setup paths to /opt/picpeak/app, update repo URL, add sqlite prod support; docs path fixes ([b992b15](https://github.com/the-luap/picpeak/commit/b992b151d3ca6ccb4a9b2434d94edcdc90ada3b0))
+* **native:** remove obsolete workers service; restart only backend; add API request logging and preflight handler; keep static assets outside CORS ([f3604b4](https://github.com/the-luap/picpeak/commit/f3604b438b37e5f2bddf98e79f458bfa2367cb75))
+* **nginx:** add Docker DNS resolver for Swarm/dynamic service discovery ([049837f](https://github.com/the-luap/picpeak/commit/049837f9d675ff5a4d93c02e5eb771bf65bc2616))
+* **nginx:** Add Docker DNS resolver for Swarm/dynamic service discovery (v2.2.3) ([cc1ddfd](https://github.com/the-luap/picpeak/commit/cc1ddfd42cccac07d5869fe2ee19c25a9ffa50e8))
+* **photos:** category changes now persist and display correctly ([#77](https://github.com/the-luap/picpeak/issues/77)) ([d9da98c](https://github.com/the-luap/picpeak/commit/d9da98c355011c247c526b28e6f07b329a632b55))
+* **photos:** resolve upload category selection and improve feedback buttons ([#77](https://github.com/the-luap/picpeak/issues/77)) ([856d533](https://github.com/the-luap/picpeak/commit/856d53343c6805706e1498892a29b120938f8547))
+* pin npm to v10 in backend Dockerfile ([ddefd3a](https://github.com/the-luap/picpeak/commit/ddefd3a95e5047d4a22aa4b6fef57dfb1c880967))
+* pin npm upgrade to v10 in backend Dockerfile ([978e447](https://github.com/the-luap/picpeak/commit/978e4473b5227ee61ad7d17487063eb3284bea36))
+* prefer admin token on admin routes ([#23](https://github.com/the-luap/picpeak/issues/23) [#28](https://github.com/the-luap/picpeak/issues/28)) ([d4404e3](https://github.com/the-luap/picpeak/commit/d4404e39bd7953649da02d3e300ffef46573ac97))
+* prevent database migration restart failures ([83a4344](https://github.com/the-luap/picpeak/commit/83a4344a01de4f65c5024fdf2d177a04457ccd2f)), closes [#107](https://github.com/the-luap/picpeak/issues/107)
+* prevent unnecessary image recompression and fix SQLite migration [#95](https://github.com/the-luap/picpeak/issues/95) ([3cdc0ea](https://github.com/the-luap/picpeak/commit/3cdc0ea7152e63cd72124a91394741a6e6904af3))
+* remove non-functional watermark toggle from Feature Toggles ([d4a15db](https://github.com/the-luap/picpeak/commit/d4a15dbe74d0d70bbe6ff03362dc7337fb8f4c5c))
+* render minimal/none header styles, cap hero height, switch category hero images ([#158](https://github.com/the-luap/picpeak/issues/158), [#162](https://github.com/the-luap/picpeak/issues/162), [#163](https://github.com/the-luap/picpeak/issues/163)) ([bc6c48b](https://github.com/the-luap/picpeak/commit/bc6c48bb2429505c2de3641693a8ff4f623a4951))
+* resend gallery email fails for events without password ([6b3ead7](https://github.com/the-luap/picpeak/commit/6b3ead747b1395d8ea2b3d135a5ac24db05e2eb8)), closes [#137](https://github.com/the-luap/picpeak/issues/137)
+* resolve admin invitation flow issues and improve STORAGE_PATH documentation ([41bf6ff](https://github.com/the-luap/picpeak/commit/41bf6ff884d5ef3181f95f3aa4a528434c23947a))
+* resolve branding display issues and invitation parsing errors ([1931d73](https://github.com/the-luap/picpeak/commit/1931d73b60d3419203cc8b420841abbfc9e14d2d))
+* Resolve branding display issues and invitation parsing errors (v2.2.1) ([#86](https://github.com/the-luap/picpeak/issues/86)) ([d7ecf83](https://github.com/the-luap/picpeak/commit/d7ecf83d32ec6608280b96e6cdee48e9a0ad0afa))
+* resolve code quality issues and add missing i18n keys ([#162](https://github.com/the-luap/picpeak/issues/162), [#163](https://github.com/the-luap/picpeak/issues/163)) ([329d224](https://github.com/the-luap/picpeak/commit/329d224846d3f4eefa31e42337f34047c267d578))
+* resolve code scanning security alerts (multer, tar, Node 22) ([85a07fc](https://github.com/the-luap/picpeak/commit/85a07fcca7ad935f4c0c300f5ffe2f3af8da1e5f))
+* resolve external media dimensions, gallery theme race condition, and add email color customization ([bbeedd1](https://github.com/the-luap/picpeak/commit/bbeedd1888561b6c57586b5f42bbfee3ffc69fd7))
+* resolve issues [#194](https://github.com/the-luap/picpeak/issues/194), [#195](https://github.com/the-luap/picpeak/issues/195), [#196](https://github.com/the-luap/picpeak/issues/196), [#197](https://github.com/the-luap/picpeak/issues/197) ([33af088](https://github.com/the-luap/picpeak/commit/33af0885607799e0071e2e74a582c7eb396c9b83))
+* resolve issues [#194](https://github.com/the-luap/picpeak/issues/194), [#195](https://github.com/the-luap/picpeak/issues/195), [#196](https://github.com/the-luap/picpeak/issues/196), [#197](https://github.com/the-luap/picpeak/issues/197) ([5ea4ef3](https://github.com/the-luap/picpeak/commit/5ea4ef3cf36b06f9e6c9108f80bfe2e9a6470898))
+* resolve issues [#194](https://github.com/the-luap/picpeak/issues/194), [#195](https://github.com/the-luap/picpeak/issues/195), [#196](https://github.com/the-luap/picpeak/issues/196), [#197](https://github.com/the-luap/picpeak/issues/197) ([33483cf](https://github.com/the-luap/picpeak/commit/33483cf32dfae57f8da51c0765353792239135f9))
+* resolve issues [#194](https://github.com/the-luap/picpeak/issues/194), [#195](https://github.com/the-luap/picpeak/issues/195), [#196](https://github.com/the-luap/picpeak/issues/196), [#197](https://github.com/the-luap/picpeak/issues/197) ([cd00bc1](https://github.com/the-luap/picpeak/commit/cd00bc13d4e02a86a0f1742ed1f11f064614b8da))
+* resolve JWT iat timing issue in password change ([#263](https://github.com/the-luap/picpeak/issues/263)) ([c031b1e](https://github.com/the-luap/picpeak/commit/c031b1e86333d90e8e0e0aa723572efa110f7fd1))
+* resolve mixed light/dark mode styling in admin UI ([#175](https://github.com/the-luap/picpeak/issues/175)) ([f8c8abd](https://github.com/the-luap/picpeak/commit/f8c8abd70bbae35d6cd519894624ade33b5115a8))
+* resolve password change redirect loop ([#263](https://github.com/the-luap/picpeak/issues/263)) and file watcher crash ([#269](https://github.com/the-luap/picpeak/issues/269)) ([b23c51b](https://github.com/the-luap/picpeak/commit/b23c51b386270dee4d911902b728dfacb1ff1bf9))
+* resolve password change redirect loop and file watcher crash ([835bdf5](https://github.com/the-luap/picpeak/commit/835bdf5abb40c7b143c5cdafb507c317a7c349bf)), closes [#269](https://github.com/the-luap/picpeak/issues/269)
+* resolve redirect loop after mandatory password change ([#263](https://github.com/the-luap/picpeak/issues/263)) ([07fc5e6](https://github.com/the-luap/picpeak/commit/07fc5e6519cd84f2214479d5f31bc35a495bfe4b))
+* resolve redirect loop after mandatory password change ([#263](https://github.com/the-luap/picpeak/issues/263)) ([3c8d344](https://github.com/the-luap/picpeak/commit/3c8d344ddd23974c9cf0f5f63edd6cd07817fee9))
+* respect allowed_file_types setting for upload validation ([#203](https://github.com/the-luap/picpeak/issues/203)) ([fe07a14](https://github.com/the-luap/picpeak/commit/fe07a148f1d998c0be00377c1f8b4eca3908305c))
+* respect optional email settings in event creation ([831ea6a](https://github.com/the-luap/picpeak/commit/831ea6a3bccfae4ec00ce1f619967b91b85150ce))
+* respect optional email settings in event creation ([#217](https://github.com/the-luap/picpeak/issues/217)) ([9c44a0e](https://github.com/the-luap/picpeak/commit/9c44a0ebfa527fa133512eb7f2f03335a2377aaa))
+* restore aspect-ratio layouts and improve hero image quality ([#180](https://github.com/the-luap/picpeak/issues/180)) ([3974ba5](https://github.com/the-luap/picpeak/commit/3974ba5de5a6605ad906608d3e4d61620a215059))
+* restore aspect-ratio layouts and improve hero image quality ([#180](https://github.com/the-luap/picpeak/issues/180)) ([5cef7fd](https://github.com/the-luap/picpeak/commit/5cef7fdd188389512bc4b55ae61536c8b1219eb8))
+* **security:** invalidate tokens on password change, enforce session timeout, fix role update ([f362239](https://github.com/the-luap/picpeak/commit/f3622396e77ce5d0b0741e439fc554a1dccaca50))
+* **security:** resolve all npm audit vulnerabilities ([4272618](https://github.com/the-luap/picpeak/commit/4272618b3f7fcb06aaca14fb724a6a7733251f24))
+* **security:** resolve Docker image CVEs for code scanning alerts ([cbecb93](https://github.com/the-luap/picpeak/commit/cbecb9323cf4b80c800326de14f6df73f60147c1))
+* **security:** token invalidation on password change, session timeout enforcement ([7ca9631](https://github.com/the-luap/picpeak/commit/7ca96315e254eef58d8ecc505f95a5186d2fa2da))
+* **security:** upgrade Alpine base image to fix libpng and c-ares CVEs ([b706eeb](https://github.com/the-luap/picpeak/commit/b706eeb5d332e9618706193976a7241aee53d879))
+* set JWT iat after password_changed_at to prevent token rejection ([#263](https://github.com/the-luap/picpeak/issues/263)) ([b1d1667](https://github.com/the-luap/picpeak/commit/b1d16670d56e19f7b35e7f2f12f3611fdb3fab58))
+* **setup/native:** correct repo URL, paths, and systemd for native install; support sqlite in production knex config ([87b8414](https://github.com/the-luap/picpeak/commit/87b8414e449802db6dc9f762453f7672616b83c9))
+* **setup/native:** Debian 12 compatibility (reliable RAM detection, sudo-less run_as_user, git safe.directory); ensure SQLite data dir; use user for migrate ([dc482e6](https://github.com/the-luap/picpeak/commit/dc482e614a5fbac44c6570d812669511301a4403))
+* **setup/native:** handle forced updates safely by fetch+checkout/reset instead of pull; stable on rewritten histories ([3697344](https://github.com/the-luap/picpeak/commit/3697344cd0add28b4da71c3b33e2ccc0a96f50f9))
+* **setup/update:** detect native installs first (/opt/picpeak/app/backend or systemd unit); avoid false docker updates on root ([adf576f](https://github.com/the-luap/picpeak/commit/adf576fbe17f40c13c1d77dd9751f2e9dbf523a1))
+* shorten Save button label on email template editor ([7250c42](https://github.com/the-luap/picpeak/commit/7250c427b905ffa3e8696dff607450f5a0b801b8))
+* show upload button in mobile topbar instead of sidebar ([ae181cf](https://github.com/the-luap/picpeak/commit/ae181cf92fc9c1e85cad7a7b843a4d83cec636ac)), closes [#113](https://github.com/the-luap/picpeak/issues/113)
+* stabilize uploads and guest feedback filters ([aaaf598](https://github.com/the-luap/picpeak/commit/aaaf59817b3978635d2282c006853e183ab944d4))
+* sync header_style DB column with theme editor selections ([#158](https://github.com/the-luap/picpeak/issues/158)) ([2288309](https://github.com/the-luap/picpeak/commit/228830939553fd32c250704bb89a8ce233324d25))
+* sync header_style DB column with theme editor selections ([#158](https://github.com/the-luap/picpeak/issues/158)) ([a19e7c4](https://github.com/the-luap/picpeak/commit/a19e7c40a200ff822c947a83349ed07ccf4e1b01))
+* update dependencies to resolve code scanning security alerts ([1f524f2](https://github.com/the-luap/picpeak/commit/1f524f23580d2e2a21dbba28cb46aed76e85c475))
+* update docker-compose to docker compose and add ADMIN_PASSWORD to .env.example ([#189](https://github.com/the-luap/picpeak/issues/189)) ([a4c6248](https://github.com/the-luap/picpeak/commit/a4c624802b2926a16adcf0472a3041562f9b2f48))
+* update packages to fix security vulnerabilities ([8097a0c](https://github.com/the-luap/picpeak/commit/8097a0cb530bd8003597cde81606231efadb0bf5))
+* update security policy with private reporting channels ([308e086](https://github.com/the-luap/picpeak/commit/308e08626383bab213ce3eb5563608dff6168ef4))
+* update security policy with private reporting channels ([7f77362](https://github.com/the-luap/picpeak/commit/7f7736282f534adf4b9d5331d841a1f0bff7341c))
+* update security policy with proper contact email and private reporting ([67b0f32](https://github.com/the-luap/picpeak/commit/67b0f32456d0216e4c685a104c680fa5a5fd578f)), closes [#223](https://github.com/the-luap/picpeak/issues/223)
+* use actual photo aspect ratios in masonry columns mode ([#146](https://github.com/the-luap/picpeak/issues/146)) ([8711f96](https://github.com/the-luap/picpeak/commit/8711f967a15f5d57f6ad01bfdbd8d33f9ee96abc))
+* use CSS Columns for gap-free mosaic layout ([#146](https://github.com/the-luap/picpeak/issues/146)) ([821d329](https://github.com/the-luap/picpeak/commit/821d3296ea4b6bde499e5497d258f15ab8dd1dbc))
+* use photo dimensions for mosaic aspect ratios ([#146](https://github.com/the-luap/picpeak/issues/146)) ([27ff51e](https://github.com/the-luap/picpeak/commit/27ff51e7a1217848859b47940bc88caa6f1fb20f))
+* use Release Please extra-files instead of sync-versions job ([fe7d45d](https://github.com/the-luap/picpeak/commit/fe7d45dd122b2dca1b2a21ba5c86d32b9a193074))
+* video upload media type, select all, and dimension repair ([#203](https://github.com/the-luap/picpeak/issues/203), [#220](https://github.com/the-luap/picpeak/issues/220), [#180](https://github.com/the-luap/picpeak/issues/180)) ([fc75bcd](https://github.com/the-luap/picpeak/commit/fc75bcdfc38673d6e4dd1cd943cfb4638d3a306c))
+* video upload, select all, and dimension repair ([#203](https://github.com/the-luap/picpeak/issues/203), [#220](https://github.com/the-luap/picpeak/issues/220), [#180](https://github.com/the-luap/picpeak/issues/180)) ([a0bb080](https://github.com/the-luap/picpeak/commit/a0bb0805868e742f323b64312c3c5ef8ec408f68))
+* watermark thumbnails, custom logo display, and German translations ([f843e4c](https://github.com/the-luap/picpeak/commit/f843e4c25cef02eef354fd3ee25824e20e4f8fc8))
+* watermark thumbnails, custom logo display, and German translations ([ea20446](https://github.com/the-luap/picpeak/commit/ea20446a797a00cf45dbe7bf6f06574a79c4d8a6))
+* watermark upload JSON parsing and image quality preservation ([0e3b50d](https://github.com/the-luap/picpeak/commit/0e3b50d1b6a2dc532ebdc0981f81f77722e8f23a))
+* wire admin photo feedback filters into grid query ([#293](https://github.com/the-luap/picpeak/issues/293)) ([d4b4dc6](https://github.com/the-luap/picpeak/commit/d4b4dc628f28a303ff1c80ba6d8e5e768217ba51))
+* wrap email preview with full styled header/footer template ([9a6d2e8](https://github.com/the-luap/picpeak/commit/9a6d2e8e3a3fab8d7969a8a42e94934c38d88392))
+* wrap email preview with full styled header/footer template ([fc0911a](https://github.com/the-luap/picpeak/commit/fc0911acf8b7c8a18d71bb4267f1086acd1e0ca1)), closes [#229](https://github.com/the-luap/picpeak/issues/229)
+* wrap test email with standard email template ([#252](https://github.com/the-luap/picpeak/issues/252)) ([954a011](https://github.com/the-luap/picpeak/commit/954a0118bae5770c74f1e811e03b8fc702c70db2))
+
+
+### Documentation
+
+* add API_URL environment variable to .env.example files ([3e69579](https://github.com/the-luap/picpeak/commit/3e69579f5a171b31a253b2a42bb033bf1b97387d))
+* add PUID/PGID note for Docker bind mounts to avoid permission issues ([0178e71](https://github.com/the-luap/picpeak/commit/0178e71c67f198c6013ece52b0a2da0e2f1a6b2a))
+* clarify file system photo import requires existing event ([#269](https://github.com/the-luap/picpeak/issues/269)) ([5295516](https://github.com/the-luap/picpeak/commit/5295516b67a1d9f035564c5f9a724f25f8d21c78))
+* clarify file system photo import requires existing event ([#269](https://github.com/the-luap/picpeak/issues/269)) ([ee0baaf](https://github.com/the-luap/picpeak/commit/ee0baafc59f3588a26172aa8835c12dcaec35d10))
+* emphasize importance of STORAGE_PATH in env example ([3397807](https://github.com/the-luap/picpeak/commit/3397807670784e02cbe34a7a60db43c95d64f19c))
+* **readme:** reflect new External Media reference mode and update roadmap (gallery feedback status) ([ee13556](https://github.com/the-luap/picpeak/commit/ee13556c5cb4f24fe88e14fd00b821acf65b11cb))
+
+## [3.26.2-beta.0](https://github.com/the-luap/picpeak/compare/v3.26.1-beta.0...v3.26.2-beta.0) (2026-04-11)
+
+
+### Bug Fixes
+
+* admin photo feedback filters have no effect ([#293](https://github.com/the-luap/picpeak/issues/293)) ([9ed8a2b](https://github.com/the-luap/picpeak/commit/9ed8a2b1994d139efd100c8fb97e6368655e5530))
+* wire admin photo feedback filters into grid query ([#293](https://github.com/the-luap/picpeak/issues/293)) ([d4b4dc6](https://github.com/the-luap/picpeak/commit/d4b4dc628f28a303ff1c80ba6d8e5e768217ba51))
+
+## [3.26.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.26.0-beta.0...v3.26.1-beta.0) (2026-04-09)
+
+
+### Bug Fixes
+
+* apply password change fix to regular modal + longer toast delay ([#263](https://github.com/the-luap/picpeak/issues/263)) ([c63bc47](https://github.com/the-luap/picpeak/commit/c63bc47089b4b32c570bdeeb1f82bf722569875f))
+* apply password change redirect fix to regular modal too ([#263](https://github.com/the-luap/picpeak/issues/263)) ([147dc28](https://github.com/the-luap/picpeak/commit/147dc28440ca69ed970677fa221dfac00c8e2560))
+* resolve JWT iat timing issue in password change ([#263](https://github.com/the-luap/picpeak/issues/263)) ([c031b1e](https://github.com/the-luap/picpeak/commit/c031b1e86333d90e8e0e0aa723572efa110f7fd1))
+* set JWT iat after password_changed_at to prevent token rejection ([#263](https://github.com/the-luap/picpeak/issues/263)) ([b1d1667](https://github.com/the-luap/picpeak/commit/b1d16670d56e19f7b35e7f2f12f3611fdb3fab58))
+
+
+### Documentation
+
+* clarify file system photo import requires existing event ([#269](https://github.com/the-luap/picpeak/issues/269)) ([5295516](https://github.com/the-luap/picpeak/commit/5295516b67a1d9f035564c5f9a724f25f8d21c78))
+* clarify file system photo import requires existing event ([#269](https://github.com/the-luap/picpeak/issues/269)) ([ee0baaf](https://github.com/the-luap/picpeak/commit/ee0baafc59f3588a26172aa8835c12dcaec35d10))
+
+## [3.26.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.25.0-beta.0...v3.26.0-beta.0) (2026-04-09)
+
+
+### Features
+
+* sort photos by capture date with configurable default sort ([#283](https://github.com/the-luap/picpeak/issues/283)) ([8805fa5](https://github.com/the-luap/picpeak/commit/8805fa53e61c6b3672a8f6dad14d2fd17998a451))
+* sort photos by capture date with configurable default sort ([#283](https://github.com/the-luap/picpeak/issues/283)) ([633d4a0](https://github.com/the-luap/picpeak/commit/633d4a0f301e355ee9f057347f2f8dee8c5b4163))
+
+
+### Bug Fixes
+
+* resolve password change redirect loop ([#263](https://github.com/the-luap/picpeak/issues/263)) and file watcher crash ([#269](https://github.com/the-luap/picpeak/issues/269)) ([b23c51b](https://github.com/the-luap/picpeak/commit/b23c51b386270dee4d911902b728dfacb1ff1bf9))
+* resolve password change redirect loop and file watcher crash ([835bdf5](https://github.com/the-luap/picpeak/commit/835bdf5abb40c7b143c5cdafb507c317a7c349bf)), closes [#269](https://github.com/the-luap/picpeak/issues/269)
+
+## [3.25.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.24.1-beta.0...v3.25.0-beta.0) (2026-04-08)
+
+
+### Features
+
+* draft mode, admin branding, and workflow improvements ([dc98206](https://github.com/the-luap/picpeak/commit/dc98206737d1ebe43637319ce8c5b6da2e44c05d))
+* draft mode, admin branding, and workflow improvements ([40332a7](https://github.com/the-luap/picpeak/commit/40332a71db6534097940d3f9362b0fe651dba6c7))
+
+## [3.24.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.24.0-beta.0...v3.24.1-beta.0) (2026-04-05)
+
+
+### Bug Fixes
+
+* resolve redirect loop after mandatory password change ([#263](https://github.com/the-luap/picpeak/issues/263)) ([07fc5e6](https://github.com/the-luap/picpeak/commit/07fc5e6519cd84f2214479d5f31bc35a495bfe4b))
+* resolve redirect loop after mandatory password change ([#263](https://github.com/the-luap/picpeak/issues/263)) ([3c8d344](https://github.com/the-luap/picpeak/commit/3c8d344ddd23974c9cf0f5f63edd6cd07817fee9))
+
+## [3.24.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.23.0-beta.0...v3.24.0-beta.0) (2026-04-04)
+
+
+### Features
+
+* warn about low thumbnail resolution when selecting beta themes ([ee3f6ae](https://github.com/the-luap/picpeak/commit/ee3f6ae13bf9c9fb3295286e84150e04bf9fbce4))
+* warn about low thumbnail resolution with beta themes ([aef9b4e](https://github.com/the-luap/picpeak/commit/aef9b4ed7fc443cbec8890c580759077e05e77b4))
+
+## [3.23.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.22.0-beta.0...v3.23.0-beta.0) (2026-04-04)
+
+
+### Features
+
+* multilingual email templates with translations table ([8c5996e](https://github.com/the-luap/picpeak/commit/8c5996e4ec43b2817d84cc040cfe52878ffb61d5))
+* multilingual email templates with translations table ([f50d7c0](https://github.com/the-luap/picpeak/commit/f50d7c0c51aa84a2182e450cd4b6a00777a8f9c0))
+
+
+### Bug Fixes
+
+* pin npm to v10 in backend Dockerfile ([ddefd3a](https://github.com/the-luap/picpeak/commit/ddefd3a95e5047d4a22aa4b6fef57dfb1c880967))
+* pin npm upgrade to v10 in backend Dockerfile ([978e447](https://github.com/the-luap/picpeak/commit/978e4473b5227ee61ad7d17487063eb3284bea36))
+
+## [3.22.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.21.1-beta.0...v3.22.0-beta.0) (2026-03-25)
+
+
+### Features
+
+* add Dutch (nl) locale and fix missing translation keys across all locales ([b54a80d](https://github.com/the-luap/picpeak/commit/b54a80d251bcbb9a126e32eeaef522688bc810c6))
+* add Dutch locale and fix missing translation keys ([e32da68](https://github.com/the-luap/picpeak/commit/e32da68cbdfa430d62cbb1057ea418dc6b2f14fb))
+
+## [3.21.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.21.0-beta.0...v3.21.1-beta.0) (2026-03-22)
+
+
+### Bug Fixes
+
+* address Shannon security assessment findings (37 vulnerabilities) ([#254](https://github.com/the-luap/picpeak/issues/254)) ([23cd9cb](https://github.com/the-luap/picpeak/commit/23cd9cb680eb77b94a97266c3353dfc835f0cc69))
+
+## [3.21.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.20.1-beta.0...v3.21.0-beta.0) (2026-03-18)
+
+
+### Features
+
+* add per-gallery thumbnail scale setting ([#172](https://github.com/the-luap/picpeak/issues/172)) ([#251](https://github.com/the-luap/picpeak/issues/251)) ([ee46088](https://github.com/the-luap/picpeak/commit/ee46088985ebbbb81d16e5bac23be2060c94397f))
+
+
+### Bug Fixes
+
+* wrap test email with standard email template ([#252](https://github.com/the-luap/picpeak/issues/252)) ([954a011](https://github.com/the-luap/picpeak/commit/954a0118bae5770c74f1e811e03b8fc702c70db2))
+
+## [3.20.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.20.0-beta.0...v3.20.1-beta.0) (2026-03-17)
+
+
+### Bug Fixes
+
+* address beta feedback - gallery layout fixes, Russian locale, email logo ([#249](https://github.com/the-luap/picpeak/issues/249)) ([486239a](https://github.com/the-luap/picpeak/commit/486239aeb9b5f56551d5aa90f0bad3008eedc3bb))
+
+## [3.20.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.19.2-beta.0...v3.20.0-beta.0) (2026-03-17)
+
+
+### Features
+
+* photo visibility control with client access ([#172](https://github.com/the-luap/picpeak/issues/172)) ([4a93e4e](https://github.com/the-luap/picpeak/commit/4a93e4e8cbe1b7a23a8be706291a270ccdf5bb55))
+* photo visibility control with client access ([#172](https://github.com/the-luap/picpeak/issues/172)) ([e1b6e43](https://github.com/the-luap/picpeak/commit/e1b6e43e524211c913d3d29ade5fc029df12920f))
+
+## [3.19.2-beta.0](https://github.com/the-luap/picpeak/compare/v3.19.1-beta.0...v3.19.2-beta.0) (2026-03-16)
+
+
+### Bug Fixes
+
+* **security:** invalidate tokens on password change, enforce session timeout, fix role update ([f362239](https://github.com/the-luap/picpeak/commit/f3622396e77ce5d0b0741e439fc554a1dccaca50))
+* **security:** token invalidation on password change, session timeout enforcement ([7ca9631](https://github.com/the-luap/picpeak/commit/7ca96315e254eef58d8ecc505f95a5186d2fa2da))
+
+## [3.19.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.19.0-beta.0...v3.19.1-beta.0) (2026-03-16)
+
+
+### Bug Fixes
+
+* external media dimensions, theme race condition, email color customization ([dfae2c2](https://github.com/the-luap/picpeak/commit/dfae2c2bc6d86378c553cd847b439f7cb53a4f2a))
+* resolve external media dimensions, gallery theme race condition, and add email color customization ([bbeedd1](https://github.com/the-luap/picpeak/commit/bbeedd1888561b6c57586b5f42bbfee3ffc69fd7))
+
+## [3.19.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.18.2-beta.0...v3.19.0-beta.0) (2026-03-16)
+
+
+### Features
+
+* add photo cap per event and Portuguese (pt-BR) locale ([1fa222e](https://github.com/the-luap/picpeak/commit/1fa222e9c4c26e525c7899e368988c6b0b08da85))
+* add photo cap per event and Portuguese locale ([088de43](https://github.com/the-luap/picpeak/commit/088de43f09f974d444f50452ef1117315c289ebc))
+
+## [3.18.2-beta.0](https://github.com/the-luap/picpeak/compare/v3.18.1-beta.0...v3.18.2-beta.0) (2026-03-16)
+
+
+### Bug Fixes
+
+* resolve code scanning security alerts (multer, tar, Node 22) ([85a07fc](https://github.com/the-luap/picpeak/commit/85a07fcca7ad935f4c0c300f5ffe2f3af8da1e5f))
+* update dependencies to resolve code scanning security alerts ([1f524f2](https://github.com/the-luap/picpeak/commit/1f524f23580d2e2a21dbba28cb46aed76e85c475))
+
+## [3.18.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.18.0-beta.0...v3.18.1-beta.0) (2026-03-16)
+
+
+### Bug Fixes
+
+* wrap email preview with full styled header/footer template ([9a6d2e8](https://github.com/the-luap/picpeak/commit/9a6d2e8e3a3fab8d7969a8a42e94934c38d88392))
+* wrap email preview with full styled header/footer template ([fc0911a](https://github.com/the-luap/picpeak/commit/fc0911acf8b7c8a18d71bb4267f1086acd1e0ca1)), closes [#229](https://github.com/the-luap/picpeak/issues/229)
+
+## [3.18.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.17.2-beta.0...v3.18.0-beta.0) (2026-03-16)
+
+
+### Features
+
+* add visual WYSIWYG email template editor ([#229](https://github.com/the-luap/picpeak/issues/229)) ([04a7ea8](https://github.com/the-luap/picpeak/commit/04a7ea80f95d6aeb474b145292e75f45fb85c66d))
+* register Russian locale and add to language selector ([6f95b8c](https://github.com/the-luap/picpeak/commit/6f95b8c26cd794525e15e45d478f9ead0ec22555))
+* visual WYSIWYG email template editor ([703c03f](https://github.com/the-luap/picpeak/commit/703c03fbee754a5291b57b885c5e82fbdd3e69e9))
+
+
+### Bug Fixes
+
+* shorten Save button label on email template editor ([7250c42](https://github.com/the-luap/picpeak/commit/7250c427b905ffa3e8696dff607450f5a0b801b8))
+
+## [3.17.2-beta.0](https://github.com/the-luap/picpeak/compare/v3.17.1-beta.0...v3.17.2-beta.0) (2026-03-11)
+
+
+### Bug Fixes
+
+* update security policy with private reporting channels ([308e086](https://github.com/the-luap/picpeak/commit/308e08626383bab213ce3eb5563608dff6168ef4))
+* update security policy with proper contact email and private reporting ([67b0f32](https://github.com/the-luap/picpeak/commit/67b0f32456d0216e4c685a104c680fa5a5fd578f)), closes [#223](https://github.com/the-luap/picpeak/issues/223)
+* video upload media type, select all, and dimension repair ([#203](https://github.com/the-luap/picpeak/issues/203), [#220](https://github.com/the-luap/picpeak/issues/220), [#180](https://github.com/the-luap/picpeak/issues/180)) ([fc75bcd](https://github.com/the-luap/picpeak/commit/fc75bcdfc38673d6e4dd1cd943cfb4638d3a306c))
+* video upload, select all, and dimension repair ([#203](https://github.com/the-luap/picpeak/issues/203), [#220](https://github.com/the-luap/picpeak/issues/220), [#180](https://github.com/the-luap/picpeak/issues/180)) ([a0bb080](https://github.com/the-luap/picpeak/commit/a0bb0805868e742f323b64312c3c5ef8ec408f68))
+
+## [3.17.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.17.0-beta.0...v3.17.1-beta.0) (2026-03-08)
+
+
+### Bug Fixes
+
+* respect optional email settings in event creation ([831ea6a](https://github.com/the-luap/picpeak/commit/831ea6a3bccfae4ec00ce1f619967b91b85150ce))
+* respect optional email settings in event creation ([#217](https://github.com/the-luap/picpeak/issues/217)) ([9c44a0e](https://github.com/the-luap/picpeak/commit/9c44a0ebfa527fa133512eb7f2f03335a2377aaa))
+
+## [3.17.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.16.0-beta.0...v3.17.0-beta.0) (2026-03-05)
+
+
+### Features
+
+* configurable upload batch size for reverse proxy compatibility ([9b7495e](https://github.com/the-luap/picpeak/commit/9b7495e0054975e66c9b5006c24a9fae63969de4))
+
+## [3.16.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.15.3-beta.0...v3.16.0-beta.0) (2026-03-05)
+
+
+### Features
+
+* add thumbnail settings UI to admin panel ([3a30fea](https://github.com/the-luap/picpeak/commit/3a30fea862034d64fbc7188fc25292594a9319e2))
+* add thumbnail settings UI to admin settings page ([#206](https://github.com/the-luap/picpeak/issues/206)) ([7d6d2f5](https://github.com/the-luap/picpeak/commit/7d6d2f56883a4402f0d97c95b0432a8a783c8024))
+
+## [3.15.3-beta.0](https://github.com/the-luap/picpeak/compare/v3.15.2-beta.0...v3.15.3-beta.0) (2026-03-02)
+
+
+### Bug Fixes
+
+* issue [#203](https://github.com/the-luap/picpeak/issues/203) file type validation + security CVE fixes ([8017171](https://github.com/the-luap/picpeak/commit/80171713e0ffedda56f7cffb403b25a8d55634d1))
+* respect allowed_file_types setting for upload validation ([#203](https://github.com/the-luap/picpeak/issues/203)) ([fe07a14](https://github.com/the-luap/picpeak/commit/fe07a148f1d998c0be00377c1f8b4eca3908305c))
+* **security:** resolve all npm audit vulnerabilities ([4272618](https://github.com/the-luap/picpeak/commit/4272618b3f7fcb06aaca14fb724a6a7733251f24))
+* **security:** resolve Docker image CVEs for code scanning alerts ([cbecb93](https://github.com/the-luap/picpeak/commit/cbecb9323cf4b80c800326de14f6df73f60147c1))
+
+## [2.6.0](https://github.com/the-luap/picpeak/compare/v2.5.1...v2.6.0) (2026-03-11)
+
+
+### Features
+
+* add configurable upload batch size for reverse proxy compatibility ([#208](https://github.com/the-luap/picpeak/issues/208)) ([02a46e0](https://github.com/the-luap/picpeak/commit/02a46e083d68cfdb355b5a4fe4a8da7d667050b9))
+* configurable upload batch size for reverse proxy compatibility ([4243363](https://github.com/the-luap/picpeak/commit/424336340bef8e1629490ade154f0ceebb2a71e1))
+
+
+### Bug Fixes
+
+* video upload media type, select all, and dimension repair ([#203](https://github.com/the-luap/picpeak/issues/203), [#220](https://github.com/the-luap/picpeak/issues/220), [#180](https://github.com/the-luap/picpeak/issues/180)) ([fc75bcd](https://github.com/the-luap/picpeak/commit/fc75bcdfc38673d6e4dd1cd943cfb4638d3a306c))
+* video upload, select all, and dimension repair ([#203](https://github.com/the-luap/picpeak/issues/203), [#220](https://github.com/the-luap/picpeak/issues/220), [#180](https://github.com/the-luap/picpeak/issues/180)) ([a0bb080](https://github.com/the-luap/picpeak/commit/a0bb0805868e742f323b64312c3c5ef8ec408f68))
+
+## [2.5.1](https://github.com/the-luap/picpeak/compare/v2.5.0...v2.5.1) (2026-02-22)
+
+
+### Bug Fixes
+
+* resolve issues [#194](https://github.com/the-luap/picpeak/issues/194), [#195](https://github.com/the-luap/picpeak/issues/195), [#196](https://github.com/the-luap/picpeak/issues/196), [#197](https://github.com/the-luap/picpeak/issues/197) ([33af088](https://github.com/the-luap/picpeak/commit/33af0885607799e0071e2e74a582c7eb396c9b83))
+* resolve issues [#194](https://github.com/the-luap/picpeak/issues/194), [#195](https://github.com/the-luap/picpeak/issues/195), [#196](https://github.com/the-luap/picpeak/issues/196), [#197](https://github.com/the-luap/picpeak/issues/197) ([33483cf](https://github.com/the-luap/picpeak/commit/33483cf32dfae57f8da51c0765353792239135f9))
+
+## [2.5.0](https://github.com/the-luap/picpeak/compare/v2.4.0...v2.5.0) (2026-02-21)
+
+
+### Features
+
+* add admin dark mode and SEO/robots.txt settings ([9c2a0d2](https://github.com/the-luap/picpeak/commit/9c2a0d272a21dfcace2ec795034e2f1adcba47e0))
+* add bulk category editing for photos ([#157](https://github.com/the-luap/picpeak/issues/157)) ([eca36c7](https://github.com/the-luap/picpeak/commit/eca36c70a23f18f937a9f5bddeff855e18f364c3))
+* add category hero/cover photo selection ([#163](https://github.com/the-luap/picpeak/issues/163)) ([6c30e2c](https://github.com/the-luap/picpeak/commit/6c30e2c2edd19a24d4f30a9558690bb7e2331b32))
+* add customizable event types with admin management ([f8881d5](https://github.com/the-luap/picpeak/commit/f8881d5bd62d449fb40917ec8c20f0eb16c1fdad))
+* add Gallery Premium and Gallery Story layouts (Beta) ([e179def](https://github.com/the-luap/picpeak/commit/e179def3cceefe5fd6acd5574f2986e4f9e223ef))
+* add hero image focal point picker with anchor positioning ([#162](https://github.com/the-luap/picpeak/issues/162)) ([734868a](https://github.com/the-luap/picpeak/commit/734868abc23731b0ac9ad73e799194df1e6aa6ab))
+* add justified layout modes and aspect-ratio-aware mosaic ([#146](https://github.com/the-luap/picpeak/issues/146)) ([608bbd5](https://github.com/the-luap/picpeak/commit/608bbd50e7b31d49c7516a00e96f284fa16e2777))
+* Add justified layout modes and aspect-ratio-aware mosaic ([#146](https://github.com/the-luap/picpeak/issues/146)) ([ef2ae00](https://github.com/the-luap/picpeak/commit/ef2ae00ff20b754c2f2ed797e18c146d12d7f31a))
+* add justified/rows layout mode to masonry gallery ([#146](https://github.com/the-luap/picpeak/issues/146)) ([e081b56](https://github.com/the-luap/picpeak/commit/e081b56a44bf9fdaa3dd225d5dd4dde35bfe83d3))
+* add justified/rows layout mode to masonry gallery ([#146](https://github.com/the-luap/picpeak/issues/146)) + security fixes ([cd1d504](https://github.com/the-luap/picpeak/commit/cd1d50474f673b759c2f9401fdbe209a84773e39))
+* add optional event date and expiration settings ([3079eaa](https://github.com/the-luap/picpeak/commit/3079eaa2e5d1728c2c0f315626cc253e4b08edc2))
+* add optional event date and expiration settings ([2151147](https://github.com/the-luap/picpeak/commit/2151147f2d3134448ff32130da44678e2942d73c)), closes [#118](https://github.com/the-luap/picpeak/issues/118)
+* add original filename preservation and Lightroom export support ([a59f414](https://github.com/the-luap/picpeak/commit/a59f41463f960a3a74ce3933dc7db84ee3a2018d))
+* add original filename preservation and Lightroom export support ([9872ad3](https://github.com/the-luap/picpeak/commit/9872ad3aef6488b359c5499a6dc3d8bfbfa48fde))
+* add per-event custom logo upload with bug fixes ([85170b8](https://github.com/the-luap/picpeak/commit/85170b883f504d83f1d862abb3f4e46741074826))
+* add per-event hero logo customization options ([0790a1d](https://github.com/the-luap/picpeak/commit/0790a1ddad774af89827a0a392e9fae0a945bff2))
+* add quilted layout, fix mosaic, and backfill photo dimensions ([#146](https://github.com/the-luap/picpeak/issues/146)) ([46ed1bc](https://github.com/the-luap/picpeak/commit/46ed1bc276867a25b27bf22cd9b9d7e879a6947b))
+* add update instructions dialog, email notifications, and capture date sorting ([50c0990](https://github.com/the-luap/picpeak/commit/50c09904a9434f988ab32a07da5d24db0e02065e)), closes [#181](https://github.com/the-luap/picpeak/issues/181)
+* decouple hero header from gallery layouts ([#158](https://github.com/the-luap/picpeak/issues/158)) ([7b8d8bd](https://github.com/the-luap/picpeak/commit/7b8d8bd92ba7a96717bb4d821b38dddc395f701a))
+* gallery layouts, bulk category editing, and hero header improvements ([7037106](https://github.com/the-luap/picpeak/commit/7037106bff62593bba600d898a781f79f07b459d))
+* gallery layouts, hero customization, bulk categories & event types ([d9e00dc](https://github.com/the-luap/picpeak/commit/d9e00dc0dbd7cef0ddb4665e5306c98aac3573e3))
+* gallery layouts, hero customization, event types, and UX improvements ([#146](https://github.com/the-luap/picpeak/issues/146), [#155](https://github.com/the-luap/picpeak/issues/155)-163, [#170](https://github.com/the-luap/picpeak/issues/170), [#171](https://github.com/the-luap/picpeak/issues/171)) ([4280444](https://github.com/the-luap/picpeak/commit/4280444d70e73db09e67e18ce25bac75cf499b75))
+* improve gallery layouts with aspect-ratio-aware masonry and mosaic modes ([#146](https://github.com/the-luap/picpeak/issues/146)) ([aacfcd5](https://github.com/the-luap/picpeak/commit/aacfcd517ea5739e834cf84627b55b3449740a5c))
+* improve hero image UX and live preview ([#163](https://github.com/the-luap/picpeak/issues/163), [#158](https://github.com/the-luap/picpeak/issues/158)) ([d63f67a](https://github.com/the-luap/picpeak/commit/d63f67a2afba1b92610382aa1012428ccacb86bd))
+* new features and bug fixes for beta release ([151e1bf](https://github.com/the-luap/picpeak/commit/151e1bf50f206ae0571fa044c75b8bc9f0f40120))
+* original filename in admin UI, update dialog, and security hardening ([3ea9d5b](https://github.com/the-luap/picpeak/commit/3ea9d5b1219980032cbee7a2564c0004948923f5))
+* original filename in admin UI, update dialog, security hardening, and bug fixes ([bcf2745](https://github.com/the-luap/picpeak/commit/bcf2745ab64acb968ae4bd0710b28e78c14f340c))
+* per-event custom logos, customizable event types, and multiple bug fixes ([4c08160](https://github.com/the-luap/picpeak/commit/4c081601e02888d7ad289acb7847aee9d6f5703f))
+* pre-generate watermarks for instant lightbox loading ([1be974a](https://github.com/the-luap/picpeak/commit/1be974afbb0b7a1bdbdd140327771907a5d3c2ae)), closes [#112](https://github.com/the-luap/picpeak/issues/112)
+* pre-generated watermarks and mobile upload button improvements ([c6fdd38](https://github.com/the-luap/picpeak/commit/c6fdd38e842e1a8c0aa9cbab9fc791e6669e402d))
+* show original filename in admin UI ([#184](https://github.com/the-luap/picpeak/issues/184)) ([0891be1](https://github.com/the-luap/picpeak/commit/0891be197fdb7d92ade5a293b8db0bed26fa6e3a))
+## [3.15.2-beta.0](https://github.com/the-luap/picpeak/compare/v3.15.1-beta.0...v3.15.2-beta.0) (2026-02-22)
+
+
+### Bug Fixes
+
+* add allow_user_uploads to gallery API responses ([691e3ab](https://github.com/the-luap/picpeak/commit/691e3aba09f2148afe902a0bb0139d062634e669))
+* add STORAGE_PATH to production docker-compose ([cdda709](https://github.com/the-luap/picpeak/commit/cdda70988664a177b351abc6a259ec39664d17ff))
+* checkbox and toggle settings not persisting after page refresh ([808ed1d](https://github.com/the-luap/picpeak/commit/808ed1d2f1164d9fd1114586c68a1f925bf73ddf)), closes [#117](https://github.com/the-luap/picpeak/issues/117)
+* correct invitation activation validation and add missing translations ([991aa98](https://github.com/the-luap/picpeak/commit/991aa98f98cffd1d7785c272726615325e2c0208)), closes [#129](https://github.com/the-luap/picpeak/issues/129)
+* correct invitation email link URL path ([86fa104](https://github.com/the-luap/picpeak/commit/86fa1046d5439cb451feb164175c919c49ca219a)), closes [#129](https://github.com/the-luap/picpeak/issues/129)
+* correct storage path resolution in multiple files ([#96](https://github.com/the-luap/picpeak/issues/96)) ([0e3674b](https://github.com/the-luap/picpeak/commit/0e3674b2b0325bbcee5aa2c9ff7781da92f612d1))
+* correct storage path resolution in multiple files ([#96](https://github.com/the-luap/picpeak/issues/96)) ([3ccb815](https://github.com/the-luap/picpeak/commit/3ccb8154eb40a432aa467fb06b3f216fd0d2c6b4))
+* docker compose v2 syntax and add missing ADMIN_PASSWORD to .env.example ([#189](https://github.com/the-luap/picpeak/issues/189)) ([0817443](https://github.com/the-luap/picpeak/commit/0817443e793e37c770c6a1968ecae4b9464107b0))
+* event-specific custom CSS settings not being saved ([dadef81](https://github.com/the-luap/picpeak/commit/dadef81158972d28aa32812203500f77ed08a999)), closes [#136](https://github.com/the-luap/picpeak/issues/136)
+* events without expiration date incorrectly shown as expired ([c4f16eb](https://github.com/the-luap/picpeak/commit/c4f16eb76c909158abdb63aa4cc22f817f274dc5))
+* handle null dates in dashboard and gallery pages ([c5a8ffc](https://github.com/the-luap/picpeak/commit/c5a8ffc08cd4c53c37fe4fb9cde8519a68f1f343))
+* hero header state and preview in admin theme editor ([#158](https://github.com/the-luap/picpeak/issues/158)) ([f554f46](https://github.com/the-luap/picpeak/commit/f554f463b3492346dba067c0980b52ef42dd5e70))
+* improve ghost button visibility in admin dark mode ([4912e2b](https://github.com/the-luap/picpeak/commit/4912e2bccf282134d5598a8ac80942ed46d0523c))
+* improve password validation errors and event list UX ([#170](https://github.com/the-luap/picpeak/issues/170), [#171](https://github.com/the-luap/picpeak/issues/171)) ([171abb3](https://github.com/the-luap/picpeak/commit/171abb31615484d77cf95a99cb5634afa0160adc))
+* improve photo serving, category filters, and upload chunking ([#155](https://github.com/the-luap/picpeak/issues/155), [#156](https://github.com/the-luap/picpeak/issues/156), [#161](https://github.com/the-luap/picpeak/issues/161)) ([fa4c838](https://github.com/the-luap/picpeak/commit/fa4c83812d87cfa63394e51186e320a072929d37))
+* increase upload limit to 1GB and fix category filters ([#155](https://github.com/the-luap/picpeak/issues/155), [#156](https://github.com/the-luap/picpeak/issues/156)) ([397d33a](https://github.com/the-luap/picpeak/commit/397d33a95a09e0b0986c3f6cf5965c544992a764))
+* mobile upload button not visible in gallery ([#113](https://github.com/the-luap/picpeak/issues/113)) ([cacaffa](https://github.com/the-luap/picpeak/commit/cacaffa5c39f67105c4cfb092ea62157121fb72e))
+* mobile upload button visibility in gallery ([2a2c23d](https://github.com/the-luap/picpeak/commit/2a2c23d11610e6c81684163eb4ea934a6d6104fb)), closes [#113](https://github.com/the-luap/picpeak/issues/113)
+* mobile upload button visibility in gallery ([df7dbff](https://github.com/the-luap/picpeak/commit/df7dbffbffb180e62af0d2b58326f9de0f515439)), closes [#113](https://github.com/the-luap/picpeak/issues/113)
+* mobile upload button visibility in gallery ([#113](https://github.com/the-luap/picpeak/issues/113)) ([05a5307](https://github.com/the-luap/picpeak/commit/05a5307e22dc45be4b75b2996ff9fac65dec399d))
+* mobile upload button visibility in gallery ([#113](https://github.com/the-luap/picpeak/issues/113)) ([6cb4342](https://github.com/the-luap/picpeak/commit/6cb43428d1e703267edeacda9ede050a8c4f8e0c))
+* remove non-functional watermark toggle from Feature Toggles ([d4a15db](https://github.com/the-luap/picpeak/commit/d4a15dbe74d0d70bbe6ff03362dc7337fb8f4c5c))
+* render minimal/none header styles, cap hero height, switch category hero images ([#158](https://github.com/the-luap/picpeak/issues/158), [#162](https://github.com/the-luap/picpeak/issues/162), [#163](https://github.com/the-luap/picpeak/issues/163)) ([bc6c48b](https://github.com/the-luap/picpeak/commit/bc6c48bb2429505c2de3641693a8ff4f623a4951))
+* resend gallery email fails for events without password ([6b3ead7](https://github.com/the-luap/picpeak/commit/6b3ead747b1395d8ea2b3d135a5ac24db05e2eb8)), closes [#137](https://github.com/the-luap/picpeak/issues/137)
+* resolve admin invitation flow issues and improve STORAGE_PATH documentation ([41bf6ff](https://github.com/the-luap/picpeak/commit/41bf6ff884d5ef3181f95f3aa4a528434c23947a))
+* resolve code quality issues and add missing i18n keys ([#162](https://github.com/the-luap/picpeak/issues/162), [#163](https://github.com/the-luap/picpeak/issues/163)) ([329d224](https://github.com/the-luap/picpeak/commit/329d224846d3f4eefa31e42337f34047c267d578))
+* resolve mixed light/dark mode styling in admin UI ([#175](https://github.com/the-luap/picpeak/issues/175)) ([f8c8abd](https://github.com/the-luap/picpeak/commit/f8c8abd70bbae35d6cd519894624ade33b5115a8))
+* restore aspect-ratio layouts and improve hero image quality ([#180](https://github.com/the-luap/picpeak/issues/180)) ([3974ba5](https://github.com/the-luap/picpeak/commit/3974ba5de5a6605ad906608d3e4d61620a215059))
+* restore aspect-ratio layouts and improve hero image quality ([#180](https://github.com/the-luap/picpeak/issues/180)) ([5cef7fd](https://github.com/the-luap/picpeak/commit/5cef7fdd188389512bc4b55ae61536c8b1219eb8))
+* show upload button in mobile topbar instead of sidebar ([ae181cf](https://github.com/the-luap/picpeak/commit/ae181cf92fc9c1e85cad7a7b843a4d83cec636ac)), closes [#113](https://github.com/the-luap/picpeak/issues/113)
+* sync header_style DB column with theme editor selections ([#158](https://github.com/the-luap/picpeak/issues/158)) ([2288309](https://github.com/the-luap/picpeak/commit/228830939553fd32c250704bb89a8ce233324d25))
+* sync header_style DB column with theme editor selections ([#158](https://github.com/the-luap/picpeak/issues/158)) ([a19e7c4](https://github.com/the-luap/picpeak/commit/a19e7c40a200ff822c947a83349ed07ccf4e1b01))
+* update docker-compose to docker compose and add ADMIN_PASSWORD to .env.example ([#189](https://github.com/the-luap/picpeak/issues/189)) ([a4c6248](https://github.com/the-luap/picpeak/commit/a4c624802b2926a16adcf0472a3041562f9b2f48))
+* update packages to fix security vulnerabilities ([8097a0c](https://github.com/the-luap/picpeak/commit/8097a0cb530bd8003597cde81606231efadb0bf5))
+* use actual photo aspect ratios in masonry columns mode ([#146](https://github.com/the-luap/picpeak/issues/146)) ([8711f96](https://github.com/the-luap/picpeak/commit/8711f967a15f5d57f6ad01bfdbd8d33f9ee96abc))
+* use CSS Columns for gap-free mosaic layout ([#146](https://github.com/the-luap/picpeak/issues/146)) ([821d329](https://github.com/the-luap/picpeak/commit/821d3296ea4b6bde499e5497d258f15ab8dd1dbc))
+* use photo dimensions for mosaic aspect ratios ([#146](https://github.com/the-luap/picpeak/issues/146)) ([27ff51e](https://github.com/the-luap/picpeak/commit/27ff51e7a1217848859b47940bc88caa6f1fb20f))
+
+
+### Documentation
+
+* add API_URL environment variable to .env.example files ([3e69579](https://github.com/the-luap/picpeak/commit/3e69579f5a171b31a253b2a42bb033bf1b97387d))
+* emphasize importance of STORAGE_PATH in env example ([3397807](https://github.com/the-luap/picpeak/commit/3397807670784e02cbe34a7a60db43c95d64f19c))
+* resolve issues [#194](https://github.com/the-luap/picpeak/issues/194), [#195](https://github.com/the-luap/picpeak/issues/195), [#196](https://github.com/the-luap/picpeak/issues/196), [#197](https://github.com/the-luap/picpeak/issues/197) ([5ea4ef3](https://github.com/the-luap/picpeak/commit/5ea4ef3cf36b06f9e6c9108f80bfe2e9a6470898))
+* resolve issues [#194](https://github.com/the-luap/picpeak/issues/194), [#195](https://github.com/the-luap/picpeak/issues/195), [#196](https://github.com/the-luap/picpeak/issues/196), [#197](https://github.com/the-luap/picpeak/issues/197) ([cd00bc1](https://github.com/the-luap/picpeak/commit/cd00bc13d4e02a86a0f1742ed1f11f064614b8da))
+
+## [3.15.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.15.0-beta.0...v3.15.1-beta.0) (2026-02-21)
+
+
+### Bug Fixes
+
+* docker compose v2 syntax and add missing ADMIN_PASSWORD to .env.example ([#189](https://github.com/the-luap/picpeak/issues/189)) ([0817443](https://github.com/the-luap/picpeak/commit/0817443e793e37c770c6a1968ecae4b9464107b0))
+* update docker-compose to docker compose and add ADMIN_PASSWORD to .env.example ([#189](https://github.com/the-luap/picpeak/issues/189)) ([a4c6248](https://github.com/the-luap/picpeak/commit/a4c624802b2926a16adcf0472a3041562f9b2f48))
+
+## [3.15.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.14.0-beta.0...v3.15.0-beta.0) (2026-02-17)
+
+
+### Features
+
+* original filename in admin UI, update dialog, security hardening, and bug fixes ([bcf2745](https://github.com/the-luap/picpeak/commit/bcf2745ab64acb968ae4bd0710b28e78c14f340c))
+
+
+### Bug Fixes
+
+* events without expiration date incorrectly shown as expired ([c4f16eb](https://github.com/the-luap/picpeak/commit/c4f16eb76c909158abdb63aa4cc22f817f274dc5))
+
+## [3.14.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.13.1-beta.0...v3.14.0-beta.0) (2026-02-17)
+
+
+### Features
+
+* add update instructions dialog, email notifications, and capture date sorting ([50c0990](https://github.com/the-luap/picpeak/commit/50c09904a9434f988ab32a07da5d24db0e02065e)), closes [#181](https://github.com/the-luap/picpeak/issues/181)
+* original filename in admin UI, update dialog, and security hardening ([3ea9d5b](https://github.com/the-luap/picpeak/commit/3ea9d5b1219980032cbee7a2564c0004948923f5))
+* show original filename in admin UI ([#184](https://github.com/the-luap/picpeak/issues/184)) ([0891be1](https://github.com/the-luap/picpeak/commit/0891be197fdb7d92ade5a293b8db0bed26fa6e3a))
+
+## [3.13.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.13.0-beta.0...v3.13.1-beta.0) (2026-02-15)
+
+
+### Bug Fixes
+
+* restore aspect-ratio layouts and improve hero image quality ([#180](https://github.com/the-luap/picpeak/issues/180)) ([3974ba5](https://github.com/the-luap/picpeak/commit/3974ba5de5a6605ad906608d3e4d61620a215059))
+* restore aspect-ratio layouts and improve hero image quality ([#180](https://github.com/the-luap/picpeak/issues/180)) ([5cef7fd](https://github.com/the-luap/picpeak/commit/5cef7fdd188389512bc4b55ae61536c8b1219eb8))
+
+## [3.13.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.12.0-beta.0...v3.13.0-beta.0) (2026-02-06)
+
+
+### Features
+
+* improve hero image UX and live preview ([#163](https://github.com/the-luap/picpeak/issues/163), [#158](https://github.com/the-luap/picpeak/issues/158)) ([d63f67a](https://github.com/the-luap/picpeak/commit/d63f67a2afba1b92610382aa1012428ccacb86bd))
+
+## [3.12.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.11.0-beta.0...v3.12.0-beta.0) (2026-02-06)
+
+
+### Features
+
+* add admin dark mode and SEO/robots.txt settings ([9c2a0d2](https://github.com/the-luap/picpeak/commit/9c2a0d272a21dfcace2ec795034e2f1adcba47e0))
+
+
+### Bug Fixes
+
+* improve ghost button visibility in admin dark mode ([4912e2b](https://github.com/the-luap/picpeak/commit/4912e2bccf282134d5598a8ac80942ed46d0523c))
+* resolve mixed light/dark mode styling in admin UI ([#175](https://github.com/the-luap/picpeak/issues/175)) ([f8c8abd](https://github.com/the-luap/picpeak/commit/f8c8abd70bbae35d6cd519894624ade33b5115a8))
+
+## [3.11.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.10.1-beta.0...v3.11.0-beta.0) (2026-02-06)
+
+
+### Features
+
+* add Gallery Premium and Gallery Story layouts (Beta) ([e179def](https://github.com/the-luap/picpeak/commit/e179def3cceefe5fd6acd5574f2986e4f9e223ef))
+* gallery layouts, hero customization, event types, and UX improvements ([#146](https://github.com/the-luap/picpeak/issues/146), [#155](https://github.com/the-luap/picpeak/issues/155)-163, [#170](https://github.com/the-luap/picpeak/issues/170), [#171](https://github.com/the-luap/picpeak/issues/171)) ([4280444](https://github.com/the-luap/picpeak/commit/4280444d70e73db09e67e18ce25bac75cf499b75))
+
+
+### Bug Fixes
+
+* improve password validation errors and event list UX ([#170](https://github.com/the-luap/picpeak/issues/170), [#171](https://github.com/the-luap/picpeak/issues/171)) ([171abb3](https://github.com/the-luap/picpeak/commit/171abb31615484d77cf95a99cb5634afa0160adc))
+* render minimal/none header styles, cap hero height, switch category hero images ([#158](https://github.com/the-luap/picpeak/issues/158), [#162](https://github.com/the-luap/picpeak/issues/162), [#163](https://github.com/the-luap/picpeak/issues/163)) ([bc6c48b](https://github.com/the-luap/picpeak/commit/bc6c48bb2429505c2de3641693a8ff4f623a4951))
+
+## [3.10.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.10.0-beta.0...v3.10.1-beta.0) (2026-02-03)
+
+
+### Bug Fixes
+
+* sync header_style DB column with theme editor selections ([#158](https://github.com/the-luap/picpeak/issues/158)) ([2288309](https://github.com/the-luap/picpeak/commit/228830939553fd32c250704bb89a8ce233324d25))
+* sync header_style DB column with theme editor selections ([#158](https://github.com/the-luap/picpeak/issues/158)) ([a19e7c4](https://github.com/the-luap/picpeak/commit/a19e7c40a200ff822c947a83349ed07ccf4e1b01))
+
+## [3.10.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.9.0-beta.0...v3.10.0-beta.0) (2026-02-03)
+
+
+### Features
+
+* add category hero/cover photo selection ([#163](https://github.com/the-luap/picpeak/issues/163)) ([6c30e2c](https://github.com/the-luap/picpeak/commit/6c30e2c2edd19a24d4f30a9558690bb7e2331b32))
+* add hero image focal point picker with anchor positioning ([#162](https://github.com/the-luap/picpeak/issues/162)) ([734868a](https://github.com/the-luap/picpeak/commit/734868abc23731b0ac9ad73e799194df1e6aa6ab))
+* gallery layouts, hero customization, bulk categories & event types ([d9e00dc](https://github.com/the-luap/picpeak/commit/d9e00dc0dbd7cef0ddb4665e5306c98aac3573e3))
+
+
+### Bug Fixes
+
+* hero header state and preview in admin theme editor ([#158](https://github.com/the-luap/picpeak/issues/158)) ([f554f46](https://github.com/the-luap/picpeak/commit/f554f463b3492346dba067c0980b52ef42dd5e70))
+* improve photo serving, category filters, and upload chunking ([#155](https://github.com/the-luap/picpeak/issues/155), [#156](https://github.com/the-luap/picpeak/issues/156), [#161](https://github.com/the-luap/picpeak/issues/161)) ([fa4c838](https://github.com/the-luap/picpeak/commit/fa4c83812d87cfa63394e51186e320a072929d37))
+* resolve code quality issues and add missing i18n keys ([#162](https://github.com/the-luap/picpeak/issues/162), [#163](https://github.com/the-luap/picpeak/issues/163)) ([329d224](https://github.com/the-luap/picpeak/commit/329d224846d3f4eefa31e42337f34047c267d578))
+
+## [3.9.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.8.0-beta.0...v3.9.0-beta.0) (2026-02-01)
+
+
+### Features
+
+* add bulk category editing for photos ([#157](https://github.com/the-luap/picpeak/issues/157)) ([eca36c7](https://github.com/the-luap/picpeak/commit/eca36c70a23f18f937a9f5bddeff855e18f364c3))
+* decouple hero header from gallery layouts ([#158](https://github.com/the-luap/picpeak/issues/158)) ([7b8d8bd](https://github.com/the-luap/picpeak/commit/7b8d8bd92ba7a96717bb4d821b38dddc395f701a))
+* gallery layouts, bulk category editing, and hero header improvements ([7037106](https://github.com/the-luap/picpeak/commit/7037106bff62593bba600d898a781f79f07b459d))
+
+
+### Bug Fixes
+
+* increase upload limit to 1GB and fix category filters ([#155](https://github.com/the-luap/picpeak/issues/155), [#156](https://github.com/the-luap/picpeak/issues/156)) ([397d33a](https://github.com/the-luap/picpeak/commit/397d33a95a09e0b0986c3f6cf5965c544992a764))
+
+## [3.8.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.7.0-beta.0...v3.8.0-beta.0) (2026-01-30)
+
+
+### Features
+
+* add quilted layout, fix mosaic, and backfill photo dimensions ([#146](https://github.com/the-luap/picpeak/issues/146)) ([46ed1bc](https://github.com/the-luap/picpeak/commit/46ed1bc276867a25b27bf22cd9b9d7e879a6947b))
+* improve gallery layouts with aspect-ratio-aware masonry and mosaic modes ([#146](https://github.com/the-luap/picpeak/issues/146)) ([aacfcd5](https://github.com/the-luap/picpeak/commit/aacfcd517ea5739e834cf84627b55b3449740a5c))
+
+
+### Bug Fixes
+
+* use actual photo aspect ratios in masonry columns mode ([#146](https://github.com/the-luap/picpeak/issues/146)) ([8711f96](https://github.com/the-luap/picpeak/commit/8711f967a15f5d57f6ad01bfdbd8d33f9ee96abc))
+* use CSS Columns for gap-free mosaic layout ([#146](https://github.com/the-luap/picpeak/issues/146)) ([821d329](https://github.com/the-luap/picpeak/commit/821d3296ea4b6bde499e5497d258f15ab8dd1dbc))
+* use photo dimensions for mosaic aspect ratios ([#146](https://github.com/the-luap/picpeak/issues/146)) ([27ff51e](https://github.com/the-luap/picpeak/commit/27ff51e7a1217848859b47940bc88caa6f1fb20f))
+
+## [3.7.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.6.0-beta.0...v3.7.0-beta.0) (2026-01-28)
+
+
+### Features
+
+* add justified layout modes and aspect-ratio-aware mosaic ([#146](https://github.com/the-luap/picpeak/issues/146)) ([608bbd5](https://github.com/the-luap/picpeak/commit/608bbd50e7b31d49c7516a00e96f284fa16e2777))
+* Add justified layout modes and aspect-ratio-aware mosaic ([#146](https://github.com/the-luap/picpeak/issues/146)) ([ef2ae00](https://github.com/the-luap/picpeak/commit/ef2ae00ff20b754c2f2ed797e18c146d12d7f31a))
+
+## [3.6.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.5.0-beta.0...v3.6.0-beta.0) (2026-01-27)
+
+
+### Features
+
+* add justified/rows layout mode to masonry gallery ([#146](https://github.com/the-luap/picpeak/issues/146)) ([e081b56](https://github.com/the-luap/picpeak/commit/e081b56a44bf9fdaa3dd225d5dd4dde35bfe83d3))
+* add justified/rows layout mode to masonry gallery ([#146](https://github.com/the-luap/picpeak/issues/146)) + security fixes ([cd1d504](https://github.com/the-luap/picpeak/commit/cd1d50474f673b759c2f9401fdbe209a84773e39))
+
+
+### Bug Fixes
+
+* update packages to fix security vulnerabilities ([8097a0c](https://github.com/the-luap/picpeak/commit/8097a0cb530bd8003597cde81606231efadb0bf5))
+
+## [3.5.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.4.0-beta.0...v3.5.0-beta.0) (2026-01-25)
+
+
+### Features
+
+* add per-event custom logo upload with bug fixes ([85170b8](https://github.com/the-luap/picpeak/commit/85170b883f504d83f1d862abb3f4e46741074826))
+* per-event custom logos, customizable event types, and multiple bug fixes ([4c08160](https://github.com/the-luap/picpeak/commit/4c081601e02888d7ad289acb7847aee9d6f5703f))
+
+## [3.4.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.3.0-beta.0...v3.4.0-beta.0) (2026-01-22)
+
+
+### Features
+
+* add customizable event types with admin management ([f8881d5](https://github.com/the-luap/picpeak/commit/f8881d5bd62d449fb40917ec8c20f0eb16c1fdad))
+* add per-event hero logo customization options ([0790a1d](https://github.com/the-luap/picpeak/commit/0790a1ddad774af89827a0a392e9fae0a945bff2))
+* new features and bug fixes for beta release ([151e1bf](https://github.com/the-luap/picpeak/commit/151e1bf50f206ae0571fa044c75b8bc9f0f40120))
+
+
+### Bug Fixes
+
+* event-specific custom CSS settings not being saved ([dadef81](https://github.com/the-luap/picpeak/commit/dadef81158972d28aa32812203500f77ed08a999)), closes [#136](https://github.com/the-luap/picpeak/issues/136)
+* handle null dates in dashboard and gallery pages ([c5a8ffc](https://github.com/the-luap/picpeak/commit/c5a8ffc08cd4c53c37fe4fb9cde8519a68f1f343))
+* remove non-functional watermark toggle from Feature Toggles ([d4a15db](https://github.com/the-luap/picpeak/commit/d4a15dbe74d0d70bbe6ff03362dc7337fb8f4c5c))
+* resend gallery email fails for events without password ([6b3ead7](https://github.com/the-luap/picpeak/commit/6b3ead747b1395d8ea2b3d135a5ac24db05e2eb8)), closes [#137](https://github.com/the-luap/picpeak/issues/137)
+
+## [3.3.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.2.5-beta.0...v3.3.0-beta.0) (2026-01-21)
+
+
+### Features
+
+* add original filename preservation and Lightroom export support ([a59f414](https://github.com/the-luap/picpeak/commit/a59f41463f960a3a74ce3933dc7db84ee3a2018d))
+* add original filename preservation and Lightroom export support ([9872ad3](https://github.com/the-luap/picpeak/commit/9872ad3aef6488b359c5499a6dc3d8bfbfa48fde))
+
+## [3.2.5-beta.0](https://github.com/the-luap/picpeak/compare/v3.2.4-beta.0...v3.2.5-beta.0) (2026-01-18)
+
+
+### Bug Fixes
+
+* add STORAGE_PATH to production docker-compose ([cdda709](https://github.com/the-luap/picpeak/commit/cdda70988664a177b351abc6a259ec39664d17ff))
+* correct invitation activation validation and add missing translations ([991aa98](https://github.com/the-luap/picpeak/commit/991aa98f98cffd1d7785c272726615325e2c0208)), closes [#129](https://github.com/the-luap/picpeak/issues/129)
+* correct invitation email link URL path ([86fa104](https://github.com/the-luap/picpeak/commit/86fa1046d5439cb451feb164175c919c49ca219a)), closes [#129](https://github.com/the-luap/picpeak/issues/129)
+* resolve admin invitation flow issues and improve STORAGE_PATH documentation ([41bf6ff](https://github.com/the-luap/picpeak/commit/41bf6ff884d5ef3181f95f3aa4a528434c23947a))
+
+
+### Documentation
+
+* emphasize importance of STORAGE_PATH in env example ([3397807](https://github.com/the-luap/picpeak/commit/3397807670784e02cbe34a7a60db43c95d64f19c))
+
+## [3.2.4-beta.0](https://github.com/the-luap/picpeak/compare/v3.2.3-beta.0...v3.2.4-beta.0) (2026-01-17)
+
+
+### Bug Fixes
+
+* correct storage path resolution in multiple files ([#96](https://github.com/the-luap/picpeak/issues/96)) ([0e3674b](https://github.com/the-luap/picpeak/commit/0e3674b2b0325bbcee5aa2c9ff7781da92f612d1))
+* correct storage path resolution in multiple files ([#96](https://github.com/the-luap/picpeak/issues/96)) ([3ccb815](https://github.com/the-luap/picpeak/commit/3ccb8154eb40a432aa467fb06b3f216fd0d2c6b4))
+
+## [3.2.3-beta.0](https://github.com/the-luap/picpeak/compare/v3.2.2-beta.0...v3.2.3-beta.0) (2026-01-16)
+
+
+### Bug Fixes
+
+* add allow_user_uploads to gallery API responses ([691e3ab](https://github.com/the-luap/picpeak/commit/691e3aba09f2148afe902a0bb0139d062634e669))
+* mobile upload button not visible in gallery ([#113](https://github.com/the-luap/picpeak/issues/113)) ([cacaffa](https://github.com/the-luap/picpeak/commit/cacaffa5c39f67105c4cfb092ea62157121fb72e))
+
+## [3.2.2-beta.0](https://github.com/the-luap/picpeak/compare/v3.2.1-beta.0...v3.2.2-beta.0) (2026-01-16)
+
+
+### Bug Fixes
+
+* mobile upload button visibility in gallery ([2a2c23d](https://github.com/the-luap/picpeak/commit/2a2c23d11610e6c81684163eb4ea934a6d6104fb)), closes [#113](https://github.com/the-luap/picpeak/issues/113)
+* mobile upload button visibility in gallery ([#113](https://github.com/the-luap/picpeak/issues/113)) ([05a5307](https://github.com/the-luap/picpeak/commit/05a5307e22dc45be4b75b2996ff9fac65dec399d))
+
+## [3.2.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.2.0-beta.0...v3.2.1-beta.0) (2026-01-16)
+
+
+### Bug Fixes
+
+* mobile upload button visibility in gallery ([df7dbff](https://github.com/the-luap/picpeak/commit/df7dbffbffb180e62af0d2b58326f9de0f515439)), closes [#113](https://github.com/the-luap/picpeak/issues/113)
+* mobile upload button visibility in gallery ([#113](https://github.com/the-luap/picpeak/issues/113)) ([6cb4342](https://github.com/the-luap/picpeak/commit/6cb43428d1e703267edeacda9ede050a8c4f8e0c))
+
+## [3.2.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.1.0-beta.0...v3.2.0-beta.0) (2026-01-16)
+
+
+### Features
+
+* add optional event date and expiration settings ([3079eaa](https://github.com/the-luap/picpeak/commit/3079eaa2e5d1728c2c0f315626cc253e4b08edc2))
+* add optional event date and expiration settings ([2151147](https://github.com/the-luap/picpeak/commit/2151147f2d3134448ff32130da44678e2942d73c)), closes [#118](https://github.com/the-luap/picpeak/issues/118)
+
+
+### Bug Fixes
+
+* checkbox and toggle settings not persisting after page refresh ([808ed1d](https://github.com/the-luap/picpeak/commit/808ed1d2f1164d9fd1114586c68a1f925bf73ddf)), closes [#117](https://github.com/the-luap/picpeak/issues/117)
+
+
+### Documentation
+
+* add API_URL environment variable to .env.example files ([3e69579](https://github.com/the-luap/picpeak/commit/3e69579f5a171b31a253b2a42bb033bf1b97387d))
+
+## [3.1.0-beta.0](https://github.com/the-luap/picpeak/compare/v3.0.1-beta.0...v3.1.0-beta.0) (2026-01-15)
+
+
+### Features
+
+* dynamic website title from branding settings ([d29aab7](https://github.com/the-luap/picpeak/commit/d29aab7c70c5777451666fb7d5c7a9729dab684a))
+* pre-generate watermarks for instant lightbox loading ([1be974a](https://github.com/the-luap/picpeak/commit/1be974afbb0b7a1bdbdd140327771907a5d3c2ae)), closes [#112](https://github.com/the-luap/picpeak/issues/112)
+* pre-generated watermarks and mobile upload button improvements ([c6fdd38](https://github.com/the-luap/picpeak/commit/c6fdd38e842e1a8c0aa9cbab9fc791e6669e402d))
+
+
+### Bug Fixes
+
+* add lightbox loading spinner and watermark cache invalidation ([050ed37](https://github.com/the-luap/picpeak/commit/050ed378199eb3b15c7c7f243792f68f858803f5))
+* lightbox watermark loading, white label translations, and dynamic footer year ([ce8587b](https://github.com/the-luap/picpeak/commit/ce8587b24df3f53a11a74348eff8b5c5b96c5488))
+* prevent database migration restart failures ([83a4344](https://github.com/the-luap/picpeak/commit/83a4344a01de4f65c5024fdf2d177a04457ccd2f)), closes [#107](https://github.com/the-luap/picpeak/issues/107)
+* show upload button in mobile topbar instead of sidebar ([ae181cf](https://github.com/the-luap/picpeak/commit/ae181cf92fc9c1e85cad7a7b843a4d83cec636ac)), closes [#113](https://github.com/the-luap/picpeak/issues/113)
+* watermark thumbnails, custom logo display, and German translations ([ea20446](https://github.com/the-luap/picpeak/commit/ea20446a797a00cf45dbe7bf6f06574a79c4d8a6))
+
+## [3.0.1-beta.0](https://github.com/the-luap/picpeak/compare/v3.0.0-beta.0...v3.0.1-beta.0) (2026-01-15)
+
+
+### Bug Fixes
+
+* CI workflow fixes for protected branches ([cb01218](https://github.com/the-luap/picpeak/commit/cb012186d93403a1ac4e2d2f5283319603b290d6))
+* lightbox watermark loading, white label translations, and dynamic footer year ([3b720ed](https://github.com/the-luap/picpeak/commit/3b720ed56ecd2ded6aec57309f8c408c63a617ef))
+* lightbox watermark loading, white label translations, and dynamic footer year ([ce8587b](https://github.com/the-luap/picpeak/commit/ce8587b24df3f53a11a74348eff8b5c5b96c5488))
+* lightbox watermark loading, white label translations, and dynamic footer year ([#108](https://github.com/the-luap/picpeak/issues/108)) ([3b720ed](https://github.com/the-luap/picpeak/commit/3b720ed56ecd2ded6aec57309f8c408c63a617ef))
+
+## [2.3.2](https://github.com/the-luap/picpeak/compare/v2.3.1...v2.3.2) (2026-01-15)
+
+
+### Bug Fixes
+
+* watermark thumbnails, custom logo display, and German translations ([f843e4c](https://github.com/the-luap/picpeak/commit/f843e4c25cef02eef354fd3ee25824e20e4f8fc8))
+* watermark thumbnails, custom logo display, and German translations ([ea20446](https://github.com/the-luap/picpeak/commit/ea20446a797a00cf45dbe7bf6f06574a79c4d8a6))
+
+## [2.3.1](https://github.com/the-luap/picpeak/compare/v2.3.0...v2.3.1) (2026-01-15)
+
+
+### Bug Fixes
+
+* CI workflow fixes for protected branches ([657c205](https://github.com/the-luap/picpeak/commit/657c205a4d8ca49070b69973f4c7a3d1418633af))
+* use Release Please extra-files instead of sync-versions job ([fe7d45d](https://github.com/the-luap/picpeak/commit/fe7d45dd122b2dca1b2a21ba5c86d32b9a193074))
+
+## [3.0.0-beta.0](https://github.com/the-luap/picpeak/compare/v2.3.0-beta.0...v3.0.0-beta.0) (2026-01-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* Deployment now requires external reverse proxy for SSL/HTTPS
+
+### Features
+
+* add Apple Liquid Glass templates, image security settings, and automated releases ([6033461](https://github.com/the-luap/picpeak/commit/6033461be118ce78277ec568e1ef1ceeff7311c8))
+* add complete translation support for backup admin page ([e9f92e6](https://github.com/the-luap/picpeak/commit/e9f92e66d08ac7001c31a3ee8f43ee8306bc79a9))
+* Add CSS template system with custom gallery styling support ([0da45e6](https://github.com/the-luap/picpeak/commit/0da45e699ad998031aa56a92f2da5ee61a04e285))
+* add event management, gallery customization, and release automationFeature/event rename ([40ee671](https://github.com/the-luap/picpeak/commit/40ee67171d41522037bf9d4e7675b62ec564346d))
+* add feedback management enhancements ([0064122](https://github.com/the-luap/picpeak/commit/0064122eff12029300ab7f95078b5710c3c2d08c))
+* add GitHub Actions workflow for Docker image builds ([4029559](https://github.com/the-luap/picpeak/commit/40295599547b86af7fea3359c7486918d2cd0236))
+* add multi-administrator support with RBAC and fix backup/restore for S3 ([892e47d](https://github.com/the-luap/picpeak/commit/892e47d017064d7922536f8e138bbb290a45cdc9))
+* **admin:** external media import modal + thumbnail fixes for reference events\n\n- Photos tab: replace inline external folder picker with a modal opened via "Import from External Folder" button next to "Upload Photos"; add info that all pictures in the selected folder will be imported.\n- Admin thumbnails: align list endpoint to /api/admin/photos/:eventId/photos and always return thumbnail_url to trigger on-demand generation; normalize external paths to avoid duplicated folder segments (e.g., individual/individual) that broke resolver; improve thumbnail logging.\n- Use authenticated image fetching on admin feedback pages to prevent 401s in automation.\n- i18n: add backup.external.warning strings; complete German backup/restore coverage; add common keys (notSet, of, up, select, selected).\n- Docs: add Local (npm) setup for EXTERNAL_MEDIA_ROOT in deployment guide.\n\nRefs [#17](https://github.com/the-luap/picpeak/issues/17) – gallery feature request: https://github.com/the-luap/picpeak/issues/17 ([49c7778](https://github.com/the-luap/picpeak/commit/49c77785e7a776890f15c0c541dcd18b74a86c6e))
+* **admin:** refine header layout and logo placement ([d64e7d0](https://github.com/the-luap/picpeak/commit/d64e7d08deae7ad1b6f744f447fe546115427942))
+* allow admin email updates in UI ([#36](https://github.com/the-luap/picpeak/issues/36)) ([3c2a79a](https://github.com/the-luap/picpeak/commit/3c2a79a31a0f1a44c8ec4f9a87f6fbcea9be651c))
+* beta/stable release channels with update notifications and bug fixes ([3c7dc20](https://github.com/the-luap/picpeak/commit/3c7dc2013fc3b57712ddf16db85f495b3cc7bfd7))
+* beta/stable release channels with update notifications and bug fixes ([#98](https://github.com/the-luap/picpeak/issues/98)) ([3c7dc20](https://github.com/the-luap/picpeak/commit/3c7dc2013fc3b57712ddf16db85f495b3cc7bfd7))
+* completely rewrite GitHub mirror to create new history from target commit ([febacb7](https://github.com/the-luap/picpeak/commit/febacb79ad86d35a222ec86a1e7da65747bbe19a))
+* consolidate setup scripts and guides into unified solution ([29a8ff9](https://github.com/the-luap/picpeak/commit/29a8ff914cf838918ab827280e4415afbce5ca8d))
+* **docker:** add PUID/PGID and user mapping to avoid bind mount permission issues; feat(setup): prompt for admin email interactively; docs: PUID/PGID in .env.example ([410a33f](https://github.com/the-luap/picpeak/commit/410a33fecf1693cc75816c53ac460ec20089e2a1))
+* enhance mirror-to-github workflow with commit-based history filtering ([b4b09c1](https://github.com/the-luap/picpeak/commit/b4b09c16504ca64ce265c7bd0bf0c901dbbd0638))
+* **events:** add CSS template selector to event edit page ([6a6c2cd](https://github.com/the-luap/picpeak/commit/6a6c2cd34db26a53b5fb96415650e8136a74e47f))
+* exclude Claude contributor from GitHub mirror workflow ([abbcdb1](https://github.com/the-luap/picpeak/commit/abbcdb11136afd8cf4eb21c2103e81d22b9c886f))
+* fix analytics dashboard and implement complete Umami integration ([45ce988](https://github.com/the-luap/picpeak/commit/45ce98806d4c87ddce8c400d07cc667bde435d75))
+* **gallery/filters:** add Rated and Commented filters (UI + backend).\n\n- UI: add star (Rated) and message (Commented) buttons to feedback filter bars (desktop + mobile)\n- Backend: support filter=rated, commented, and combinations via aggregate counts/queries ([b03760a](https://github.com/the-luap/picpeak/commit/b03760ab01e21feb3578f90d065945d437d03452))
+* **gallery:** add quick Like/Favorite actions on thumbnails across layouts ([6368f10](https://github.com/the-luap/picpeak/commit/6368f1027f96107ba64964eb126911bfe185f54a))
+* **gallery:** always-visible feedback indicators on grid tiles; fallback image rendering in lightbox/hero; auto-auth from shared-link token; fix external photo resolver\n\n- GridGallery: bottom-left icons for like/rated/comment on every tile\n- Hero layout grid: added same indicators (non-intrusive icons)\n- Lightbox/Hero: add fallbackSrc to display thumbnail if original fails\n- GalleryAuth: auto-store token from /gallery/:slug/:token and hydrate event\n- Backend gallery photo route: use resolvePhotoFilePath for external-media\n\nfix(admin): move photo feedback badges to bottom-right on admin grid tiles\n\nfix(dashboard): add missing i18n keys for activity types + fallback to formatter\n\nfix(admin/feedback): correct thumbnail URL base + robust date parsing\n\nRefs: [#19](https://github.com/the-luap/picpeak/issues/19) ([6948aaa](https://github.com/the-luap/picpeak/commit/6948aaa92afc29609f85cf7fd631095f3e32ad3f))
+* **gallery:** compact vertical icon-only feedback filter in PhotoFilterBar; remove wide buttons to prevent overflow\n\n- Desktop: vertical icon stack (All/Grid, Likes, Favorites) outside scroll area\n- Mobile: vertical icon stack below categories\n- Keeps existing category bar layout and count\n\nRefs: [#19](https://github.com/the-luap/picpeak/issues/19) ([465f997](https://github.com/the-luap/picpeak/commit/465f997752fc930ac0a3ae530e9e57a378877d53))
+* **i18n:** add translations for settings tabs ([c030e87](https://github.com/the-luap/picpeak/commit/c030e872135b39701ef1f4bbb2f28bcaf4ce7fae))
+* implement 4 new features with bug fixes and refactoring plan ([77a4bfd](https://github.com/the-luap/picpeak/commit/77a4bfd49975551bf509354097f280cab3e48c7a))
+* implement beta/stable release channels with update notifications ([617e778](https://github.com/the-luap/picpeak/commit/617e778a48e0f0c24fcb8441d00ed2a816f19c03))
+* implement comprehensive backup and restore system with S3 support ([f6a79c8](https://github.com/the-luap/picpeak/commit/f6a79c815e3085a56cbe7bac2964dd135f5e88bb))
+* implement feedback filter for liked/favorited photos (Issue [#17](https://github.com/the-luap/picpeak/issues/17)) ([41857ec](https://github.com/the-luap/picpeak/commit/41857ec499e2aab4347173cb031db246b9a032f6))
+* implement gallery feedback system with version tracking for backups ([dc1419c](https://github.com/the-luap/picpeak/commit/dc1419c051dae44532bfc2b2c2bc00942577dc22))
+* implement gallery logo customization (Issue [#17](https://github.com/the-luap/picpeak/issues/17)) ([909e760](https://github.com/the-luap/picpeak/commit/909e760447c76bb35dbffa553a4665edc5ebccd9))
+* **lightbox:** keep feedback usable while navigating ([6368f10](https://github.com/the-luap/picpeak/commit/6368f1027f96107ba64964eb126911bfe185f54a)), closes [#19](https://github.com/the-luap/picpeak/issues/19)
+* Multi-administrator RBAC, CSS templates & security hardening ([#78](https://github.com/the-luap/picpeak/issues/78)) ([16b3ab0](https://github.com/the-luap/picpeak/commit/16b3ab039ae95f5641dc15a4811eb2b503f1791c))
+* **native:** auto-serve SPA when dist exists (unless SERVE_FRONTEND=false); add clear logging; serve index.html for /admin ([fb16b7b](https://github.com/the-luap/picpeak/commit/fb16b7bbb8225192160c08050f1b164c36c8dc74))
+* **native:** build frontend and serve SPA from backend (SERVE_FRONTEND); fix Cannot GET /admin on native installs ([9fe10bc](https://github.com/the-luap/picpeak/commit/9fe10bcce2871a48f2409b4936d95c00249deb51))
+* **native:** serve built frontend from backend; build frontend during install/update; ensure env flags (SERVE_FRONTEND, FRONTEND_DIR) ([61ad2d6](https://github.com/the-luap/picpeak/commit/61ad2d61c137196c229817989f991e50fa389a6e))
+* overhaul public landing page and backup tooling ([2a4d388](https://github.com/the-luap/picpeak/commit/2a4d38813f7ab64a6bbb3a666f3c98a29443488d))
+* **select:** add per-tile checkbox selection in Admin grid and all gallery layouts; tile click opens viewer; checkbox toggles selection; auto-enable selection mode; add testids ([9fda54b](https://github.com/the-luap/picpeak/commit/9fda54bd06d37cd8f8f71056bf4f59e158cd8112))
+* **setup/docker:** auto-set PUID/PGID from invoking user and chown bind-mount folders; create missing data/events dirs ([0618b78](https://github.com/the-luap/picpeak/commit/0618b78725e85f97f0a4b4e834c17811c033c8f4))
+* **setup:** remove --admin-password; print admin credentials from ADMIN_CREDENTIALS.txt; fix ADMIN_URL to avoid /admin/admin; update native service commands ([84d0f63](https://github.com/the-luap/picpeak/commit/84d0f63d36c68532fea83e7087b1afeaa9b82f39))
+* support per-gallery password toggle ([5d6c061](https://github.com/the-luap/picpeak/commit/5d6c061f1c4fd20581b1e74fa114c96530b5de53))
+* update GitHub mirror workflow to start history from specific commit ([08da01f](https://github.com/the-luap/picpeak/commit/08da01f021788a1b81a3a3aabf120636c4e1a90a))
+
+
+### Bug Fixes
+
+* add missing route for feedback management page ([517128f](https://github.com/the-luap/picpeak/commit/517128fd99863ea203e39268ffa6c1ff093bcbd0))
+* add missing translations and fix BackupHistory useTranslation error ([99e4778](https://github.com/the-luap/picpeak/commit/99e47785e4a53c7ef9f95421413a2704b15b456d))
+* Add settings translations and fix manual backup process ([#82](https://github.com/the-luap/picpeak/issues/82)) ([476fcce](https://github.com/the-luap/picpeak/commit/476fcce13f30f9f2d2f98a0c87c25fba09e9eebc))
+* **admin/feedback:** use correct event id when rendering photo thumbnails ([4c7b49a](https://github.com/the-luap/picpeak/commit/4c7b49a5f69a3fce4f9a0e837a082b56bb7e47d6)), closes [#19](https://github.com/the-luap/picpeak/issues/19)
+* **admin:** prevent category badge overlap in grid ([d64e7d0](https://github.com/the-luap/picpeak/commit/d64e7d08deae7ad1b6f744f447fe546115427942))
+* align backend port to 3000 across all configurations ([3a8d53f](https://github.com/the-luap/picpeak/commit/3a8d53f4927f577c4031c4bc3531e08191dc632a))
+* Align nginx backend port for production Docker deployments (v2.2.2) ([#88](https://github.com/the-luap/picpeak/issues/88)) ([e0bd19a](https://github.com/the-luap/picpeak/commit/e0bd19a74dd81bdd45be2384820830bd96769e1c))
+* auto-convert old date formats to new date-fns syntax ([e1aca6b](https://github.com/the-luap/picpeak/commit/e1aca6b00c5affb914a0db44a6264c8e54fdffd6))
+* **backup:** add lastBackup alias and totalBackups for frontend compatibility ([749100c](https://github.com/the-luap/picpeak/commit/749100c92abd2bb123b137e3d3c6bb342b8f5f00))
+* **backup:** allow manual backups when automated backups are disabled ([e6dd89e](https://github.com/the-luap/picpeak/commit/e6dd89e969fb7018633159155975bd2bd2fb0409))
+* **ci:** add QEMU setup for multi-arch builds and skip for PRs ([0d36a27](https://github.com/the-luap/picpeak/commit/0d36a273bb58ffd0172efacd828e7171d954b41c))
+* clear notifications via API ([#35](https://github.com/the-luap/picpeak/issues/35)) ([013be18](https://github.com/the-luap/picpeak/commit/013be18d982986333e2ac24c7ede907de49690bc))
+* complete backup page translations and improve UI ([7387a5e](https://github.com/the-luap/picpeak/commit/7387a5e9f90965a6cfb75589b2338bf28263b840))
+* complete restore page translations and fix structure ([618e269](https://github.com/the-luap/picpeak/commit/618e2695fdf844cc0ae961b50a9b6eb99bc46a03))
+* configure github-release plugin to use GitHub API instead of Gitea ([2624ea6](https://github.com/the-luap/picpeak/commit/2624ea6130a38224597f0c4d3f3d0341c334472f))
+* correct GitHub repository path in Drone CI release config ([247e154](https://github.com/the-luap/picpeak/commit/247e154afefd3aef285e459bb7fc39ea460e53e2))
+* correct import statements for api in backup JSX files ([30f6780](https://github.com/the-luap/picpeak/commit/30f678048417aeffe6eabefc7bed5e4dc2267f25))
+* correct malformed gallery URLs in admin panel View Gallery links ([3074748](https://github.com/the-luap/picpeak/commit/3074748bbc6a8cb8fc0e95d2f24d626f0d0444d0))
+* correct password generator function name in reset password route ([65d796b](https://github.com/the-luap/picpeak/commit/65d796b9f09417f85bb3209c5e5fbe597a4bb2d3))
+* correct script name in Gitea mirror workflow ([828d6bc](https://github.com/the-luap/picpeak/commit/828d6bc456175007b72998db7116eec993750435))
+* **cors:** scope CORS to /api only and avoid throwing on disallowed origins; prevents static asset 500s on native ([90bb21e](https://github.com/the-luap/picpeak/commit/90bb21e38bf1ba97e3fb8185b8d05f1296d745ee))
+* critical database connection pool exhaustion issues ([8588133](https://github.com/the-luap/picpeak/commit/8588133a4e35774e46f7c605638758e5b2a4a9e2))
+* **db:** improve PostgreSQL connection check in wait-for-db.sh ([e85a68a](https://github.com/the-luap/picpeak/commit/e85a68a386c72c276b4958599b5246e60dfac716))
+* display new password after admin password reset ([bd8b885](https://github.com/the-luap/picpeak/commit/bd8b885f7f060160eb852870d143f25ce628f3db))
+* Docker Swarm DNS resolution and backup status display (v2.2.3) ([082d8ab](https://github.com/the-luap/picpeak/commit/082d8ab2054416b2a4f9e0438aa2bda0a8f4277e))
+* Docker Swarm DNS resolution and backup status display (v2.2.3) ([082d8ab](https://github.com/the-luap/picpeak/commit/082d8ab2054416b2a4f9e0438aa2bda0a8f4277e))
+* force github-release plugin to use GitHub API instead of Gitea ([558a966](https://github.com/the-luap/picpeak/commit/558a966f8509ac7b77c732f8cc5855c9f88a4bab))
+* **frontend:** add missing externalMedia service and mount admin external-media routes; verify Vite build ([ab324f1](https://github.com/the-luap/picpeak/commit/ab324f192859204a3ea3c129530ccfe8f5a36968))
+* gallery thumbnails not loading (404 errors) [#96](https://github.com/the-luap/picpeak/issues/96) ([e3c3c4c](https://github.com/the-luap/picpeak/commit/e3c3c4c951c52de99bd0afd95b08d119153997b4))
+* **gallery/filters:** always apply global liked/favorited filters by aggregate counts (ignore guest_id); resolves mismatch between client guest_id and server identifier ([526dcd8](https://github.com/the-luap/picpeak/commit/526dcd8dfc030d86143cee799a88a1004d96b116))
+* **gallery/filters:** make feedback filters work globally when no guest_id is provided; remove guest_id from client photos query\n\n- Backend /api/gallery/:slug/photos: if filter present and guest_id missing, filter by like_count/favorite_count\n- Frontend useGalleryPhotos: stop passing random guestId (does not match server guest_identifier)\n\nThis makes Liked/Favorited filters reflect photos with aggregate feedback counts as expected. ([5b2561b](https://github.com/the-luap/picpeak/commit/5b2561b6f1da2665d6092ba954f8ff26df3959a4))
+* **gallery/sidebar:** compact icon-only feedback filter in sidebar (vertical, small) to avoid overflow; use GalleryFilter variant=compact ([ff89f96](https://github.com/the-luap/picpeak/commit/ff89f96e31130f75bcd7a406c5d895eac17b65de))
+* **gallery:** feedback filter headline + horizontal icons in sidebar (compact variant); ensure sidebar content scrolls (flex-col container) ([3a6d061](https://github.com/the-luap/picpeak/commit/3a6d06192a280ead8bd5d1fbfe06554e63f3346e))
+* handle auth errors and JSON parsing in admin panel ([b2ae5f1](https://github.com/the-luap/picpeak/commit/b2ae5f18ad4622ea9cb0b5b593dad19e5d14cf60))
+* handle legacy non-JSON logo paths when replacing logo ([0d5ce48](https://github.com/the-luap/picpeak/commit/0d5ce48dccf0c61f210725ffae15dafc5e9f7cab))
+* harden gallery downloads and per-gallery auth ([fc1bf53](https://github.com/the-luap/picpeak/commit/fc1bf534129092ca3638e4a4bc47274cd297fa5f))
+* implement 9 production enhancements and security fixes ([c584369](https://github.com/the-luap/picpeak/commit/c584369d5d5c33fd794cf82a2aea8089bd10e514))
+* improve admin credentials display and configuration ([ad495a9](https://github.com/the-luap/picpeak/commit/ad495a92c46d02849ce0d9176cff43c83c5c4b57))
+* improve version bump workflow with better conflict resolution ([c787510](https://github.com/the-luap/picpeak/commit/c7875102c5196a9ef3038c2d5e0ee313fbb2782a))
+* JSON serialize favicon and logo URLs for PostgreSQL storage ([b83f427](https://github.com/the-luap/picpeak/commit/b83f4272b584f937fea1f47656182e514b12d980))
+* Multi-administrator RBAC, CSS templates & security hardening ([#80](https://github.com/the-luap/picpeak/issues/80)) ([37d4e1c](https://github.com/the-luap/picpeak/commit/37d4e1cb6132346699a90aebfbaec83d84f931f4))
+* multiple improvements and CI/CD updates ([bf70567](https://github.com/the-luap/picpeak/commit/bf705674d505b0cb1b82fecc74aa8d95edd50a47))
+* **native/http:** disable CSP upgrade-insecure-requests and HSTS unless ENABLE_HSTS=true; prevents HTTPS upgrades on HTTP installs ([24b4a31](https://github.com/the-luap/picpeak/commit/24b4a314a9e97b6c640ca29067e95028a23a8973))
+* **native:** correct setup paths to /opt/picpeak/app, update repo URL, add sqlite prod support; docs path fixes ([b992b15](https://github.com/the-luap/picpeak/commit/b992b151d3ca6ccb4a9b2434d94edcdc90ada3b0))
+* **native:** remove obsolete workers service; restart only backend; add API request logging and preflight handler; keep static assets outside CORS ([f3604b4](https://github.com/the-luap/picpeak/commit/f3604b438b37e5f2bddf98e79f458bfa2367cb75))
+* **nginx:** add Docker DNS resolver for Swarm/dynamic service discovery ([049837f](https://github.com/the-luap/picpeak/commit/049837f9d675ff5a4d93c02e5eb771bf65bc2616))
+* **nginx:** Add Docker DNS resolver for Swarm/dynamic service discovery (v2.2.3) ([cc1ddfd](https://github.com/the-luap/picpeak/commit/cc1ddfd42cccac07d5869fe2ee19c25a9ffa50e8))
+* **photos:** category changes now persist and display correctly ([#77](https://github.com/the-luap/picpeak/issues/77)) ([d9da98c](https://github.com/the-luap/picpeak/commit/d9da98c355011c247c526b28e6f07b329a632b55))
+* **photos:** resolve upload category selection and improve feedback buttons ([#77](https://github.com/the-luap/picpeak/issues/77)) ([856d533](https://github.com/the-luap/picpeak/commit/856d53343c6805706e1498892a29b120938f8547))
+* prefer admin token on admin routes ([#23](https://github.com/the-luap/picpeak/issues/23) [#28](https://github.com/the-luap/picpeak/issues/28)) ([d4404e3](https://github.com/the-luap/picpeak/commit/d4404e39bd7953649da02d3e300ffef46573ac97))
+* prevent unnecessary image recompression and fix SQLite migration [#95](https://github.com/the-luap/picpeak/issues/95) ([3cdc0ea](https://github.com/the-luap/picpeak/commit/3cdc0ea7152e63cd72124a91394741a6e6904af3))
+* remove description field from migration 035 app_settings inserts ([22cc406](https://github.com/the-luap/picpeak/commit/22cc40617f88e1f0a636fc049c78601fc1f38c33))
+* remove file requirement from GitHub release in Drone CI ([8335916](https://github.com/the-luap/picpeak/commit/833591681adf29d99a1dfa7c43d5aee7a6cb98ba))
+* remove formatBoolean calls from migration 032 - critical production fix ([0502ed3](https://github.com/the-luap/picpeak/commit/0502ed34c9fe76acacc2aecd02151564d109cf0b))
+* remove unnecessary publish-manifest job from Docker workflow ([986b101](https://github.com/the-luap/picpeak/commit/986b101040674f2253fcdfda99a9e603535daaa0))
+* remove unused formatBoolean import from migration 033 ([1238db5](https://github.com/the-luap/picpeak/commit/1238db58c25e97513c9bdcb5dcc26b1034e9f074))
+* remove updated_at field from password reset query ([ed0243e](https://github.com/the-luap/picpeak/commit/ed0243ec398acca26490ef27cbe3cfe5fa9b95a6))
+* remove updated_at from app_settings inserts in multiple migrations ([4c42b4c](https://github.com/the-luap/picpeak/commit/4c42b4c60157755b770bea3b78d42fe6abd60afa))
+* replace github-release plugin with direct curl API call ([76a466c](https://github.com/the-luap/picpeak/commit/76a466c0776eeabe3eac6a480bd699c2ae5c60bc))
+* resolve backend startup errors in development ([f8fb1c3](https://github.com/the-luap/picpeak/commit/f8fb1c3f4b2b5de53182e987a9dfe042704320b9))
+* resolve branding display issues and invitation parsing errors ([1931d73](https://github.com/the-luap/picpeak/commit/1931d73b60d3419203cc8b420841abbfc9e14d2d))
+* Resolve branding display issues and invitation parsing errors (v2.2.1) ([#86](https://github.com/the-luap/picpeak/issues/86)) ([d7ecf83](https://github.com/the-luap/picpeak/commit/d7ecf83d32ec6608280b96e6cdee48e9a0ad0afa))
+* resolve CI/CD version bump race condition ([0bf4764](https://github.com/the-luap/picpeak/commit/0bf4764a0720f6f199442a738a885a2edaae2a4d))
+* resolve database connection error for analytics settings ([95939d5](https://github.com/the-luap/picpeak/commit/95939d57e6857646d261b0f049bdda752602caeb))
+* resolve date formatting error in event creation ([c51d756](https://github.com/the-luap/picpeak/commit/c51d7565035146cc3f689c0cc4b508b78d9bb5ee))
+* resolve development environment issues ([61299a3](https://github.com/the-luap/picpeak/commit/61299a33c4f92730fe8b14f6035f61325d952b94))
+* resolve duplicate logger declaration and syntax error in rate limit service ([0fe6d73](https://github.com/the-luap/picpeak/commit/0fe6d738b222555b27cbf8a36f455b1c15c4f4e8))
+* resolve feedback validation issues from GitHub issue [#16](https://github.com/the-luap/picpeak/issues/16) ([f26beca](https://github.com/the-luap/picpeak/commit/f26becad1dfa72c62b6ecec491be025644426d67))
+* resolve feedback validation issues from GitHub issue [#16](https://github.com/the-luap/picpeak/issues/16) ([67ff415](https://github.com/the-luap/picpeak/commit/67ff4158404347bc7c13dee5b4e13260eb0e743d))
+* resolve GitHub issues [#4](https://github.com/the-luap/picpeak/issues/4), [#8](https://github.com/the-luap/picpeak/issues/8), [#9](https://github.com/the-luap/picpeak/issues/9), and [#10](https://github.com/the-luap/picpeak/issues/10) ([934d6dd](https://github.com/the-luap/picpeak/commit/934d6ddc5847f65db6371a4043b764f6d4cd6c8b))
+* resolve GitHub mirror workflow cherry-pick failure with merge commits ([d6adde4](https://github.com/the-luap/picpeak/commit/d6adde4e093537aeecf8b190513a1171c3ecc82c))
+* resolve language-specific column issues in core migrations ([62617f6](https://github.com/the-luap/picpeak/commit/62617f627f56aedd132fa20528b1d7c7e272c85c))
+* resolve migration conflicts and duplicate numbering ([a401fbd](https://github.com/the-luap/picpeak/commit/a401fbdc54f30c18b5aa2440d7b6887ca12e00eb))
+* resolve multiple feedback management issues ([ad75818](https://github.com/the-luap/picpeak/commit/ad758185666bf4ac52965f16d1c0e1e052887ac2))
+* resolve multiple issues from GitHub issue [#14](https://github.com/the-luap/picpeak/issues/14) ([e91209f](https://github.com/the-luap/picpeak/commit/e91209f7cb38a5b840e74ed6acd8d490ef9d2294))
+* resolve port configuration issues and database column mismatch ([6de64a1](https://github.com/the-luap/picpeak/commit/6de64a1df18932badd7bb1b9928d09e9477f0c3f))
+* resolve PostgreSQL migration issues for development environment ([ee855a3](https://github.com/the-luap/picpeak/commit/ee855a3502ecd1a5556e378e9995de86e3548de1))
+* resolve production UI and API issues ([d5790ad](https://github.com/the-luap/picpeak/commit/d5790ad635596842926a358753932e5c422590d6))
+* resolve SIGPIPE error in GitHub mirror workflow file cleanup ([b7c8953](https://github.com/the-luap/picpeak/commit/b7c8953cb4d4a2541dcb38865c8a7beef0edf494))
+* resolve translation interpolation issue for download button ([c1e10f1](https://github.com/the-luap/picpeak/commit/c1e10f14a30797c76169c2531de5d04976ee4888))
+* **security:** upgrade Alpine base image to fix libpng and c-ares CVEs ([b706eeb](https://github.com/the-luap/picpeak/commit/b706eeb5d332e9618706193976a7241aee53d879))
+* **setup/native:** correct repo URL, paths, and systemd for native install; support sqlite in production knex config ([87b8414](https://github.com/the-luap/picpeak/commit/87b8414e449802db6dc9f762453f7672616b83c9))
+* **setup/native:** Debian 12 compatibility (reliable RAM detection, sudo-less run_as_user, git safe.directory); ensure SQLite data dir; use user for migrate ([dc482e6](https://github.com/the-luap/picpeak/commit/dc482e614a5fbac44c6570d812669511301a4403))
+* **setup/native:** handle forced updates safely by fetch+checkout/reset instead of pull; stable on rewritten histories ([3697344](https://github.com/the-luap/picpeak/commit/3697344cd0add28b4da71c3b33e2ccc0a96f50f9))
+* **setup/update:** detect native installs first (/opt/picpeak/app/backend or systemd unit); avoid false docker updates on root ([adf576f](https://github.com/the-luap/picpeak/commit/adf576fbe17f40c13c1d77dd9751f2e9dbf523a1))
+* simplify Drone github-release step to avoid shell parsing issues ([94f10e1](https://github.com/the-luap/picpeak/commit/94f10e164502e6848cd720ee5a5c2822abbde46f))
+* stabilize uploads and guest feedback filters ([aaaf598](https://github.com/the-luap/picpeak/commit/aaaf59817b3978635d2282c006853e183ab944d4))
+* update all deployment guide links in README.md ([6389b9d](https://github.com/the-luap/picpeak/commit/6389b9df3f616c09a9bbbf1a2988764b0c3aeb77))
+* update deployment guide with critical URL configuration and nginx port fixes ([1cadce1](https://github.com/the-luap/picpeak/commit/1cadce196bb04a0575d83437618454d4ca5bcdac))
+* update form-data and multer to address security vulnerabilities ([7750170](https://github.com/the-luap/picpeak/commit/7750170832dddf81a33c7c2409b37b0b7bc1f290))
+* update Gitea mirror workflow to selectively remove scripts ([296430e](https://github.com/the-luap/picpeak/commit/296430e4d7e01a6be031dbb89dd25f563b163a97))
+* update GitHub mirror action to support fine-grained personal access tokens ([827eb48](https://github.com/the-luap/picpeak/commit/827eb4819b7da6171d48613963d176399cad80c6))
+* use admin API for Umami config in analytics page ([a54a2c0](https://github.com/the-luap/picpeak/commit/a54a2c0fdaa28193d1359da73bc7fb61476e2a58))
+* use plugins/gitea-release for Drone CI/CD ([0c783c6](https://github.com/the-luap/picpeak/commit/0c783c66d0dfe8cb637f0db7349ae9637d7bf787))
+* use plugins/github-release for Drone CI/CD ([f926cd3](https://github.com/the-luap/picpeak/commit/f926cd3adf513858bc7b291582c7ca2efdf93ff8))
+* watermark upload JSON parsing and image quality preservation ([0e3b50d](https://github.com/the-luap/picpeak/commit/0e3b50d1b6a2dc532ebdc0981f81f77722e8f23a))
+
+
+### Documentation
+
+* add minimum system requirements section to README ([4615a5d](https://github.com/the-luap/picpeak/commit/4615a5d795b415367edf4882628377936b29ab32))
+* add PUID/PGID note for Docker bind mounts to avoid permission issues ([0178e71](https://github.com/the-luap/picpeak/commit/0178e71c67f198c6013ece52b0a2da0e2f1a6b2a))
+* add transparency note about AI-assisted development ([35e360d](https://github.com/the-luap/picpeak/commit/35e360dcf7ac68833bec81f2e79f4a11a76a0e87))
+* add warnings about $ character in Docker Compose passwords ([87d1761](https://github.com/the-luap/picpeak/commit/87d1761091bb97747821aa810a58f3978a59d08f))
+* clarify VITE_API_URL usage; remove FRONTEND_API_URL; add storage vars; simplify compose mounts and external DB example (refs [#18](https://github.com/the-luap/picpeak/issues/18)) ([758c085](https://github.com/the-luap/picpeak/commit/758c085467e579e9f6b16df2298747fdddf2b205))
+* **compose:** fix backend healthcheck path; remove frontend VITE_API_URL env and document /api proxy (refs [#18](https://github.com/the-luap/picpeak/issues/18)) ([ecbc488](https://github.com/the-luap/picpeak/commit/ecbc48815ded99a052ef057e69427c823cd34ece))
+* fix deployment/admin routing and CORS guidance; add AGENTS.md; ignore AGENTS.md (refs [#18](https://github.com/the-luap/picpeak/issues/18)) ([dad1787](https://github.com/the-luap/picpeak/commit/dad1787aad8763637373e8eb87a47728d3d568cc))
+* follow-up on PR [#15](https://github.com/the-luap/picpeak/issues/15) — clarify VITE_API_URL usage, compose mounts, and admin routing (refs [#15](https://github.com/the-luap/picpeak/issues/15)) ([e9171c7](https://github.com/the-luap/picpeak/commit/e9171c71159cb41b91a099621bd2d7a7985dd239))
+* **readme:** reflect new External Media reference mode and update roadmap (gallery feedback status) ([ee13556](https://github.com/the-luap/picpeak/commit/ee13556c5cb4f24fe88e14fd00b821acf65b11cb))
+* replace email addresses with GitHub issue links ([0c989ce](https://github.com/the-luap/picpeak/commit/0c989ce08699ce68b131a9cc4ba4f14e06e3d221))
+* update deployment guide with GitHub Container Registry images ([2c9a56f](https://github.com/the-luap/picpeak/commit/2c9a56f217218f0700817d150b3de115e9503baa))
+
+
+### Code Refactoring
+
+* simplify deployment structure with direct port exposure ([6492cb9](https://github.com/the-luap/picpeak/commit/6492cb9ec8f8b811297aa71c153b9fe6a00e947a))
+
+## [2.3.0](https://github.com/the-luap/picpeak/compare/v2.2.4...v2.3.0) (2026-01-15)
+
+
+### Features
+
+* beta/stable release channels with update notifications and bug fixes ([3c7dc20](https://github.com/the-luap/picpeak/commit/3c7dc2013fc3b57712ddf16db85f495b3cc7bfd7))
+* beta/stable release channels with update notifications and bug fixes ([#98](https://github.com/the-luap/picpeak/issues/98)) ([3c7dc20](https://github.com/the-luap/picpeak/commit/3c7dc2013fc3b57712ddf16db85f495b3cc7bfd7))
+* implement beta/stable release channels with update notifications ([617e778](https://github.com/the-luap/picpeak/commit/617e778a48e0f0c24fcb8441d00ed2a816f19c03))
+
+
+### Bug Fixes
+
+* display new password after admin password reset ([bd8b885](https://github.com/the-luap/picpeak/commit/bd8b885f7f060160eb852870d143f25ce628f3db))
+* gallery thumbnails not loading (404 errors) [#96](https://github.com/the-luap/picpeak/issues/96) ([e3c3c4c](https://github.com/the-luap/picpeak/commit/e3c3c4c951c52de99bd0afd95b08d119153997b4))
+* prevent unnecessary image recompression and fix SQLite migration [#95](https://github.com/the-luap/picpeak/issues/95) ([3cdc0ea](https://github.com/the-luap/picpeak/commit/3cdc0ea7152e63cd72124a91394741a6e6904af3))
+* watermark upload JSON parsing and image quality preservation ([0e3b50d](https://github.com/the-luap/picpeak/commit/0e3b50d1b6a2dc532ebdc0981f81f77722e8f23a))
+
+## [2.2.4](https://github.com/the-luap/picpeak/compare/v2.2.3...v2.2.4) (2026-01-08)
+
+
+### Bug Fixes
+
+* **backup:** add lastBackup alias and totalBackups for frontend compatibility ([749100c](https://github.com/the-luap/picpeak/commit/749100c92abd2bb123b137e3d3c6bb342b8f5f00))
+* Docker Swarm DNS resolution and backup status display (v2.2.3) ([082d8ab](https://github.com/the-luap/picpeak/commit/082d8ab2054416b2a4f9e0438aa2bda0a8f4277e))
+* Docker Swarm DNS resolution and backup status display (v2.2.3) ([082d8ab](https://github.com/the-luap/picpeak/commit/082d8ab2054416b2a4f9e0438aa2bda0a8f4277e))
+
+## [2.2.3](https://github.com/the-luap/picpeak/compare/v2.2.2...v2.2.3) (2026-01-08)
+
+
+### Bug Fixes
+
+* **nginx:** add Docker DNS resolver for Swarm/dynamic service discovery ([049837f](https://github.com/the-luap/picpeak/commit/049837f9d675ff5a4d93c02e5eb771bf65bc2616))
+* **nginx:** Add Docker DNS resolver for Swarm/dynamic service discovery (v2.2.3) ([cc1ddfd](https://github.com/the-luap/picpeak/commit/cc1ddfd42cccac07d5869fe2ee19c25a9ffa50e8))
+
+## [2.2.2](https://github.com/the-luap/picpeak/compare/v2.2.1...v2.2.2) (2026-01-08)
+
+
+### Bug Fixes
+
+* align backend port to 3000 across all configurations ([3a8d53f](https://github.com/the-luap/picpeak/commit/3a8d53f4927f577c4031c4bc3531e08191dc632a))
+* Align nginx backend port for production Docker deployments (v2.2.2) ([#88](https://github.com/the-luap/picpeak/issues/88)) ([e0bd19a](https://github.com/the-luap/picpeak/commit/e0bd19a74dd81bdd45be2384820830bd96769e1c))
+
+## [2.2.1](https://github.com/the-luap/picpeak/compare/v2.2.0...v2.2.1) (2026-01-08)
+
+
+### Bug Fixes
+
+* handle legacy non-JSON logo paths when replacing logo ([0d5ce48](https://github.com/the-luap/picpeak/commit/0d5ce48dccf0c61f210725ffae15dafc5e9f7cab))
+* JSON serialize favicon and logo URLs for PostgreSQL storage ([b83f427](https://github.com/the-luap/picpeak/commit/b83f4272b584f937fea1f47656182e514b12d980))
+* resolve branding display issues and invitation parsing errors ([1931d73](https://github.com/the-luap/picpeak/commit/1931d73b60d3419203cc8b420841abbfc9e14d2d))
+* Resolve branding display issues and invitation parsing errors (v2.2.1) ([#86](https://github.com/the-luap/picpeak/issues/86)) ([d7ecf83](https://github.com/the-luap/picpeak/commit/d7ecf83d32ec6608280b96e6cdee48e9a0ad0afa))
+
+## [2.2.0](https://github.com/the-luap/picpeak/compare/v2.1.1...v2.2.0) (2026-01-08)
+
+
+### Features
+
+* **i18n:** add translations for settings tabs ([c030e87](https://github.com/the-luap/picpeak/commit/c030e872135b39701ef1f4bbb2f28bcaf4ce7fae))
+
+
+### Bug Fixes
+
+* Add settings translations and fix manual backup process ([#82](https://github.com/the-luap/picpeak/issues/82)) ([476fcce](https://github.com/the-luap/picpeak/commit/476fcce13f30f9f2d2f98a0c87c25fba09e9eebc))
+* **backup:** allow manual backups when automated backups are disabled ([e6dd89e](https://github.com/the-luap/picpeak/commit/e6dd89e969fb7018633159155975bd2bd2fb0409))
+* **db:** improve PostgreSQL connection check in wait-for-db.sh ([e85a68a](https://github.com/the-luap/picpeak/commit/e85a68a386c72c276b4958599b5246e60dfac716))
+
+## [2.1.1](https://github.com/the-luap/picpeak/compare/v2.1.0...v2.1.1) (2026-01-07)
+
+
+### Bug Fixes
+
+* **ci:** add QEMU setup for multi-arch builds and skip for PRs ([0d36a27](https://github.com/the-luap/picpeak/commit/0d36a273bb58ffd0172efacd828e7171d954b41c))
+* Multi-administrator RBAC, CSS templates & security hardening ([#80](https://github.com/the-luap/picpeak/issues/80)) ([37d4e1c](https://github.com/the-luap/picpeak/commit/37d4e1cb6132346699a90aebfbaec83d84f931f4))
+
+## [2.1.0](https://github.com/the-luap/picpeak/compare/v2.0.0...v2.1.0) (2026-01-07)
+
+
+### Features
+
+* add multi-administrator support with RBAC and fix backup/restore for S3 ([892e47d](https://github.com/the-luap/picpeak/commit/892e47d017064d7922536f8e138bbb290a45cdc9))
+* **events:** add CSS template selector to event edit page ([6a6c2cd](https://github.com/the-luap/picpeak/commit/6a6c2cd34db26a53b5fb96415650e8136a74e47f))
+* Multi-administrator RBAC, CSS templates & security hardening ([#78](https://github.com/the-luap/picpeak/issues/78)) ([16b3ab0](https://github.com/the-luap/picpeak/commit/16b3ab039ae95f5641dc15a4811eb2b503f1791c))
+
+
+### Bug Fixes
+
+* **photos:** category changes now persist and display correctly ([#77](https://github.com/the-luap/picpeak/issues/77)) ([d9da98c](https://github.com/the-luap/picpeak/commit/d9da98c355011c247c526b28e6f07b329a632b55))
+* **photos:** resolve upload category selection and improve feedback buttons ([#77](https://github.com/the-luap/picpeak/issues/77)) ([856d533](https://github.com/the-luap/picpeak/commit/856d53343c6805706e1498892a29b120938f8547))
+
+## [2.0.0](https://github.com/the-luap/picpeak/compare/v1.1.15...v2.0.0) (2026-01-03)
+
+
+### ⚠ BREAKING CHANGES
+
+* Deployment now requires external reverse proxy for SSL/HTTPS
+
+### Features
+
+* add Apple Liquid Glass templates, image security settings, and automated releases ([6033461](https://github.com/the-luap/picpeak/commit/6033461be118ce78277ec568e1ef1ceeff7311c8))
+* add complete translation support for backup admin page ([e9f92e6](https://github.com/the-luap/picpeak/commit/e9f92e66d08ac7001c31a3ee8f43ee8306bc79a9))
+* Add CSS template system with custom gallery styling support ([0da45e6](https://github.com/the-luap/picpeak/commit/0da45e699ad998031aa56a92f2da5ee61a04e285))
+* add event management, gallery customization, and release automationFeature/event rename ([40ee671](https://github.com/the-luap/picpeak/commit/40ee67171d41522037bf9d4e7675b62ec564346d))
+* add feedback management enhancements ([0064122](https://github.com/the-luap/picpeak/commit/0064122eff12029300ab7f95078b5710c3c2d08c))
+* add GitHub Actions workflow for Docker image builds ([4029559](https://github.com/the-luap/picpeak/commit/40295599547b86af7fea3359c7486918d2cd0236))
+* **admin:** external media import modal + thumbnail fixes for reference events\n\n- Photos tab: replace inline external folder picker with a modal opened via "Import from External Folder" button next to "Upload Photos"; add info that all pictures in the selected folder will be imported.\n- Admin thumbnails: align list endpoint to /api/admin/photos/:eventId/photos and always return thumbnail_url to trigger on-demand generation; normalize external paths to avoid duplicated folder segments (e.g., individual/individual) that broke resolver; improve thumbnail logging.\n- Use authenticated image fetching on admin feedback pages to prevent 401s in automation.\n- i18n: add backup.external.warning strings; complete German backup/restore coverage; add common keys (notSet, of, up, select, selected).\n- Docs: add Local (npm) setup for EXTERNAL_MEDIA_ROOT in deployment guide.\n\nRefs [#17](https://github.com/the-luap/picpeak/issues/17) – gallery feature request: https://github.com/the-luap/picpeak/issues/17 ([49c7778](https://github.com/the-luap/picpeak/commit/49c77785e7a776890f15c0c541dcd18b74a86c6e))
+* **admin:** refine header layout and logo placement ([d64e7d0](https://github.com/the-luap/picpeak/commit/d64e7d08deae7ad1b6f744f447fe546115427942))
+* allow admin email updates in UI ([#36](https://github.com/the-luap/picpeak/issues/36)) ([3c2a79a](https://github.com/the-luap/picpeak/commit/3c2a79a31a0f1a44c8ec4f9a87f6fbcea9be651c))
+* completely rewrite GitHub mirror to create new history from target commit ([febacb7](https://github.com/the-luap/picpeak/commit/febacb79ad86d35a222ec86a1e7da65747bbe19a))
+* consolidate setup scripts and guides into unified solution ([29a8ff9](https://github.com/the-luap/picpeak/commit/29a8ff914cf838918ab827280e4415afbce5ca8d))
+* **docker:** add PUID/PGID and user mapping to avoid bind mount permission issues; feat(setup): prompt for admin email interactively; docs: PUID/PGID in .env.example ([410a33f](https://github.com/the-luap/picpeak/commit/410a33fecf1693cc75816c53ac460ec20089e2a1))
+* enhance mirror-to-github workflow with commit-based history filtering ([b4b09c1](https://github.com/the-luap/picpeak/commit/b4b09c16504ca64ce265c7bd0bf0c901dbbd0638))
+* exclude Claude contributor from GitHub mirror workflow ([abbcdb1](https://github.com/the-luap/picpeak/commit/abbcdb11136afd8cf4eb21c2103e81d22b9c886f))
+* fix analytics dashboard and implement complete Umami integration ([45ce988](https://github.com/the-luap/picpeak/commit/45ce98806d4c87ddce8c400d07cc667bde435d75))
+* **gallery/filters:** add Rated and Commented filters (UI + backend).\n\n- UI: add star (Rated) and message (Commented) buttons to feedback filter bars (desktop + mobile)\n- Backend: support filter=rated, commented, and combinations via aggregate counts/queries ([b03760a](https://github.com/the-luap/picpeak/commit/b03760ab01e21feb3578f90d065945d437d03452))
+* **gallery:** add quick Like/Favorite actions on thumbnails across layouts ([6368f10](https://github.com/the-luap/picpeak/commit/6368f1027f96107ba64964eb126911bfe185f54a))
+* **gallery:** always-visible feedback indicators on grid tiles; fallback image rendering in lightbox/hero; auto-auth from shared-link token; fix external photo resolver\n\n- GridGallery: bottom-left icons for like/rated/comment on every tile\n- Hero layout grid: added same indicators (non-intrusive icons)\n- Lightbox/Hero: add fallbackSrc to display thumbnail if original fails\n- GalleryAuth: auto-store token from /gallery/:slug/:token and hydrate event\n- Backend gallery photo route: use resolvePhotoFilePath for external-media\n\nfix(admin): move photo feedback badges to bottom-right on admin grid tiles\n\nfix(dashboard): add missing i18n keys for activity types + fallback to formatter\n\nfix(admin/feedback): correct thumbnail URL base + robust date parsing\n\nRefs: [#19](https://github.com/the-luap/picpeak/issues/19) ([6948aaa](https://github.com/the-luap/picpeak/commit/6948aaa92afc29609f85cf7fd631095f3e32ad3f))
+* **gallery:** compact vertical icon-only feedback filter in PhotoFilterBar; remove wide buttons to prevent overflow\n\n- Desktop: vertical icon stack (All/Grid, Likes, Favorites) outside scroll area\n- Mobile: vertical icon stack below categories\n- Keeps existing category bar layout and count\n\nRefs: [#19](https://github.com/the-luap/picpeak/issues/19) ([465f997](https://github.com/the-luap/picpeak/commit/465f997752fc930ac0a3ae530e9e57a378877d53))
+* implement 4 new features with bug fixes and refactoring plan ([77a4bfd](https://github.com/the-luap/picpeak/commit/77a4bfd49975551bf509354097f280cab3e48c7a))
+* implement comprehensive backup and restore system with S3 support ([f6a79c8](https://github.com/the-luap/picpeak/commit/f6a79c815e3085a56cbe7bac2964dd135f5e88bb))
+* implement feedback filter for liked/favorited photos (Issue [#17](https://github.com/the-luap/picpeak/issues/17)) ([41857ec](https://github.com/the-luap/picpeak/commit/41857ec499e2aab4347173cb031db246b9a032f6))
+* implement gallery feedback system with version tracking for backups ([dc1419c](https://github.com/the-luap/picpeak/commit/dc1419c051dae44532bfc2b2c2bc00942577dc22))
+* implement gallery logo customization (Issue [#17](https://github.com/the-luap/picpeak/issues/17)) ([909e760](https://github.com/the-luap/picpeak/commit/909e760447c76bb35dbffa553a4665edc5ebccd9))
+* **lightbox:** keep feedback usable while navigating ([6368f10](https://github.com/the-luap/picpeak/commit/6368f1027f96107ba64964eb126911bfe185f54a)), closes [#19](https://github.com/the-luap/picpeak/issues/19)
+* **native:** auto-serve SPA when dist exists (unless SERVE_FRONTEND=false); add clear logging; serve index.html for /admin ([fb16b7b](https://github.com/the-luap/picpeak/commit/fb16b7bbb8225192160c08050f1b164c36c8dc74))
+* **native:** build frontend and serve SPA from backend (SERVE_FRONTEND); fix Cannot GET /admin on native installs ([9fe10bc](https://github.com/the-luap/picpeak/commit/9fe10bcce2871a48f2409b4936d95c00249deb51))
+* **native:** serve built frontend from backend; build frontend during install/update; ensure env flags (SERVE_FRONTEND, FRONTEND_DIR) ([61ad2d6](https://github.com/the-luap/picpeak/commit/61ad2d61c137196c229817989f991e50fa389a6e))
+* overhaul public landing page and backup tooling ([2a4d388](https://github.com/the-luap/picpeak/commit/2a4d38813f7ab64a6bbb3a666f3c98a29443488d))
+* **select:** add per-tile checkbox selection in Admin grid and all gallery layouts; tile click opens viewer; checkbox toggles selection; auto-enable selection mode; add testids ([9fda54b](https://github.com/the-luap/picpeak/commit/9fda54bd06d37cd8f8f71056bf4f59e158cd8112))
+* **setup/docker:** auto-set PUID/PGID from invoking user and chown bind-mount folders; create missing data/events dirs ([0618b78](https://github.com/the-luap/picpeak/commit/0618b78725e85f97f0a4b4e834c17811c033c8f4))
+* **setup:** remove --admin-password; print admin credentials from ADMIN_CREDENTIALS.txt; fix ADMIN_URL to avoid /admin/admin; update native service commands ([84d0f63](https://github.com/the-luap/picpeak/commit/84d0f63d36c68532fea83e7087b1afeaa9b82f39))
+* support per-gallery password toggle ([5d6c061](https://github.com/the-luap/picpeak/commit/5d6c061f1c4fd20581b1e74fa114c96530b5de53))
+* update GitHub mirror workflow to start history from specific commit ([08da01f](https://github.com/the-luap/picpeak/commit/08da01f021788a1b81a3a3aabf120636c4e1a90a))
+
+
+### Bug Fixes
+
+* add missing route for feedback management page ([517128f](https://github.com/the-luap/picpeak/commit/517128fd99863ea203e39268ffa6c1ff093bcbd0))
+* add missing translations and fix BackupHistory useTranslation error ([99e4778](https://github.com/the-luap/picpeak/commit/99e47785e4a53c7ef9f95421413a2704b15b456d))
+* **admin/feedback:** use correct event id when rendering photo thumbnails ([4c7b49a](https://github.com/the-luap/picpeak/commit/4c7b49a5f69a3fce4f9a0e837a082b56bb7e47d6)), closes [#19](https://github.com/the-luap/picpeak/issues/19)
+* **admin:** prevent category badge overlap in grid ([d64e7d0](https://github.com/the-luap/picpeak/commit/d64e7d08deae7ad1b6f744f447fe546115427942))
+* auto-convert old date formats to new date-fns syntax ([e1aca6b](https://github.com/the-luap/picpeak/commit/e1aca6b00c5affb914a0db44a6264c8e54fdffd6))
+* clear notifications via API ([#35](https://github.com/the-luap/picpeak/issues/35)) ([013be18](https://github.com/the-luap/picpeak/commit/013be18d982986333e2ac24c7ede907de49690bc))
+* complete backup page translations and improve UI ([7387a5e](https://github.com/the-luap/picpeak/commit/7387a5e9f90965a6cfb75589b2338bf28263b840))
+* complete restore page translations and fix structure ([618e269](https://github.com/the-luap/picpeak/commit/618e2695fdf844cc0ae961b50a9b6eb99bc46a03))
+* configure github-release plugin to use GitHub API instead of Gitea ([2624ea6](https://github.com/the-luap/picpeak/commit/2624ea6130a38224597f0c4d3f3d0341c334472f))
+* correct GitHub repository path in Drone CI release config ([247e154](https://github.com/the-luap/picpeak/commit/247e154afefd3aef285e459bb7fc39ea460e53e2))
+* correct import statements for api in backup JSX files ([30f6780](https://github.com/the-luap/picpeak/commit/30f678048417aeffe6eabefc7bed5e4dc2267f25))
+* correct malformed gallery URLs in admin panel View Gallery links ([3074748](https://github.com/the-luap/picpeak/commit/3074748bbc6a8cb8fc0e95d2f24d626f0d0444d0))
+* correct password generator function name in reset password route ([65d796b](https://github.com/the-luap/picpeak/commit/65d796b9f09417f85bb3209c5e5fbe597a4bb2d3))
+* correct script name in Gitea mirror workflow ([828d6bc](https://github.com/the-luap/picpeak/commit/828d6bc456175007b72998db7116eec993750435))
+* **cors:** scope CORS to /api only and avoid throwing on disallowed origins; prevents static asset 500s on native ([90bb21e](https://github.com/the-luap/picpeak/commit/90bb21e38bf1ba97e3fb8185b8d05f1296d745ee))
+* critical database connection pool exhaustion issues ([8588133](https://github.com/the-luap/picpeak/commit/8588133a4e35774e46f7c605638758e5b2a4a9e2))
+* force github-release plugin to use GitHub API instead of Gitea ([558a966](https://github.com/the-luap/picpeak/commit/558a966f8509ac7b77c732f8cc5855c9f88a4bab))
+* **frontend:** add missing externalMedia service and mount admin external-media routes; verify Vite build ([ab324f1](https://github.com/the-luap/picpeak/commit/ab324f192859204a3ea3c129530ccfe8f5a36968))
+* **gallery/filters:** always apply global liked/favorited filters by aggregate counts (ignore guest_id); resolves mismatch between client guest_id and server identifier ([526dcd8](https://github.com/the-luap/picpeak/commit/526dcd8dfc030d86143cee799a88a1004d96b116))
+* **gallery/filters:** make feedback filters work globally when no guest_id is provided; remove guest_id from client photos query\n\n- Backend /api/gallery/:slug/photos: if filter present and guest_id missing, filter by like_count/favorite_count\n- Frontend useGalleryPhotos: stop passing random guestId (does not match server guest_identifier)\n\nThis makes Liked/Favorited filters reflect photos with aggregate feedback counts as expected. ([5b2561b](https://github.com/the-luap/picpeak/commit/5b2561b6f1da2665d6092ba954f8ff26df3959a4))
+* **gallery/sidebar:** compact icon-only feedback filter in sidebar (vertical, small) to avoid overflow; use GalleryFilter variant=compact ([ff89f96](https://github.com/the-luap/picpeak/commit/ff89f96e31130f75bcd7a406c5d895eac17b65de))
+* **gallery:** feedback filter headline + horizontal icons in sidebar (compact variant); ensure sidebar content scrolls (flex-col container) ([3a6d061](https://github.com/the-luap/picpeak/commit/3a6d06192a280ead8bd5d1fbfe06554e63f3346e))
+* handle auth errors and JSON parsing in admin panel ([b2ae5f1](https://github.com/the-luap/picpeak/commit/b2ae5f18ad4622ea9cb0b5b593dad19e5d14cf60))
+* harden gallery downloads and per-gallery auth ([fc1bf53](https://github.com/the-luap/picpeak/commit/fc1bf534129092ca3638e4a4bc47274cd297fa5f))
+* implement 9 production enhancements and security fixes ([c584369](https://github.com/the-luap/picpeak/commit/c584369d5d5c33fd794cf82a2aea8089bd10e514))
+* improve admin credentials display and configuration ([ad495a9](https://github.com/the-luap/picpeak/commit/ad495a92c46d02849ce0d9176cff43c83c5c4b57))
+* improve version bump workflow with better conflict resolution ([c787510](https://github.com/the-luap/picpeak/commit/c7875102c5196a9ef3038c2d5e0ee313fbb2782a))
+* multiple improvements and CI/CD updates ([bf70567](https://github.com/the-luap/picpeak/commit/bf705674d505b0cb1b82fecc74aa8d95edd50a47))
+* **native/http:** disable CSP upgrade-insecure-requests and HSTS unless ENABLE_HSTS=true; prevents HTTPS upgrades on HTTP installs ([24b4a31](https://github.com/the-luap/picpeak/commit/24b4a314a9e97b6c640ca29067e95028a23a8973))
+* **native:** correct setup paths to /opt/picpeak/app, update repo URL, add sqlite prod support; docs path fixes ([b992b15](https://github.com/the-luap/picpeak/commit/b992b151d3ca6ccb4a9b2434d94edcdc90ada3b0))
+* **native:** remove obsolete workers service; restart only backend; add API request logging and preflight handler; keep static assets outside CORS ([f3604b4](https://github.com/the-luap/picpeak/commit/f3604b438b37e5f2bddf98e79f458bfa2367cb75))
+* prefer admin token on admin routes ([#23](https://github.com/the-luap/picpeak/issues/23) [#28](https://github.com/the-luap/picpeak/issues/28)) ([d4404e3](https://github.com/the-luap/picpeak/commit/d4404e39bd7953649da02d3e300ffef46573ac97))
+* remove description field from migration 035 app_settings inserts ([22cc406](https://github.com/the-luap/picpeak/commit/22cc40617f88e1f0a636fc049c78601fc1f38c33))
+* remove file requirement from GitHub release in Drone CI ([8335916](https://github.com/the-luap/picpeak/commit/833591681adf29d99a1dfa7c43d5aee7a6cb98ba))
+* remove formatBoolean calls from migration 032 - critical production fix ([0502ed3](https://github.com/the-luap/picpeak/commit/0502ed34c9fe76acacc2aecd02151564d109cf0b))
+* remove unnecessary publish-manifest job from Docker workflow ([986b101](https://github.com/the-luap/picpeak/commit/986b101040674f2253fcdfda99a9e603535daaa0))
+* remove unused formatBoolean import from migration 033 ([1238db5](https://github.com/the-luap/picpeak/commit/1238db58c25e97513c9bdcb5dcc26b1034e9f074))
+* remove updated_at field from password reset query ([ed0243e](https://github.com/the-luap/picpeak/commit/ed0243ec398acca26490ef27cbe3cfe5fa9b95a6))
+* remove updated_at from app_settings inserts in multiple migrations ([4c42b4c](https://github.com/the-luap/picpeak/commit/4c42b4c60157755b770bea3b78d42fe6abd60afa))
+* replace github-release plugin with direct curl API call ([76a466c](https://github.com/the-luap/picpeak/commit/76a466c0776eeabe3eac6a480bd699c2ae5c60bc))
+* resolve backend startup errors in development ([f8fb1c3](https://github.com/the-luap/picpeak/commit/f8fb1c3f4b2b5de53182e987a9dfe042704320b9))
+* resolve CI/CD version bump race condition ([0bf4764](https://github.com/the-luap/picpeak/commit/0bf4764a0720f6f199442a738a885a2edaae2a4d))
+* resolve database connection error for analytics settings ([95939d5](https://github.com/the-luap/picpeak/commit/95939d57e6857646d261b0f049bdda752602caeb))
+* resolve date formatting error in event creation ([c51d756](https://github.com/the-luap/picpeak/commit/c51d7565035146cc3f689c0cc4b508b78d9bb5ee))
+* resolve development environment issues ([61299a3](https://github.com/the-luap/picpeak/commit/61299a33c4f92730fe8b14f6035f61325d952b94))
+* resolve duplicate logger declaration and syntax error in rate limit service ([0fe6d73](https://github.com/the-luap/picpeak/commit/0fe6d738b222555b27cbf8a36f455b1c15c4f4e8))
+* resolve feedback validation issues from GitHub issue [#16](https://github.com/the-luap/picpeak/issues/16) ([f26beca](https://github.com/the-luap/picpeak/commit/f26becad1dfa72c62b6ecec491be025644426d67))
+* resolve feedback validation issues from GitHub issue [#16](https://github.com/the-luap/picpeak/issues/16) ([67ff415](https://github.com/the-luap/picpeak/commit/67ff4158404347bc7c13dee5b4e13260eb0e743d))
+* resolve GitHub issues [#4](https://github.com/the-luap/picpeak/issues/4), [#8](https://github.com/the-luap/picpeak/issues/8), [#9](https://github.com/the-luap/picpeak/issues/9), and [#10](https://github.com/the-luap/picpeak/issues/10) ([934d6dd](https://github.com/the-luap/picpeak/commit/934d6ddc5847f65db6371a4043b764f6d4cd6c8b))
+* resolve GitHub mirror workflow cherry-pick failure with merge commits ([d6adde4](https://github.com/the-luap/picpeak/commit/d6adde4e093537aeecf8b190513a1171c3ecc82c))
+* resolve language-specific column issues in core migrations ([62617f6](https://github.com/the-luap/picpeak/commit/62617f627f56aedd132fa20528b1d7c7e272c85c))
+* resolve migration conflicts and duplicate numbering ([a401fbd](https://github.com/the-luap/picpeak/commit/a401fbdc54f30c18b5aa2440d7b6887ca12e00eb))
+* resolve multiple feedback management issues ([ad75818](https://github.com/the-luap/picpeak/commit/ad758185666bf4ac52965f16d1c0e1e052887ac2))
+* resolve multiple issues from GitHub issue [#14](https://github.com/the-luap/picpeak/issues/14) ([e91209f](https://github.com/the-luap/picpeak/commit/e91209f7cb38a5b840e74ed6acd8d490ef9d2294))
+* resolve port configuration issues and database column mismatch ([6de64a1](https://github.com/the-luap/picpeak/commit/6de64a1df18932badd7bb1b9928d09e9477f0c3f))
+* resolve PostgreSQL migration issues for development environment ([ee855a3](https://github.com/the-luap/picpeak/commit/ee855a3502ecd1a5556e378e9995de86e3548de1))
+* resolve production UI and API issues ([d5790ad](https://github.com/the-luap/picpeak/commit/d5790ad635596842926a358753932e5c422590d6))
+* resolve SIGPIPE error in GitHub mirror workflow file cleanup ([b7c8953](https://github.com/the-luap/picpeak/commit/b7c8953cb4d4a2541dcb38865c8a7beef0edf494))
+* resolve translation interpolation issue for download button ([c1e10f1](https://github.com/the-luap/picpeak/commit/c1e10f14a30797c76169c2531de5d04976ee4888))
+* **setup/native:** correct repo URL, paths, and systemd for native install; support sqlite in production knex config ([87b8414](https://github.com/the-luap/picpeak/commit/87b8414e449802db6dc9f762453f7672616b83c9))
+* **setup/native:** Debian 12 compatibility (reliable RAM detection, sudo-less run_as_user, git safe.directory); ensure SQLite data dir; use user for migrate ([dc482e6](https://github.com/the-luap/picpeak/commit/dc482e614a5fbac44c6570d812669511301a4403))
+* **setup/native:** handle forced updates safely by fetch+checkout/reset instead of pull; stable on rewritten histories ([3697344](https://github.com/the-luap/picpeak/commit/3697344cd0add28b4da71c3b33e2ccc0a96f50f9))
+* **setup/update:** detect native installs first (/opt/picpeak/app/backend or systemd unit); avoid false docker updates on root ([adf576f](https://github.com/the-luap/picpeak/commit/adf576fbe17f40c13c1d77dd9751f2e9dbf523a1))
+* simplify Drone github-release step to avoid shell parsing issues ([94f10e1](https://github.com/the-luap/picpeak/commit/94f10e164502e6848cd720ee5a5c2822abbde46f))
+* stabilize uploads and guest feedback filters ([aaaf598](https://github.com/the-luap/picpeak/commit/aaaf59817b3978635d2282c006853e183ab944d4))
+* update all deployment guide links in README.md ([6389b9d](https://github.com/the-luap/picpeak/commit/6389b9df3f616c09a9bbbf1a2988764b0c3aeb77))
+* update deployment guide with critical URL configuration and nginx port fixes ([1cadce1](https://github.com/the-luap/picpeak/commit/1cadce196bb04a0575d83437618454d4ca5bcdac))
+* update form-data and multer to address security vulnerabilities ([7750170](https://github.com/the-luap/picpeak/commit/7750170832dddf81a33c7c2409b37b0b7bc1f290))
+* update Gitea mirror workflow to selectively remove scripts ([296430e](https://github.com/the-luap/picpeak/commit/296430e4d7e01a6be031dbb89dd25f563b163a97))
+* update GitHub mirror action to support fine-grained personal access tokens ([827eb48](https://github.com/the-luap/picpeak/commit/827eb4819b7da6171d48613963d176399cad80c6))
+* use admin API for Umami config in analytics page ([a54a2c0](https://github.com/the-luap/picpeak/commit/a54a2c0fdaa28193d1359da73bc7fb61476e2a58))
+* use plugins/gitea-release for Drone CI/CD ([0c783c6](https://github.com/the-luap/picpeak/commit/0c783c66d0dfe8cb637f0db7349ae9637d7bf787))
+* use plugins/github-release for Drone CI/CD ([f926cd3](https://github.com/the-luap/picpeak/commit/f926cd3adf513858bc7b291582c7ca2efdf93ff8))
+
+
+### Documentation
+
+* add minimum system requirements section to README ([4615a5d](https://github.com/the-luap/picpeak/commit/4615a5d795b415367edf4882628377936b29ab32))
+* add PUID/PGID note for Docker bind mounts to avoid permission issues ([0178e71](https://github.com/the-luap/picpeak/commit/0178e71c67f198c6013ece52b0a2da0e2f1a6b2a))
+* add transparency note about AI-assisted development ([35e360d](https://github.com/the-luap/picpeak/commit/35e360dcf7ac68833bec81f2e79f4a11a76a0e87))
+* add warnings about $ character in Docker Compose passwords ([87d1761](https://github.com/the-luap/picpeak/commit/87d1761091bb97747821aa810a58f3978a59d08f))
+* clarify VITE_API_URL usage; remove FRONTEND_API_URL; add storage vars; simplify compose mounts and external DB example (refs [#18](https://github.com/the-luap/picpeak/issues/18)) ([758c085](https://github.com/the-luap/picpeak/commit/758c085467e579e9f6b16df2298747fdddf2b205))
+* **compose:** fix backend healthcheck path; remove frontend VITE_API_URL env and document /api proxy (refs [#18](https://github.com/the-luap/picpeak/issues/18)) ([ecbc488](https://github.com/the-luap/picpeak/commit/ecbc48815ded99a052ef057e69427c823cd34ece))
+* fix deployment/admin routing and CORS guidance; add AGENTS.md; ignore AGENTS.md (refs [#18](https://github.com/the-luap/picpeak/issues/18)) ([dad1787](https://github.com/the-luap/picpeak/commit/dad1787aad8763637373e8eb87a47728d3d568cc))
+* follow-up on PR [#15](https://github.com/the-luap/picpeak/issues/15) — clarify VITE_API_URL usage, compose mounts, and admin routing (refs [#15](https://github.com/the-luap/picpeak/issues/15)) ([e9171c7](https://github.com/the-luap/picpeak/commit/e9171c71159cb41b91a099621bd2d7a7985dd239))
+* **readme:** reflect new External Media reference mode and update roadmap (gallery feedback status) ([ee13556](https://github.com/the-luap/picpeak/commit/ee13556c5cb4f24fe88e14fd00b821acf65b11cb))
+* replace email addresses with GitHub issue links ([0c989ce](https://github.com/the-luap/picpeak/commit/0c989ce08699ce68b131a9cc4ba4f14e06e3d221))
+* update deployment guide with GitHub Container Registry images ([2c9a56f](https://github.com/the-luap/picpeak/commit/2c9a56f217218f0700817d150b3de115e9503baa))
+
+
+### Code Refactoring
+
+* simplify deployment structure with direct port exposure ([6492cb9](https://github.com/the-luap/picpeak/commit/6492cb9ec8f8b811297aa71c153b9fe6a00e947a))
+
+## [1.2.0](https://github.com/the-luap/picpeak/compare/v1.1.15...v1.2.0) (2026-01-03)
+
+### Features
+
+* **Event Rename**: Safe event renaming with automatic slug updates, old URL redirects via `slug_redirects` table, and optional email notifications to clients
+* **Optional Event Fields**: Make customer name, email, and admin email fields optional via admin settings with "(optional)" labels in forms
+* **Photo Filtering**: Filter photos by rating, likes, favorites, and comments with a new PhotoFilterPanel component
+* **Photo Export**: Export filtered photo selections as ZIP, generate Capture One/Lightroom-compatible XMP sidecar files, or export metadata lists
+* **Custom CSS Templates**: 3 customizable CSS template slots with live preview, XSS-safe sanitization, and per-event template assignment
+* **Apple Liquid Glass Theme**: Starter CSS template inspired by iOS 26 / macOS Tahoe Liquid Glass design with glass morphism effects, Apple SF Pro fonts, and responsive layout
+* **Liquid Glass Dark Theme**: Neon-accented dark glass theme with animated gradient backgrounds
+* **Image Security Settings**: Per-event download protection with configurable protection levels (basic, standard, enhanced, maximum), canvas rendering, DevTools detection, and right-click prevention
+* **Automated Releases**: Release Please integration for automatic versioning, changelog generation, and GitHub releases that trigger Docker image builds
+
+### Bug Fixes
+
+* **Date Parsing**: Fix event date formatting in slugs (now uses YYYY-MM-DD format correctly)
+* **Search Placeholder**: Fix search field placeholder visibility in glass-styled sidebar
+* **Vite Proxy**: Fix Vite dev server proxy port configuration
+* **Photo Export Button**: Fix export button staying disabled when photos are selected
+* **Boolean Parsing**: Fix boolean parsing in publicSettings.js for optional fields
+* **Translation Keys**: Add missing `common.optional` translation key in locales
+
+### Security
+
+* Fix critical vulnerabilities and harden application security
+* Add CSS sanitizer utility blocking XSS vectors in custom templates
+* Implement secure gallery CSS endpoint for template delivery
+
+### Code Refactoring
+
+* Add Photo and Settings service layers for better code organization
+* Phase 1 code consolidation with service layer architecture
+* Modular settings page with feature-based tab components
+* Create photoFilterBuilder utility for query construction
+* Add eventRenameService for safe event operations
+
+### Documentation
+
+* Add comprehensive REFACTORING_PLAN.md for codebase improvement roadmap
+* Update README roadmap with implemented features (Download Protection, Gallery Templates, Filtering & Export)
+* Add test specification documents for all new features
+
+### Database Migrations
+
+* `049_add_slug_redirects.js` - Store old slugs for URL redirects after rename
+* `050_add_optional_event_fields_settings.js` - Settings for optional form fields
+* `051_add_photo_filter_indexes.js` - Performance indexes for photo filtering
+* `052_add_css_templates.js` - CSS template storage with 3 slots
+* `053_add_liquid_glass_templates.js` - Apple Liquid Glass and Dark theme starter templates
+
+---
+
+## [1.1.15] - Previous Release
+
+Initial stable release with core functionality.

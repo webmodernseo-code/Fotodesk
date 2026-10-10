@@ -1,0 +1,468 @@
+/* ============================================
+   FOTODESK — Components
+   Buttons, Cards, Badges, Accordion, etc.
+   ============================================ */
+
+/* ── Buttons ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  padding: 0.875rem 2rem;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-base);
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.btn:hover::before {
+  opacity: 1;
+}
+
+.btn--primary {
+  background: linear-gradient(180deg, #FFFFFF 0%, #FAFAFA 55%, #D0D0D0 100%);
+  color: #050505;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+.btn--primary:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  transform: translateY(-2px);
+}
+
+.btn--primary:active {
+  transform: translateY(0);
+}
+
+/* ── Reference CTA Button (Monochrome White/Gray Gradient) ── */
+.btn--cta {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F8F8F8 55%, #CECECE 100%);
+  color: #050505;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  font-weight: 600;
+  padding: 0.875rem 2.25rem;
+}
+
+.btn--cta:hover {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45);
+}
+
+.btn--cta:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* ── Header Sign Up Button ── */
+.btn--signup {
+  background: #FFFFFF;
+  color: #050505;
+  border-radius: 12px;
+  font-weight: 600;
+  border: none;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.875rem;
+}
+
+.btn--signup:hover {
+  background: #F0F0F0;
+  transform: translateY(-1px);
+}
+
+.btn--secondary {
+  background: var(--glass-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+}
+
+.btn--secondary:hover {
+  background: var(--glass-bg-hover);
+  border-color: var(--border-light);
+  transform: translateY(-2px);
+}
+
+.btn--outline {
+  background: transparent;
+  color: var(--accent-gold);
+  border: 1px solid var(--accent-gold);
+}
+
+.btn--outline:hover {
+  background: rgba(229, 180, 93, 0.1);
+  transform: translateY(-2px);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  padding: 0.75rem 1.25rem;
+}
+
+.btn--ghost:hover {
+  color: var(--text-primary);
+}
+
+.btn--lg {
+  padding: 1.1rem 2.5rem;
+  font-size: var(--font-size-md);
+  border-radius: var(--radius-xl);
+}
+
+.btn--sm {
+  padding: 0.6rem 1.25rem;
+  font-size: var(--font-size-sm);
+}
+
+.btn--full {
+  width: 100%;
+}
+
+.btn-icon {
+  font-size: 1.2em;
+  line-height: 1;
+}
+
+/* ── Cards ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  transition: all var(--transition-base);
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--glass-border), transparent);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.card:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-light);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+.card--glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border-color: var(--glass-border);
+}
+
+.card--glass:hover {
+  background: var(--glass-bg-hover);
+}
+
+.card--featured {
+  border-color: var(--accent-gold);
+  background: linear-gradient(180deg, rgba(229, 180, 93, 0.06) 0%, var(--bg-card) 40%);
+}
+
+.card--featured:hover {
+  border-color: var(--accent-gold-light);
+  box-shadow: var(--shadow-gold);
+}
+
+.card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 4px 12px rgba(0, 0, 0, 0.4);
+  margin-bottom: var(--space-lg);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-icon--indigo {
+  color: #818CF8;
+  background: rgba(99, 102, 241, 0.08);
+  border-color: rgba(99, 102, 241, 0.25);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 8px 20px -4px rgba(99, 102, 241, 0.25);
+}
+
+.card-icon--cyan {
+  color: #38BDF8;
+  background: rgba(14, 165, 233, 0.08);
+  border-color: rgba(14, 165, 233, 0.25);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 8px 20px -4px rgba(14, 165, 233, 0.25);
+}
+
+.card-icon--amber {
+  color: #E8BFA1;
+  background: rgba(200, 149, 97, 0.08);
+  border-color: rgba(200, 149, 97, 0.25);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 8px 20px -4px rgba(200, 149, 97, 0.25);
+}
+
+.card-icon--emerald {
+  color: #34D399;
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.25);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 8px 20px -4px rgba(16, 185, 129, 0.25);
+}
+
+.card-icon--whatsapp {
+  color: #25D366;
+  background: rgba(37, 211, 102, 0.08);
+  border-color: rgba(37, 211, 102, 0.25);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 8px 20px -4px rgba(37, 211, 102, 0.25);
+}
+
+.card-icon--violet {
+  color: #A78BFA;
+  background: rgba(139, 92, 246, 0.08);
+  border-color: rgba(139, 92, 246, 0.25);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 8px 20px -4px rgba(139, 92, 246, 0.25);
+}
+
+.card:hover .card-icon {
+  transform: translateY(-2px) scale(1.05);
+}
+
+.card-title {
+  font-family: var(--font-family);
+  font-size: 1.125rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-sm);
+  color: #F5F5F5;
+}
+
+.card-description {
+  font-family: var(--font-family);
+  font-size: 0.875rem;
+  color: #9CA8BA;
+  line-height: 1.6;
+}
+
+/* ── Badges ── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  padding: 0.3rem 0.75rem;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  border-radius: var(--radius-full);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+}
+
+.badge--gold {
+  background: rgba(229, 180, 93, 0.15);
+  color: var(--accent-gold);
+  border: 1px solid rgba(229, 180, 93, 0.25);
+}
+
+.badge--purple {
+  background: rgba(139, 92, 246, 0.15);
+  color: var(--accent-purple-light);
+  border: 1px solid rgba(139, 92, 246, 0.25);
+}
+
+.badge--popular {
+  background: var(--gradient-gold);
+  color: #0A0A0B;
+  font-weight: var(--font-weight-bold);
+}
+
+/* ── Accordion (FAQ) ── */
+.accordion-item {
+  border-bottom: 1px solid var(--border-default);
+}
+
+.accordion-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--space-lg) 0;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  text-align: left;
+  transition: color var(--transition-base);
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+.accordion-trigger:hover {
+  color: var(--accent-gold);
+}
+
+.accordion-trigger-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: var(--space-md);
+  transition: transform var(--transition-base);
+  color: var(--text-tertiary);
+  font-size: 1.25rem;
+}
+
+.accordion-item.active .accordion-trigger-icon {
+  transform: rotate(45deg);
+  color: var(--accent-gold);
+}
+
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height var(--transition-slow), padding var(--transition-slow);
+}
+
+.accordion-item.active .accordion-content {
+  max-height: 300px;
+  padding-bottom: var(--space-lg);
+}
+
+.accordion-text {
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+
+/* ── Divider ── */
+.divider {
+  width: 100%;
+  height: 1px;
+  background: var(--border-default);
+  border: none;
+}
+
+/* ── Glow Orb (Decorative) ── */
+.glow-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.glow-orb--gold {
+  background: rgba(229, 180, 93, 0.12);
+}
+
+.glow-orb--purple {
+  background: rgba(139, 92, 246, 0.1);
+}
+
+/* ── Stat Counter ── */
+.stat {
+  text-align: center;
+}
+
+.stat-value {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-extrabold);
+  color: var(--text-primary);
+  line-height: 1;
+  margin-bottom: var(--space-xs);
+}
+
+.stat-label {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+/* ── Testimonial Card ── */
+.testimonial-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  position: relative;
+}
+
+.testimonial-card::before {
+  content: '\201C';
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-xl);
+  font-size: 4rem;
+  color: var(--accent-gold);
+  opacity: 0.15;
+  font-family: Georgia, serif;
+  line-height: 1;
+}
+
+.testimonial-text {
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+  line-height: var(--line-height-relaxed);
+  font-style: italic;
+  margin-bottom: var(--space-lg);
+}
+
+.testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.testimonial-avatar {
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  border: 2px solid var(--border-accent);
+}
+
+.testimonial-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.testimonial-name {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+.testimonial-role {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}

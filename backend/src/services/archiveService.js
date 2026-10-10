@@ -1,0 +1,388 @@
+const archiver = require('archiver');
+const { objectsToCsv } = require('../utils/spreadsheetSafe');
+const fs = require('fs');
+const fsp = require('fs').promises;
+const path = require('path');
+const os = require('os');
+const crypto = require('crypto');
+const { db } = require('../database/db');
+const { queueEmail, getSupportEmail } = require('./emailProcessor');
+const logger = require('../utils/logger');
+const feedbackService = require('./feedbackService');
+const { getStorage } = require('./storage');
+const { resolvePhotoStorageKey } = require('./photoResolver');
+const { getUseOriginalFilenames } = require('./downloadFilenameService');
+const { createArchiveStreamGuard } = require('../utils/archiveStreamGuard');
+const {
+  sanitizeForZipEntry,
+  uniquifyZipNames,
+} = require('../utils/filenameSanitizer');
+
+async function archiveEvent(event) {
+  const storage = getStorage();
+  const archiveName = `${event.slug}.zip`;
+  const archiveRelKey = path.posix.join('events/archived', archiveName);
+  const eventPrefix = path.posix.join('events/active', event.slug);
+
+  const tmpDir = await fsp.mkdtemp(path.join(os.tmpdir(), 'picpeak-archive-'));
+  const tmpArchive = path.join(tmpDir, `${crypto.randomBytes(4).toString('hex')}-${archiveName}`);
+
+  try {
+    // Photos manifest — the gallery filenames are renamed on upload, so
+    // `original_filename` (and category linkage) can't be derived from the
+    // extracted files alone. Persisting a manifest inside the archive lets a
+    // future restore round-trip recover those fields. Falls back to bare
+    // filename for archives produced before this lands (see restore path).
+    // Serialized further down, once the zip entry names are known.
+    let manifestRows = [];
+    try {
+      manifestRows = await db('photos')
+        .leftJoin('photo_categories', 'photos.category_id', 'photo_categories.id')
+        .where('photos.event_id', event.id)
+        .select(
+          'photos.filename',
+          'photos.original_filename',
+          'photos.type',
+          // Not derivable from the extension for every format, and restore
+          // has to know a video from a photo to write the row back. Both,
+          // because neither is reliable alone: fileWatcher sets a video/*
+          // mime_type but never media_type, so its videos carry the 'image'
+          // default and every reader knows them as videos only through mime.
+          'photos.media_type',
+          'photos.mime_type',
+          'photos.uploaded_at',
+          // Photo credits (#1561): who uploaded it and the name on it, which
+          // no file carries (a guest name, an admin correction), and the
+          // guest's visibility snapshot. The ZIP is a snapshot: a guest
+          // erased later is not rewritten out of an existing archive — the
+          // restore drops the credit of any guest no longer on the event.
+          'photos.uploaded_by',
+          'photos.credit_name',
+          'photos.credit_source',
+          'photos.uploader_guest_id',
+          'photos.credit_visible_to_guests',
+          'photo_categories.name as category_name',
+          // For resolving the row's storage key below, not written out.
+          'photos.path',
+          'photos.source_origin',
+          // Turned into folder_path below (issue 1786), not written out.
+          'photos.folder_id',
+          'photos.first_look',
+          // A team upload still under review (issue 743) has to come back
+          // under review, not published by the restore.
+          'photos.moderation_status',
+          // Who uploaded it (issue 743), for the review badge; restored only
+          // while that account still exists.
+          'photos.uploaded_by_admin_id',
+        );
+      // The folder a photo lives in, as a path ("Saturday/Activity B"):
+      // folder ids do not survive a restore into a fresh database, names do.
+      const folders = await require('./folderTreeService').eventFolders(event.id);
+      const byId = new Map(folders.map((f) => [Number(f.id), f]));
+      const pathOf = (id) => {
+        const names = [];
+        let cur = byId.get(Number(id));
+        const seen = new Set();
+        while (cur && !seen.has(cur.id)) {
+          seen.add(cur.id);
+          names.unshift(cur.name);
+          cur = cur.parent_id ? byId.get(Number(cur.parent_id)) : null;
+        }
+        return names.length ? names.join('/') : null;
+      };
+      manifestRows = manifestRows.map((row) => ({ ...row, folder_path: row.folder_id ? pathOf(row.folder_id) : null }));
+    } catch (error) {
+      logger.error(`Error building photos manifest for event ${event.slug}:`, error);
+      // Non-fatal — restore will fall back to filename as original_filename
+      // for events archived without a manifest, same as the legacy behaviour.
+    }
+
+    // Collect feedback data first so it can be included as in-memory entries.
+    const feedbackEntries = [];
+    const feedbackSettings = await feedbackService.getEventFeedbackSettings(event.id);
+    if (feedbackSettings.feedback_enabled) {
+      try {
+        logger.info(`Exporting feedback data for event ${event.slug}`);
+        const feedbackData = await feedbackService.exportEventFeedback(event.id);
+
+        if (feedbackData && feedbackData.length > 0) {
+          feedbackEntries.push({
+            name: 'feedback_data.json',
+            buffer: Buffer.from(JSON.stringify(feedbackData, null, 2), 'utf8'),
+          });
+          feedbackEntries.push({
+            name: 'feedback_data.csv',
+            buffer: Buffer.from(convertToCSV(feedbackData), 'utf8'),
+          });
+          const summary = await feedbackService.getEventFeedbackSummary(event.id);
+          feedbackEntries.push({
+            name: 'feedback_summary.json',
+            buffer: Buffer.from(JSON.stringify(summary, null, 2), 'utf8'),
+          });
+          logger.info(`Feedback data exported: ${feedbackData.length} entries`);
+        }
+      } catch (error) {
+        logger.error(`Error exporting feedback for event ${event.slug}:`, error);
+        // Continue with archiving even if feedback export fails
+      }
+    }
+
+    // Stream every photo (and any other content under events/active/{slug}/) into
+    // the zip directly from the storage backend.
+    const photoEntries = await storage.list(eventPrefix);
+
+    // #493: optionally rename zip entries to use original camera filenames.
+    // Build a Map<storage_key, original_filename> from the photos table so we
+    // can swap the basename of each entry while keeping the folder structure
+    // (e.g. `individual/DSC_1234.jpg` instead of `individual/slug_001.jpg`).
+    const useOriginal = await getUseOriginalFilenames();
+    const originalsByKey = new Map();
+    if (useOriginal) {
+      const photoRows = await db('photos').where('event_id', event.id).select('*');
+      for (const photoRow of photoRows) {
+        if (!photoRow.original_filename) continue;
+        try {
+          const key = resolvePhotoStorageKey(event, photoRow);
+          if (key) originalsByKey.set(key, photoRow.original_filename);
+        } catch {
+          // External-mode rows have no managed key; skip silently.
+        }
+      }
+    }
+
+    // Compute (subfolder, displayName) up front so collisions across the
+    // whole zip can be resolved deterministically with `_N` suffixes.
+    const photoNames = photoEntries.map((entry) => {
+      const rel = entry.key.startsWith(`${eventPrefix}/`)
+        ? entry.key.slice(eventPrefix.length + 1)
+        : entry.key;
+      if (!useOriginal) return rel;
+      const originalBase = originalsByKey.get(entry.key);
+      if (!originalBase) return rel;
+      const sep = rel.lastIndexOf('/');
+      const folder = sep >= 0 ? rel.slice(0, sep + 1) : '';
+      return `${folder}${sanitizeForZipEntry(originalBase)}`;
+    });
+    const dedupedNames = uniquifyZipNames(photoNames);
+
+    // Each manifest row records the entry name its file was emitted under,
+    // so restore can match entry to row exactly. Matching on the basename
+    // cannot always: with original names on, two photos sharing an original
+    // are emitted as `X.jpg` and `X_1.jpg`, and an original can equal another
+    // row's internal name. Both are undecidable from the basename alone.
+    let photosManifestEntry = null;
+    if (manifestRows.length > 0) {
+      const zipPathByKey = new Map(photoEntries.map((entry, i) => [entry.key, dedupedNames[i]]));
+      const manifest = manifestRows.map((row) => {
+        const { path: _path, source_origin: _origin, folder_id: _folder, ...fields } = row;
+        let zipPath = null;
+        try {
+          const key = resolvePhotoStorageKey(event, row);
+          if (key) zipPath = zipPathByKey.get(key) || null;
+        } catch {
+          // No managed key (empty path on a legacy row): restore falls back
+          // to the basename for this one, as it does for older archives.
+        }
+        return { ...fields, zip_path: zipPath };
+      });
+      photosManifestEntry = {
+        name: 'photos_manifest.json',
+        buffer: Buffer.from(JSON.stringify(manifest, null, 2), 'utf8'),
+      };
+      logger.info(`Photos manifest prepared: ${manifest.length} entries`);
+    }
+
+    let totalBytes = 0;
+    await new Promise((resolve, reject) => {
+      const output = fs.createWriteStream(tmpArchive);
+      const archive = archiver('zip', { zlib: { level: 9 } });
+      // Bound and reclaim the storage reads, as the download builders do:
+      // archiver drains one source at a time, so opening a read per photo in
+      // the loop parked every other body on an S3 socket until its turn,
+      // and a large event held most of the shared agent pool. Two in flight;
+      // every open read is destroyed on any failure.
+      const guard = createArchiveStreamGuard({
+        onFatalError: (err) => { guard.destroyAll(); archive.abort(); reject(err); },
+      });
+
+      output.on('close', () => {
+        totalBytes = archive.pointer();
+        resolve();
+      });
+      output.on('error', (err) => { guard.destroyAll(); archive.abort(); reject(err); });
+      archive.on('error', (err) => { guard.destroyAll(); reject(err); });
+      archive.pipe(output);
+
+      const append = async () => {
+        for (let i = 0; i < photoEntries.length; i += 1) {
+          const entry = photoEntries[i];
+          const nameInZip = dedupedNames[i];
+          if (!await guard.acquire()) return;
+          archive.append(guard.track(await storage.get(entry.key)), { name: nameInZip });
+        }
+        for (const f of feedbackEntries) {
+          archive.append(f.buffer, { name: f.name });
+        }
+        if (photosManifestEntry) {
+          archive.append(photosManifestEntry.buffer, { name: photosManifestEntry.name });
+        }
+        archive.finalize();
+      };
+
+      append().catch((err) => { guard.destroyAll(); reject(err); });
+    });
+
+    // Upload the finalized zip to the storage backend.
+    await storage.putFromFile(archiveRelKey, tmpArchive, { contentType: 'application/zip' });
+
+    logger.info(`Archive created: ${archiveName} (${totalBytes} bytes)`);
+
+    // Update DB BEFORE deleting originals so a crash mid-cleanup leaves the
+    // archive accessible rather than orphaning the photos.
+    await db('events').where('id', event.id).update({
+      is_archived: true,
+      archive_path: archiveRelKey,
+      // The zip's own byte size — the same number the completion email
+      // reports below. Persisted so the archives list can sort and display it
+      // without statting every archive on every request.
+      archive_size: totalBytes,
+      archived_at: new Date(),
+    });
+
+    // Fire event.archived webhook (#327). Receivers infer per-photo loss
+    // from this event — we deliberately do NOT fire photo.deleted for each
+    // archived photo to avoid flooding subscribers on bulk archives.
+    // Canonical event subject (#341) so the shape matches event.created /
+    // event.published / event.expired; archive_path is an event.archived-
+    // specific extra.
+    try {
+      const webhookService = require('./webhookService');
+      await webhookService.fire('event.archived', {
+        event: {
+          ...webhookService.buildEventSubject({
+            id: event.id,
+            slug: event.slug,
+            event_name: event.event_name,
+            event_type: event.event_type,
+            event_date: event.event_date,
+            share_token: event.share_token,
+            customer_name: event.customer_name || event.host_name,
+            customer_email: event.customer_email || event.host_email,
+            customer_phone: event.customer_phone,
+          }),
+          archive_path: archiveRelKey,
+        },
+      });
+    } catch (e) { /* non-fatal */ }
+
+    // Delete the originals from storage.
+    for (const entry of photoEntries) {
+      await storage.delete(entry.key).catch((err) =>
+        logger.warn(`Failed to delete archived original ${entry.key}: ${err.message}`)
+      );
+    }
+
+    // Delete derived images (thumbnails / heroes / previews / watermarks)
+    // for this event's photos. The originals are inside the zip; the
+    // derived tiers are throwaway and will be regenerated lazily on
+    // restore (or not at all for archived events that nobody opens).
+    const photos = await db('photos').where('event_id', event.id);
+    for (const photo of photos) {
+      if (photo.thumbnail_path) {
+        await storage.delete(photo.thumbnail_path).catch(() => {});
+      }
+      if (photo.hero_path) {
+        await storage.delete(photo.hero_path).catch(() => {});
+      }
+      // Lightbox preview tier (#492). Same disposable-derived
+      // semantics as thumbnails / heroes — wipe on archive.
+      if (photo.preview_path) {
+        await storage.delete(photo.preview_path).catch(() => {});
+      }
+      // Browser-playable video copy (issue 1430): the original is in the
+      // zip, the copy is not. The row is reset with it: a row left at
+      // `complete` would name a copy storage no longer has, and the
+      // switch-on backfill only takes NULL and failed rows, so the restored
+      // video could never get its copy back. The restore route re-queues it.
+      // `skipped` rows have no copy and the original comes back byte for
+      // byte, so that verdict stays.
+      if (photo.web_path || (photo.web_status && photo.web_status !== 'skipped')) {
+        if (photo.web_path) await storage.delete(photo.web_path).catch(() => {});
+        await db('photos').where({ id: photo.id }).update({
+          web_path: null, web_status: null, web_started_at: null, web_error: null,
+        });
+      }
+      // Outside the guard: a tier can exist when the canonical rendition never
+      // did, so keying cleanup off preview_path would strand phone-only photos.
+      await require('./imageProcessor').deletePreviewTiers(photo);
+      await require('./imageProcessor').deleteThumbnailTiers(photo);
+      // Best effort: remove watermarked variants too if a refactor added them.
+      if (photo.watermark_path) {
+        await storage.delete(photo.watermark_path).catch(() => {});
+      }
+    }
+
+    // Purge face data (#1074). photo_faces cascades off photos, but archiving
+    // does NOT delete the photo rows — and event_people hangs off the event,
+    // which also survives. So neither would go without an explicit purge, and
+    // an archived gallery would keep its biometric data indefinitely.
+    //
+    // Face data is derived: if the event is ever restored, re-enabling
+    // detection re-scans. Nothing irreplaceable is lost except assigned
+    // names, which is the same trade already accepted for backups/exports.
+    try {
+      const { purgeEvent } = require('./faceProcessor');
+      await purgeEvent(event.id);
+
+      // Turn detection OFF as well. purgeEvent clears the rows but leaves the
+      // toggle on, so restoring the archive would bring back a gallery that
+      // claims face detection is enabled while having no people and no queued
+      // work — indistinguishable from a broken scan. Off is the honest state:
+      // the photographer re-enables it and gets a fresh backfill, which is
+      // exactly the flow the toggle already implements.
+      await db('events').where({ id: event.id })
+        .update({ face_recognition_enabled: false, faces_last_scan_at: null });
+    } catch (err) {
+      // Never fail an archive over this — but say so loudly, because it
+      // means biometric data outlived the gallery.
+      logger.error(
+        `Archive: failed to purge face data for event ${event.slug} — ` +
+        `face rows may remain. ${err.message}`
+      );
+    }
+
+    // Queue completion email — admin_email is nullable on events (migration 073);
+    // skip queueing rather than violating email_queue.recipient_email NOT NULL.
+    //
+    // The shipped EN/DE templates (legacy 028) and NL/PT/RU (core 075) reference
+    // {{host_name}}, {{photo_count}}, {{archive_date}} and {{support_email}};
+    // without these the recipient saw literal {{...}} placeholders.
+    if (event.admin_email) {
+      const supportEmail = await getSupportEmail();
+      await queueEmail(event.id, event.admin_email, 'archive_complete', {
+        host_name: event.customer_name || event.host_name || 'Admin',
+        event_name: event.event_name,
+        event_date: event.event_date,
+        photo_count: photoEntries.length,
+        archive_size: (totalBytes / 1024 / 1024).toFixed(2) + ' MB',
+        archive_date: new Date(),
+        support_email: supportEmail
+      });
+    } else {
+      logger.info(`Skipping archive_complete email for event ${event.slug}: no admin_email set`);
+    }
+  } catch (error) {
+    logger.error(`Error archiving event ${event.slug}:`, error);
+    throw error;
+  } finally {
+    await fsp.rm(tmpDir, { recursive: true, force: true }).catch(() => {});
+  }
+}
+
+// Feedback rows to CSV; quoting and formula neutralisation (GHSA-q82f)
+// are the shared csvCell.
+function convertToCSV(data) {
+  return objectsToCsv(data);
+}
+
+module.exports = { archiveEvent };

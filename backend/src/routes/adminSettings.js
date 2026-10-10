@@ -1,0 +1,2621 @@
+const { settingsChanged } = require('../usage/adoptionEvidence');
+const { capabilityEvidence } = require('../usage/capabilityEvidence');
+const SEO_USAGE_KEYS = ['seo_allow_indexing', 'seo_block_ai_crawlers', 'seo_block_social_bots',
+  'seo_blocked_ai_agents', 'seo_custom_rules', 'seo_meta_noindex', 'seo_meta_nofollow', 'seo_meta_noai', 'seo_sitemap_url'];
+const express = require('express');
+const multer = require('multer');
+const path = require('path');
+const { uploadedAssetPath } = require('../utils/safePath');
+const fs = require('fs').promises;
+const { body, validationResult } = require('express-validator');
+const validator = require('validator');
+const { db, logActivity } = require('../database/db');
+const { formatBoolean } = require('../utils/dbCompat');
+const { adminAuth } = require('../middleware/auth');
+const { getAuthCookieDomain } = require('../utils/tokenUtils');
+const { requirePermission, userHasAnyPermission, isSuperAdminUser } = require('../middleware/permissions');
+const { ForbiddenError } = require('../utils/errors');
+const { clearMaintenanceCache } = require('../middleware/maintenance');
+const { clearSettingsCache, initializeRateLimiters, RATE_LIMIT_DEFAULTS } = require('../services/rateLimitService');
+const { SETTING_KEY: GALLERY_PASSWORD_SETTING, purgeRecoverablePasswords, purgePlanForSettingWrite } = require('../utils/galleryPasswordVault');
+const {
+  DEFAULT_PUBLIC_SITE_HTML,
+  DEFAULT_PUBLIC_SITE_CSS,
+} = require('../constants/publicSiteDefaults');
+const {
+  clearPublicSiteCache,
+  getDefaultPublicSitePayload,
+  getRawPublicSiteSettings,
+} = require('../services/publicSiteService');
+const { sanitizeCss } = require('../utils/cssSanitizer');
+const { upsertAppSetting } = require('../utils/appSettings');
+const { clearShareLinkSettingsCache } = require('../services/shareLinkService');
+const { invalidateSiteUrlCache, isEnvPinned, envPinnedBase } = require('../utils/frontendUrl');
+const { resetSecurityConfigCache } = require('../utils/authSecurity');
+const { errorResponse, safeValidationErrors } = require('../utils/routeHelpers');
+const { measureLocalStorageUsage } = require('../services/localStorageUsage');
+const logger = require('../utils/logger');
+const router = express.Router();
+
+// What a stored secret looks like on GET; a save that carries it back means
+// "unchanged", never "set the secret to this".
+const SECRET_MASK = '••••••••';
+const { normaliseDownloadLimit } = require('../services/downloadQuota');
+const { GUEST_NAME_MODES } = require('../services/photoCredit');
+const { clearMaxFilesPerUploadCache, MAX_ALLOWED_FILES_PER_UPLOAD, clearMaxFileSizeCache, clearMaxVideoSizeCache, MAX_ALLOWED_FILE_SIZE_MB, clearAllowedTypesCache } = require('../services/uploadSettings');
+const watermarkService = require('../services/watermarkService');
+const watermarkGeneratorService = require('../services/watermarkGeneratorService');
+
+const { getStoragePath } = require('../config/storage');
+
+// Reserved first-run bootstrap keys — never writable through the generic
+// settings upserts in this file: setup_wizard_completed is a one-way marker
+// (#800; writing false would reopen system-event-type deletion) and
+// setup_token is the first-run bootstrap secret. Every handler that loops
+// arbitrary request keys into app_settings must strip these first.
+// oidc_client_secret is reserved too: it is AES-encrypted at rest and only
+// writable through PUT /sso below — a generic upsert would store plaintext
+// and break decryption (#798).
+// Branding *path* keys (GHSA-665x) are server-computed by the logo-upload
+// flow and feed a filesystem logo resolver; letting the general settings PUT
+// set them to arbitrary strings makes them an input to path resolution.
+// Reserve them here — the dedicated upload endpoints still write them.
+const RESERVED_SETTING_KEYS = [
+  'setup_wizard_completed', 'setup_token',
+  'branding_logo_path', 'branding_logo_path_dark', 'branding_watermark_logo_path',
+];
+// EVERY oidc_* key is reserved (#798 phase 2): the client secret would be
+// clobbered with plaintext, and the policy/mapping keys carry invariants
+// (role targets exist, break-glass account present) that only the dedicated
+// PUT /sso validates — a generic upsert would bypass all of them.
+// Every download_* key is reserved too (#858): the cached download-all zip is
+// built AT the standard resolution, so changing it has to invalidate those
+// zips and re-validate the value against the preset list. A generic upsert
+// would do neither, leaving galleries handing out archives at the old size.
+// Every transfer_upload_* / transfer_max_upload_* key is reserved (#1544) for
+// the same reason: PUT /transfers is gated on the `transfers` feature flag and
+// refuses an empty allowlist, and it is the ONLY writer that does. Left
+// unreserved, a settings.edit holder could set transfer_upload_accept_all
+// through the generic /general writer with the feature flag off, and the public
+// upload route — which reads the key directly — would start accepting every
+// file type. A backend flag gate that another endpoint can write around is not
+// a gate.
+const isReservedSettingKey = (key) => RESERVED_SETTING_KEYS.includes(key)
+  || key.startsWith('oidc_')
+  || key.startsWith('download_')
+  || key.startsWith('transfer_upload_')
+  || key === 'transfer_max_upload_size_mb'
+  // Derived, read-only fields the GET response adds for the General tab
+  // (#705). They are computed from the environment, never stored, so a
+  // round-trip of the GET payload must not create phantom setting rows.
+  || key === 'general_site_url_env_pinned'
+  || key === 'general_site_url_effective'
+  || key === 'analytics_dashboard_cookie_domain';
+const stripReservedSettingKeys = (settings) => {
+  for (const key of Object.keys(settings)) {
+    if (isReservedSettingKey(key)) delete settings[key];
+  }
+  return settings;
+};
+// Keys owned by a dedicated, separately permission-checked writer. Those
+// routes apply their own permission rules and validate the values; a generic
+// upsert would skip all of that. Writers only — the generic reads still
+// return these rows.
+//   backup_* / database_backup_*  PUT /admin/backup/config and
+//                                 /admin/database-backup/config (super_admin
+//                                 for destinations and the manifest location)
+//   rate_limit_*                  PUT /admin/settings/security/rate-limit
+//                                 (settings.security; range-validated — a
+//                                 settings.edit holder could otherwise switch
+//                                 the limiter off through /general)
+//   max_image_requests_*          PUT /admin/image-security/settings
+//                                 (image_security.manage)
+//   ledger_*                      PATCH /admin/ledger/mappings/settings
+//                                 (accounting.manage)
+//   restore_*                     PUT /admin/restore/settings (backup.restore;
+//                                 restore_allow_force and
+//                                 restore_require_pre_backup gate restore-start)
+const DEDICATED_ROUTE_KEY_PREFIXES = [
+  'backup_', 'database_backup_', 'rate_limit_', 'max_image_requests_', 'ledger_', 'restore_',
+];
+const isDedicatedRouteOwnedKey = (key) => DEDICATED_ROUTE_KEY_PREFIXES.some((prefix) => key.startsWith(prefix));
+// 400 (naming the keys) when a generic write carries route-owned keys, rather
+// than dropping them silently; returns true if the request was rejected.
+const rejectDedicatedRouteOwnedKeys = (settings, res) => {
+  const keys = Object.keys(settings).filter(isDedicatedRouteOwnedKey);
+  if (keys.length === 0) return false;
+  res.status(400).json({
+    error: 'These settings are saved through their own configuration endpoint, not the general settings',
+    code: 'SETTINGS_OWNED_ELSEWHERE',
+    keys,
+  });
+  return true;
+};
+
+// Migration 174 hardening — per-key permission boundary for the GENERIC settings
+// writers. /general, /analytics, /seo and /security all upsert arbitrary
+// setting_keys, so without this a role holding only the broad `settings.edit`
+// (or `settings.security`) could set keys owned by a NARROWER permission —
+// repointing the public site URL, security policy, or VAT/accounting config —
+// via the wrong endpoint, defeating the settings.edit split. Any protected key
+// the caller isn't permitted to write is stripped before the upsert. The
+// dedicated routes still work because their caller holds the matching perm
+// (e.g. PUT /accounting is gated by settings.banking, so accounting_* survives).
+// analytics_umami_enabled belongs here too: publicSettings gates umami_url and
+// umami_website_id on it and App.tsx ORs it into the provider check, so it is
+// the on/off switch for the whole Umami path, not a selector. The Analytics
+// tab derives it from the provider dropdown, which is protected by the same
+// permission, so a legitimate save never newly 403s on it.
+const TRACKER_CODE_KEYS = new Set([
+  'analytics_tracker_provider',
+  'analytics_umami_enabled',
+  'analytics_umami_url',
+  'analytics_rybbit_url',
+  'analytics_custom_head_html',
+]);
+const parseStoredSetting = (row) => {
+  if (!row) return undefined;
+  try { return JSON.parse(row.setting_value); } catch (_) { return row.setting_value; }
+};
+// What a protected key reads as when it has no row yet, so a save that sends
+// the effective value back unchanged is not treated as a change. The provider
+// falls back to the legacy umami flag exactly like the Analytics tab does.
+const effectiveMissingSetting = async (key) => {
+  if (key === 'analytics_tracker_provider') {
+    const umami = parseStoredSetting(await db('app_settings').where({ setting_key: 'analytics_umami_enabled' }).first());
+    return umami === true || umami === 'true' ? 'umami' : 'none';
+  }
+  if (key === 'analytics_umami_enabled') return false;
+  return null;
+};
+// A rule names either the owning `perm`, or `superAdmin: true` when the key is
+// a super-admin decision that no delegable permission can grant.
+const PROTECTED_SETTING_KEY_PERMS = [
+  { match: (k) => k === 'general_site_url', perm: 'settings.domains' },
+  { match: (k) => k.startsWith('security_'), perm: 'settings.security' },
+  { match: (k) => k.startsWith('accounting_'), perm: 'settings.banking' },
+  // Collector selection remains super-admin-only. These values previously
+  // selected executable code; even with data-only forwarding, choosing an
+  // external telemetry destination is not a delegable settings permission.
+  { match: (k) => TRACKER_CODE_KEYS.has(k), superAdmin: true },
+];
+// Returns the list of {key, perm} the caller tried to CHANGE without the owning
+// permission. Callers 403 when it's non-empty rather than silently no-op'ing a
+// permission boundary. Change-detection matters: the General tab re-posts
+// general_site_url on every save, so a no-op round-trip of the stored value must
+// not 403 an otherwise-safe settings.edit save (the office-manager role this PR
+// exists to enable) — only an actual change is rejected. A denied key the caller
+// couldn't change is left in `settings` (the request 403s before the upsert); an
+// unauthorized no-op is dropped so the rest of the save proceeds.
+const collectUnauthorizedProtectedKeys = async (settings, adminId) => {
+  const denied = [];
+  for (const key of Object.keys(settings)) {
+    const rule = PROTECTED_SETTING_KEY_PERMS.find((r) => r.match(key));
+    if (!rule) continue;
+    const allowed = rule.superAdmin
+      ? await isSuperAdminUser(adminId)
+      : await userHasAnyPermission(adminId, [rule.perm]);
+    if (allowed) continue;
+    const row = await db('app_settings').where({ setting_key: key }).first();
+    const stored = row ? parseStoredSetting(row) : await effectiveMissingSetting(key);
+    if (String(stored ?? '') === String(settings[key] ?? '')) {
+      delete settings[key]; // unchanged — let the rest of the save through
+      continue;
+    }
+    denied.push({ key, perm: rule.superAdmin ? 'super_admin' : rule.perm });
+  }
+  return denied;
+};
+// Express helper: 403 (naming the keys + required perms) when the caller tried
+// to write a protected key they don't hold; returns true if the request was
+// rejected so the route can stop.
+const rejectUnauthorizedProtectedKeys = async (settings, req, res) => {
+  // A blank legacy snippet selects no code. Drop it before the permission
+  // check so a stale stored row cannot 403 a settings.edit save; a non-empty
+  // value is still refused below, for everyone.
+  if (settings.analytics_custom_head_html === '') delete settings.analytics_custom_head_html;
+  const denied = await collectUnauthorizedProtectedKeys(settings, req.admin.id);
+  if (denied.length > 0) {
+    res.status(403).json({
+      error: `You don't have permission to change: ${denied.map((d) => d.key).join(', ')}`,
+      code: 'FORBIDDEN',
+      keys: denied,
+    });
+    return true;
+  }
+  // Shared by every generic writer: no executable analytics, even for root.
+  if (settings.analytics_tracker_provider === 'custom'
+    || (Object.hasOwn(settings, 'analytics_custom_head_html') && settings.analytics_custom_head_html !== '')) {
+    res.status(400).json({
+      error: 'Custom analytics scripts are no longer supported; choose Umami, Rybbit or none',
+      code: 'CUSTOM_ANALYTICS_DISABLED',
+    });
+    return true;
+  }
+  return false;
+};
+
+// Configure multer for logo uploads
+const storage = multer.diskStorage({
+  destination: async (req, file, cb) => {
+    const uploadDir = path.join(getStoragePath(), 'uploads/logos');
+    await fs.mkdir(uploadDir, { recursive: true });
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, `logo-${Date.now()}${ext}`);
+  }
+});
+
+const { validateFileType } = require('../utils/fileSecurityUtils');
+
+const upload = multer({
+  storage,
+  // CVE-2026-82333: single unnamed field (`logo` or `watermarkLogo`) per
+  // route — no legitimate array-indexed field names, so reject any
+  // bracket-index field name.
+  limits: { fileSize: 5 * 1024 * 1024, fieldArrayIndexLimit: 0 }, // 5MB
+  fileFilter: (req, file, cb) => {
+    // Note: SVG files are excluded from magic number validation for logos
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml'];
+    
+    if (validateFileType(file.originalname, file.mimetype, allowedMimeTypes)) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Only JPEG, PNG, GIF and SVG image files are allowed'));
+    }
+  }
+});
+
+// Configure multer for favicon uploads
+const faviconStorage = multer.diskStorage({
+  destination: async (req, file, cb) => {
+    const uploadDir = path.join(getStoragePath(), 'uploads/favicons');
+    await fs.mkdir(uploadDir, { recursive: true });
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, `favicon-${Date.now()}${ext}`);
+  }
+});
+
+const faviconUpload = multer({
+  storage: faviconStorage,
+  // CVE-2026-82333: single unnamed `favicon` field only — no legitimate
+  // array-indexed field names, so reject any bracket-index field name.
+  limits: { fileSize: 2 * 1024 * 1024, fieldArrayIndexLimit: 0 }, // 2MB — roomy enough for a 512×512+ square PNG
+  fileFilter: (req, file, cb) => {
+    const allowedMimeTypes = ['image/png', 'image/x-icon', 'image/vnd.microsoft.icon'];
+    const name = file.originalname.toLowerCase();
+
+    // For ICO files, we can't use the standard validateFileType
+    if (file.mimetype === 'image/png') {
+      if (validateFileType(file.originalname, file.mimetype, ['image/png'])) {
+        cb(null, true);
+      } else {
+        cb(new Error('Invalid PNG file'));
+      }
+    } else if (file.mimetype === 'image/svg+xml' && name.endsWith('.svg')) {
+      // SVG favicons are supported by modern browsers and are crisp at any
+      // size. Served SVGs are CSP-locked (no script execution) by the
+      // secureStatic middleware, so an admin-uploaded SVG is render-only.
+      cb(null, true);
+    } else if (allowedMimeTypes.includes(file.mimetype) &&
+               (name.endsWith('.ico') || name.endsWith('.png'))) {
+      cb(null, true);
+    } else {
+      cb(new Error('Favicon must be PNG, ICO, or SVG format'));
+    }
+  }
+});
+
+// Get all settings, or a subset when ?keys=k1,k2,… is supplied.
+// Many caller pages only need a handful of keys (e.g. ReminderTemplates
+// reads 2 of the ~100 rows). The keys filter is allowlist-bounded by
+// what's stored, so passing unknown keys just returns them as `null`
+// — no enumeration risk beyond what GET / returned already.
+/**
+ * Recoverable gallery passwords (#1271): every transition of the setting
+ * starts from a clean vault. Off is a promise that nothing reversible is
+ * left behind; on-from-off must not resurrect copies a write left behind
+ * after the previous purge. Decided BEFORE the upsert (needs the old value),
+ * applied after it. Every writer that accepts a security_ key (general,
+ * analytics and seo take them from a settings.security holder too) does this.
+ */
+// Every writer that accepts a security_ key runs the vault purge on the side
+// of the write the transition calls for (see purgePlanForSettingWrite).
+async function galleryPasswordPurgePlan(settings) {
+  if (!settings || !Object.prototype.hasOwnProperty.call(settings, GALLERY_PASSWORD_SETTING)) return { before: false, after: false };
+  return purgePlanForSettingWrite(settings[GALLERY_PASSWORD_SETTING]);
+}
+
+router.get('/', adminAuth, requirePermission('settings.view'), async (req, res) => {
+  try {
+    const keysParam = typeof req.query.keys === 'string' ? req.query.keys : null;
+    const keysFilter = keysParam
+      ? keysParam.split(',').map((k) => k.trim()).filter(Boolean).slice(0, 100)
+      : null;
+
+    const query = db('app_settings').select('*');
+    if (keysFilter && keysFilter.length > 0) {
+      query.whereIn('setting_key', keysFilter);
+    }
+    const settings = await query;
+
+    // Convert to object format
+    const settingsObject = {};
+    settings.forEach(setting => {
+      // Check for null/undefined explicitly to handle boolean false and 0 values
+      // PostgreSQL json column returns parsed values (false as boolean, not string)
+      if (setting.setting_value !== null && setting.setting_value !== undefined) {
+        // If the value is already parsed (from json column), use it directly
+        if (typeof setting.setting_value !== 'string') {
+          settingsObject[setting.setting_key] = setting.setting_value;
+        } else {
+          try {
+            // Try to parse as JSON first
+            settingsObject[setting.setting_key] = JSON.parse(setting.setting_value);
+          } catch (e) {
+            // If it's not valid JSON, use the raw value
+            settingsObject[setting.setting_key] = setting.setting_value;
+          }
+        }
+      } else {
+        settingsObject[setting.setting_key] = null;
+      }
+    });
+
+    // Reserved bootstrap/credential keys are NEVER readable through the
+    // generic settings reads — oidc_client_secret (#798) is stored encrypted
+    // with setting_type 'string' and would otherwise leak its ciphertext to
+    // any settings.view holder; setup_token is the first-run bootstrap secret.
+    stripReservedSettingKeys(settingsObject);
+
+    // Surface whether FRONTEND_URL pins the public origin (#705). The env var
+    // OVERRIDES general_site_url, so without this the General tab would offer
+    // an editable field whose value is silently ignored at runtime.
+    settingsObject.general_site_url_env_pinned = isEnvPinned();
+    if (settingsObject.general_site_url_env_pinned) {
+      settingsObject.general_site_url_effective = envPinnedBase();
+    }
+
+    // Mask sensitive secrets before sending to client
+    if (settingsObject.security_recaptcha_secret_key) {
+      settingsObject.security_recaptcha_secret_key = '••••••••';
+    }
+    // Backup credentials — the S3 secret key and the rsync SSH PRIVATE KEY
+    // were returned in plaintext to any settings.view holder. Same masking
+    // pattern as the recaptcha/umami/rybbit keys; the dedicated
+    // /admin/backup/config endpoints handle the edit round-trip.
+    if (settingsObject.backup_s3_secret_key) {
+      settingsObject.backup_s3_secret_key = '••••••••';
+    }
+    if (settingsObject.backup_rsync_ssh_key) {
+      settingsObject.backup_rsync_ssh_key = '••••••••';
+    }
+    // Umami v2 API key (#661 Bug C) — read-write secret that authenticates
+    // outbound calls to the operator's Umami instance for the device
+    // breakdown. Masked on GET, same pattern as the recaptcha secret.
+    if (settingsObject.analytics_umami_api_key) {
+      settingsObject.analytics_umami_api_key = '••••••••';
+    }
+    // Rybbit API key (#663 Phase 1) — same pattern.
+    if (settingsObject.analytics_rybbit_api_key) {
+      settingsObject.analytics_rybbit_api_key = '••••••••';
+    }
+
+    // The general API rate limiter falls back to code defaults when a key has
+    // no row, which is every fresh install. Surface those so the Security tab
+    // shows the budget actually in force instead of an empty field (#1337).
+    for (const [key, value] of Object.entries(RATE_LIMIT_DEFAULTS)) {
+      if (settingsObject[key] === undefined && (!keysFilter || keysFilter.includes(key))) {
+        settingsObject[key] = value;
+      }
+    }
+    // Browser dashboards must not receive PicPeak's authentication cookies.
+    // Derived from the cookie writer; never trust a stored/generic input here.
+    settingsObject.analytics_dashboard_cookie_domain = getAuthCookieDomain();
+    res.json(settingsObject);
+  } catch (error) {
+    errorResponse(res, error, 500, 'Failed to fetch settings');
+  }
+});
+
+/**
+ * Customer-surface branding settings (#354 follow-up).
+ *
+ * Two toggles control what shows in the customer dashboard header:
+ *   customer_show_logo          (default true)
+ *   customer_show_company_name  (default true)
+ *
+ * The Calendar / Quotes / Bills feature globals that used to live here
+ * have moved to the maintainer's Features tab (feature_flags table).
+ *
+ * IMPORTANT: both routes MUST be registered before the generic
+ * `router.get('/:type', ...)` below — Express matches routes in
+ * registration order.
+ */
+router.get('/customer-surface', adminAuth, requirePermission('settings.view'), async (req, res) => {
+  try {
+    const rows = await db('app_settings')
+      .where('setting_type', 'customer_surface')
+      .select('setting_key', 'setting_value');
+
+    const settings = {};
+    for (const r of rows) {
+      let value = r.setting_value;
+      if (value === null || value === undefined) {
+        settings[r.setting_key] = null;
+        continue;
+      }
+      if (typeof value !== 'string') {
+        settings[r.setting_key] = value;
+      } else {
+        try { settings[r.setting_key] = JSON.parse(value); }
+        catch { settings[r.setting_key] = value; }
+      }
+    }
+
+    res.json(settings);
+  } catch (error) {
+    errorResponse(res, error, 500, 'Failed to fetch customer surface settings');
+  }
+});
+
+router.put('/customer-surface', adminAuth, requirePermission('settings.edit'), async (req, res) => {
+  try {
+    // Branding-only whitelist (calendar/quotes/bills feature globals
+    // moved to the Features tab / feature_flags table).
+    const allowed = [
+      'customer_show_logo',
+      'customer_show_company_name',
+    ];
+    const updates = [];
+    for (const key of allowed) {
+      if (Object.prototype.hasOwnProperty.call(req.body, key)) {
+        const value = !!req.body[key];
+        updates.push({ setting_key: key, setting_value: JSON.stringify(value), setting_type: 'customer_surface' });
+      }
+    }
+
+    for (const u of updates) {
+      await upsertAppSetting(u.setting_key, u.setting_value, u.setting_type);
+    }
+
+    // Clear the public-site cache so any consumer relying on it
+    // (e.g. customer login footer if it picks these up) refetches.
+    clearPublicSiteCache();
+
+    res.json({ message: 'Customer surface settings updated', updated: updates.map((u) => u.setting_key) });
+  } catch (error) {
+    errorResponse(res, error, 500, 'Failed to save customer surface settings');
+  }
+});
+
+// Accounting settings (km rate, per-diem rate, require-proof). Read via the
+// generic GET /:type ('accounting'); this is the typed write. Rates are
+// integer minor units; verify legal/tax guidance with a Treuhaender.
+// Migration 174: VAT/accounting config is money-adjacent → settings.banking.
+router.put('/accounting', adminAuth, requirePermission('settings.banking'), async (req, res) => {
+  try {
+    const updates = [];
+    const setInt = (key) => {
+      if (Object.prototype.hasOwnProperty.call(req.body, key)) {
+        const n = Math.max(0, Math.round(Number(req.body[key]) || 0));
+        updates.push({ setting_key: key, setting_value: JSON.stringify(n), setting_type: 'accounting' });
+      }
+    };
+    setInt('accounting_km_rate_minor');
+    setInt('accounting_per_diem_rate_minor');
+    if (Object.prototype.hasOwnProperty.call(req.body, 'accounting_require_proof')) {
+      updates.push({
+        setting_key: 'accounting_require_proof',
+        setting_value: JSON.stringify(!!req.body.accounting_require_proof),
+        setting_type: 'accounting',
+      });
+    }
+    // Global default for "attach the supplier proof PDF to the client-invoice
+    // email when a re-bill/passthrough is issued" (issue #866). Off by default;
+    // a per-customer override (customer_accounts.rebill_attach_proof) and the
+    // per-file selection in the Send dialog both build on top of this default.
+    if (Object.prototype.hasOwnProperty.call(req.body, 'accounting_rebill_attach_proof')) {
+      updates.push({
+        setting_key: 'accounting_rebill_attach_proof',
+        setting_value: JSON.stringify(!!req.body.accounting_rebill_attach_proof),
+        setting_type: 'accounting',
+      });
+    }
+    // Filename template for the attached supplier proof (like the invoice/quote
+    // number formats). Tokens: {INVOICE} {SUPPLIER} {YEAR} {MONTH} {SEQ}/{SEQ:0Nd}.
+    // Empty falls back to the default at render time.
+    if (Object.prototype.hasOwnProperty.call(req.body, 'crm_rebill_proof_filename_format')) {
+      const fmt = String(req.body.crm_rebill_proof_filename_format || '').trim().slice(0, 120);
+      updates.push({
+        setting_key: 'crm_rebill_proof_filename_format',
+        setting_value: JSON.stringify(fmt),
+        setting_type: 'accounting',
+      });
+    }
+    // VAT registration + reclaim. `registered` drives whether output VAT applies
+    // + whether input VAT is deductible; `reclaim_countries` = the ISO-2 list of
+    // countries whose input VAT can be reclaimed (drives cost tax-treatment +
+    // the report's VAT-payable).
+    if (Object.prototype.hasOwnProperty.call(req.body, 'accounting_vat_registered')) {
+      updates.push({
+        setting_key: 'accounting_vat_registered',
+        setting_value: JSON.stringify(!!req.body.accounting_vat_registered),
+        setting_type: 'accounting',
+      });
+    }
+    // Default OUTPUT VAT code stamped onto NEW invoices/quotes (the editor
+    // seeds its VAT picker from it). Stored as the code string; '' clears it.
+    if (Object.prototype.hasOwnProperty.call(req.body, 'accounting_default_output_vat_code')) {
+      const code = String(req.body.accounting_default_output_vat_code || '').trim().slice(0, 16);
+      updates.push({
+        setting_key: 'accounting_default_output_vat_code',
+        setting_value: JSON.stringify(code),
+        setting_type: 'accounting',
+      });
+    }
+    if (Object.prototype.hasOwnProperty.call(req.body, 'accounting_vat_reclaim_countries')) {
+      const arr = Array.isArray(req.body.accounting_vat_reclaim_countries)
+        ? req.body.accounting_vat_reclaim_countries
+          .map((c) => String(c || '').toUpperCase().trim())
+          .filter((c) => /^[A-Z]{2}$/.test(c))
+        : [];
+      updates.push({
+        setting_key: 'accounting_vat_reclaim_countries',
+        setting_value: JSON.stringify(arr),
+        setting_type: 'accounting',
+      });
+    }
+    for (const u of updates) {
+      await upsertAppSetting(u.setting_key, u.setting_value, u.setting_type);
+    }
+    res.json({ message: 'Accounting settings updated', updated: updates.map((u) => u.setting_key) });
+  } catch (error) {
+    errorResponse(res, error, 500, 'Failed to save accounting settings');
+  }
+});
+
+// Global Live Slideshow defaults (migration 139). The per-event watermark is
+// tri-state (events.show_watermark NULL = inherit these). Read via the generic
+// GET /:type ('slideshow'); this is the typed write.
+router.put('/slideshow', adminAuth, requirePermission('settings.edit'), async (req, res) => {
+  try {
+    const updates = [];
+    const push = (key, value) => updates.push({ setting_key: key, setting_value: JSON.stringify(value), setting_type: 'slideshow' });
+    const has = (k) => Object.prototype.hasOwnProperty.call(req.body, k);
+
+    if (has('slideshow_fit')) {
+      push('slideshow_fit', req.body.slideshow_fit === 'contain' ? 'contain' : 'cover');
+    }
+    // Picpeak-wide display preset (default style new events inherit).
+    if (has('slideshow_interval_ms')) {
+      const n = Math.min(120000, Math.max(1000, Math.round(Number(req.body.slideshow_interval_ms) || 5000)));
+      push('slideshow_interval_ms', n);
+    }
+    if (has('slideshow_transition')) {
+      const allowed = ['crossfade', 'cut', 'slide', 'kenburns', 'dipwhite', 'dipblack'];
+      push('slideshow_transition', allowed.includes(req.body.slideshow_transition) ? req.body.slideshow_transition : 'crossfade');
+    }
+    if (has('slideshow_transition_ms')) {
+      const n = Math.min(5000, Math.max(100, Math.round(Number(req.body.slideshow_transition_ms) || 800)));
+      push('slideshow_transition_ms', n);
+    }
+    if (has('slideshow_colorfilter')) {
+      const allowed = ['none', 'bw', 'sepia', 'warm', 'cool', 'vignette'];
+      push('slideshow_colorfilter', allowed.includes(req.body.slideshow_colorfilter) ? req.body.slideshow_colorfilter : 'none');
+    }
+    if (has('slideshow_watermark_enabled')) push('slideshow_watermark_enabled', !!req.body.slideshow_watermark_enabled);
+    if (has('slideshow_watermark_source')) {
+      const v = ['logo', 'logo_dark', 'favicon', 'event'].includes(req.body.slideshow_watermark_source) ? req.body.slideshow_watermark_source : 'logo';
+      push('slideshow_watermark_source', v);
+    }
+    if (has('slideshow_watermark_position')) {
+      const allowed = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+      const v = allowed.includes(req.body.slideshow_watermark_position) ? req.body.slideshow_watermark_position : 'bottom-right';
+      push('slideshow_watermark_position', v);
+    }
+    if (has('slideshow_watermark_opacity')) {
+      const n = Math.min(100, Math.max(0, Math.round(Number(req.body.slideshow_watermark_opacity) || 0)));
+      push('slideshow_watermark_opacity', n);
+    }
+    if (has('slideshow_watermark_style')) {
+      const v = ['white', 'original'].includes(req.body.slideshow_watermark_style) ? req.body.slideshow_watermark_style : 'white';
+      push('slideshow_watermark_style', v);
+    }
+    if (has('slideshow_watermark_size')) {
+      const n = Math.min(40, Math.max(3, Math.round(Number(req.body.slideshow_watermark_size) || 12)));
+      push('slideshow_watermark_size', n);
+    }
+    // QR overlay (#837) — same option shape as the watermark.
+    if (has('slideshow_qr_enabled')) push('slideshow_qr_enabled', !!req.body.slideshow_qr_enabled);
+    if (has('slideshow_qr_position')) {
+      const allowed = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+      const v = allowed.includes(req.body.slideshow_qr_position) ? req.body.slideshow_qr_position : 'bottom-left';
+      push('slideshow_qr_position', v);
+    }
+    if (has('slideshow_qr_opacity')) {
+      const n = Math.min(100, Math.max(0, Math.round(Number(req.body.slideshow_qr_opacity) || 0)));
+      push('slideshow_qr_opacity', n);
+    }
+    if (has('slideshow_qr_size')) {
+      const n = Math.min(40, Math.max(5, Math.round(Number(req.body.slideshow_qr_size) || 14)));
+      push('slideshow_qr_size', n);
+    }
+
+    for (const u of updates) {
+      await upsertAppSetting(u.setting_key, u.setting_value, u.setting_type);
+    }
+    // Drop the slideshow-globals cache so a running projector picks up the
+    // change on its next poll rather than after the 5s TTL.
+    require('../utils/slideshowGlobals').invalidateSlideshowGlobals();
+    res.json({ message: 'Slideshow settings updated', updated: updates.map((u) => u.setting_key) });
+  } catch (error) {
+    errorResponse(res, error, 500, 'Failed to save slideshow settings');
+  }
+});
+
+// ──────────────────────────────────────────────────────────────────────────
+// PicTransfer upload policy (#1544). Its own endpoints rather than a field on
+// the general settings page because this list is NOT `general_allowed_file_types`
+// — that one governs gallery photos, which the media pipeline decodes, and
+// widening it to carry a client's .psd would widen what sharp is handed.
+//
+// Behind the `transfers` feature flag on the BACKEND, not only in the sidebar:
+// a disabled feature must not be configurable by a direct API hit.
+// ──────────────────────────────────────────────────────────────────────────
+
+const { requireFeatureFlag: requireFlag } = require('../middleware/requireFeatureFlag');
+
+router.get('/transfers',
+  adminAuth,
+  requirePermission('settings.view'),
+  requireFlag('transfers'),
+  async (req, res) => {
+    try {
+      const { getTransferUploadPolicy } = require('../services/transferUploadPolicy');
+      const policy = await getTransferUploadPolicy();
+      res.json({
+        accept_all: policy.acceptAll,
+        allowed_types: policy.allowedTypes,
+        max_size_mb: policy.maxSizeMb,
+      });
+    } catch (error) {
+      errorResponse(res, error, 500, 'Failed to load transfer settings');
+    }
+  });
+
+router.put('/transfers',
+  adminAuth,
+  requirePermission('settings.edit'),
+  requireFlag('transfers'),
+  async (req, res) => {
+    try {
+      const { normalizeAllowedTypes } = require('../services/transferUploadPolicy');
+      const has = (k) => Object.prototype.hasOwnProperty.call(req.body, k);
+
+      // Validate EVERY field before writing any of them. Interleaving the two
+      // meant `{ allowed_types, max_size_mb: 0 }` saved the list and then
+      // answered 400 — the caller is told the save failed while half of it
+      // landed, and a retry with the size fixed is now a different change.
+      const writes = [];
+
+      if (has('allowed_types')) {
+        // normalizeAllowedTypes drops anything that isn't a well-formed
+        // `type/subtype`, so a typo cannot land in the setting and silently
+        // match nothing. An empty result would make the policy fall back to
+        // the legacy key, which is not what "I cleared the list" means, so
+        // refuse it and say why.
+        const cleaned = normalizeAllowedTypes(req.body.allowed_types);
+        if (!cleaned.length) {
+          return res.status(400).json({
+            error: 'Add at least one file type, or turn on "Accept all file types".',
+            code: 'EMPTY_ALLOWLIST',
+          });
+        }
+        writes.push(['transfer_upload_allowed_types', JSON.stringify(cleaned), 'general']);
+      }
+
+      if (has('accept_all')) {
+        const acceptAll = req.body.accept_all === true || req.body.accept_all === 'true';
+        writes.push(['transfer_upload_accept_all', JSON.stringify(acceptAll), 'boolean']);
+      }
+
+      if (has('max_size_mb')) {
+        const mb = Math.round(Number(req.body.max_size_mb));
+        if (!Number.isFinite(mb) || mb < 1 || mb > 100000) {
+          return res.status(400).json({ error: 'Maximum file size must be between 1 and 100000 MB', code: 'BAD_SIZE' });
+        }
+        writes.push(['transfer_max_upload_size_mb', JSON.stringify(mb), 'number']);
+      }
+
+      const updated = [];
+      for (const [key, value, type] of writes) {
+        await upsertAppSetting(key, value, type);
+        updated.push(key);
+      }
+
+      await logActivity(
+        'settings_updated',
+        { category: 'transfers', changes: updated },
+        null,
+        { type: 'admin', id: req.admin.id, name: req.admin.username },
+      );
+
+      return res.json({ message: 'Transfer settings updated', updated });
+    } catch (error) {
+      return errorResponse(res, error, 500, 'Failed to save transfer settings');
+    }
+  });
+
+// ──────────────────────────────────────────────────────────────────────────
+// Download resolutions (#858). The standard resolution is what every ordinary
+// download hands out; the picker is an opt-in modal letting guests choose a
+// different size. Dedicated endpoints because a change here has to invalidate
+// the pre-built download-all zips, which are built AT the standard resolution.
+// ──────────────────────────────────────────────────────────────────────────
+
+router.get('/downloads', adminAuth, requirePermission('settings.view'), async (req, res) => {
+  try {
+    const { getDownloadGlobals } = require('../utils/downloadResolutions');
+    res.json(await getDownloadGlobals());
+  } catch (error) {
+    errorResponse(res, error, 500, 'Failed to load download settings');
+  }
+});
+
+router.put('/downloads', adminAuth, requirePermission('settings.edit'), async (req, res) => {
+  try {
+    const {
+      invalidateDownloadGlobals, getDownloadGlobals, ORIGINAL,
+    } = require('../utils/downloadResolutions');
+    const has = (k) => Object.prototype.hasOwnProperty.call(req.body, k);
+    const updates = [];
+    const push = (key, value) => updates.push({
+      setting_key: key, setting_value: JSON.stringify(value), setting_type: 'download',
+    });
+
+    // Presets first — the standard is validated against the resulting list,
+    // so a single request can add a size and select it in one go.
+    const before = await getDownloadGlobals();
+    const previousStandard = before.standard_resolution;
+    let presets = before.resolutions;
+    if (has('download_resolutions')) {
+      const raw = Array.isArray(req.body.download_resolutions) ? req.body.download_resolutions : [];
+      const cleaned = [];
+      const seen = new Set();
+      for (const p of raw) {
+        const width = Math.round(Number(p?.width));
+        const height = Math.round(Number(p?.height));
+        // 20000px ceiling keeps a typo ("30000000") from asking sharp for a
+        // multi-terabyte canvas on every subsequent download.
+        if (!width || !height || width < 1 || height < 1 || width > 20000 || height > 20000) continue;
+        const id = `${width}x${height}`;
+        if (seen.has(id)) continue;
+        seen.add(id);
+        cleaned.push({ label: String(p.label || id).slice(0, 40), width, height });
+      }
+      if (cleaned.length === 0) {
+        return res.status(400).json({ error: 'At least one valid resolution is required' });
+      }
+      push('download_resolutions', cleaned);
+      presets = cleaned.map((p) => ({ ...p, id: `${p.width}x${p.height}` }));
+    }
+
+    if (has('download_standard_resolution')) {
+      const v = String(req.body.download_standard_resolution || ORIGINAL);
+      if (v !== ORIGINAL && !presets.some((p) => p.id === v)) {
+        return res.status(400).json({ error: `Unknown resolution "${v}"` });
+      }
+      push('download_standard_resolution', v);
+    } else if (has('download_resolutions')) {
+      // Replacing the preset list without naming a standard can orphan the
+      // CURRENT standard — galleries would keep handing out a size the picker
+      // no longer offers, breaking the "standard is always a preset" invariant.
+      if (previousStandard !== ORIGINAL && !presets.some((p) => p.id === previousStandard)) {
+        return res.status(400).json({
+          error: `The current standard resolution "${previousStandard}" is not in the new list — set download_standard_resolution in the same request`,
+        });
+      }
+    }
+    if (has('download_resolution_picker_enabled')) {
+      push('download_resolution_picker_enabled', !!req.body.download_resolution_picker_enabled);
+    }
+    if (has('download_allow_original')) {
+      push('download_allow_original', !!req.body.download_allow_original);
+    }
+
+    for (const u of updates) {
+      await upsertAppSetting(u.setting_key, u.setting_value, u.setting_type);
+    }
+    invalidateDownloadGlobals();
+
+    // The cached download-all zip is built at the standard resolution, so a
+    // change to the GLOBAL standard makes every INHERITING gallery's zip
+    // stale. Events with their own override are unaffected and keep theirs.
+    // Only a REAL change to the standard invalidates. The settings form
+    // submits every field on every save, so keying off "was it present" would
+    // schedule a rebuild of every inheriting gallery each time an admin
+    // renamed a preset — a stampede on installs with many galleries.
+    const standardUpdate = updates.find((u) => u.setting_key === 'download_standard_resolution');
+    const standardChanged = standardUpdate
+      && JSON.parse(standardUpdate.setting_value) !== previousStandard;
+
+    let invalidatedZips = 0;
+    if (standardChanged) {
+      // Every inheriting event, whether or not it currently HAS a cached zip:
+      // one may be mid-build against the old standard right now. Going through
+      // downloadZipService.invalidate bumps its generation counter, which
+      // aborts that build — a raw UPDATE would let it finish and re-publish a
+      // permanently stale archive.
+      const downloadZipService = require('../services/downloadZipService');
+      const inheriting = await db('events')
+        .whereNull('download_standard_resolution')
+        .select('id');
+      for (const ev of inheriting) {
+        downloadZipService.invalidate(ev.id);
+      }
+      invalidatedZips = inheriting.length;
+    }
+
+    res.json({
+      message: 'Download settings updated',
+      updated: updates.map((u) => u.setting_key),
+      invalidated_zips: invalidatedZips,
+    });
+  } catch (error) {
+    errorResponse(res, error, 500, 'Failed to save download settings');
+  }
+});
+
+// Get settings by type
+// ──────────────────────────────────────────────────────────────────────────
+// OIDC SSO settings (#798). Dedicated endpoints — NOT the generic upsert —
+// because the client secret must be encrypted at rest and never echoed back.
+// ──────────────────────────────────────────────────────────────────────────
+
+// Read the SSO config. The secret is redacted to a set/unset flag; the
+// computed redirect URI is included for copy-paste into the IdP client.
+// Migration 174: SSO/OIDC + security config → settings.security.
+router.get('/sso', adminAuth, requirePermission(['settings.view', 'settings.security']), async (req, res) => {
+  try {
+    const oidcService = require('../services/oidcService');
+    const cfg = await oidcService.getOidcConfig();
+    // No public base URL configured → surface an empty redirect_uri rather
+    // than failing the whole settings read; the login route refuses to start
+    // the flow in that state anyway (OIDC_BAD_CONFIG).
+    const redirectUri = await oidcService.getRedirectUri().catch(() => '');
+    const postLogoutRedirectUri = await oidcService.getPostLogoutRedirectUri().catch(() => '');
+    res.json({
+      oidc_enabled: cfg.enabled,
+      oidc_issuer_url: cfg.issuerUrl || '',
+      oidc_client_id: cfg.clientId || '',
+      oidc_client_secret_set: Boolean(cfg.clientSecret),
+      oidc_autoprovision: cfg.autoprovision,
+      oidc_default_role: cfg.defaultRole,
+      oidc_button_label: cfg.buttonLabel || '',
+      oidc_scopes: cfg.scopes,
+      oidc_role_mapping_enabled: cfg.roleMappingEnabled,
+      oidc_roles_claim: cfg.rolesClaim,
+      oidc_role_mappings: cfg.roleMappings,
+      oidc_require_mapped_role: cfg.requireMappedRole,
+      oidc_disable_local_login: cfg.disableLocalLogin,
+      oidc_logout_from_idp: cfg.logoutFromIdp,
+      redirect_uri: redirectUri,
+      post_logout_redirect_uri: postLogoutRedirectUri,
+    });
+  } catch (error) {
+    logger.error('Failed to read SSO settings', { error: error.message });
+    res.status(500).json({ error: 'Failed to read SSO settings' });
+  }
+});
+
+router.put('/sso', adminAuth, requirePermission('settings.security'), [
+  body('oidc_enabled').optional().isBoolean(),
+  body('oidc_issuer_url').optional({ checkFalsy: true }).isURL({ protocols: ['http', 'https'], require_tld: false }),
+  body('oidc_client_id').optional().isString().trim(),
+  body('oidc_client_secret').optional().isString(),
+  body('oidc_autoprovision').optional().isBoolean(),
+  body('oidc_default_role').optional().isString().trim(),
+  body('oidc_button_label').optional().isString().trim().isLength({ max: 60 }),
+  body('oidc_scopes').optional().isString().trim(),
+  body('oidc_role_mapping_enabled').optional().isBoolean(),
+  body('oidc_roles_claim').optional().isString().trim().isLength({ max: 200 }),
+  body('oidc_role_mappings').optional().isObject(),
+  body('oidc_require_mapped_role').optional().isBoolean(),
+  body('oidc_disable_local_login').optional().isBoolean(),
+  body('oidc_logout_from_idp').optional().isBoolean(),
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: safeValidationErrors(errors) });
+    }
+    const oidcService = require('../services/oidcService');
+
+    // Validate the MERGED resulting state, not just the request: enabling
+    // requires a complete config, and a partial PUT must not be able to
+    // blank the issuer/client while a stored enabled=true keeps a login
+    // button alive that can only fail.
+    const current = await oidcService.getOidcConfig();
+    const effectiveEnabled = req.body.oidc_enabled ?? current.enabled;
+    if (effectiveEnabled === true) {
+      const issuer = req.body.oidc_issuer_url ?? current.issuerUrl;
+      const clientId = req.body.oidc_client_id ?? current.clientId;
+      const secretPresent = (typeof req.body.oidc_client_secret === 'string' && req.body.oidc_client_secret.length > 0)
+        || Boolean(current.clientSecret);
+      if (!issuer || !clientId || !secretPresent) {
+        return res.status(400).json({ error: 'Issuer URL, client ID and client secret must be configured while SSO is enabled — disable SSO first to clear them' });
+      }
+      // The redirect URI must be derivable too, or the login button leads
+      // straight to an error (needs API_URL / FRONTEND_URL / general_site_url).
+      try {
+        await oidcService.getRedirectUri();
+      } catch (err) {
+        return res.status(400).json({ error: err.message });
+      }
+    }
+
+    // A stored client secret belongs to the provider that issued it. Pointing
+    // SSO at another issuer or client must not send that secret there, so
+    // changing either needs the secret entered again.
+    const nextIssuer = req.body.oidc_issuer_url !== undefined ? String(req.body.oidc_issuer_url).trim() : undefined;
+    const nextClientId = req.body.oidc_client_id !== undefined ? String(req.body.oidc_client_id).trim() : undefined;
+    const providerChanged = (nextIssuer !== undefined && nextIssuer !== (current.issuerUrl || ''))
+      || (nextClientId !== undefined && nextClientId !== (current.clientId || ''));
+    const secretEntered = typeof req.body.oidc_client_secret === 'string' && req.body.oidc_client_secret.length > 0;
+    // The provider is the trust anchor for every SSO login, and email linking
+    // hands whoever completes SSO the matching local account, super admins
+    // included. A settings.security holder who could point the app at a
+    // provider of their own choosing could mint a token for a super admin's
+    // address and take that account over — the role-mapping containment
+    // below never sees that path. Repointing the provider (issuer or client
+    // ID) is therefore a super-admin decision; everything else on this tab,
+    // mappings included, stays with settings.security under the containment
+    // checks (Codex security audit 2026-09-30).
+    if (providerChanged && !(await isSuperAdminUser(req.admin.id))) {
+      return res.status(403).json({
+        error: 'Only a super admin can change the identity provider (issuer URL or client ID)',
+        code: 'SUPER_ADMIN_REQUIRED',
+      });
+    }
+    if (providerChanged && current.clientSecret && !secretEntered && (nextIssuer ?? current.issuerUrl)) {
+      return res.status(400).json({ error: 'Enter the client secret again when changing the issuer URL or client ID' });
+    }
+
+    // Default role must exist — a typo here would brick JIT provisioning.
+    if (req.body.oidc_default_role !== undefined) {
+      const role = await db('roles').where('name', req.body.oidc_default_role).first();
+      if (!role) {
+        return res.status(400).json({ error: `Unknown role: ${req.body.oidc_default_role}` });
+      }
+    }
+
+    // Every role-mapping target must exist too (#798 phase 2) — a typo'd
+    // role name would silently map users to nothing.
+    if (req.body.oidc_role_mappings !== undefined) {
+      const targets = [...new Set(Object.values(req.body.oidc_role_mappings).map((r) => String(r).trim()).filter(Boolean))];
+      if (targets.length > 0) {
+        const known = (await db('roles').whereIn('name', targets)).map((r) => r.name);
+        const unknown = targets.filter((t) => !known.includes(t));
+        if (unknown.length > 0) {
+          return res.status(400).json({ error: `Unknown role(s) in mapping: ${unknown.join(', ')}` });
+        }
+      }
+    }
+
+    // The role an SSO login lands in is a grant. Below super_admin, a
+    // settings.security holder must not map anyone, themselves included, into
+    // super_admin or into a role holding permissions their own role lacks.
+    // Only targets that change are checked, so resaving a mapping a Super
+    // Admin set up keeps working. A new provider, a new roles claim or newly
+    // enabled mapping or provisioning decides afresh who reaches every target
+    // that stays, so then all of them count.
+    const loginSourceChanged = providerChanged
+      || (req.body.oidc_roles_claim !== undefined && (String(req.body.oidc_roles_claim).trim() || 'roles') !== current.rolesClaim)
+      || (req.body.oidc_role_mapping_enabled === true && !current.roleMappingEnabled)
+      || (req.body.oidc_autoprovision === true && !current.autoprovision);
+    const changedRoleTargets = new Set();
+    const nextDefaultRole = req.body.oidc_default_role !== undefined
+      ? String(req.body.oidc_default_role).trim()
+      : current.defaultRole;
+    if (nextDefaultRole && (loginSourceChanged || nextDefaultRole !== current.defaultRole)) {
+      changedRoleTargets.add(nextDefaultRole);
+    }
+    const nextMappings = req.body.oidc_role_mappings !== undefined ? req.body.oidc_role_mappings : current.roleMappings;
+    for (const [idpRole, target] of Object.entries(nextMappings || {})) {
+      const next = String(target).trim();
+      if (next && (loginSourceChanged || current.roleMappings[String(idpRole).trim()] !== next)) {
+        changedRoleTargets.add(next);
+      }
+    }
+    if (changedRoleTargets.size > 0 && !(await isSuperAdminUser(req.admin.id))) {
+      if (changedRoleTargets.has('super_admin')) {
+        return res.status(403).json({ error: 'Only a Super Admin can map SSO users to the Super Admin role' });
+      }
+      const targetPermissions = await db('role_permissions')
+        .join('roles', 'roles.id', 'role_permissions.role_id')
+        .join('permissions', 'permissions.id', 'role_permissions.permission_id')
+        .whereIn('roles.name', [...changedRoleTargets])
+        .pluck('permissions.name');
+      try {
+        await require('../services/userManagementService').assertActorMayGrant(req.admin.id, targetPermissions);
+      } catch (err) {
+        if (err instanceof ForbiddenError) {
+          return res.status(403).json({ error: 'You can only map SSO users to roles whose permissions your own role already holds' });
+        }
+        throw err;
+      }
+    }
+
+    // Turning OFF local login requires SSO to be (staying) enabled. Only the
+    // explicit request is checked — a stored true must never block disabling
+    // SSO itself (runtime enforcement ignores the flag while SSO is off or
+    // unconfigured, and OIDC_BREAK_GLASS=true always re-opens local login).
+    if (req.body.oidc_disable_local_login === true && effectiveEnabled !== true) {
+      return res.status(400).json({ error: 'Local login can only be disabled while SSO is enabled' });
+    }
+
+    // …and an active LOCAL-password super_admin must exist as the break-glass
+    // account: OIDC_BREAK_GLASS only re-opens the password route, but
+    // OIDC-owned accounts are refused there and carry unusable random hashes.
+    // settings.edit is super_admin-only, so a lesser local account couldn't
+    // fix the SSO config either — without this check an all-OIDC instance
+    // would be unrecoverable during an IdP outage. Checked on the MERGED
+    // state, not just the request: re-enabling SSO while a stored true flag
+    // re-arms SSO-only mode just as much as setting the flag itself.
+    const effectiveDisableLocal = req.body.oidc_disable_local_login ?? current.disableLocalLogin;
+    if (effectiveDisableLocal === true && effectiveEnabled === true) {
+      if (!(await oidcService.hasActiveLocalSuperAdmin())) {
+        return res.status(400).json({ error: 'Disabling local login requires at least one active Super Admin with a local password (the break-glass account)' });
+      }
+    }
+
+    await oidcService.saveOidcSettings(req.body);
+
+    await logActivity('sso_settings_updated',
+      { changes: Object.keys(req.body).filter((k) => k !== 'oidc_client_secret') },
+      null,
+      { type: 'admin', id: req.admin.id, name: req.admin.username }
+    );
+
+    res.json({ message: 'SSO settings saved' });
+  } catch (error) {
+    logger.error('Failed to save SSO settings', { error: error.message });
+    res.status(500).json({ error: 'Failed to save SSO settings' });
+  }
+});
+
+// Server-side discovery probe: confirms the issuer is reachable and speaks
+// OIDC before the admin flips the enable toggle. Uses the SAVED config.
+router.post('/sso/test', adminAuth, requirePermission('settings.security'), async (req, res) => {
+  try {
+    const oidcService = require('../services/oidcService');
+    const cfg = await oidcService.getOidcConfig();
+    if (!oidcService.isConfigured(cfg)) {
+      return res.status(400).json({ ok: false, error: 'Issuer URL, client ID and client secret must be saved first' });
+    }
+    oidcService.invalidateDiscoveryCache();
+    const { issuerMetadata } = await oidcService.getClient(cfg);
+    res.json({
+      ok: true,
+      issuer: issuerMetadata.issuer,
+      authorization_endpoint: issuerMetadata.authorization_endpoint,
+      token_endpoint: issuerMetadata.token_endpoint,
+    });
+  } catch (error) {
+    logger.warn('SSO discovery test failed', { error: error.message });
+    res.status(400).json({ ok: false, error: `Discovery failed: ${error.message}` });
+  }
+});
+
+router.get('/:type', adminAuth, requirePermission('settings.view'), async (req, res) => {
+  try {
+    const { type } = req.params;
+    const settings = await db('app_settings')
+      .where('setting_type', type)
+      .select('*');
+
+    // Convert to object format
+    const settingsObject = {};
+    settings.forEach(setting => {
+      // Check for null/undefined explicitly to handle boolean false and 0 values
+      // PostgreSQL json column returns parsed values (false as boolean, not string)
+      if (setting.setting_value !== null && setting.setting_value !== undefined) {
+        // If the value is already parsed (from json column), use it directly
+        if (typeof setting.setting_value !== 'string') {
+          settingsObject[setting.setting_key] = setting.setting_value;
+        } else {
+          try {
+            // Try to parse as JSON first
+            settingsObject[setting.setting_key] = JSON.parse(setting.setting_value);
+          } catch (e) {
+            // If it's not valid JSON, use the raw value
+            settingsObject[setting.setting_key] = setting.setting_value;
+          }
+        }
+      } else {
+        settingsObject[setting.setting_key] = null;
+      }
+    });
+
+    // Reserved bootstrap/credential keys are NEVER readable through the
+    // generic settings reads — oidc_client_secret (#798) is stored encrypted
+    // with setting_type 'string' and would otherwise leak its ciphertext to
+    // any settings.view holder; setup_token is the first-run bootstrap secret.
+    stripReservedSettingKeys(settingsObject);
+
+    // Same derived read-only fields as GET / (#705) — the General tab reads
+    // through this typed route, so the env-pinned hint must be here too.
+    if (type === 'general') {
+      settingsObject.general_site_url_env_pinned = isEnvPinned();
+      if (settingsObject.general_site_url_env_pinned) {
+        settingsObject.general_site_url_effective = envPinnedBase();
+      }
+    }
+
+    // Mask sensitive secrets before sending to client
+    if (settingsObject.security_recaptcha_secret_key) {
+      settingsObject.security_recaptcha_secret_key = '••••••••';
+    }
+    // Backup credentials — the S3 secret key and the rsync SSH PRIVATE KEY
+    // were returned in plaintext to any settings.view holder. Same masking
+    // pattern as the recaptcha/umami/rybbit keys; the dedicated
+    // /admin/backup/config endpoints handle the edit round-trip.
+    if (settingsObject.backup_s3_secret_key) {
+      settingsObject.backup_s3_secret_key = '••••••••';
+    }
+    if (settingsObject.backup_rsync_ssh_key) {
+      settingsObject.backup_rsync_ssh_key = '••••••••';
+    }
+    // Umami v2 API key (#661 Bug C) — read-write secret that authenticates
+    // outbound calls to the operator's Umami instance for the device
+    // breakdown. Masked on GET, same pattern as the recaptcha secret.
+    if (settingsObject.analytics_umami_api_key) {
+      settingsObject.analytics_umami_api_key = '••••••••';
+    }
+    // Rybbit API key (#663 Phase 1) — same pattern.
+    if (settingsObject.analytics_rybbit_api_key) {
+      settingsObject.analytics_rybbit_api_key = '••••••••';
+    }
+
+    res.json(settingsObject);
+  } catch (error) {
+    errorResponse(res, error, 500, 'Failed to fetch settings');
+  }
+});
+
+// Get password complexity settings for frontend
+router.get('/password/complexity', adminAuth, requirePermission('settings.view'), async (req, res) => {
+  try {
+    const { getPasswordComplexitySettings, getPasswordConfigForComplexity } = require('../utils/passwordValidation');
+    
+    // Get current complexity level from database
+    const complexityLevel = await getPasswordComplexitySettings();
+    
+    // Get configuration for the complexity level
+    const config = getPasswordConfigForComplexity(complexityLevel);
+    
+    res.json({
+      complexityLevel,
+      config
+    });
+  } catch (error) {
+    errorResponse(res, error, 500, 'Failed to fetch password complexity settings');
+  }
+});
+
+// Update branding settings
+router.put('/branding', adminAuth, requirePermission('settings.edit'), async (req, res) => {
+  try {
+    const {
+      company_name,
+      company_tagline,
+      support_email,
+      footer_text,
+      watermark_enabled,
+      watermark_position,
+      watermark_opacity,
+      watermark_size,
+      favicon_url,
+      logo_url,
+      watermark_logo_url,
+      logo_size,
+      logo_max_height,
+      logo_position,
+      logo_display_header,
+      logo_display_hero,
+      logo_display_mode,
+      hide_powered_by,
+      force_color_mode,
+      // Login-page-only branding (#354 follow-up). Both toggles apply
+      // exclusively to /admin/login and /customer/login — the gallery
+      // and admin chrome use their own logo_size / logo_max_height.
+      // - login_logo_frame_enabled: true (default) renders the tinted
+      //   square behind the logo; false drops it.
+      // - login_logo_size: 'small' | 'medium' | 'large' | 'xlarge'
+      //   matches the gallery logo_size token set but applies only to
+      //   the two login screens.
+      login_logo_frame_enabled,
+      login_logo_size,
+      // Footer overhaul (#441 + #440). Socials are URL strings (empty
+      // hides the icon). Promo content is markdown (rendered via
+      // marked → DOMPurify on the frontend, no raw HTML accepted).
+      facebook_url,
+      instagram_url,
+      whatsapp_url,
+      twitter_url,
+      youtube_url,
+      promo_markdown,
+      promo_position,
+      promo_alignment,
+      // Info banner (#932). Markdown only, same sanitiser path as promo.
+      info_markdown
+    } = req.body;
+
+    // Normalize force_color_mode: only 'dark' | 'light' | null are valid.
+    const normalizedForceColorMode = force_color_mode === 'dark'
+      ? 'dark'
+      : force_color_mode === 'light'
+        ? 'light'
+        : null;
+
+    // Get current watermark settings hash for change detection
+    const oldSettingsHash = await watermarkService.getSettingsHash();
+
+    // Normalize promo_position: only 'above_footer' | 'below_footer' valid.
+    const normalizedPromoPosition = promo_position === 'below_footer'
+      ? 'below_footer'
+      : 'above_footer';
+
+    // Normalize promo_alignment: 'left' | 'center' | 'right'. Defaults
+    // to 'center' to match the gallery footer's full-width centering
+    // (#482 — the previous default left the markdown left-aligned in
+    // a max-w-3xl block, which read as visually offset from the footer).
+    const allowedPromoAlignments = ['left', 'center', 'right'];
+    const normalizedPromoAlignment = allowedPromoAlignments.includes(promo_alignment)
+      ? promo_alignment
+      : 'center';
+
+    // Normalize login_logo_size to the same token set as logo_size.
+    // Anything else falls back to 'medium' on the next render.
+    const allowedLoginLogoSizes = ['small', 'medium', 'large', 'xlarge'];
+    const normalizedLoginLogoSize = allowedLoginLogoSizes.includes(login_logo_size)
+      ? login_logo_size
+      : undefined;
+
+    const brandingSettings = {
+      company_name,
+      company_tagline,
+      support_email,
+      footer_text,
+      watermark_enabled,
+      watermark_position,
+      watermark_opacity,
+      watermark_size,
+      favicon_url,
+      logo_url,
+      watermark_logo_url,
+      logo_size,
+      logo_max_height,
+      logo_position,
+      logo_display_header,
+      logo_display_hero,
+      logo_display_mode,
+      hide_powered_by,
+      force_color_mode: normalizedForceColorMode,
+      // Login-only knobs (only persist when the request actually
+      // included the key, so a partial PUT from another tab doesn't
+      // accidentally clear them).
+      ...(login_logo_frame_enabled !== undefined && { login_logo_frame_enabled }),
+      ...(normalizedLoginLogoSize !== undefined && { login_logo_size: normalizedLoginLogoSize }),
+      // Footer overhaul (#441 + #440). String fields normalize empty/
+      // undefined → '' so the column is always a known type. Only persist
+      // when the request actually included the key (partial PUTs).
+      ...(facebook_url !== undefined  && { facebook_url:  String(facebook_url  || '').trim() }),
+      ...(instagram_url !== undefined && { instagram_url: String(instagram_url || '').trim() }),
+      ...(whatsapp_url !== undefined  && { whatsapp_url:  String(whatsapp_url  || '').trim() }),
+      ...(twitter_url !== undefined   && { twitter_url:   String(twitter_url   || '').trim() }),
+      ...(youtube_url !== undefined   && { youtube_url:   String(youtube_url   || '').trim() }),
+      ...(promo_markdown !== undefined && { promo_markdown: typeof promo_markdown === 'string' ? promo_markdown : '' }),
+      ...(info_markdown !== undefined && { info_markdown: typeof info_markdown === 'string' ? info_markdown : '' }),
+      ...(promo_position !== undefined && { promo_position: normalizedPromoPosition }),
+      ...(promo_alignment !== undefined && { promo_alignment: normalizedPromoAlignment })
+    };
+
+    const brandingUpdates = Object.fromEntries(Object.entries(brandingSettings).map(([key, value]) => [`branding_${key}`, value]));
+    const brandingChanged = await settingsChanged(db, brandingUpdates, Object.keys(brandingUpdates));
+
+    // Handle favicon deletion if empty string or null is provided
+    if (favicon_url === '' || favicon_url === null || favicon_url === undefined) {
+      // Get current favicon path to delete file
+      const currentFaviconSetting = await db('app_settings')
+        .where('setting_key', 'branding_favicon_url')
+        .first();
+      
+      if (currentFaviconSetting && currentFaviconSetting.setting_value) {
+        let currentFaviconUrl;
+        try {
+          // Try to parse as JSON first
+          currentFaviconUrl = JSON.parse(currentFaviconSetting.setting_value);
+        } catch (e) {
+          // If it's not valid JSON, use the raw value
+          currentFaviconUrl = currentFaviconSetting.setting_value;
+        }
+        
+        // Containment: the stored URL is admin-writable, so only the leaf
+        // name is used and it is joined onto the fixed favicon directory. A
+        // prefix test alone let `/uploads/favicons/../../<anything>` pass
+        // and path.join collapse it -- an arbitrary-file delete for any
+        // holder of settings.edit.
+        const faviconPath = uploadedAssetPath(currentFaviconUrl, 'favicons', getStoragePath());
+        if (faviconPath) {
+          try {
+            await fs.unlink(faviconPath);
+            logger.info('Deleted favicon file:', faviconPath);
+          } catch (err) {
+            logger.error('Error deleting favicon file:', err);
+          }
+        }
+      }
+    }
+
+    // Handle logo deletion if empty string or null is provided
+    if (logo_url === '' || logo_url === null || logo_url === undefined) {
+      // Get current logo path to delete file
+      const currentLogoSetting = await db('app_settings')
+        .where('setting_key', 'branding_logo_url')
+        .first();
+      
+      if (currentLogoSetting && currentLogoSetting.setting_value) {
+        let currentLogoUrl;
+        try {
+          // Try to parse as JSON first
+          currentLogoUrl = JSON.parse(currentLogoSetting.setting_value);
+        } catch (e) {
+          // If it's not valid JSON, use the raw value
+          currentLogoUrl = currentLogoSetting.setting_value;
+        }
+        
+        // Same containment as the favicon branch above.
+        const logoPath = uploadedAssetPath(currentLogoUrl, 'logos', getStoragePath());
+        if (logoPath) {
+          try {
+            await fs.unlink(logoPath);
+            logger.info('Deleted logo file:', logoPath);
+          } catch (err) {
+            logger.error('Error deleting logo file:', err);
+          }
+        }
+      }
+    }
+
+    // Update or insert each setting
+    for (const [key, value] of Object.entries(brandingSettings)) {
+      await db('app_settings')
+        .insert({
+          setting_key: `branding_${key}`,
+          setting_value: JSON.stringify(value),
+          setting_type: 'branding',
+          updated_at: new Date()
+        })
+        .onConflict('setting_key')
+        .merge({
+          setting_value: JSON.stringify(value),
+          updated_at: new Date()
+        });
+    }
+
+    // Log activity
+    await db('activity_logs').insert({
+      activity_type: 'branding_updated',
+      actor_type: 'admin',
+      actor_id: req.admin.id,
+      actor_name: req.admin.username,
+      metadata: JSON.stringify({ company_name })
+    });
+
+    if (brandingChanged) capabilityEvidence(res, 'branding_editing');
+    clearPublicSiteCache();
+
+    // Check if watermark settings changed and trigger regeneration
+    const newSettingsHash = await watermarkService.getSettingsHash();
+    let watermarkRegenerationStarted = false;
+
+    if (oldSettingsHash !== newSettingsHash) {
+      // Clear watermark cache
+      watermarkService.clearCache();
+
+      // Check if watermarking is now enabled or settings changed
+      const currentSettings = await watermarkService.getWatermarkSettings();
+
+      if (currentSettings && currentSettings.enabled) {
+        // Start background regeneration of all watermarks
+        logger.info('Watermark settings changed, starting background regeneration');
+        watermarkGeneratorService.regenerateAll()
+          .then(result => {
+            logger.info(`Watermark regeneration completed: ${result.success}/${result.total} successful`);
+          })
+          .catch(err => {
+            logger.error('Watermark regeneration failed:', err);
+          });
+        watermarkRegenerationStarted = true;
+      } else {
+        // Watermarking was disabled, clear all pre-generated watermarks
+        logger.info('Watermarking disabled, clearing pre-generated watermarks');
+        watermarkGeneratorService.clearAllWatermarks()
+          .catch(err => logger.error('Failed to clear watermarks:', err));
+      }
+    }
+
+    res.json({
+      message: 'Branding settings updated successfully',
+      watermarkRegenerationStarted
+    });
+  } catch (error) {
+    errorResponse(res, error, 500, 'Failed to update branding settings');
+  }
+});
+
+// Upload logo
+router.post('/logo', adminAuth, requirePermission('settings.edit'), upload.single('logo'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No logo file uploaded' });
+    }
+
+    // ?variant=dark stores a separate dark-mode logo (branding_logo_*_dark);
+    // anything else is the default (light) logo. Consumers pick the dark
+    // variant when the active theme is dark, falling back to the light one.
+    const isDark = req.query.variant === 'dark' || req.body.variant === 'dark';
+    const pathKey = isDark ? 'branding_logo_path_dark' : 'branding_logo_path';
+    const urlKey = isDark ? 'branding_logo_url_dark' : 'branding_logo_url';
+
+    // Get old logo to delete
+    const oldLogoSetting = await db('app_settings')
+      .where('setting_key', pathKey)
+      .first();
+
+    if (oldLogoSetting && oldLogoSetting.setting_value) {
+      try {
+        // Handle both JSON-serialized and legacy raw path values
+        let oldPath = oldLogoSetting.setting_value;
+        if (oldPath.startsWith('"')) {
+          oldPath = JSON.parse(oldPath);
+        }
+        await fs.unlink(oldPath);
+      } catch (error) {
+        logger.error('Failed to delete old logo:', error);
+      }
+    }
+
+    // Save new logo path
+    const logoPath = req.file.path;
+    const publicPath = `/uploads/logos/${req.file.filename}`;
+
+    await db('app_settings')
+      .insert({
+        setting_key: pathKey,
+        setting_value: JSON.stringify(logoPath),
+        setting_type: 'branding',
+        updated_at: new Date()
+      })
+      .onConflict('setting_key')
+      .merge({
+        setting_value: JSON.stringify(logoPath),
+        updated_at: new Date()
+      });
+
+    // Save public URL
+    await db('app_settings')
+      .insert({
+        setting_key: urlKey,
+        setting_value: JSON.stringify(publicPath),
+        setting_type: 'branding',
+        updated_at: new Date()
+      })
+      .onConflict('setting_key')
+      .merge({
+        setting_value: JSON.stringify(publicPath),
+        updated_at: new Date()
+      });
+
+    capabilityEvidence(res, 'branding_editing');
+    res.json({ 
+      message: 'Logo uploaded successfully',
+      logoUrl: publicPath
+    });
+  } catch (error) {
+    errorResponse(res, error, 500, 'Failed to upload logo');
+  }
+});
+
+// Remove a logo. ?variant=dark clears the dark-mode logo
+// (branding_logo_*_dark); otherwise the default logo. Best-effort file
+// unlink, then blanks the url + path settings.
+router.delete('/logo', adminAuth, requirePermission('settings.edit'), async (req, res) => {
+  try {
+    const isDark = req.query.variant === 'dark';
+    const pathKey = isDark ? 'branding_logo_path_dark' : 'branding_logo_path';
+    const urlKey = isDark ? 'branding_logo_url_dark' : 'branding_logo_url';
+
+    const logoChanged = await settingsChanged(db, { [pathKey]: '', [urlKey]: '' }, [pathKey, urlKey]);
+    const pathSetting = await db('app_settings').where('setting_key', pathKey).first();
+    if (pathSetting && pathSetting.setting_value) {
+      try {
+        let p = pathSetting.setting_value;
+        if (p.startsWith('"')) p = JSON.parse(p);
+        await fs.unlink(p);
+      } catch (error) {
+        logger.error('Failed to delete logo file:', error);
+      }
+    }
+    await db('app_settings')
+      .whereIn('setting_key', [pathKey, urlKey])
+      .update({ setting_value: JSON.stringify(''), updated_at: new Date() });
+
+    if (logoChanged) capabilityEvidence(res, 'branding_editing');
+    res.json({ message: 'Logo removed' });
+  } catch (error) {
+    errorResponse(res, error, 500, 'Failed to remove logo');
+  }
+});
+
+// Upload watermark logo
+router.post('/branding/watermark-logo', adminAuth, requirePermission('settings.edit'), upload.single('watermarkLogo'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    // Delete old watermark logo if exists
+    const oldWatermarkLogoSetting = await db('app_settings')
+      .where('setting_key', 'branding_watermark_logo_path')
+      .first();
+
+    if (oldWatermarkLogoSetting && oldWatermarkLogoSetting.setting_value) {
+      let oldPath;
+      try {
+        // Try to parse as JSON first (for JSON-stringified paths)
+        oldPath = JSON.parse(oldWatermarkLogoSetting.setting_value);
+      } catch (e) {
+        // If it's not valid JSON, use the raw value
+        oldPath = oldWatermarkLogoSetting.setting_value;
+      }
+
+      if (oldPath && typeof oldPath === 'string') {
+        try {
+          await fs.unlink(oldPath);
+        } catch (error) {
+          logger.error('Failed to delete old watermark logo:', error);
+        }
+      }
+    }
+
+    // Save new watermark logo path
+    const logoPath = req.file.path;
+    const publicPath = `/uploads/logos/${req.file.filename}`;
+
+    await db('app_settings')
+      .insert({
+        setting_key: 'branding_watermark_logo_path',
+        setting_value: JSON.stringify(logoPath),
+        setting_type: 'branding',
+        updated_at: new Date()
+      })
+      .onConflict('setting_key')
+      .merge({
+        setting_value: JSON.stringify(logoPath),
+        updated_at: new Date()
+      });
+
+    // Save public URL
+    await db('app_settings')
+      .insert({
+        setting_key: 'branding_watermark_logo_url',
+        setting_value: JSON.stringify(publicPath),
+        setting_type: 'branding',
+        updated_at: new Date()
+      })
+      .onConflict('setting_key')
+      .merge({
+        setting_value: JSON.stringify(publicPath),
+        updated_at: new Date()
+      });
+
+    // Trigger watermark regeneration since the logo changed
+    watermarkService.clearCache();
+    const currentSettings = await watermarkService.getWatermarkSettings();
+    let watermarkRegenerationStarted = false;
+
+    if (currentSettings && currentSettings.enabled) {
+      logger.info('Watermark logo changed, starting background regeneration');
+      watermarkGeneratorService.regenerateAll()
+        .then(result => {
+          logger.info(`Watermark regeneration completed: ${result.success}/${result.total} successful`);
+        })
+        .catch(err => {
+          logger.error('Watermark regeneration failed:', err);
+        });
+      watermarkRegenerationStarted = true;
+    }
+
+    capabilityEvidence(res, 'branding_editing');
+    res.json({
+      message: 'Watermark logo uploaded successfully',
+      watermarkLogoUrl: publicPath,
+      watermarkRegenerationStarted
+    });
+  } catch (error) {
+    errorResponse(res, error, 500, 'Failed to upload watermark logo');
+  }
+});
+
+// Update theme settings
+router.put('/theme', adminAuth, requirePermission('settings.edit'), async (req, res) => {
+  try {
+    const themeSettings = req.body;
+    const themeChanged = await settingsChanged(db, { theme_config: themeSettings }, ['theme_config']);
+
+    // Save theme settings
+    await db('app_settings')
+      .insert({
+        setting_key: 'theme_config',
+        setting_value: JSON.stringify(themeSettings),
+        setting_type: 'theme',
+        updated_at: new Date()
+      })
+      .onConflict('setting_key')
+      .merge({
+        setting_value: JSON.stringify(themeSettings),
+        updated_at: new Date()
+      });
+
+    // Log activity
+    await db('activity_logs').insert({
+      activity_type: 'theme_updated',
+      actor_type: 'admin',
+      actor_id: req.admin.id,
+      actor_name: req.admin.username,
+      metadata: JSON.stringify({ theme_name: themeSettings.name || 'custom' })
+    });
+
+    clearPublicSiteCache();
+
+    if (themeChanged) capabilityEvidence(res, 'branding_editing');
+    res.json({ message: 'Theme settings updated successfully' });
+  } catch (error) {
+    errorResponse(res, error, 500, 'Failed to update theme settings');
+  }
+});
+
+// Update general settings
+router.put('/general', adminAuth, requirePermission('settings.edit'), async (req, res) => {
+  try {
+    const settings = stripReservedSettingKeys({ ...req.body });
+    if (rejectDedicatedRouteOwnedKeys(settings, res)) return;
+    let uploadLimitTouched = false;
+
+    // Migration 174: drop any protected key (site URL / security / accounting)
+    // the caller isn't permitted to write, so the settings.edit bucket can't be
+    // used to repoint the install via this generic writer. See
+    // rejectUnauthorizedProtectedKeys (403s when a protected key is denied).
+    if (await rejectUnauthorizedProtectedKeys(settings, req, res)) return;
+
+    // The public origin is no longer just an email link: it feeds the CORS
+    // allowlist (server.js) and the Access-Control-Allow-Origin header
+    // (secureImageMiddleware) since #705. A schemeless value like
+    // "gallery.example.com" therefore produces both links that don't resolve
+    // AND an allowlist entry no browser origin can ever match, so validate it
+    // server-side rather than trusting the input type (#1104). require_tld is
+    // off on purpose: LAN and NAS installs legitimately run on http://nas:3000
+    // or a bare IP. Same validator as oidc_issuer_url above.
+    if (Object.prototype.hasOwnProperty.call(settings, 'general_site_url')) {
+      const siteUrl = typeof settings.general_site_url === 'string'
+        ? settings.general_site_url.trim().replace(/\/+$/, '')
+        : '';
+      // allow_underscores for the same reason require_tld is off: this has to
+      // accept the addresses LAN and NAS installs actually run on. Browsers
+      // resolve http://my_nas.local happily and the client-side check accepts
+      // it, so rejecting it here only produced a mismatch between the two
+      // validators — and the wizard has no way to show a 400 it did not
+      // predict (#1104 review round 2).
+      const looksValid = validator.isURL(siteUrl, {
+        protocols: ['http', 'https'],
+        require_protocol: true,
+        require_tld: false,
+        allow_underscores: true,
+      });
+      if (siteUrl && !looksValid) {
+        return res.status(400).json({
+          error: 'general_site_url must be an absolute http(s) URL, for example https://gallery.example.com'
+        });
+      }
+      settings.general_site_url = siteUrl;
+    }
+
+    // Customer documents (#1444): checked and normalised before storing.
+    const documentSettingsError = require('../utils/customerDocumentSettings')
+      .normaliseCustomerDocumentSettings(settings);
+    if (documentSettingsError) return res.status(400).json({ error: documentSettingsError });
+
+    const publicSiteKeysTouched = Object.keys(settings).some((key) => key.startsWith('general_public_site_'));
+
+    if (Object.prototype.hasOwnProperty.call(settings, 'general_max_files_per_upload')) {
+      uploadLimitTouched = true;
+      const rawValue = Number(settings.general_max_files_per_upload);
+      const normalizedValue = Number.isFinite(rawValue) ? Math.floor(rawValue) : NaN;
+
+      if (!Number.isInteger(normalizedValue) || normalizedValue < 1 || normalizedValue > MAX_ALLOWED_FILES_PER_UPLOAD) {
+        return res.status(400).json({
+          error: `general_max_files_per_upload must be an integer between 1 and ${MAX_ALLOWED_FILES_PER_UPLOAD}`
+        });
+      }
+
+      settings.general_max_files_per_upload = normalizedValue;
+    }
+
+    // Per-file size limit (MB). Validate/clamp on save, mirroring the count
+    // above, so an out-of-range value can't be persisted — otherwise the public
+    // endpoint would advertise the raw value while getMaxFileSizeMb() normalizes
+    // it, and the guest UI would reject files the backend actually accepts.
+    if (Object.prototype.hasOwnProperty.call(settings, 'general_max_file_size_mb')) {
+      uploadLimitTouched = true;
+      const rawValue = Number(settings.general_max_file_size_mb);
+      const normalizedValue = Number.isFinite(rawValue) ? Math.floor(rawValue) : NaN;
+
+      if (!Number.isInteger(normalizedValue) || normalizedValue < 1 || normalizedValue > MAX_ALLOWED_FILE_SIZE_MB) {
+        return res.status(400).json({
+          error: `general_max_file_size_mb must be an integer between 1 and ${MAX_ALLOWED_FILE_SIZE_MB}`
+        });
+      }
+
+      settings.general_max_file_size_mb = normalizedValue;
+    }
+
+    // Per-file size limit for videos (MB). Same bounds and same reasoning as
+    // the photo cap above — videos just get their own value so a 50MB photo
+    // limit doesn't also block every clip.
+    if (Object.prototype.hasOwnProperty.call(settings, 'general_max_video_size_mb')) {
+      uploadLimitTouched = true;
+      const rawValue = Number(settings.general_max_video_size_mb);
+      const normalizedValue = Number.isFinite(rawValue) ? Math.floor(rawValue) : NaN;
+
+      if (!Number.isInteger(normalizedValue) || normalizedValue < 1 || normalizedValue > MAX_ALLOWED_FILE_SIZE_MB) {
+        return res.status(400).json({
+          error: `general_max_video_size_mb must be an integer between 1 and ${MAX_ALLOWED_FILE_SIZE_MB}`
+        });
+      }
+
+      settings.general_max_video_size_mb = normalizedValue;
+    }
+
+    // Browser-playable video copies (issue 1430, item 8): a plain boolean.
+    if (Object.prototype.hasOwnProperty.call(settings, 'general_video_web_rendition')) {
+      const raw = settings.general_video_web_rendition;
+      settings.general_video_web_rendition = raw === true || raw === 'true' || raw === 1 || raw === '1';
+    }
+
+    // Default download limit for new events (issue 1560). Empty, 0 or null
+    // clears it (unlimited); anything else must be a positive integer.
+    if (Object.prototype.hasOwnProperty.call(settings, 'event_default_download_limit')) {
+      const raw = settings.event_default_download_limit;
+      if (raw === null || raw === '' || raw === 0 || raw === '0') {
+        settings.event_default_download_limit = null;
+      } else {
+        const normalized = normaliseDownloadLimit(raw);
+        if (normalized === null) {
+          return res.status(400).json({
+            error: 'event_default_download_limit must be a positive integer, or empty for unlimited'
+          });
+        }
+        settings.event_default_download_limit = normalized;
+      }
+    }
+
+    // Uploader-name defaults for new events (#1561).
+    if (Object.prototype.hasOwnProperty.call(settings, 'event_default_guest_name_mode')
+      && !GUEST_NAME_MODES.includes(settings.event_default_guest_name_mode)) {
+      return res.status(400).json({
+        error: `event_default_guest_name_mode must be one of: ${GUEST_NAME_MODES.join(', ')}`
+      });
+    }
+    if (Object.prototype.hasOwnProperty.call(settings, 'event_default_show_credits_to_guests')) {
+      const raw = settings.event_default_show_credits_to_guests;
+      settings.event_default_show_credits_to_guests = raw === true || raw === 'true' || raw === 1 || raw === '1';
+    }
+
+    // Folders (issue 1786) and two-stage delivery (issue 1562).
+    for (const key of ['event_default_folder_structure', 'first_look_keyword_detection']) {
+      if (Object.prototype.hasOwnProperty.call(settings, key)) {
+        const raw = settings[key];
+        settings[key] = raw === true || raw === 'true' || raw === 1 || raw === '1';
+      }
+    }
+    if (Object.prototype.hasOwnProperty.call(settings, 'first_look_folder_keywords')) {
+      const raw = settings.first_look_folder_keywords;
+      const list = (Array.isArray(raw) ? raw : String(raw || '').split(','))
+        .map((k) => String(k).replace(/\s+/g, ' ').trim())
+        .filter(Boolean);
+      // Refused, not trimmed: a keyword dropped silently is a folder that
+      // quietly stops starting a first look.
+      if (list.length > 20 || list.some((k) => k.length > 60 || k.replace(/[^\p{L}\p{N}]/gu, '').length < 3)) {
+        return res.status(400).json({ error: 'first_look_folder_keywords: at most 20 keywords, each with at least 3 letters or digits and at most 60 characters' });
+      }
+      settings.first_look_folder_keywords = [...new Set(list)];
+    }
+    if (Object.prototype.hasOwnProperty.call(settings, 'event_default_delivery_days')) {
+      const days = Number(settings.event_default_delivery_days);
+      if (!Number.isInteger(days) || days < 1 || days > 365) {
+        return res.status(400).json({ error: 'event_default_delivery_days must be an integer between 1 and 365' });
+      }
+      settings.event_default_delivery_days = days;
+    }
+
+    if (publicSiteKeysTouched) {
+      if (Object.prototype.hasOwnProperty.call(settings, 'general_public_site_custom_css')) {
+        settings.general_public_site_custom_css = sanitizeCss(settings.general_public_site_custom_css || '');
+      }
+
+      if (Object.prototype.hasOwnProperty.call(settings, 'general_public_site_html') && typeof settings.general_public_site_html === 'string') {
+        settings.general_public_site_html = settings.general_public_site_html.trim();
+      }
+
+      if (Object.prototype.hasOwnProperty.call(settings, 'general_public_site_enabled')) {
+        settings.general_public_site_enabled = formatBoolean(settings.general_public_site_enabled);
+      }
+
+      const enableToggle = settings.general_public_site_enabled;
+      if (enableToggle === true) {
+        let htmlValue = settings.general_public_site_html;
+
+        if (htmlValue === undefined) {
+          const currentSettings = await getRawPublicSiteSettings();
+          htmlValue = currentSettings.general_public_site_html;
+        }
+
+        if (!htmlValue || !String(htmlValue).trim()) {
+          return res.status(400).json({
+            error: 'Public site HTML must be provided before enabling the public landing page.'
+          });
+        }
+      }
+    }
+
+    // Update or insert each setting
+    const galleryPasswordPurge = await galleryPasswordPurgePlan(settings);
+    if (galleryPasswordPurge.before) await purgeRecoverablePasswords();
+    for (const [key, value] of Object.entries(settings)) {
+      await db('app_settings')
+        .insert({
+          setting_key: key,
+          setting_value: JSON.stringify(value),
+          setting_type: 'general',
+          updated_at: new Date()
+        })
+        .onConflict('setting_key')
+        .merge({
+          setting_value: JSON.stringify(value),
+          updated_at: new Date()
+        });
+    }
+    
+    if (galleryPasswordPurge.after) await purgeRecoverablePasswords();
+
+    // Clear maintenance mode cache if it was updated
+    if ('general_maintenance_mode' in settings) {
+      clearMaintenanceCache();
+    }
+
+    if (publicSiteKeysTouched) {
+      clearPublicSiteCache();
+    }
+    if (uploadLimitTouched) {
+      clearMaxFilesPerUploadCache();
+      clearMaxFileSizeCache();
+      clearMaxVideoSizeCache();
+    }
+    // The allowed-types list is cached for a minute like the caps above, but
+    // nothing was dropping it. An admin who added a format to accept a batch
+    // of files got a full minute of "Invalid file type. Check allowed file
+    // types in system settings." on the setting they had just changed.
+    if (Object.prototype.hasOwnProperty.call(settings, 'general_allowed_file_types')) {
+      clearAllowedTypesCache();
+    }
+    if (Object.prototype.hasOwnProperty.call(settings, 'general_short_gallery_urls')) {
+      clearShareLinkSettingsCache();
+    }
+    // Switching the video copies on queues the back catalogue: every video
+    // never looked at or whose last attempt failed. The queue probes each
+    // one and skips what already plays. Off leaves the rows as they are; the
+    // workers idle until it is on again.
+    if (Object.prototype.hasOwnProperty.call(settings, 'general_video_web_rendition')) {
+      const videoRendition = require('../services/videoRenditionService');
+      videoRendition.clearCache();
+      if (settings.general_video_web_rendition) {
+        try {
+          const queued = await videoRendition.backfillPending();
+          if (queued > 0) logger.info(`videoRendition: queued ${queued} existing video(s) after the setting was enabled`);
+        } catch (e) {
+          logger.warn('videoRendition: failed to queue existing videos:', e.message);
+        }
+      }
+    }
+    // The public origin is cached (it now sits in per-request CORS paths and
+    // in a synchronous accessor); drop it immediately on write so a corrected
+    // site URL takes effect without waiting out the TTL.
+    if (Object.prototype.hasOwnProperty.call(settings, 'general_site_url')) {
+      invalidateSiteUrlCache();
+    }
+    // Toggling the original-filenames setting (#493) requires busting the
+    // per-event pre-generated zips so the next download-all rebuilds with the
+    // new entry names. Single-photo downloads pick up the change as soon as
+    // the in-memory cache TTL in downloadFilenameService expires (cleared
+    // here for immediacy).
+    if (Object.prototype.hasOwnProperty.call(settings, 'general_use_original_filenames_for_downloads')) {
+      try {
+        require('../services/downloadFilenameService').clearCache();
+        require('../services/downloadZipService').invalidateAll();
+      } catch (e) {
+        logger.warn('Failed to invalidate download caches after filename setting change:', e.message);
+      }
+    }
+
+    // Log activity
+    await db('activity_logs').insert({
+      activity_type: 'general_settings_updated',
+      actor_type: 'admin',
+      actor_id: req.admin.id,
+      actor_name: req.admin.username,
+      metadata: JSON.stringify({ settings_count: Object.keys(settings).length })
+    });
+
+    res.json({ message: 'General settings updated successfully' });
+  } catch (error) {
+    errorResponse(res, error, 500, 'Failed to update general settings');
+  }
+});
+
+// Update security settings
+router.put('/security', adminAuth, requirePermission('settings.security'), async (req, res) => {
+  try {
+    const settings = stripReservedSettingKeys({ ...req.body });
+    if (rejectDedicatedRouteOwnedKeys(settings, res)) return;
+    // A settings.security holder still can't write domain/accounting keys here.
+    if (await rejectUnauthorizedProtectedKeys(settings, req, res)) return;
+
+    // The reCAPTCHA secret goes out masked on GET, and the Security tab sends
+    // every security_* key back on save, mask included. Writing the mask
+    // would replace the stored secret with eight bullets and every
+    // captcha-gated login would then fail closed until it is re-entered.
+    // Analytics and backup already skip the sentinel; this tab did not
+    // (security review 2026-09-29).
+    if (settings.security_recaptcha_secret_key === SECRET_MASK) {
+      delete settings.security_recaptcha_secret_key;
+    }
+
+    // Update or insert each setting
+    const galleryPasswordPurge = await galleryPasswordPurgePlan(settings);
+    if (galleryPasswordPurge.before) await purgeRecoverablePasswords();
+    for (const [key, value] of Object.entries(settings)) {
+      await db('app_settings')
+        .insert({
+          setting_key: key,
+          setting_value: JSON.stringify(value),
+          setting_type: 'security',
+          updated_at: new Date()
+        })
+        .onConflict('setting_key')
+        .merge({
+          setting_value: JSON.stringify(value),
+          updated_at: new Date()
+        });
+    }
+
+    resetSecurityConfigCache();
+    if (galleryPasswordPurge.after) await purgeRecoverablePasswords();
+
+    // Log activity
+    await db('activity_logs').insert({
+      activity_type: 'security_settings_updated',
+      actor_type: 'admin',
+      actor_id: req.admin.id,
+      actor_name: req.admin.username,
+      metadata: JSON.stringify({ settings_count: Object.keys(settings).length })
+    });
+
+    res.json({ message: 'Security settings updated successfully' });
+  } catch (error) {
+    errorResponse(res, error, 500, 'Failed to update security settings');
+  }
+});
+
+// Update analytics settings
+router.put('/analytics', adminAuth, requirePermission('settings.edit'), async (req, res) => {
+  try {
+    const settings = stripReservedSettingKeys({ ...req.body });
+    if (rejectDedicatedRouteOwnedKeys(settings, res)) return;
+    if (await rejectUnauthorizedProtectedKeys(settings, req, res)) return;
+
+    // Validate the provider switch (#663 Phase 1). Reject unknown values
+    // so the dashboard route's factory doesn't have to defensively guard.
+    if (Object.prototype.hasOwnProperty.call(settings, 'analytics_tracker_provider')) {
+      const valid = ['none', 'umami', 'rybbit'];
+      if (!valid.includes(settings.analytics_tracker_provider)) {
+        return res.status(400).json({
+          error: `analytics_tracker_provider must be one of: ${valid.join(', ')}`,
+        });
+      }
+    }
+
+    // Custom snippets are rejected at the shared generic-writer boundary.
+    // The tab no longer posts the legacy snippet; saving a supported provider
+    // clears a stored one here instead. It is never served, so this needs no
+    // tracker-key permission and creates no row where none exists.
+    if (['none', 'umami', 'rybbit'].includes(req.body?.analytics_tracker_provider)) {
+      await db('app_settings')
+        .where({ setting_key: 'analytics_custom_head_html' })
+        .update({ setting_value: JSON.stringify('') });
+    }
+
+    // Update or insert each setting
+    const galleryPasswordPurge = await galleryPasswordPurgePlan(settings);
+    if (galleryPasswordPurge.before) await purgeRecoverablePasswords();
+    for (const [key, value] of Object.entries(settings)) {
+      await db('app_settings')
+        .insert({
+          setting_key: key,
+          setting_value: JSON.stringify(value),
+          setting_type: 'analytics',
+          updated_at: new Date()
+        })
+        .onConflict('setting_key')
+        .merge({
+          setting_value: JSON.stringify(value),
+          updated_at: new Date()
+        });
+    }
+
+    if (galleryPasswordPurge.after) await purgeRecoverablePasswords();
+
+    // Log activity
+    await db('activity_logs').insert({
+      activity_type: 'analytics_settings_updated',
+      actor_type: 'admin',
+      actor_id: req.admin.id,
+      actor_name: req.admin.username,
+      metadata: JSON.stringify({ settings_count: Object.keys(settings).length })
+    });
+
+    res.json({ message: 'Analytics settings updated successfully' });
+  } catch (error) {
+    errorResponse(res, error, 500, 'Failed to update analytics settings');
+  }
+});
+
+// Update SEO settings
+router.put('/seo', adminAuth, requirePermission('settings.edit'), async (req, res) => {
+  try {
+    const settings = stripReservedSettingKeys({ ...req.body });
+    if (rejectDedicatedRouteOwnedKeys(settings, res)) return;
+    if (await rejectUnauthorizedProtectedKeys(settings, req, res)) return;
+
+    // Validate seo_blocked_ai_agents is an array of strings
+    if (settings.seo_blocked_ai_agents !== undefined) {
+      if (!Array.isArray(settings.seo_blocked_ai_agents) ||
+          !settings.seo_blocked_ai_agents.every(a => typeof a === 'string')) {
+        return res.status(400).json({ error: 'seo_blocked_ai_agents must be an array of strings' });
+      }
+    }
+
+    // Validate seo_custom_rules structure
+    if (settings.seo_custom_rules !== undefined) {
+      if (!Array.isArray(settings.seo_custom_rules)) {
+        return res.status(400).json({ error: 'seo_custom_rules must be an array' });
+      }
+      for (const rule of settings.seo_custom_rules) {
+        if (!rule.userAgent || typeof rule.userAgent !== 'string') {
+          return res.status(400).json({ error: 'Each custom rule must have a userAgent string' });
+        }
+        if (!Array.isArray(rule.disallow) || !rule.disallow.every(d => typeof d === 'string')) {
+          return res.status(400).json({ error: 'Each custom rule must have a disallow array of strings' });
+        }
+      }
+    }
+
+    const seoChanged = await settingsChanged(db, settings, SEO_USAGE_KEYS);
+    // Update or insert each setting
+    const galleryPasswordPurge = await galleryPasswordPurgePlan(settings);
+    if (galleryPasswordPurge.before) await purgeRecoverablePasswords();
+    for (const [key, value] of Object.entries(settings)) {
+      await db('app_settings')
+        .insert({
+          setting_key: key,
+          setting_value: JSON.stringify(value),
+          setting_type: 'seo',
+          updated_at: new Date()
+        })
+        .onConflict('setting_key')
+        .merge({
+          setting_value: JSON.stringify(value),
+          updated_at: new Date()
+        });
+    }
+
+    if (galleryPasswordPurge.after) await purgeRecoverablePasswords();
+
+    // Clear robots.txt cache
+    const { clearRobotsTxtCache } = require('../services/robotsTxtService');
+    clearRobotsTxtCache();
+
+    // Log activity
+    await db('activity_logs').insert({
+      activity_type: 'seo_settings_updated',
+      actor_type: 'admin',
+      actor_id: req.admin.id,
+      actor_name: req.admin.username,
+      metadata: JSON.stringify({ settings_count: Object.keys(settings).length })
+    });
+
+    if (seoChanged) capabilityEvidence(res, 'seo_editing');
+    res.json({ message: 'SEO settings updated successfully' });
+  } catch (error) {
+    errorResponse(res, error, 500, 'Failed to update SEO settings');
+  }
+});
+
+// Get storage info
+router.get('/storage/info', adminAuth, requirePermission('settings.view'), async (req, res) => {
+  try {
+    // Catalogued original bytes. Reported, but no longer as "used" (#1164) —
+    // in reference mode those files are on a NAS and none of them are here.
+    const totalStorage = await db('photos')
+      .sum('size_bytes as total')
+      .first();
+
+    // Get storage by event
+    const storageByEvent = await db('photos')
+      .select('events.event_name', 'events.id')
+      .sum('photos.size_bytes as size')
+      .join('events', 'photos.event_id', 'events.id')
+      .groupBy('events.id')
+      .orderBy('size', 'desc')
+      .limit(10);
+
+    // Get archive storage
+    const archives = await db('events')
+      .where('is_archived', formatBoolean(true))
+      .whereNotNull('archive_path')
+      .select('archive_path');
+
+    // The zip lives wherever archiveService put it: the storage backend, not
+    // necessarily the local STORAGE_PATH. The backend also refuses a key that
+    // climbs out of its root, which a raw path.join did not.
+    let archiveStorage = 0;
+    const { getStorage } = require('../services/storage');
+    for (const archive of archives) {
+      if (archive.archive_path) {
+        try {
+          const stats = await getStorage().stat(archive.archive_path);
+          if (stats) archiveStorage += stats.size;
+          else logger.error('Archive file not found:', archive.archive_path);
+        } catch (error) {
+          logger.error('Archive file not readable:', archive.archive_path, error.message);
+        }
+      }
+    }
+
+    const DEFAULT_SOFT_LIMIT_BYTES = 10 * 1024 * 1024 * 1024; // 10GB fallback
+    const storagePath = getStoragePath();
+
+    let diskStats = null;
+    let rawDiskTotal = null;
+    let rawDiskFree = null;
+    let rawDiskAvailable = null;
+    try {
+      diskStats = await fs.statfs(storagePath);
+      rawDiskTotal = Number(diskStats.bsize) * Number(diskStats.blocks);
+      rawDiskFree = Number(diskStats.bsize) * Number(diskStats.bfree);
+      rawDiskAvailable = Number(diskStats.bsize) * Number(diskStats.bavail);
+    } catch (diskError) {
+      logger.error('Disk stats error:', diskError.message);
+    }
+
+    const clampDiskValue = (value) => {
+      if (!Number.isFinite(value) || value <= 0) {
+        return null;
+      }
+
+      // Treat unusually large virtualised values as unreliable (>50TB)
+      const MAX_REASONABLE_BYTES = 50 * 1024 * 1024 * 1024 * 1024;
+      if (value > MAX_REASONABLE_BYTES) {
+        return null;
+      }
+
+      return value;
+    };
+
+    let diskTotal = null;
+    let diskFree = null;
+    let diskAvailable = null;
+
+    if (diskStats) {
+      diskTotal = clampDiskValue(rawDiskTotal);
+      diskFree = clampDiskValue(rawDiskFree);
+      diskAvailable = clampDiskValue(rawDiskAvailable);
+
+      if (diskTotal && diskAvailable && diskAvailable > diskTotal) {
+        diskAvailable = null;
+      }
+      if (diskTotal && diskFree && diskFree > diskTotal) {
+        diskFree = null;
+      }
+    }
+
+    // What is actually on this disk. This is what the soft limit is compared
+    // against and what the recommendation below is derived from, so getting it
+    // from the catalogued originals was the load-bearing half of #1164: a
+    // reference-mode install got a disk-capacity recommendation computed from
+    // bytes that are not on the disk.
+    const catalogedBytes = Number(totalStorage?.total) || 0;
+    // Gated BEFORE the walk, not after. This endpoint is polled by the sidebar,
+    // and an S3 install that still has a large local tree from before the
+    // migration would otherwise pay a full stat-per-file traversal on every
+    // cold cache only to discard the result.
+    const usesLocalBackend = (process.env.STORAGE_BACKEND || 'local').toLowerCase() !== 's3';
+    let localUsage = null;
+    try {
+      if (usesLocalBackend) localUsage = await measureLocalStorageUsage();
+    } catch (err) {
+      logger.warn(`Storage measurement failed, falling back to catalogued bytes: ${err.message}`);
+    }
+    // On an S3 backend the originals, renditions, archives and download caches
+    // are all objects in the bucket, and STORAGE_PATH holds only incidental
+    // local files — so the walk would report near-zero and drag the soft-limit
+    // recommendation down with it. Those installs keep the catalogued figure,
+    // which is the approximation they had before #1164, and the response says
+    // which one this is so the UI can label it rather than implying a disk
+    // measurement it never made.
+    const measuredFromDisk = usesLocalBackend && !!localUsage;
+    const totalUsed = measuredFromDisk ? localUsage.total : catalogedBytes;
+
+    const parseBytesValue = (value) => {
+      const numeric = Number(value);
+      if (!Number.isFinite(numeric) || numeric <= 0) {
+        return null;
+      }
+      return Math.floor(numeric);
+    };
+
+    const parseEnvOverride = (bytesVar, gbVar) => {
+      if (process.env[bytesVar]) {
+        return parseBytesValue(process.env[bytesVar]);
+      }
+      if (process.env[gbVar]) {
+        const value = parseBytesValue(process.env[gbVar]);
+        return value ? value * 1024 * 1024 * 1024 : null;
+      }
+      return null;
+    };
+
+    let configuredSoftLimit = null;
+    let capacityOverrideDb = null;
+    let availableOverrideDb = null;
+
+    try {
+      const storageSettings = await db('app_settings')
+        .whereIn('setting_key', [
+          'general_storage_soft_limit_bytes',
+          'general_storage_capacity_override_bytes',
+          'general_storage_available_override_bytes'
+        ])
+        .select('setting_key', 'setting_value');
+
+      storageSettings.forEach((setting) => {
+        let parsedValue = null;
+        if (setting.setting_value) {
+          try {
+            parsedValue = JSON.parse(setting.setting_value);
+          } catch (error) {
+            parsedValue = setting.setting_value;
+          }
+        }
+
+        switch (setting.setting_key) {
+        case 'general_storage_soft_limit_bytes':
+          if (typeof parsedValue === 'number' && !Number.isNaN(parsedValue)) {
+            configuredSoftLimit = parsedValue;
+          }
+          break;
+        case 'general_storage_capacity_override_bytes':
+          if (typeof parsedValue === 'number' && !Number.isNaN(parsedValue)) {
+            capacityOverrideDb = parsedValue;
+          }
+          break;
+        case 'general_storage_available_override_bytes':
+          if (typeof parsedValue === 'number' && !Number.isNaN(parsedValue)) {
+            availableOverrideDb = parsedValue;
+          }
+          break;
+        default:
+          break;
+        }
+      });
+    } catch (error) {
+      logger.error('Storage settings read error:', error.message);
+    }
+
+    const capacityOverrideEnv = parseEnvOverride('STORAGE_CAPACITY_OVERRIDE_BYTES', 'STORAGE_CAPACITY_OVERRIDE_GB');
+    const availableOverrideEnv = parseEnvOverride('STORAGE_AVAILABLE_OVERRIDE_BYTES', 'STORAGE_AVAILABLE_OVERRIDE_GB');
+
+    let capacityOverrideBytes = null;
+    let availableOverrideBytes = null;
+    let overrideSource = null;
+
+    if (capacityOverrideEnv != null || availableOverrideEnv != null) {
+      capacityOverrideBytes = capacityOverrideEnv;
+      availableOverrideBytes = availableOverrideEnv;
+      overrideSource = 'env';
+    } else if (capacityOverrideDb != null || availableOverrideDb != null) {
+      capacityOverrideBytes = capacityOverrideDb;
+      availableOverrideBytes = availableOverrideDb;
+      overrideSource = 'settings';
+    }
+
+    if (capacityOverrideBytes != null) {
+      diskTotal = capacityOverrideBytes;
+      if (availableOverrideBytes == null) {
+        diskAvailable = Math.max(capacityOverrideBytes - totalUsed, 0);
+      } else {
+        diskAvailable = Math.min(Math.max(availableOverrideBytes, 0), capacityOverrideBytes);
+      }
+      diskFree = diskAvailable;
+    } else if (availableOverrideBytes != null) {
+      diskAvailable = Math.max(availableOverrideBytes, 0);
+      diskFree = diskAvailable;
+    }
+
+    let recommendedSoftLimit = null;
+    if (diskTotal && diskAvailable) {
+      const projected = totalUsed + Math.floor(diskAvailable * 0.8);
+      recommendedSoftLimit = Math.min(diskTotal, Math.max(projected, Math.floor(diskTotal * 0.5)));
+    } else if (diskTotal) {
+      recommendedSoftLimit = Math.floor(diskTotal * 0.8);
+    } else if (diskAvailable) {
+      recommendedSoftLimit = Math.max(totalUsed, totalUsed + Math.floor(diskAvailable * 0.8));
+    }
+
+    if (recommendedSoftLimit && totalUsed > 0 && recommendedSoftLimit < totalUsed) {
+      recommendedSoftLimit = totalUsed;
+    }
+
+    const fallbackSoftLimit = recommendedSoftLimit || diskTotal || DEFAULT_SOFT_LIMIT_BYTES;
+    if (!recommendedSoftLimit && fallbackSoftLimit) {
+      recommendedSoftLimit = fallbackSoftLimit;
+    }
+    const effectiveSoftLimit = configuredSoftLimit || fallbackSoftLimit || DEFAULT_SOFT_LIMIT_BYTES;
+
+    const diskMetricsReliable = Boolean(diskTotal);
+
+    res.json({
+      total_used: totalUsed,
+      // What total_used used to be, kept so the UI can show both and the
+      // difference stops being invisible.
+      cataloged_bytes: catalogedBytes,
+      storage_measurement: measuredFromDisk ? 'disk' : (usesLocalBackend ? 'unavailable' : 'catalog'),
+      storage_breakdown: measuredFromDisk ? localUsage.breakdown : null,
+      storage_partial: measuredFromDisk ? localUsage.partial : false,
+      excluded_external_root: measuredFromDisk ? localUsage.excludedExternalRoot : null,
+      archive_storage: archiveStorage,
+      storage_by_event: storageByEvent,
+      storage_limit: effectiveSoftLimit,
+      storage_soft_limit: effectiveSoftLimit,
+      configured_soft_limit: configuredSoftLimit,
+      recommended_soft_limit: recommendedSoftLimit,
+      soft_limit_configured: Boolean(configuredSoftLimit),
+      disk_total: diskTotal,
+      disk_free: diskFree,
+      disk_available: diskAvailable,
+      disk_total_raw: rawDiskTotal,
+      disk_free_raw: rawDiskFree,
+      disk_available_raw: rawDiskAvailable,
+      disk_metrics_reliable: diskMetricsReliable,
+      disk_override_source: overrideSource
+    });
+  } catch (error) {
+    errorResponse(res, error, 500, 'Failed to fetch storage information');
+  }
+});
+
+// Upload favicon endpoint
+router.post('/favicon', adminAuth, requirePermission('settings.edit'), faviconUpload.single('favicon'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No favicon file provided' });
+    }
+
+    // The file is already in the correct location from multer
+    const faviconUrl = `/uploads/favicons/${req.file.filename}`;
+    
+    // Save to database
+    await db('app_settings')
+      .insert({
+        setting_key: 'branding_favicon_url',
+        setting_value: JSON.stringify(faviconUrl),
+        setting_type: 'branding',
+        updated_at: new Date()
+      })
+      .onConflict('setting_key')
+      .merge({
+        setting_value: JSON.stringify(faviconUrl),
+        updated_at: new Date()
+      });
+
+    // Log activity
+    await logActivity('favicon_uploaded', 
+      { faviconUrl }, 
+      null,
+      { type: 'admin', id: req.admin.id, name: req.admin.username }
+    );
+
+    capabilityEvidence(res, 'branding_editing');
+    res.json({ faviconUrl });
+  } catch (error) {
+    errorResponse(res, error, 500, 'Failed to upload favicon');
+  }
+});
+
+// Update rate limit settings
+router.put('/security/rate-limit', adminAuth, requirePermission('settings.security'), [
+  body('rate_limit_enabled').isBoolean().withMessage('Enabled must be a boolean'),
+  body('rate_limit_window_minutes').isInt({ min: 1, max: 60 }).withMessage('Window must be between 1 and 60 minutes'),
+  body('rate_limit_max_requests').isInt({ min: 10, max: 10000 }).withMessage('Max requests must be between 10 and 10000'),
+  body('rate_limit_auth_max_requests').isInt({ min: 1, max: 100 }).withMessage('Auth max requests must be between 1 and 100'),
+  body('rate_limit_skip_authenticated').isBoolean().withMessage('Skip authenticated must be a boolean'),
+  body('rate_limit_public_endpoints_only').isBoolean().withMessage('Public endpoints only must be a boolean')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: safeValidationErrors(errors) });
+    }
+
+    const {
+      rate_limit_enabled,
+      rate_limit_window_minutes,
+      rate_limit_max_requests,
+      rate_limit_auth_max_requests,
+      rate_limit_skip_authenticated,
+      rate_limit_public_endpoints_only
+    } = req.body;
+
+    // Update each setting
+    const settings = [
+      { key: 'rate_limit_enabled', value: rate_limit_enabled },
+      { key: 'rate_limit_window_minutes', value: rate_limit_window_minutes },
+      { key: 'rate_limit_max_requests', value: rate_limit_max_requests },
+      { key: 'rate_limit_auth_max_requests', value: rate_limit_auth_max_requests },
+      { key: 'rate_limit_skip_authenticated', value: rate_limit_skip_authenticated },
+      { key: 'rate_limit_public_endpoints_only', value: rate_limit_public_endpoints_only }
+    ];
+
+    // Upsert, not update: a fresh install has no rate_limit_* rows, and a
+    // plain update matched nothing there — the route answered 200 and
+    // changed nothing (#1337).
+    for (const { key, value } of settings) {
+      await db('app_settings')
+        .insert({
+          setting_key: key,
+          setting_value: JSON.stringify(value),
+          setting_type: 'security',
+          updated_at: new Date()
+        })
+        .onConflict('setting_key')
+        .merge({
+          setting_value: JSON.stringify(value),
+          updated_at: new Date()
+        });
+    }
+
+    // Clear the rate limit settings cache to apply changes immediately
+    clearSettingsCache();
+    // max and skip re-read the settings per request, the window is fixed
+    // per limiter instance: rebuild so a changed window applies now rather
+    // than after a restart (#1337). Counters start fresh.
+    await initializeRateLimiters();
+
+    // Log activity
+    await logActivity('settings_updated', 
+      { 
+        category: 'security',
+        subcategory: 'rate_limit',
+        changes: settings.length
+      },
+      null,
+      { type: 'admin', id: req.admin.id, name: req.admin.username }
+    );
+
+    res.json({ message: 'Rate limit settings updated successfully' });
+  } catch (error) {
+    errorResponse(res, error, 500, 'Failed to update rate limit settings');
+  }
+});
+
+// Get default public site template
+router.get('/public-site/default', adminAuth, requirePermission('settings.view'), async (req, res) => {
+  try {
+    const defaults = await getDefaultPublicSitePayload();
+
+    res.json({
+      enabled: false,
+      html: DEFAULT_PUBLIC_SITE_HTML.trim(),
+      css: '',
+      baseCss: DEFAULT_PUBLIC_SITE_CSS.trim(),
+      branding: defaults.branding,
+      meta: {
+        title: defaults.title,
+      }
+    });
+  } catch (error) {
+    errorResponse(res, error, 500, 'Failed to load defaults');
+  }
+});
+
+// Reset public site template to defaults
+router.post('/public-site/reset', adminAuth, requirePermission('settings.edit'), async (req, res) => {
+  try {
+    const entries = [
+      {
+        key: 'general_public_site_html',
+        value: DEFAULT_PUBLIC_SITE_HTML.trim()
+      },
+      {
+        key: 'general_public_site_custom_css',
+        value: ''
+      }
+    ];
+
+    for (const { key, value } of entries) {
+      await db('app_settings')
+        .insert({
+          setting_key: key,
+          setting_value: JSON.stringify(value),
+          setting_type: 'general',
+          updated_at: new Date()
+        })
+        .onConflict('setting_key')
+        .merge({
+          setting_value: JSON.stringify(value),
+          updated_at: new Date()
+        });
+    }
+
+    clearPublicSiteCache();
+
+    const defaults = await getDefaultPublicSitePayload();
+
+    await logActivity('public_site_reset_to_default',
+      {
+        template_length: DEFAULT_PUBLIC_SITE_HTML.length,
+      },
+      null,
+      { type: 'admin', id: req.admin.id, name: req.admin.username }
+    );
+
+    res.json({
+      message: 'Public site template reset to defaults',
+      html: DEFAULT_PUBLIC_SITE_HTML.trim(),
+      css: '',
+      baseCss: DEFAULT_PUBLIC_SITE_CSS.trim(),
+      branding: defaults.branding
+    });
+  } catch (error) {
+    errorResponse(res, error, 500, 'Failed to reset template');
+  }
+});
+
+module.exports = router;

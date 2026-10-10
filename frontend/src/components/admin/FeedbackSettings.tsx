@@ -1,0 +1,527 @@
+import React from 'react';
+import { MessageSquare, Star, Heart, Bookmark, Shield, Eye, User, Users, Smile, Palette, Keyboard, Tag, ThumbsUp } from 'lucide-react';
+import { Card } from '../common';
+import { useTranslation } from 'react-i18next';
+import { COLOR_LABELS, COLOR_LABEL_SWATCHES, KEYBIND_SCHEMES, type KeybindMode } from '../../services/feedback.service';
+
+interface FeedbackSettingsProps {
+  settings: FeedbackSettings;
+  onChange: (settings: FeedbackSettings) => void;
+  className?: string;
+}
+
+interface FeedbackSettings {
+  feedback_enabled: boolean;
+  allow_ratings: boolean;
+  allow_likes: boolean;
+  allow_comments: boolean;
+  allow_favorites: boolean;
+  allow_reactions: boolean;
+  allow_color_labels: boolean;
+  // Approve / reject per photo (issue 744). Optional: rows and callers that
+  // predate it read as off.
+  allow_decisions?: boolean;
+  keybind_mode?: KeybindMode;
+  require_name_email: boolean;
+  moderate_comments: boolean;
+  show_feedback_to_guests: boolean;
+  identity_mode?: 'simple' | 'guest' | 'shared';
+  // Per-guest caps (#655). null/0 = unlimited.
+  max_favorites_per_guest?: number | null;
+  max_likes_per_guest?: number | null;
+}
+
+export const FeedbackSettings: React.FC<FeedbackSettingsProps> = ({
+  settings,
+  onChange,
+  className = ''
+}) => {
+  const { t } = useTranslation();
+
+  const handleToggle = (field: keyof FeedbackSettings) => {
+    onChange({
+      ...settings,
+      [field]: !settings[field]
+    });
+  };
+
+  return (
+    <Card className={className}>
+      <div className="p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-heading flex items-center gap-2">
+            <MessageSquare className="w-5 h-5" />
+            {t('feedback.settings.title', 'Guest Feedback Settings')}
+          </h2>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={settings.feedback_enabled}
+              onChange={() => handleToggle('feedback_enabled')}
+              className="w-4 h-4 text-accent bg-neutral-100 border-neutral-300 rounded focus:ring-primary-500"
+            />
+            <span className="text-sm font-medium text-body">
+              {t('feedback.settings.enableFeedback', 'Enable feedback')}
+            </span>
+          </label>
+        </div>
+
+        {settings.feedback_enabled && (
+          <>
+            {/* Identity Mode */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium text-body">
+                {t('feedback.settings.identityMode', 'Identity Mode')}
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <label
+                  className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer border transition ${
+                    (settings.identity_mode || 'simple') === 'simple'
+                      ? 'border-accent-dark bg-accent-dark/15'
+                      : 'border-line hover:bg-hover-soft'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="identity_mode"
+                    value="simple"
+                    checked={(settings.identity_mode || 'simple') === 'simple'}
+                    onChange={() => onChange({ ...settings, identity_mode: 'simple' })}
+                    className="mt-0.5 w-4 h-4 text-accent focus:ring-primary-500"
+                  />
+                  <User className="w-5 h-5 mt-0.5 text-soft" />
+                  <div className="flex-1">
+                    <div className="text-sm font-medium text-heading">
+                      {t('feedback.settings.identityModeSimple', 'Simple feedback')}
+                    </div>
+                    <div className="text-xs text-muted">
+                      {t(
+                        'feedback.settings.identityModeSimpleDesc',
+                        'Anonymous, device-based. All visitors on the same device share state.'
+                      )}
+                    </div>
+                  </div>
+                </label>
+
+                <label
+                  className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer border transition ${
+                    settings.identity_mode === 'guest'
+                      ? 'border-accent-dark bg-accent-dark/15'
+                      : 'border-line hover:bg-hover-soft'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="identity_mode"
+                    value="guest"
+                    checked={settings.identity_mode === 'guest'}
+                    onChange={() => onChange({ ...settings, identity_mode: 'guest' })}
+                    className="mt-0.5 w-4 h-4 text-accent focus:ring-primary-500"
+                  />
+                  <Users className="w-5 h-5 mt-0.5 text-soft" />
+                  <div className="flex-1">
+                    <div className="text-sm font-medium text-heading">
+                      {t('feedback.settings.identityModeGuest', 'Per-guest selections')}
+                    </div>
+                    <div className="text-xs text-muted">
+                      {t(
+                        'feedback.settings.identityModeGuestDesc',
+                        'Each visitor enters their name. Enables per-guest tracking and admin insights.'
+                      )}
+                    </div>
+                  </div>
+                </label>
+
+                {/* Shared colour tag (#1197). Deliberately worded around what
+                    it changes and what it does not: it drops the identity from
+                    the COLOUR TAG only, and it is the one mode where a guest
+                    can overwrite someone else's mark — both of which an
+                    operator has to know before picking it. */}
+                <label
+                  className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer border transition ${
+                    settings.identity_mode === 'shared'
+                      ? 'border-accent-dark bg-accent-dark/15'
+                      : 'border-line hover:bg-hover-soft'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="identity_mode"
+                    value="shared"
+                    checked={settings.identity_mode === 'shared'}
+                    onChange={() => onChange({ ...settings, identity_mode: 'shared' })}
+                    className="mt-0.5 w-4 h-4 text-accent focus:ring-primary-500"
+                  />
+                  <Tag className="w-5 h-5 mt-0.5 text-soft" />
+                  <div className="flex-1">
+                    <div className="text-sm font-medium text-heading">
+                      {t('feedback.settings.identityModeShared', 'One shared colour tag')}
+                    </div>
+                    <div className="text-xs text-muted">
+                      {t(
+                        'feedback.settings.identityModeSharedDesc',
+                        'One colour per photo that everyone sees and anyone can change — for agreeing a single verdict. Likes, ratings and comments stay per-visitor.'
+                      )}
+                    </div>
+                  </div>
+                </label>
+              </div>
+
+              {settings.identity_mode === 'shared' && (
+                <p className="text-xs text-amber-600 dark:text-amber-400">
+                  {t(
+                    'feedback.settings.identityModeSharedNote',
+                    'Colour tags in this mode have no author, so the admin view cannot show who set one. Existing per-visitor colour labels are kept but not shown while this mode is on, and come back if you switch away.'
+                  )}
+                </p>
+              )}
+            </div>
+
+            <div className="border-t border-line pt-4" />
+
+            {/* Feedback Types */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-medium text-body">
+                {t('feedback.settings.feedbackTypes', 'Feedback Types')}
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <label className="flex items-center gap-3 p-3 bg-subtle rounded-lg cursor-pointer hover:bg-hover">
+                  <input
+                    type="checkbox"
+                    checked={settings.allow_ratings}
+                    onChange={() => handleToggle('allow_ratings')}
+                    className="w-4 h-4 text-accent bg-neutral-100 border-neutral-300 rounded focus:ring-primary-500"
+                  />
+                  <Star className="w-5 h-5 text-soft" />
+                  <div className="flex-1">
+                    <div className="text-sm font-medium text-heading">
+                      {t('feedback.settings.ratings', 'Star Ratings')}
+                    </div>
+                    <div className="text-xs text-muted">
+                      {t('feedback.settings.ratingsDesc', 'Allow guests to rate photos (1-5 stars)')}
+                    </div>
+                  </div>
+                </label>
+
+                <label className="flex items-center gap-3 p-3 bg-subtle rounded-lg cursor-pointer hover:bg-hover">
+                  <input
+                    type="checkbox"
+                    checked={settings.allow_likes}
+                    onChange={() => handleToggle('allow_likes')}
+                    className="w-4 h-4 text-accent bg-neutral-100 border-neutral-300 rounded focus:ring-primary-500"
+                  />
+                  <Heart className="w-5 h-5 text-soft" />
+                  <div className="flex-1">
+                    <div className="text-sm font-medium text-heading">
+                      {t('feedback.settings.likes', 'Likes')}
+                    </div>
+                    <div className="text-xs text-muted">
+                      {t('feedback.settings.likesDesc', 'Simple like/unlike functionality')}
+                    </div>
+                  </div>
+                </label>
+
+                <label className="flex items-center gap-3 p-3 bg-subtle rounded-lg cursor-pointer hover:bg-hover">
+                  <input
+                    type="checkbox"
+                    checked={settings.allow_comments}
+                    onChange={() => handleToggle('allow_comments')}
+                    className="w-4 h-4 text-accent bg-neutral-100 border-neutral-300 rounded focus:ring-primary-500"
+                  />
+                  <MessageSquare className="w-5 h-5 text-soft" />
+                  <div className="flex-1">
+                    <div className="text-sm font-medium text-heading">
+                      {t('feedback.settings.comments', 'Comments')}
+                    </div>
+                    <div className="text-xs text-muted">
+                      {t('feedback.settings.commentsDesc', 'Text comments on photos')}
+                    </div>
+                  </div>
+                </label>
+
+                <label className="flex items-center gap-3 p-3 bg-subtle rounded-lg cursor-pointer hover:bg-hover">
+                  <input
+                    type="checkbox"
+                    checked={settings.allow_favorites}
+                    onChange={() => handleToggle('allow_favorites')}
+                    className="w-4 h-4 text-accent bg-neutral-100 border-neutral-300 rounded focus:ring-primary-500"
+                  />
+                  <Bookmark className="w-5 h-5 text-soft" />
+                  <div className="flex-1">
+                    <div className="text-sm font-medium text-heading">
+                      {t('feedback.settings.favorites', 'Favorites')}
+                    </div>
+                    <div className="text-xs text-muted">
+                      {t('feedback.settings.favoritesDesc', 'Mark photos as favorites')}
+                    </div>
+                  </div>
+                </label>
+
+                <label className="flex items-center gap-3 p-3 bg-subtle rounded-lg cursor-pointer hover:bg-hover">
+                  <input
+                    type="checkbox"
+                    checked={settings.allow_reactions}
+                    onChange={() => handleToggle('allow_reactions')}
+                    className="w-4 h-4 text-accent bg-neutral-100 border-neutral-300 rounded focus:ring-primary-500"
+                  />
+                  <Smile className="w-5 h-5 text-soft" />
+                  <div className="flex-1">
+                    <div className="text-sm font-medium text-heading">
+                      {t('feedback.settings.reactions', 'Emoji Reactions')}
+                    </div>
+                    <div className="text-xs text-muted">
+                      {t('feedback.settings.reactionsDesc', 'One emoji per guest per photo (❤️ 😂 😍 👏 🎉)')}
+                    </div>
+                  </div>
+                </label>
+
+                {/* Color labels (#1044) */}
+                <label className="flex items-center gap-3 p-3 bg-subtle rounded-lg cursor-pointer hover:bg-hover">
+                  <input
+                    type="checkbox"
+                    checked={settings.allow_color_labels}
+                    onChange={() => handleToggle('allow_color_labels')}
+                    className="w-4 h-4 text-accent bg-neutral-100 border-neutral-300 rounded focus:ring-primary-500"
+                  />
+                  <Palette className="w-5 h-5 text-soft" />
+                  <div className="flex-1">
+                    <div className="text-sm font-medium text-heading flex items-center gap-2">
+                      {t('feedback.settings.colorLabels', 'Color Labels')}
+                      <span className="flex items-center gap-1" aria-hidden="true">
+                        {COLOR_LABELS.map((color) => (
+                          <span
+                            key={color}
+                            className="w-3 h-3 rounded-full border"
+                            style={{
+                              backgroundColor: COLOR_LABEL_SWATCHES[color].fill,
+                              borderColor: COLOR_LABEL_SWATCHES[color].ring,
+                            }}
+                          />
+                        ))}
+                      </span>
+                    </div>
+                    <div className="text-xs text-muted">
+                      {t('feedback.settings.colorLabelsDesc', "One color per guest per photo, using Lightroom's color set so selections carry over via XMP")}
+                    </div>
+                  </div>
+                </label>
+
+                {/* Approve / reject per photo (issue 744) */}
+                <label className="flex items-center gap-3 p-3 bg-subtle rounded-lg cursor-pointer hover:bg-hover">
+                  <input
+                    type="checkbox"
+                    checked={!!settings.allow_decisions}
+                    onChange={() => handleToggle('allow_decisions')}
+                    className="w-4 h-4 text-accent bg-neutral-100 border-neutral-300 rounded focus:ring-primary-500"
+                  />
+                  <ThumbsUp className="w-5 h-5 text-soft" />
+                  <div className="flex-1">
+                    <div className="text-sm font-medium text-heading">
+                      {t('feedback.settings.decisions', 'Approve / reject per photo')}
+                    </div>
+                    <div className="text-xs text-muted">
+                      {t('feedback.settings.decisionsDesc', 'Guests approve or reject each photo, optionally saying why. You filter and export by their decision')}
+                    </div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            {/* Keyboard scheme for the lightbox (#1044). Only meaningful once
+                color labels are on — stars alone already use 1-5. */}
+            {!!settings.allow_color_labels && (
+              <div className="space-y-3">
+                <h3 className="text-sm font-medium text-body flex items-center gap-2">
+                  <Keyboard className="w-4 h-4" />
+                  {t('feedback.settings.keybindMode', 'Keyboard shortcuts')}
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {(['colors', 'lightroom'] as KeybindMode[]).map((mode) => (
+                    <label
+                      key={mode}
+                      className={`flex gap-3 p-3 rounded-lg cursor-pointer border ${
+                        (settings.keybind_mode || 'colors') === mode
+                          ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
+                          : 'border-line bg-subtle hover:bg-hover'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="keybind_mode"
+                        checked={(settings.keybind_mode || 'colors') === mode}
+                        onChange={() => onChange({ ...settings, keybind_mode: mode })}
+                        className="mt-1 w-4 h-4 text-accent border-neutral-300 focus:ring-primary-500"
+                      />
+                      <div className="flex-1">
+                        <div className="text-sm font-medium text-heading">
+                          {mode === 'colors'
+                            ? t('feedback.settings.keybindColors', 'Colors only (simplest)')
+                            : t('feedback.settings.keybindLightroom', 'Lightroom defaults')}
+                        </div>
+                        <div className="text-xs text-muted">
+                          {mode === 'colors'
+                            ? t('feedback.settings.keybindColorsDesc', '1 = green (1st choice), 2 = yellow (2nd choice), 3 = red (rejected)')
+                            : t('feedback.settings.keybindLightroomDesc', '1-5 set the star rating, 6-9 set red / yellow / green / blue')}
+                        </div>
+                        {/* The actual keymap, read from the shared scheme so
+                            this preview can never claim a binding the
+                            lightbox doesn't have. */}
+                        <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                          {Object.entries(KEYBIND_SCHEMES[mode].colors).map(([key, color]) => (
+                            <span
+                              key={key}
+                              className="flex items-center gap-1 text-[11px] text-body"
+                            >
+                              <kbd className="px-1.5 py-0.5 rounded border border-line-strong bg-shell">
+                                {key}
+                              </kbd>
+                              <span
+                                className="w-3 h-3 rounded-full border"
+                                style={{
+                                  backgroundColor: COLOR_LABEL_SWATCHES[color].fill,
+                                  borderColor: COLOR_LABEL_SWATCHES[color].ring,
+                                }}
+                              />
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Per-guest caps (#655). Two numeric inputs; 0 / empty = unlimited.
+                Only renders when the matching toggle is on — the cap is
+                meaningless if the type itself is disabled. */}
+            {(settings.allow_favorites || settings.allow_likes) && (
+              <div className="space-y-3">
+                <h3 className="text-sm font-medium text-body">
+                  {t('feedback.settings.perGuestLimits', 'Per-guest limits')}
+                </h3>
+                <p className="text-xs text-muted">
+                  {t(
+                    'feedback.settings.perGuestLimitsDesc',
+                    'Cap how many photos each guest can favorite or like — useful for "pick your top N for the album" workflows. Leave at 0 for no limit. Lowering a cap below an existing guest\'s count keeps their existing rows; only new adds are blocked until they remove some.',
+                  )}
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {settings.allow_favorites && (
+                    <div className="p-3 bg-subtle rounded-lg">
+                      <label className="block text-sm font-medium text-heading mb-1">
+                        {t('feedback.settings.maxFavoritesPerGuest', 'Max favorites per guest')}
+                      </label>
+                      <input
+                        type="number"
+                        min={0}
+                        max={10000}
+                        step={1}
+                        value={settings.max_favorites_per_guest ?? 0}
+                        onChange={(e) => onChange({
+                          ...settings,
+                          max_favorites_per_guest: Math.max(0, parseInt(e.target.value, 10) || 0),
+                        })}
+                        className="w-32 px-2 py-1 text-sm border border-line-strong rounded bg-shell text-heading"
+                      />
+                      <p className="mt-1 text-xs text-muted">
+                        {t('feedback.settings.maxFavoritesPerGuestHint', '0 = unlimited')}
+                      </p>
+                    </div>
+                  )}
+                  {settings.allow_likes && (
+                    <div className="p-3 bg-subtle rounded-lg">
+                      <label className="block text-sm font-medium text-heading mb-1">
+                        {t('feedback.settings.maxLikesPerGuest', 'Max likes per guest')}
+                      </label>
+                      <input
+                        type="number"
+                        min={0}
+                        max={10000}
+                        step={1}
+                        value={settings.max_likes_per_guest ?? 0}
+                        onChange={(e) => onChange({
+                          ...settings,
+                          max_likes_per_guest: Math.max(0, parseInt(e.target.value, 10) || 0),
+                        })}
+                        className="w-32 px-2 py-1 text-sm border border-line-strong rounded bg-shell text-heading"
+                      />
+                      <p className="mt-1 text-xs text-muted">
+                        {t('feedback.settings.maxLikesPerGuestHint', '0 = unlimited')}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div className="border-t border-line pt-4" />
+
+            {/* Privacy & Moderation */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-medium text-body">
+                {t('feedback.settings.privacyModeration', 'Privacy & Moderation')}
+              </h3>
+              <div className="space-y-3">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={settings.require_name_email}
+                    onChange={() => handleToggle('require_name_email')}
+                    className="w-4 h-4 text-accent bg-neutral-100 border-neutral-300 rounded focus:ring-primary-500"
+                  />
+                  <div className="flex-1">
+                    <div className="text-sm font-medium text-heading">
+                      {t('feedback.settings.requireInfo', 'Require Name & Email')}
+                    </div>
+                    <div className="text-xs text-muted">
+                      {t('feedback.settings.requireInfoDesc', 'Guests must provide name and email to leave feedback')}
+                    </div>
+                  </div>
+                </label>
+
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={settings.moderate_comments}
+                    onChange={() => handleToggle('moderate_comments')}
+                    disabled={!settings.allow_comments}
+                    className="w-4 h-4 text-accent bg-neutral-100 border-neutral-300 rounded focus:ring-primary-500 disabled:opacity-50"
+                  />
+                  <Shield className="w-5 h-5 text-soft" />
+                  <div className="flex-1">
+                    <div className="text-sm font-medium text-heading">
+                      {t('feedback.settings.moderateComments', 'Moderate Comments')}
+                    </div>
+                    <div className="text-xs text-muted">
+                      {t('feedback.settings.moderateCommentsDesc', 'Comments require approval before being visible')}
+                    </div>
+                  </div>
+                </label>
+
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={settings.show_feedback_to_guests}
+                    onChange={() => handleToggle('show_feedback_to_guests')}
+                    className="w-4 h-4 text-accent bg-neutral-100 border-neutral-300 rounded focus:ring-primary-500"
+                  />
+                  <Eye className="w-5 h-5 text-soft" />
+                  <div className="flex-1">
+                    <div className="text-sm font-medium text-heading">
+                      {t('feedback.settings.showToGuests', 'Show Feedback to Guests')}
+                    </div>
+                    <div className="text-xs text-muted">
+                      {t('feedback.settings.showToGuestsDesc', 'Other guests can see ratings, likes, and approved comments')}
+                    </div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+          </>
+        )}
+      </div>
+    </Card>
+  );
+};
