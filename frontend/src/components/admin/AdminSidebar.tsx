@@ -780,10 +780,10 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose, col
               target="_blank"
               rel="noopener noreferrer"
               className="mx-4 mb-3 flex items-center gap-2 text-xs text-muted hover:text-body transition-colors"
-              title={t('admin.viewOnGithub', 'View PicPeak on GitHub')}
+              title={t('admin.viewOnGithub', 'View FotoDesk on GitHub')}
             >
               <Github className="w-3.5 h-3.5" />
-              <span>{t('admin.viewOnGithub', 'View PicPeak on GitHub')}</span>
+              <span>{t('admin.viewOnGithub', 'View FotoDesk on GitHub')}</span>
             </a>
           </div>
         )}

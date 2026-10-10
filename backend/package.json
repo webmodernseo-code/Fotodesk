@@ -1,7 +1,7 @@
 {
-  "name": "picpeak-backend",
+  "name": "fotodesk-backend",
   "version": "3.167.5-beta.0",
-  "description": "Backend for PicPeak event photo sharing platform",
+  "description": "Backend for FotoDesk event photo sharing and client management platform",
   "main": "server.js",
   "engines": {
     "node": ">=22.12.0"

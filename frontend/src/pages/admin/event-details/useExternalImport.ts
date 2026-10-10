@@ -78,7 +78,7 @@ export function useExternalImport(event: Event, { enabled = true }: { enabled?: 
       case 'folder_missing':
         return t('events.externalSource.failedMissing', 'The last import failed: the folder can no longer be found.');
       case 'permission_denied':
-        return t('events.externalSource.failedPermission', 'The last import failed: PicPeak is not allowed to read the folder.');
+        return t('events.externalSource.failedPermission', 'The last import failed: FotoDesk is not allowed to read the folder.');
       default:
         return t('events.externalSource.failedGeneric', 'The last import failed.');
     }

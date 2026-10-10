@@ -12,11 +12,11 @@
     "error": "The source assignment could not be changed. Check that the folder exists and does not overlap another source."
   },
   "productUsagePrompt": {
-    "title": "Help shape PicPeak?",
-    "intro": "Help shape PicPeak with optional product usage reports. Review the pseudonymous data, who can see it and where it is sent before deciding."
+    "title": "Help shape FotoDesk?",
+    "intro": "Help shape FotoDesk with optional product usage reports. Review the pseudonymous data, who can see it and where it is sent before deciding."
   },
   "productUsage": {
-    "fields": "usage.v6 reports contain an installation fingerprint, PicPeak version, UTC report date and generation time, schema/signing metadata, controlled gallery layouts, 87 fixed capability signals (64 configured/used pairs and 23 configuration-only booleans), and two installation totals: stored galleries and photo records excluding videos. Drafts and archived galleries and their retained photo records are included. The catalog below defines every field. There are no action counts or visitor observations.",
+    "fields": "usage.v6 reports contain an installation fingerprint, FotoDesk version, UTC report date and generation time, schema/signing metadata, controlled gallery layouts, 87 fixed capability signals (64 configured/used pairs and 23 configuration-only booleans), and two installation totals: stored galleries and photo records excluding videos. Drafts and archived galleries and their retained photo records are included. The catalog below defines every field. There are no action counts or visitor observations.",
     "catalogTitle": "Full catalog: 87 capability signals and 2 inventory totals (usage.v6)",
     "catalogExplanation": "Configured describes current technical availability or configuration. Built-in means available, not used. Used is one installation-wide yes/no bit since consent to the reporting schema; accepted jobs mean initiated, not necessarily completed. Configuration-only capabilities omit used. Inventory contains only current gallery/photo record totals, with no per-gallery breakdown. No actor, entity identifier, action time or frequency is stored in usage markers.",
     "catalogSearch": "Search capability name or key",
@@ -287,7 +287,7 @@
         "used": "A documented successful authenticated admin capability operation was observed since consent to this schema. No actor, operation history, parameters or counts."
       },
       "portable_backup": {
-        "name": "Portable PicPeak export/import",
+        "name": "Portable FotoDesk export/import",
         "configured": "Built-in capability is available; this is not evidence of use.",
         "used": "A documented successful authenticated admin capability operation was observed since consent to this schema. No actor, operation history, parameters or counts."
       },
@@ -481,10 +481,10 @@
       }
     },
     "auditTitle": "Export and deletion receipts",
-    "auditDescription": "Download your private audit receipts. PicPeak keeps only the latest export receipt during participation and the latest deletion confirmation. These contain no installation hash, key or report/feedback content. Opt-out removes the local export receipt; the identity-free deletion confirmation remains. The collector does not keep an export/access history.",
+    "auditDescription": "Download your private audit receipts. FotoDesk keeps only the latest export receipt during participation and the latest deletion confirmation. These contain no installation hash, key or report/feedback content. Opt-out removes the local export receipt; the identity-free deletion confirmation remains. The collector does not keep an export/access history.",
     "auditDownload": "Download privacy receipts",
     "title": "Product usage & feedback",
-    "noticeTitle": "Help shape PicPeak",
+    "noticeTitle": "Help shape FotoDesk",
     "notice": "Optional product usage reports show which features matter to the community. Reporting is off until you choose to participate.",
     "ignore": "Ignore",
     "ignoreHint": "If you ignore this, the notice won't appear again — you can still join from Settings → Product usage.",
@@ -492,7 +492,7 @@
     "cancel": "Cancel",
     "loading": "Loading participation settings…",
     "failed": "The operation could not be completed. Check the status and try again.",
-    "purpose": "Help prioritize PicPeak features, fixes, and maintenance using coarse information about participating installations.",
+    "purpose": "Help prioritize FotoDesk features, fixes, and maintenance using coarse information about participating installations.",
     "consentTitle": "Choose whether to share product usage",
     "sectionFields": "What a report contains",
     "sectionExcluded": "What is never included",
@@ -501,11 +501,11 @@
     "sectionDeletion": "Leaving and deleting",
     "sectionFeedback": "Feedback is separate",
     "excluded": "No visitor activity, clickstreams, per-gallery or per-photo breakdowns, names, emails, domains, filenames, image contents, biometric results, financial values or configuration secrets are included in automatic reports.",
-    "transport": "Your PicPeak backend keeps the signing key and sends signed usage reports to {{collector}} once per UTC day during admin use. Preview reports and download each unique accepted report exactly as first received; transport retries are deduplicated. Rejected attempts and separately submitted feedback are not part of this report export.",
+    "transport": "Your FotoDesk backend keeps the signing key and sends signed usage reports to {{collector}} once per UTC day during admin use. Preview reports and download each unique accepted report exactly as first received; transport retries are deduplicated. Rejected attempts and separately submitted feedback are not part of this report export.",
     "sectionOneWay": "Sending only — no return channel",
-    "oneWay": "PicPeak only sends. It never fetches anything from the collector, never asks it for instructions, and exposes no endpoint the collector could call — there is no scheduled job and no inbound route on this path. From a reply it reads only the acknowledgement for the packet it just sent, and checks every field of that acknowledgement against the packet before accepting it; anything else is discarded. A data export you request yourself is handed to you as a file and is never interpreted or executed. So this channel cannot deliver code, configuration or content into your installation — not even from a collector that has been taken over.",
+    "oneWay": "FotoDesk only sends. It never fetches anything from the collector, never asks it for instructions, and exposes no endpoint the collector could call — there is no scheduled job and no inbound route on this path. From a reply it reads only the acknowledgement for the packet it just sent, and checks every field of that acknowledgement against the packet before accepting it; anything else is discarded. A data export you request yourself is handed to you as a file and is never interpreted or executed. So this channel cannot deliver code, configuration or content into your installation — not even from a collector that has been taken over.",
     "visibility": "Participating installations can inspect the shared dataset of latest feature combinations and inventory totals, including groups of one, and shared aggregate history. Maintainers can inspect and export all retained original reports and private feedback. This does not authorize publication of private feedback. The schema and source are public. Your fingerprint and data are pseudonymous, not anonymous. Keep your lookup hash private: it grants read-only access to your own reports and the participant dataset.",
-    "deletion": "Disabling immediately stops collection and requests deletion of reports, aggregate contributions, feedback, published items, votes and sessions. During an outage, only credentials needed to finish deletion remain and the UI shows deletion pending. After confirmation, the local hash and key are erased; rejoining creates a new identity. The collector retains a one-way revocation digest and short-lived identity-free abuse counters. PicPeak keeps a downloadable local deletion receipt without the old hash, key or payloads.",
+    "deletion": "Disabling immediately stops collection and requests deletion of reports, aggregate contributions, feedback, published items, votes and sessions. During an outage, only credentials needed to finish deletion remain and the UI shows deletion pending. After confirmation, the local hash and key are erased; rejoining creates a new identity. The collector retains a one-way revocation digest and short-lived identity-free abuse counters. FotoDesk keeps a downloadable local deletion receipt without the old hash, key or payloads.",
     "feedbackDisclosure": "Feedback is separate from automatic reports and is sent only when you submit it. Each item is anonymous unless you include a name, and private to maintainers unless you explicitly permit publication. Public items require maintainer review. Marketing use of a testimonial requires separate permission.",
     "consentCheck": "I have read this disclosure and explicitly agree to participate.",
     "enable": "Enable product usage",
@@ -535,7 +535,7 @@
     "saveName": "Remember this name locally",
     "saved": "Preference saved. Future items still default to anonymous.",
     "allowPublic": "I allow this text and included name to be published on the usage portal after review.",
-    "allowMarketing": "I also allow PicPeak to use this testimonial and included name for homepage marketing.",
+    "allowMarketing": "I also allow FotoDesk to use this testimonial and included name for homepage marketing.",
     "sendFeedback": "Submit feedback",
     "feedbackSent": "Feedback received. Publication requires your permission and maintainer review.",
     "states": {
@@ -547,8 +547,8 @@
     },
     "stateDetails": {
       "disabled": "No product usage is collected or sent. You can review the details before deciding.",
-      "activation_pending": "Consent is saved. Registration will be retried when you use PicPeak or choose retry.",
-      "active": "Only the disclosed feature signals are collected. Daily reports run when an admin uses PicPeak.",
+      "activation_pending": "Consent is saved. Registration will be retried when you use FotoDesk or choose retry.",
+      "active": "Only the disclosed feature signals are collected. Daily reports run when an admin uses FotoDesk.",
       "deletion_pending": "Collection and reporting are stopped. The signing credentials remain only to finish authenticated deletion. Retry when the collector is reachable.",
       "identity_conflict": "This may be a restored or cloned installation, or its report sequence no longer matches the collector. Reporting is stopped. Disable and delete the old participation before joining with a new identity; this also deletes data shared by another copy of the same identity."
     },
@@ -880,7 +880,7 @@
     "uploading": "Uploading...",
     "transferring": "Transferring",
     "processing": "Processing photos...",
-    "processingHint": "Files are uploaded. PicPeak is now generating thumbnails and reading metadata. You can leave this page — work continues in the background.",
+    "processingHint": "Files are uploaded. FotoDesk is now generating thumbnails and reading metadata. You can leave this page — work continues in the background.",
     "processingProgress": "{{complete}} of {{total}} done",
     "processingFailed_one": "{{count}} photo failed to process",
     "processingFailed_other": "{{count}} photos failed to process",
@@ -1133,7 +1133,7 @@
     "codeIssued": "Upload code issued",
     "codeRevoked": "Upload code withdrawn",
     "codeHint": "Optional: a short code you can read out over the phone. The full link above always works.",
-    "unscannedNote": "These files are stored exactly as received and are never opened or scanned by PicPeak. Check them before you use or pass them on.",
+    "unscannedNote": "These files are stored exactly as received and are never opened or scanned by FotoDesk. Check them before you use or pass them on.",
     "deleteRequestConfirmTitle": "Delete file request?",
     "deleteRequestConfirmBody": "This removes the upload link and permanently deletes every file the client sent.",
     "tab": {
@@ -1644,7 +1644,7 @@
     "categories": "Categories",
     "eventInformation": "Event Information",
     "sourceMode": "Source Mode",
-    "sourceModeManaged": "Managed (upload to PicPeak)",
+    "sourceModeManaged": "Managed (upload to FotoDesk)",
     "sourceModeReference": "Reference external folder",
     "sourceModeHelp": "Use managed mode for direct uploads or point to a mounted /external-media folder when using local storage.",
     "externalFolder": "External Folder",
@@ -2077,7 +2077,7 @@
       "watching": "Watching for new files",
       "retry": "Try again",
       "failedMissing": "The last import failed: the folder can no longer be found.",
-      "failedPermission": "The last import failed: PicPeak is not allowed to read the folder.",
+      "failedPermission": "The last import failed: FotoDesk is not allowed to read the folder.",
       "failedGeneric": "The last import failed.",
       "applyStructure": "Apply folder structure",
       "applyStructureHint": "Mirror the subfolders onto photos imported before folder structure was on",
@@ -2160,8 +2160,8 @@
       "source": "Photo source",
       "sourceImportHelp": "Imports new photos from this folder now. It runs in the background; they appear on the Photos tab.",
       "sourceImportSaveFirst": "Save the new folder first, then import it here.",
-      "sourceManagedHelp": "Photos are uploaded on the Photos tab and stored by PicPeak.",
-      "sourceReferenceHelp": "Photos stay in your folder; PicPeak links to them.",
+      "sourceManagedHelp": "Photos are uploaded on the Photos tab and stored by FotoDesk.",
+      "sourceReferenceHelp": "Photos stay in your folder; FotoDesk links to them.",
       "summary": {
         "clientAccounts_one": "{{count}} client account",
         "clientAccounts_other": "{{count}} client accounts",
@@ -2188,7 +2188,7 @@
         "reminderGlobal": "Global schedule",
         "reminderOff": "Off for this gallery",
         "reminderOn": "goes out {{date}}",
-        "uploaded": "Uploaded to PicPeak",
+        "uploaded": "Uploaded to FotoDesk",
         "uploadsOff": "Uploads off",
         "uploadsOn": "Uploads on",
         "watching": "watching",
@@ -2503,7 +2503,7 @@
     },
     "updateNotifications": {
       "title": "Update Notifications",
-      "description": "Receive email notifications when new versions of PicPeak are available.",
+      "description": "Receive email notifications when new versions of FotoDesk are available.",
       "enableEmails": "Enable email notifications",
       "enableEmailsDesc": "Send email to admins when a new version is available",
       "recipients": "Email Recipients",
@@ -2701,7 +2701,7 @@
     "analytics": {
       "title": "Analytics",
       "providerHeading": "Analytics provider",
-      "providerDescription": "Choose Umami or Rybbit for public gallery analytics. PicPeak forwards data only; arbitrary custom scripts are no longer supported.",
+      "providerDescription": "Choose Umami or Rybbit for public gallery analytics. FotoDesk forwards data only; arbitrary custom scripts are no longer supported.",
       "providerLabel": "Provider",
       "provider": {
         "none": "None",
@@ -2709,12 +2709,12 @@
         "rybbit": "Rybbit",
         "custom": "Custom (paste your own script)"
       },
-      "providerNoneInfo": "No external events forwarded. The admin dashboard still shows summary cards and the daily chart from PicPeak's own access_logs; device breakdown uses a coarse user-agent heuristic.",
+      "providerNoneInfo": "No external events forwarded. The admin dashboard still shows summary cards and the daily chart from FotoDesk's own access_logs; device breakdown uses a coarse user-agent heuristic.",
       "proxiedNotice": "Data-only analytics forwarding",
       "customDisabled": "Custom scripts disabled",
       "customDisabledHelp": "Your legacy custom snippet is disabled and is not sent to visitors. Choose Umami, Rybbit or None, then save to clear the old snippet.",
-      "proxiedNoticeText": "PicPeak forwards sanitized page views and gallery events without loading third-party code. The collector receives visitor IP and user agent, but no query strings, page titles, referrers, tokens or account identifiers. Production collectors must use HTTPS.",
-      "customOnlyCspWarningText": "PicPeak ships with a strict CSP (`script-src 'self'; connect-src 'self'`). Unlike the Umami and Rybbit options above, a pasted snippet is not proxied — add your tracker's domain to BOTH `script-src` (to load the script) and `connect-src` (for the events it sends) in your reverse-proxy or nginx CSP config, otherwise the browser silently blocks it.",
+      "proxiedNoticeText": "FotoDesk forwards sanitized page views and gallery events without loading third-party code. The collector receives visitor IP and user agent, but no query strings, page titles, referrers, tokens or account identifiers. Production collectors must use HTTPS.",
+      "customOnlyCspWarningText": "FotoDesk ships with a strict CSP (`script-src 'self'; connect-src 'self'`). Unlike the Umami and Rybbit options above, a pasted snippet is not proxied — add your tracker's domain to BOTH `script-src` (to load the script) and `connect-src` (for the events it sends) in your reverse-proxy or nginx CSP config, otherwise the browser silently blocks it.",
       "rybbitUrl": "Rybbit URL",
       "rybbitUrlHelp": "Your Rybbit instance URL — `https://app.rybbit.io` for the SaaS, or `https://rybbit.yourdomain.com` for self-hosted.",
       "rybbitWebsiteId": "Site ID",
@@ -2792,7 +2792,7 @@
     },
     "webhooks": {
       "title": "Webhooks",
-      "subtitle": "POST event notifications to your URL the moment something happens — gallery published, photo uploaded, event archived, etc. Signed with HMAC-SHA256 in the X-PicPeak-Signature header.",
+      "subtitle": "POST event notifications to your URL the moment something happens — gallery published, photo uploaded, event archived, etc. Signed with HMAC-SHA256 in the X-FotoDesk-Signature header.",
       "piiNotice": "event.* payloads include customer contact info (name, email, phone) and the gallery share token if you have stored them. Only point webhooks at receivers you trust — they have everything needed to message the customer or open the gallery.",
       "copyNow": "Copy this signing secret now — it will not be shown again.",
       "name": "Name",
@@ -2804,7 +2804,7 @@
       "existing": "Existing webhooks",
       "empty": "No webhooks yet. Create one above to start receiving event notifications.",
       "namePlaceholder": "e.g. n8n WhatsApp",
-      "urlPlaceholder": "https://n8n.example.com/webhook/picpeak",
+      "urlPlaceholder": "https://n8n.example.com/webhook/fotodesk",
       "showAdvanced": "+ Advanced (filter, template)",
       "hideAdvanced": "− Hide advanced (filter, template)",
       "filterHelp": "Dot-path → expected value. All keys must match (AND). Use an array for \"any of\".",
@@ -2917,8 +2917,8 @@
       },
       "galleries": {
         "title": "Galleries",
-        "description": "The core PicPeak surface. Always available.",
-        "locked": "Galleries are the foundation of PicPeak and can't be turned off."
+        "description": "The core FotoDesk surface. Always available.",
+        "locked": "Galleries are the foundation of FotoDesk and can't be turned off."
       },
       "incomingMail": {
         "title": "Incoming mail",
@@ -3202,14 +3202,14 @@
       "saveError": "Failed to save SSO settings",
       "roleMapping": {
         "title": "Role mapping",
-        "intro": "Assign PicPeak roles from a role or group claim in the ID token. Roles are re-evaluated on every SSO login — the IdP becomes the source of truth.",
+        "intro": "Assign FotoDesk roles from a role or group claim in the ID token. Roles are re-evaluated on every SSO login — the IdP becomes the source of truth.",
         "enabled": "Enable role mapping",
         "enabledHint": "Off: existing admins keep their role and new users get the default role above.",
         "claim": "Roles claim (dot-path)",
         "claimHint": "Keycloak: realm_access.roles · Authentik: groups · Entra ID: roles or groups",
-        "mappings": "Mappings (IdP value → PicPeak role)",
+        "mappings": "Mappings (IdP value → FotoDesk role)",
         "noMappings": "No mappings yet — without one, no login gets a role from the IdP.",
-        "idpValuePlaceholder": "IdP role or group, e.g. picpeak-admins",
+        "idpValuePlaceholder": "IdP role or group, e.g. fotodesk-admins",
         "addMapping": "Add mapping",
         "requireRole": "Require a mapped role to sign in",
         "requireRoleHint": "Refuse SSO logins whose token maps to no role — only members of the mapped IdP groups get in. The last active Super Admin is never demoted by mapping."
@@ -3220,7 +3220,7 @@
         "disableLocalLoginHint": "The login page shows only the SSO button and the API refuses password logins. Only possible while SSO is enabled; turning SSO off restores password login automatically.",
         "breakGlassHint": "Locked out because the IdP is down or misconfigured? Set the environment variable OIDC_BREAK_GLASS=true on the backend and restart — password login comes back immediately.",
         "logoutFromIdp": "Also sign out of the identity provider",
-        "logoutFromIdpHint": "Logging out of PicPeak also ends the IdP session (RP-initiated logout). Only applies to sessions that signed in via SSO; without this, logging out of PicPeak leaves the IdP session alive and the next SSO click signs straight back in.",
+        "logoutFromIdpHint": "Logging out of FotoDesk also ends the IdP session (RP-initiated logout). Only applies to sessions that signed in via SSO; without this, logging out of FotoDesk leaves the IdP session alive and the next SSO click signs straight back in.",
         "postLogoutRedirectUri": "Post-logout redirect URI (register this on your IdP client, e.g. Keycloak \"Valid post logout redirect URIs\")"
       }
     },
@@ -3540,7 +3540,7 @@
       "uploadsIntro": "Applies to file requests and to files you attach to a transfer. It does not change what may be uploaded to a gallery.",
       "acceptAll": "Accept all file types",
       "acceptAllHint": "Any file a client picks is accepted. The size limit, file count and link expiry still apply.",
-      "acceptAllWarning": "Uploaded files are stored and delivered as opaque downloads. PicPeak never opens, renders or scans them, and they are never served as web content — but it also cannot tell you whether one is safe. Check anything you open or pass on.",
+      "acceptAllWarning": "Uploaded files are stored and delivered as opaque downloads. FotoDesk never opens, renders or scans them, and they are never served as web content — but it also cannot tell you whether one is safe. Check anything you open or pass on.",
       "allowedTypes": "Allowed file types",
       "addType": "Add type",
       "allowedTypesHint": "A file is accepted when its type matches and its extension is one of the listed ones. Leave the extensions empty to match on the type alone.",
@@ -3556,7 +3556,7 @@
     "title": "Analytics Dashboard",
     "subtitle": "Track gallery performance and visitor engagement",
     "detailedSubtitle": "Detailed analytics powered by Umami",
-    "embedUnavailable": "External dashboards require an HTTPS host outside PicPeak's cookie scope and a browser with credentialless iframe support. Built-in statistics remain available.",
+    "embedUnavailable": "External dashboards require an HTTPS host outside FotoDesk's cookie scope and a browser with credentialless iframe support. Built-in statistics remain available.",
     "embedCspHint": "Embedding additionally requires the dashboard's origin in the frame-src directive of the reverse proxy's Content-Security-Policy; without it the frame stays blank.",
     "openDashboard": "Open dashboard in new tab",
     "loadingAnalytics": "Loading analytics...",
@@ -3762,8 +3762,8 @@
     "pdfFontSavedToast": "PDF font saved.",
     "heroPlaceholderText": "Your event's hero photo will appear here",
     "whiteLabel": "White Label",
-    "hidePoweredBy": "Hide \"Powered by PicPeak\" branding",
-    "hidePoweredByHelp": "Remove the PicPeak attribution from gallery footers for a fully white-labeled experience",
+    "hidePoweredBy": "Hide \"Powered by FotoDesk\" branding",
+    "hidePoweredByHelp": "Remove the FotoDesk attribution from gallery footers for a fully white-labeled experience",
     "logoCustomization": "Logo Customization",
     "changeLogo": "Change Logo",
     "logoSizeSmall": "Small (32px)",
@@ -4075,12 +4075,12 @@
       "channelBeta": "Beta",
       "beta": "BETA",
       "viewReleaseNotes": "View Release Notes",
-      "viewOnGithub": "View PicPeak on GitHub",
+      "viewOnGithub": "View FotoDesk on GitHub",
       "updateAvailableShort": "v{{version}} available",
       "upToDate": "You're up to date",
       "updateNow": "Update Now",
       "updateDialog": {
-        "title": "Update PicPeak",
+        "title": "Update FotoDesk",
         "detectedEnv": "Detected Environment",
         "beforeUpdating": "Before updating:",
         "updateCommands": "Update Commands:",
@@ -4109,35 +4109,35 @@
       "dismissUntilNext": "Dismiss until next version",
       "selfUpdate": {
         "title": "Update from here",
-        "description": "PicPeak backs up its database, then installs the latest version of its release channel. The site is unavailable for a minute or two while it restarts.",
+        "description": "FotoDesk backs up its database, then installs the latest version of its release channel. The site is unavailable for a minute or two while it restarts.",
         "password": "Confirm with your password",
         "submit": "Update now",
         "submitting": "Starting…",
-        "onlySuperAdmin": "A super admin can update PicPeak from here.",
+        "onlySuperAdmin": "A super admin can update FotoDesk from here.",
         "noAgent": "In-app updates are enabled, but the updater is not installed or not reachable. Use the commands below, or set it up as described in docs/self-update.md.",
-        "unsupportedContract": "The installed updater does not match this version of PicPeak. Refresh it with picpeak-setup.sh --update, or update the updater container.",
+        "unsupportedContract": "The installed updater does not match this version of FotoDesk. Refresh it with fotodesk-setup.sh --update, or update the updater container.",
         "busyOther": "An update is already in progress.",
         "keepOpen": "You can keep this window open. The site is unavailable for a minute or two while the new version starts.",
-        "reload": "Reload PicPeak",
+        "reload": "Reload FotoDesk",
         "manualInstead": "Update manually instead",
         "phase": {
           "backingUp": "Backing up the database…",
           "waiting": "Waiting for the updater to start…",
-          "waitingLong": "The updater has not picked up the request yet. Check that it is running on the server (journalctl -u picpeak-updater, or the updater container).",
-          "restarting": "PicPeak is restarting…"
+          "waitingLong": "The updater has not picked up the request yet. Check that it is running on the server (journalctl -u fotodesk-updater, or the updater container).",
+          "restarting": "FotoDesk is restarting…"
         },
         "step": {
           "discover": "Checking the installation…",
           "pull": "Downloading the new version…",
           "verify": "Checking the new version…",
           "recreate": "Installing the new version…",
-          "health": "Waiting for PicPeak to start…",
+          "health": "Waiting for FotoDesk to start…",
           "rollback": "The new version did not start. Bringing back the previous one…",
           "working": "Updating…"
         },
         "result": {
-          "succeeded": "PicPeak was updated.",
-          "upToDate": "PicPeak is already on the latest version of its channel.",
+          "succeeded": "FotoDesk was updated.",
+          "upToDate": "FotoDesk is already on the latest version of its channel.",
           "refused": "The update was not installed. Nothing was changed.",
           "failed": "The update failed.",
           "rolledBack": "The new version did not start, so the previous version was brought back.",
@@ -4145,7 +4145,7 @@
           "requestFailed": "The backup was taken, but the update request could not be filed. Nothing was changed.",
           "withdrawn": "The update request was cancelled. Nothing was changed.",
           "expired": "The updater did not pick up the request in time, so it was withdrawn. Nothing was changed. Check that the updater is running, then try again.",
-          "lost": "The update request did not reach the updater (PicPeak restarted, or the request was withdrawn). Nothing was changed."
+          "lost": "The update request did not reach the updater (FotoDesk restarted, or the request was withdrawn). Nothing was changed."
         },
         "error": {
           "badPassword": "The password is incorrect.",
@@ -4154,12 +4154,12 @@
           "generic": "The update could not be started.",
           "disabled": "In-app updates are not enabled on this installation.",
           "noAgent": "The updater is not installed or not reachable.",
-          "unsupportedContract": "The installed updater does not match this version of PicPeak.",
-          "requestDirNotWritable": "PicPeak cannot write to its update request directory.",
+          "unsupportedContract": "The installed updater does not match this version of FotoDesk.",
+          "requestDirNotWritable": "FotoDesk cannot write to its update request directory.",
           "noLocalPassword": "In-app updates need a super admin who signs in with a password."
         },
         "cancel": "Cancel request",
-        "requestDirNotWritable": "PicPeak cannot write to its update request directory (update/request), so it cannot ask for an update. It has to be writable by UID 1001; see docs/self-update.md.",
+        "requestDirNotWritable": "FotoDesk cannot write to its update request directory (update/request), so it cannot ask for an update. It has to be writable by UID 1001; see docs/self-update.md.",
         "noLocalPassword": "In-app updates need a super admin who signs in with a password. Your account signs in through SSO only."
       }
     },
@@ -4818,8 +4818,8 @@
       "autoCategories": "Sort photos into categories automatically",
       "autoCategoriesHint": "Uses the number of faces to file photos as Details, Portraits, Small groups or Groups. Applies to every gallery, only ever fills an empty category, and never changes one you set yourself.",
       "sidecarUnreachable": "Can't reach the face-detection service at {{url}}, so the {{pending}} queued photos aren't being processed. Nothing is lost — the scan resumes on its own once the service is up. Start it with `docker compose --profile faces up -d`, and note it exits immediately unless FACE_ML_TOKEN is set to the same value as the backend — there is no default.",
-      "sidecarUnauthorized": "The face-detection service at {{url}} is rejecting our token, and photos are being marked failed rather than retried. Make FACE_ML_TOKEN identical on the backend and the picpeak-ml container, restart both, then use Re-scan — fixing the token alone will not reprocess the photos that already failed.",
-      "sidecarRejected": "{{url}} answered, but not like the face-detection service — photos are being marked failed rather than retried. Check FACE_ML_URL points at the picpeak-ml container and that nothing is proxying that address, then use Re-scan for the photos that already failed.",
+      "sidecarUnauthorized": "The face-detection service at {{url}} is rejecting our token, and photos are being marked failed rather than retried. Make FACE_ML_TOKEN identical on the backend and the fotodesk-ml container, restart both, then use Re-scan — fixing the token alone will not reprocess the photos that already failed.",
+      "sidecarRejected": "{{url}} answered, but not like the face-detection service — photos are being marked failed rather than retried. Check FACE_ML_URL points at the fotodesk-ml container and that nothing is proxying that address, then use Re-scan for the photos that already failed.",
       "sidecarStateNow": "Service state right now — some of the failures above may have a different cause, but a re-scan will not succeed until this is fixed:",
       "consolidated_one": "Grouping merged {{count}} look-alike pair automatically after the last scan. Open Manage people to check it — anything merged wrongly can be separated again with Split.",
       "consolidated_other": "Grouping merged {{count}} look-alike pairs automatically after the last scan. Open Manage people to check them — anything merged wrongly can be separated again with Split.",
@@ -4837,7 +4837,7 @@
     "expandSidebar": "Expand sidebar",
     "collapseSidebar": "Collapse sidebar",
     "backToMenu": "Back to menu",
-    "viewOnGithub": "View PicPeak on GitHub"
+    "viewOnGithub": "View FotoDesk on GitHub"
   },
   "acceptInvitation": {
     "title": "Accept Invitation",
@@ -5307,21 +5307,21 @@
     }
   },
   "backup": {
-    "picpeak": {
-      "restoreIntro": "Upload a .picpeak taken from this or another instance. Restoring a SQLite backup onto a PostgreSQL instance is supported (the upgrade path); other engine combinations must match.",
+    "fotodesk": {
+      "restoreIntro": "Upload a .fotodesk taken from this or another instance. Restoring a SQLite backup onto a PostgreSQL instance is supported (the upgrade path); other engine combinations must match.",
       "crossEngineNote": "Cross-engine restore: a SQLite backup was converted onto this PostgreSQL instance.",
       "downloadFailed": "Could not create the backup file.",
-      "title": "Portable backup (.picpeak)",
+      "title": "Portable backup (.fotodesk)",
       "intro": "Download a single self-contained file, then upload it on another instance to clone this one — all through the browser.",
       "includePhotos": "Include original gallery photos (larger file)",
       "secretsWarning": "This file contains secrets in plain text (email password, admin credentials, API keys). Store it securely and only transfer it over trusted channels.",
-      "download": "Download .picpeak",
+      "download": "Download .fotodesk",
       "externalPathsFailed": "Backup restored, but external photo paths could not be converted — those originals will not load until this is retried.",
       "restoreDone": "Backup restored.",
       "reloginRequired": "Restore complete — please sign in again.",
       "restoreFailed": "Restore failed.",
-      "restoreTitle": "Restore from a .picpeak",
-      "chooseFile": "Choose .picpeak file…",
+      "restoreTitle": "Restore from a .fotodesk",
+      "chooseFile": "Choose .fotodesk file…",
       "restoreSummary": "{{tables}} tables and {{files}} files restored.",
       "externalPathsFailedDetail": "External photo paths were not converted, so every referenced original is currently unreachable. Re-run the restore or the pending migrations once the cause is resolved.",
       "externalMediaNote": "This backup references an external-media library. Make sure external-media routing is configured on this instance.",
@@ -5658,8 +5658,8 @@
           "description": "Upload a backup file",
           "comingSoon": "Upload functionality coming soon",
           "manifestComingSoon": "Manifest Upload functionality coming soon",
-          "picpeak": {
-            "name": ".picpeak backup",
+          "fotodesk": {
+            "name": ".fotodesk backup",
             "description": "Portable full backup — restores everything (full override, keeps your current account)."
           },
           "manifest": {
@@ -6104,11 +6104,11 @@
     "decisionUndecided": "Undecided"
   },
   "setup": {
-    "title": "Welcome to PicPeak",
+    "title": "Welcome to FotoDesk",
     "subtitle": "Create your administrator account to get started",
     "tokenStepSubtitle": "First, enter your one-time setup token",
     "accountStepSubtitle": "Now create your administrator account",
-    "usageSubtitle": "How will you use PicPeak?",
+    "usageSubtitle": "How will you use FotoDesk?",
     "usageAlwaysOn": "Galleries, analytics and user management are always included. Pick any extras below — you can change these anytime in Settings.",
     "usageGroupCrm": "Client management",
     "usageGroupAccounting": "Accounting",
@@ -6118,9 +6118,9 @@
     "finish": "Finish setup",
     "featuresSaveFailed": "Could not save your feature choices — you can set them later in Settings → Features.",
     "restoreStepSubtitle": "Restore from a backup",
-    "restoreEntry": "Migrating from another PicPeak?",
-    "restoreEntryHint": "Restore a .picpeak backup instead of setting up fresh.",
-    "restoreIntro": "Upload a .picpeak backup to clone another instance onto this one. This replaces everything except the account you just created.",
+    "restoreEntry": "Migrating from another FotoDesk?",
+    "restoreEntryHint": "Restore a .fotodesk backup instead of setting up fresh.",
+    "restoreIntro": "Upload a .fotodesk backup to clone another instance onto this one. This replaces everything except the account you just created.",
     "config": {
       "subtitle": "Set up your features",
       "intro": "A few details to finish setting up. Anything you skip keeps its default and can be set later in Settings.",
@@ -6147,7 +6147,7 @@
       "finish": "Finish setup",
       "saveFailed": "Some settings could not be saved — check the values below, or use “Skip for now” and finish in Settings.",
       "siteUrl": "Public address",
-      "siteUrlHint": "Where your clients will reach this gallery. Prefilled with the address you opened right now — change it if you will put PicPeak behind a domain or reverse proxy. You can update this any time in Settings → General.",
+      "siteUrlHint": "Where your clients will reach this gallery. Prefilled with the address you opened right now — change it if you will put FotoDesk behind a domain or reverse proxy. You can update this any time in Settings → General.",
       "siteUrlInvalid": "Enter the full address including http:// or https://, for example https://gallery.example.com",
       "siteUrlRejected": "The server rejected this address. Use the full origin, for example https://gallery.example.com or http://192.168.1.50:3000.",
       "fromEmailRequiredPlaceholder": "From address (required)",
@@ -6171,9 +6171,9 @@
     },
     "usageReporting": {
       "subtitle": "One more thing",
-      "intro": "Help shape PicPeak with optional product usage reports. Reports use a pseudonymous installation ID; review exactly what is shared before deciding.",
+      "intro": "Help shape FotoDesk with optional product usage reports. Reports use a pseudonymous installation ID; review exactly what is shared before deciding.",
       "oneWayTitle": "Reporting stays under your control",
-      "oneWayDesc": "PicPeak sends signed usage reports. This channel cannot execute commands on your installation. Photos, customer names, emails and gallery visitor tracking are excluded.",
+      "oneWayDesc": "FotoDesk sends signed usage reports. This channel cannot execute commands on your installation. Photos, customer names, emails and gallery visitor tracking are excluded.",
       "mutualTitle": "See what everyone else uses",
       "mutualDesc": "Participants can inspect shared feature combinations and gallery/photo totals, including groups of one. The consent disclosure explains the complete scope.",
       "feedbackTitle": "Share feedback directly",
@@ -6186,15 +6186,15 @@
     },
     "community": {
       "subtitle": "You're all set",
-      "mission": "PicPeak exists so photographers can own their galleries and client data — on their own server, without monthly SaaS fees. Thanks for giving it a try.",
+      "mission": "FotoDesk exists so photographers can own their galleries and client data — on their own server, without monthly SaaS fees. Thanks for giving it a try.",
       "bugTitle": "Found a bug?",
       "bugDesc": "Open an issue and we'll take a look.",
       "featureTitle": "Want a feature?",
-      "featureDesc": "Tell us what would make PicPeak better for you.",
+      "featureDesc": "Tell us what would make FotoDesk better for you.",
       "starTitle": "Like it? Spread the word",
       "starDesc": "Tell other photographers, share it, and star the project on GitHub.",
       "supportTitle": "Support development",
-      "supportDesc": "Optional — buy me a coffee to help keep PicPeak going.",
+      "supportDesc": "Optional — buy me a coffee to help keep FotoDesk going.",
       "finish": "Finish → Dashboard"
     },
     "stepOf": "Step {{current}} of {{total}}",
@@ -7846,7 +7846,7 @@
     }
   },
   "ledger": {
-    "intro": "Used only to produce the Treuhänder export — picpeak does not keep double-entry books. The seeded chart + VAT codes follow the Swiss/LI KMU-Kontenrahmen; adjust them to match your Treuhänder’s setup.",
+    "intro": "Used only to produce the Treuhänder export — fotodesk does not keep double-entry books. The seeded chart + VAT codes follow the Swiss/LI KMU-Kontenrahmen; adjust them to match your Treuhänder’s setup.",
     "settingsSaved": "Mappings saved.",
     "saveDefaults": "Save mappings",
     "accountType": {
@@ -8478,7 +8478,7 @@
     },
     "import": "Import historical",
     "importTitle": "Import historical invoice",
-    "importHelp": "Attach a PDF from a previous billing system. The customer sees this original document in their portal — picpeak does not regenerate it.",
+    "importHelp": "Attach a PDF from a previous billing system. The customer sees this original document in their portal — fotodesk does not regenerate it.",
     "importedToast": "Invoice imported.",
     "importError": "Import failed",
     "importing": "Importing…",
@@ -8638,7 +8638,7 @@
     },
     "qrDisclaimer": {
       "title": "QR-bill / bank data — verify before going live",
-      "body": "Picpeak is open source. We render the QR code and IBAN block from the values you typed — we don't validate them. Print a test invoice and scan it with your bank's app before sending real invoices. We are not responsible for any mistakes that come from sending an invoice with bad data on it."
+      "body": "FotoDesk is open source. We render the QR code and IBAN block from the values you typed — we don't validate them. Print a test invoice and scan it with your bank's app before sending real invoices. We are not responsible for any mistakes that come from sending an invoice with bad data on it."
     },
     "logoUploadedToast": "PDF logo uploaded.",
     "logoConfirmClear": "Remove the PDF logo? The renderer will fall back to the Branding logo if one is set.",
@@ -9269,7 +9269,7 @@
       "save": "Save",
       "saveError": "Save failed",
       "savedToast": "Contract saved.",
-      "schriftformWarning": "Signature type: simple electronic signature (SES). Sufficient for routine photography contracts in CH / DE / AT / FL. NOT sufficient for documents that legally require Schriftform / form qualifiée: Bürgschaft (DE § 766 BGB), Verbraucherdarlehensvertrag (DE § 492 BGB), befristete Arbeitsverträge (DE § 14 Abs. 4 TzBfG), and similar. For those, a qualified electronic signature (QES) from a Trust Service Provider is required — picpeak does not provide QES.",
+      "schriftformWarning": "Signature type: simple electronic signature (SES). Sufficient for routine photography contracts in CH / DE / AT / FL. NOT sufficient for documents that legally require Schriftform / form qualifiée: Bürgschaft (DE § 766 BGB), Verbraucherdarlehensvertrag (DE § 492 BGB), befristete Arbeitsverträge (DE § 14 Abs. 4 TzBfG), and similar. For those, a qualified electronic signature (QES) from a Trust Service Provider is required — fotodesk does not provide QES.",
       "searchCustomer": "Search by email…",
       "systemBadge": "System",
       "titleEdit": "Edit contract",
@@ -9293,7 +9293,7 @@
       "hideInactive": "Hide inactive",
       "disclaimerTitle": "Examples only — have your lawyer review",
       "disclaimerLink": "Read the CRM disclaimer",
-      "disclaimerBody": "The seeded \"System\" blocks are written by the picpeak maintainer, not by a lawyer. They are intended as starting points only — review and adapt every block you intend to send with your own lawyer. Edits to system blocks are persisted; replace the seeded body text with the lawyer-reviewed version in place.",
+      "disclaimerBody": "The seeded \"System\" blocks are written by the fotodesk maintainer, not by a lawyer. They are intended as starting points only — review and adapt every block you intend to send with your own lawyer. Edits to system blocks are persisted; replace the seeded body text with the lawyer-reviewed version in place.",
       "sidebarHeading": "Blocks",
       "new": "New block",
       "systemBadge": "System",

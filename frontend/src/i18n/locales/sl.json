@@ -1,10 +1,10 @@
-{
+﻿{
   "productUsagePrompt": {
-    "title": "Pomagajte oblikovati PicPeak?",
-    "intro": "Pomagajte oblikovati PicPeak z neobveznimi poročili o uporabi izdelka. Pred odločitvijo preglejte psevdonimizirane podatke, kdo jih lahko vidi in kam se pošiljajo."
+    "title": "Pomagajte oblikovati FotoDesk?",
+    "intro": "Pomagajte oblikovati FotoDesk z neobveznimi poročili o uporabi izdelka. Pred odločitvijo preglejte psevdonimizirane podatke, kdo jih lahko vidi in kam se pošiljajo."
   },
   "productUsage": {
-    "fields": "Poročila usage.v6 vsebujejo prstni odtis namestitve, različico PicPeak, datum poročila po UTC in čas izdelave, metapodatke sheme/podpisovanja, nadzorovane postavitve galerij, 87 nespremenljivih signalov zmožnosti (64 parov nastavljeno/uporabljeno in 23 logičnih vrednosti samo za konfiguracijo) ter dve skupni vrednosti namestitve: shranjene galerije in zapise fotografij brez videov. Vključeni so osnutki in arhivirane galerije ter njihovi ohranjeni zapisi fotografij. Spodnji katalog opredeljuje vsako polje. Število dejanj in opazovanja obiskovalcev se ne zbirajo.",
+    "fields": "Poročila usage.v6 vsebujejo prstni odtis namestitve, različico FotoDesk, datum poročila po UTC in čas izdelave, metapodatke sheme/podpisovanja, nadzorovane postavitve galerij, 87 nespremenljivih signalov zmožnosti (64 parov nastavljeno/uporabljeno in 23 logičnih vrednosti samo za konfiguracijo) ter dve skupni vrednosti namestitve: shranjene galerije in zapise fotografij brez videov. Vključeni so osnutki in arhivirane galerije ter njihovi ohranjeni zapisi fotografij. Spodnji katalog opredeljuje vsako polje. Število dejanj in opazovanja obiskovalcev se ne zbirajo.",
     "catalogTitle": "Celoten katalog: 87 signalov zmožnosti in 2 skupni vrednosti inventarja (usage.v6)",
     "catalogExplanation": "Nastavljeno opisuje trenutno tehnično razpoložljivost ali konfiguracijo. Vgrajeno pomeni, da je funkcija na voljo, ne da je bila uporabljena. Uporabljeno je ena logična vrednost za celotno namestitev od soglasja k shemi poročanja; sprejeta opravila pomenijo začeta, ne nujno dokončana. Zmožnosti samo za konfiguracijo nimajo podatka o uporabi. Inventar vsebuje samo trenutno skupno število zapisov galerij/fotografij, brez razčlenitve po galerijah. V označevalnikih uporabe se ne hranijo izvajalec, identifikator entitete, čas dejanja ali pogostost.",
     "catalogSearch": "Išči po imenu ali ključu zmožnosti",
@@ -275,7 +275,7 @@
         "used": "Od privolitve v to shemo je bila zaznana dokumentirana uspešna overjena skrbniška operacija te funkcije. Ne beležijo se izvajalec, zgodovina operacij, parametri ali število izvedb."
       },
       "portable_backup": {
-        "name": "Prenosni izvoz/uvoz PicPeak",
+        "name": "Prenosni izvoz/uvoz FotoDesk",
         "configured": "Vgrajena funkcija je na voljo; to ni dokaz, da se uporablja.",
         "used": "Od privolitve v to shemo je bila zaznana dokumentirana uspešna overjena skrbniška operacija te funkcije. Ne beležijo se izvajalec, zgodovina operacij, parametri ali število izvedb."
       },
@@ -469,10 +469,10 @@
       }
     },
     "auditTitle": "Potrdila o izvozu in izbrisu",
-    "auditDescription": "Prenesite svoja zasebna revizijska potrdila. PicPeak med sodelovanjem hrani samo zadnje potrdilo o izvozu in zadnjo potrditev izbrisa. Ne vsebujejo zgoščene vrednosti namestitve, ključa ali vsebine poročil/povratnih informacij. Odjava iz sodelovanja odstrani lokalno potrdilo o izvozu; potrditev izbrisa brez identitete ostane. Zbiralnik ne hrani zgodovine izvozov/dostopov.",
+    "auditDescription": "Prenesite svoja zasebna revizijska potrdila. FotoDesk med sodelovanjem hrani samo zadnje potrdilo o izvozu in zadnjo potrditev izbrisa. Ne vsebujejo zgoščene vrednosti namestitve, ključa ali vsebine poročil/povratnih informacij. Odjava iz sodelovanja odstrani lokalno potrdilo o izvozu; potrditev izbrisa brez identitete ostane. Zbiralnik ne hrani zgodovine izvozov/dostopov.",
     "auditDownload": "Prenesi potrdila o zasebnosti",
     "title": "Uporaba izdelka in povratne informacije",
-    "noticeTitle": "Pomagajte oblikovati PicPeak",
+    "noticeTitle": "Pomagajte oblikovati FotoDesk",
     "notice": "Neobvezna poročila o uporabi izdelka pokažejo, katere funkcije so pomembne skupnosti. Poročanje je izklopljeno, dokler se ne odločite sodelovati.",
     "ignore": "Prezri",
     "ignoreHint": "Če to prezrete, se obvestilo ne bo več prikazalo — še vedno se lahko pridružite prek Nastavitve → Uporaba izdelka.",
@@ -480,7 +480,7 @@
     "cancel": "Prekliči",
     "loading": "Nalaganje nastavitev sodelovanja …",
     "failed": "Operacije ni bilo mogoče dokončati. Preverite stanje in poskusite znova.",
-    "purpose": "Pomagajte določati prednostne funkcije, popravke in vzdrževanje PicPeak z uporabo grobih informacij o sodelujočih namestitvah.",
+    "purpose": "Pomagajte določati prednostne funkcije, popravke in vzdrževanje FotoDesk z uporabo grobih informacij o sodelujočih namestitvah.",
     "consentTitle": "Izberite, ali želite deliti podatke o uporabi izdelka",
     "sectionFields": "Kaj vsebuje poročilo",
     "sectionExcluded": "Kaj ni nikoli vključeno",
@@ -489,11 +489,11 @@
     "sectionDeletion": "Izstop in brisanje",
     "sectionFeedback": "Povratne informacije so ločene",
     "excluded": "Samodejna poročila ne vključujejo dejavnosti obiskovalcev, tokov klikov, razčlenitev po galerijah ali fotografijah, imen, e-poštnih naslovov, domen, imen datotek, vsebine slik, biometričnih rezultatov, finančnih vrednosti ali skrivnosti konfiguracije.",
-    "transport": "Zaledje PicPeak hrani podpisni ključ in med skrbniško uporabo enkrat na dan po UTC pošlje podpisana poročila o uporabi na {{collector}}. Predogledate lahko poročila in prenesete vsako enolično sprejeto poročilo točno tako, kot je bilo prvič prejeto; ponovni poskusi prenosa se deduplicirajo. Zavrnjeni poskusi in ločeno poslane povratne informacije niso del tega izvoza poročil.",
+    "transport": "Zaledje FotoDesk hrani podpisni ključ in med skrbniško uporabo enkrat na dan po UTC pošlje podpisana poročila o uporabi na {{collector}}. Predogledate lahko poročila in prenesete vsako enolično sprejeto poročilo točno tako, kot je bilo prvič prejeto; ponovni poskusi prenosa se deduplicirajo. Zavrnjeni poskusi in ločeno poslane povratne informacije niso del tega izvoza poročil.",
     "sectionOneWay": "Samo pošiljanje — brez povratnega kanala",
-    "oneWay": "PicPeak samo pošilja. Nikoli ničesar ne pridobiva iz zbiralnika, ga ne sprašuje za navodila in ne izpostavlja nobene končne točke, ki bi jo zbiralnik lahko klical — na tej poti ni načrtovanega opravila niti dohodne poti. Iz odgovora prebere samo potrditev paketa, ki ga je pravkar poslal, in pred sprejemom preveri vsako polje potrditve glede na paket; vse drugo zavrže. Izvoz podatkov, ki ga zahtevate sami, vam je predan kot datoteka in se nikoli ne razlaga ali izvaja. Ta kanal zato ne more dostaviti kode, konfiguracije ali vsebine v vašo namestitev — niti iz zbiralnika, ki bi bil kompromitiran.",
+    "oneWay": "FotoDesk samo pošilja. Nikoli ničesar ne pridobiva iz zbiralnika, ga ne sprašuje za navodila in ne izpostavlja nobene končne točke, ki bi jo zbiralnik lahko klical — na tej poti ni načrtovanega opravila niti dohodne poti. Iz odgovora prebere samo potrditev paketa, ki ga je pravkar poslal, in pred sprejemom preveri vsako polje potrditve glede na paket; vse drugo zavrže. Izvoz podatkov, ki ga zahtevate sami, vam je predan kot datoteka in se nikoli ne razlaga ali izvaja. Ta kanal zato ne more dostaviti kode, konfiguracije ali vsebine v vašo namestitev — niti iz zbiralnika, ki bi bil kompromitiran.",
     "visibility": "Sodelujoče namestitve lahko pregledajo skupni nabor podatkov o najnovejših kombinacijah funkcij in skupnih vrednostih inventarja, tudi skupine z enim članom, ter skupno agregirano zgodovino. Vzdrževalci lahko pregledajo in izvozijo vsa ohranjena izvirna poročila in zasebne povratne informacije. To ne dovoljuje objave zasebnih povratnih informacij. Shema in izvorna koda sta javna. Vaš prstni odtis in podatki so psevdonimni, ne anonimni. Svojo zasebno zgoščeno vrednost za dostop varujte: omogoča samo bralni dostop do vaših poročil in nabora podatkov udeležencev.",
-    "deletion": "Onemogočanje takoj ustavi zbiranje in zahteva izbris poročil, prispevkov k agregatom, povratnih informacij, objavljenih elementov, glasov in sej. Med izpadom ostanejo samo poverilnice, potrebne za dokončanje izbrisa, vmesnik pa prikazuje čakajoč izbris. Po potrditvi se lokalna zgoščena vrednost in ključ izbrišeta; ponovna vključitev ustvari novo identiteto. Zbiralnik ohrani enosmerni povzetek preklica in kratkotrajne števce zlorab brez identitete. PicPeak ohrani lokalno potrdilo o izbrisu za prenos brez stare zgoščene vrednosti, ključa ali vsebine.",
+    "deletion": "Onemogočanje takoj ustavi zbiranje in zahteva izbris poročil, prispevkov k agregatom, povratnih informacij, objavljenih elementov, glasov in sej. Med izpadom ostanejo samo poverilnice, potrebne za dokončanje izbrisa, vmesnik pa prikazuje čakajoč izbris. Po potrditvi se lokalna zgoščena vrednost in ključ izbrišeta; ponovna vključitev ustvari novo identiteto. Zbiralnik ohrani enosmerni povzetek preklica in kratkotrajne števce zlorab brez identitete. FotoDesk ohrani lokalno potrdilo o izbrisu za prenos brez stare zgoščene vrednosti, ključa ali vsebine.",
     "feedbackDisclosure": "Povratne informacije so ločene od samodejnih poročil in se pošljejo samo, ko jih oddate. Vsak element je anonimen, razen če vključite ime, in zaseben za vzdrževalce, razen če izrecno dovolite objavo. Javni elementi zahtevajo pregled vzdrževalca. Uporaba izjave za trženje zahteva ločeno dovoljenje.",
     "consentCheck": "Prebral/-a sem to obvestilo in izrecno soglašam s sodelovanjem.",
     "enable": "Omogoči poročanje o uporabi izdelka",
@@ -523,7 +523,7 @@
     "saveName": "Zapomni si to ime lokalno",
     "saved": "Nastavitev shranjena. Pri prihodnjih elementih je še vedno privzeta anonimnost.",
     "allowPublic": "Dovoljujem, da se to besedilo in vključeno ime po pregledu objavita na portalu uporabe.",
-    "allowMarketing": "Dovoljujem tudi, da PicPeak to izjavo in vključeno ime uporabi za trženje na domači strani.",
+    "allowMarketing": "Dovoljujem tudi, da FotoDesk to izjavo in vključeno ime uporabi za trženje na domači strani.",
     "sendFeedback": "Pošlji povratne informacije",
     "feedbackSent": "Povratne informacije prejete. Objava zahteva vaše dovoljenje in pregled vzdrževalca.",
     "states": {
@@ -535,8 +535,8 @@
     },
     "stateDetails": {
       "disabled": "Podatki o uporabi izdelka se ne zbirajo ali pošiljajo. Pred odločitvijo lahko pregledate podrobnosti.",
-      "activation_pending": "Soglasje je shranjeno. Registracija bo ponovno poskušena, ko uporabljate PicPeak ali izberete ponovni poskus.",
-      "active": "Zbirajo se samo razkriti signali funkcij. Dnevna poročila se izvajajo, ko skrbnik uporablja PicPeak.",
+      "activation_pending": "Soglasje je shranjeno. Registracija bo ponovno poskušena, ko uporabljate FotoDesk ali izberete ponovni poskus.",
+      "active": "Zbirajo se samo razkriti signali funkcij. Dnevna poročila se izvajajo, ko skrbnik uporablja FotoDesk.",
       "deletion_pending": "Zbiranje in poročanje sta ustavljena. Podpisne poverilnice ostanejo samo za dokončanje overjenega izbrisa. Poskusite znova, ko bo zbiralnik dosegljiv.",
       "identity_conflict": "Morda gre za obnovljeno ali klonirano namestitev ali pa se zaporedje poročil ne ujema več z zbiralnikom. Poročanje je ustavljeno. Pred vključitvijo z novo identiteto onemogočite in izbrišite staro sodelovanje; s tem se izbrišejo tudi podatki, ki jih je delila druga kopija iste identitete."
     },
@@ -833,7 +833,7 @@
     "uploading": "Nalaganje...",
     "transferring": "Prenašanje",
     "processing": "Obdelava fotografij...",
-    "processingHint": "Datoteke so naložene. PicPeak zdaj ustvarja sličice in bere metapodatke. To stran lahko zapustite — obdelava se nadaljuje v ozadju.",
+    "processingHint": "Datoteke so naložene. FotoDesk zdaj ustvarja sličice in bere metapodatke. To stran lahko zapustite — obdelava se nadaljuje v ozadju.",
     "processingProgress": "Končano {{complete}} od {{total}}",
     "processingFailed_one": "{{count}} fotografije ni bilo mogoče obdelati",
     "processingFailed_other": "{{count}} fotografij ni bilo mogoče obdelati",
@@ -1546,7 +1546,7 @@
     "categories": "Kategorije",
     "eventInformation": "Informacije o dogodku",
     "sourceMode": "Način vira",
-    "sourceModeManaged": "Upravljano (nalaganje v PicPeak)",
+    "sourceModeManaged": "Upravljano (nalaganje v FotoDesk)",
     "sourceModeReference": "Sklic na zunanjo mapo",
     "sourceModeHelp": "Uporabite upravljani način za neposredna nalaganja ali določite priklopljeno mapo /external-media pri uporabi lokalne shrambe.",
     "externalFolder": "Zunanja mapa",
@@ -2287,7 +2287,7 @@
     },
     "updateNotifications": {
       "title": "Obvestila o posodobitvah",
-      "description": "Prejmite e-poštna obvestila, ko so na voljo nove različice PicPeak.",
+      "description": "Prejmite e-poštna obvestila, ko so na voljo nove različice FotoDesk.",
       "enableEmails": "Omogoči e-poštna obvestila",
       "enableEmailsDesc": "Pošlji e-pošto administratorjem, ko je na voljo nova različica",
       "recipients": "Prejemniki e-pošte",
@@ -2493,10 +2493,10 @@
         "rybbit": "Rybbit",
         "custom": "Po meri (prilepite svoj skript)"
       },
-      "providerNoneInfo": "Zunanji sledilnik ni vstavljen. Skrbniška nadzorna plošča še vedno prikazuje povzetke in dnevni graf iz PicPeakovega access_logs; graf naprav uporablja grobo oceno iz user-agenta.",
+      "providerNoneInfo": "Zunanji sledilnik ni vstavljen. Skrbniška nadzorna plošča še vedno prikazuje povzetke in dnevni graf iz FotoDeskovega access_logs; graf naprav uporablja grobo oceno iz user-agenta.",
       "proxiedNotice": "Postreženo z vaše domene",
-      "proxiedNoticeText": "PicPeak naloži skript sledilnika in njegove dogodke posreduje prek lastne domene, zato sprememba Content-Security-Policy ali reverse proxyja ni potrebna — blokatorji oglasov pa vidijo zahteve prve strani. Sledilnik še vedno prejme IP in user-agent obiskovalca (posredovana kot X-Forwarded-For), zato poročanje o napravah in lokacijah deluje. URL mora biti dosegljiv s strežnika PicPeak in se razrešiti v javni naslov.",
-      "customOnlyCspWarningText": "PicPeak uporablja strogo CSP (`script-src 'self'; connect-src 'self'`). Za razliko od možnosti Umami in Rybbit prilepljen izsek ni posredovan prek PicPeaka — domeno sledilnika dodajte v OBE direktivi `script-src` (za nalaganje skripta) in `connect-src` (za dogodke, ki jih pošilja) v konfiguraciji CSP vašega reverse proxyja ali nginxa, sicer ga brskalnik tiho blokira.",
+      "proxiedNoticeText": "FotoDesk naloži skript sledilnika in njegove dogodke posreduje prek lastne domene, zato sprememba Content-Security-Policy ali reverse proxyja ni potrebna — blokatorji oglasov pa vidijo zahteve prve strani. Sledilnik še vedno prejme IP in user-agent obiskovalca (posredovana kot X-Forwarded-For), zato poročanje o napravah in lokacijah deluje. URL mora biti dosegljiv s strežnika FotoDesk in se razrešiti v javni naslov.",
+      "customOnlyCspWarningText": "FotoDesk uporablja strogo CSP (`script-src 'self'; connect-src 'self'`). Za razliko od možnosti Umami in Rybbit prilepljen izsek ni posredovan prek FotoDeska — domeno sledilnika dodajte v OBE direktivi `script-src` (za nalaganje skripta) in `connect-src` (za dogodke, ki jih pošilja) v konfiguraciji CSP vašega reverse proxyja ali nginxa, sicer ga brskalnik tiho blokira.",
       "rybbitUrl": "URL Rybbit",
       "rybbitUrlHelp": "URL vaše instance Rybbit — `https://app.rybbit.io` za SaaS ali `https://rybbit.yourdomain.com` za lastno gostovanje.",
       "rybbitWebsiteId": "ID spletnega mesta",
@@ -2574,7 +2574,7 @@
     },
     "webhooks": {
       "title": "Webhooki",
-      "subtitle": "Pošiljajte POST obvestila o dogodkih na svoj URL takoj, ko se kaj zgodi — galerija je objavljena, fotografija naložena, dogodek arhiviran itd. Podpisano s HMAC-SHA256 v glavi X-PicPeak-Signature.",
+      "subtitle": "Pošiljajte POST obvestila o dogodkih na svoj URL takoj, ko se kaj zgodi — galerija je objavljena, fotografija naložena, dogodek arhiviran itd. Podpisano s HMAC-SHA256 v glavi X-FotoDesk-Signature.",
       "piiNotice": "event.* payloadi vključujejo kontaktne podatke stranke (ime, e-pošta, telefon) in žeton za deljenje galerije, če so shranjeni. Webhooke usmerite samo na prejemnike, ki jim zaupate — imajo vse potrebno za sporočanje stranki ali odpiranje galerije.",
       "copyNow": "Kopirajte to skrivnost za podpisovanje zdaj — pozneje ne bo več prikazana.",
       "name": "Ime",
@@ -2586,7 +2586,7 @@
       "existing": "Obstoječi webhooki",
       "empty": "Webhookov še ni. Ustvarite enega zgoraj za prejemanje obvestil o dogodkih.",
       "namePlaceholder": "npr. n8n WhatsApp",
-      "urlPlaceholder": "https://n8n.example.com/webhook/picpeak",
+      "urlPlaceholder": "https://n8n.example.com/webhook/fotodesk",
       "showAdvanced": "+ Napredno (filter, predloga)",
       "hideAdvanced": "− Skrij napredno (filter, predloga)",
       "filterHelp": "Pot s pikami → pričakovana vrednost. Ujemati se morajo vsi ključi (AND). Za »katerokoli od« uporabite polje.",
@@ -2699,8 +2699,8 @@
       },
       "galleries": {
         "title": "Galerije",
-        "description": "Osnovna površina PicPeak. Vedno na voljo.",
-        "locked": "Galerije so temelj PicPeak in jih ni mogoče izklopiti."
+        "description": "Osnovna površina FotoDesk. Vedno na voljo.",
+        "locked": "Galerije so temelj FotoDesk in jih ni mogoče izklopiti."
       },
       "incomingMail": {
         "title": "Dohodna e-pošta",
@@ -2983,14 +2983,14 @@
       "saveError": "Nastavitev SSO ni bilo mogoče shraniti",
       "roleMapping": {
         "title": "Preslikava vlog",
-        "intro": "Dodelite vloge PicPeak na podlagi zahtevka za vlogo ali skupino v ID-žetonu. Vloge se ponovno ovrednotijo ob vsaki prijavi SSO — IdP postane vir resnice.",
+        "intro": "Dodelite vloge FotoDesk na podlagi zahtevka za vlogo ali skupino v ID-žetonu. Vloge se ponovno ovrednotijo ob vsaki prijavi SSO — IdP postane vir resnice.",
         "enabled": "Omogoči preslikavo vlog",
         "enabledHint": "Izklopljeno: obstoječi skrbniki obdržijo svojo vlogo, novi uporabniki pa dobijo zgoraj določeno privzeto vlogo.",
         "claim": "Zahtevek za vloge (pot s pikami)",
         "claimHint": "Keycloak: realm_access.roles · Authentik: groups · Entra ID: roles ali groups",
-        "mappings": "Preslikave (vrednost IdP → vloga PicPeak)",
+        "mappings": "Preslikave (vrednost IdP → vloga FotoDesk)",
         "noMappings": "Preslikav še ni — brez preslikave nobena prijava ne dobi vloge iz IdP.",
-        "idpValuePlaceholder": "Vloga ali skupina IdP, npr. picpeak-admins",
+        "idpValuePlaceholder": "Vloga ali skupina IdP, npr. fotodesk-admins",
         "addMapping": "Dodaj preslikavo",
         "requireRole": "Za prijavo zahtevaj preslikano vlogo",
         "requireRoleHint": "Zavrni prijave SSO, katerih žeton se ne preslika v nobeno vlogo — dostop imajo le člani preslikanih skupin IdP. Zadnjega aktivnega glavnega skrbnika preslikava nikoli ne zniža."
@@ -3001,7 +3001,7 @@
         "disableLocalLoginHint": "Prijavna stran prikaže samo gumb SSO, API pa zavrne prijave z geslom. Mogoče le, ko je SSO omogočen; izklop SSO samodejno povrne prijavo z geslom.",
         "breakGlassHint": "Ste ostali brez dostopa, ker IdP ne deluje ali je napačno nastavljen? Na zaledju nastavite okoljsko spremenljivko OIDC_BREAK_GLASS=true in ga ponovno zaženite — prijava z geslom bo takoj znova omogočena.",
         "logoutFromIdp": "Odjavi tudi iz ponudnika identitete",
-        "logoutFromIdpHint": "Odjava iz PicPeak zaključi tudi sejo IdP (RP-initiated logout). Velja le za seje, prijavljene prek SSO; brez tega odjava iz PicPeak pusti sejo IdP aktivno, zato naslednji klik SSO takoj znova prijavi uporabnika.",
+        "logoutFromIdpHint": "Odjava iz FotoDesk zaključi tudi sejo IdP (RP-initiated logout). Velja le za seje, prijavljene prek SSO; brez tega odjava iz FotoDesk pusti sejo IdP aktivno, zato naslednji klik SSO takoj znova prijavi uporabnika.",
         "postLogoutRedirectUri": "URI za preusmeritev po odjavi (registrirajte ga pri odjemalcu IdP, npr. Keycloak »Valid post logout redirect URIs«)"
       }
     },
@@ -3272,8 +3272,8 @@
     "pdfFontSavedToast": "Pisava PDF shranjena.",
     "heroPlaceholderText": "Hero fotografija vašega dogodka bo prikazana tukaj",
     "whiteLabel": "White label",
-    "hidePoweredBy": "Skrij oznako »Powered by PicPeak«",
-    "hidePoweredByHelp": "Odstranite navedbo PicPeak iz nog galerij za popolnoma white-label izkušnjo",
+    "hidePoweredBy": "Skrij oznako »Powered by FotoDesk«",
+    "hidePoweredByHelp": "Odstranite navedbo FotoDesk iz nog galerij za popolnoma white-label izkušnjo",
     "logoCustomization": "Prilagoditev logotipa",
     "changeLogo": "Spremeni logotip",
     "logoSizeSmall": "Majhen (32 px)",
@@ -3585,12 +3585,12 @@
       "channelBeta": "Beta",
       "beta": "BETA",
       "viewReleaseNotes": "Ogled opomb ob izdaji",
-      "viewOnGithub": "Odpri PicPeak na GitHubu",
+      "viewOnGithub": "Odpri FotoDesk na GitHubu",
       "updateAvailableShort": "Na voljo v{{version}}",
       "upToDate": "Uporabljate najnovejšo različico",
       "updateNow": "Posodobi zdaj",
       "updateDialog": {
-        "title": "Posodobi PicPeak",
+        "title": "Posodobi FotoDesk",
         "detectedEnv": "Zaznano okolje",
         "beforeUpdating": "Pred posodobitvijo:",
         "updateCommands": "Ukazi za posodobitev:",
@@ -4264,8 +4264,8 @@
       "autoCategories": "Samodejno razvrsti fotografije v kategorije",
       "autoCategoriesHint": "Glede na število obrazov razvrsti fotografije med Podrobnosti, Portrete, Majhne skupine ali Skupine. Velja za vse galerije, zapolni le prazno kategorijo in nikoli ne spremeni tiste, ki ste jo nastavili sami.",
       "sidecarUnreachable": "Storitev za zaznavanje obrazov na {{url}} ni dosegljiva, zato {{pending}} fotografij v čakalni vrsti ni obdelanih. Nič ni izgubljeno — pregledovanje se samodejno nadaljuje, ko bo storitev spet delovala. Zaženite jo z `docker compose --profile faces up -d`; upoštevajte, da se takoj konča, če FACE_ML_TOKEN ni nastavljen na enako vrednost kot v zaledju — privzete vrednosti ni.",
-      "sidecarUnauthorized": "Storitev za zaznavanje obrazov na {{url}} zavrača naš žeton, fotografije pa so označene kot neuspele namesto za ponovni poskus. Nastavite FACE_ML_TOKEN na enako vrednost v zaledju in vsebniku picpeak-ml, oba znova zaženite, nato uporabite Ponovno preglej — samo popravek žetona ne bo ponovno obdelal že neuspelih fotografij.",
-      "sidecarRejected": "{{url}} se odziva, vendar ne kot storitev za zaznavanje obrazov — fotografije so označene kot neuspele namesto za ponovni poskus. Preverite, da FACE_ML_URL kaže na vsebnik picpeak-ml in da tega naslova nič ne posreduje prek proxyja, nato za že neuspele fotografije uporabite Ponovno preglej.",
+      "sidecarUnauthorized": "Storitev za zaznavanje obrazov na {{url}} zavrača naš žeton, fotografije pa so označene kot neuspele namesto za ponovni poskus. Nastavite FACE_ML_TOKEN na enako vrednost v zaledju in vsebniku fotodesk-ml, oba znova zaženite, nato uporabite Ponovno preglej — samo popravek žetona ne bo ponovno obdelal že neuspelih fotografij.",
+      "sidecarRejected": "{{url}} se odziva, vendar ne kot storitev za zaznavanje obrazov — fotografije so označene kot neuspele namesto za ponovni poskus. Preverite, da FACE_ML_URL kaže na vsebnik fotodesk-ml in da tega naslova nič ne posreduje prek proxyja, nato za že neuspele fotografije uporabite Ponovno preglej.",
       "sidecarStateNow": "Trenutno stanje storitve — nekatere zgornje napake imajo morda drug vzrok, vendar ponovni pregled ne bo uspel, dokler tega ne odpravite:",
       "consolidated_one": "Po zadnjem pregledu je združevanje samodejno združilo {{count}} par podobnih oseb. Odprite Upravljaj osebe in preverite rezultat — napačno združene osebe lahko znova ločite z možnostjo Loči.",
       "consolidated_other": "Po zadnjem pregledu je združevanje samodejno združilo {{count}} parov podobnih oseb. Odprite Upravljaj osebe in preverite rezultate — napačno združene osebe lahko znova ločite z možnostjo Loči.",
@@ -4282,7 +4282,7 @@
     "viewReleaseNotes": "Ogled opomb ob izdaji na GitHubu",
     "expandSidebar": "Razširi stransko vrstico",
     "collapseSidebar": "Strni stransko vrstico",
-    "viewOnGithub": "Odpri PicPeak na GitHubu"
+    "viewOnGithub": "Odpri FotoDesk na GitHubu"
   },
   "acceptInvitation": {
     "title": "Sprejmi povabilo",
@@ -4748,21 +4748,21 @@
     }
   },
   "backup": {
-    "picpeak": {
-      "restoreIntro": "Naložite datoteko .picpeak iz te ali druge namestitve. Obnova varnostne kopije SQLite na PostgreSQL je podprta (pot nadgradnje); druge kombinacije pogonov se morajo ujemati.",
+    "fotodesk": {
+      "restoreIntro": "Naložite datoteko .fotodesk iz te ali druge namestitve. Obnova varnostne kopije SQLite na PostgreSQL je podprta (pot nadgradnje); druge kombinacije pogonov se morajo ujemati.",
       "crossEngineNote": "Obnova med različnimi pogoni: varnostna kopija SQLite je bila pretvorjena v to namestitev PostgreSQL.",
       "downloadFailed": "Datoteke varnostne kopije ni bilo mogoče ustvariti.",
-      "title": "Prenosljiva varnostna kopija (.picpeak)",
+      "title": "Prenosljiva varnostna kopija (.fotodesk)",
       "intro": "Prenesite eno samostojno datoteko in jo nato naložite v drugo namestitev, da jo klonirate — vse prek brskalnika.",
       "includePhotos": "Vključi izvirne fotografije galerij (večja datoteka)",
       "secretsWarning": "Ta datoteka vsebuje skrivnosti v navadnem besedilu (geslo e-pošte, skrbniške poverilnice, API-ključe). Hranite jo varno in prenašajte samo po zaupanja vrednih kanalih.",
-      "download": "Prenesi .picpeak",
+      "download": "Prenesi .fotodesk",
       "externalPathsFailed": "Varnostna kopija je obnovljena, vendar zunanjih poti fotografij ni bilo mogoče pretvoriti — ti izvirniki se ne bodo naložili, dokler postopka ne ponovite.",
       "restoreDone": "Varnostna kopija obnovljena.",
       "reloginRequired": "Obnova končana — znova se prijavite.",
       "restoreFailed": "Obnova ni uspela.",
-      "restoreTitle": "Obnovi iz .picpeak",
-      "chooseFile": "Izberite datoteko .picpeak…",
+      "restoreTitle": "Obnovi iz .fotodesk",
+      "chooseFile": "Izberite datoteko .fotodesk…",
       "restoreSummary": "Obnovljenih {{tables}} tabel in {{files}} datotek.",
       "externalPathsFailedDetail": "Zunanje poti fotografij niso bile pretvorjene, zato so vsi sklicevani izvirniki trenutno nedosegljivi. Ko odpravite vzrok, ponovno zaženite obnovo ali čakajoče migracije.",
       "externalMediaNote": "Ta varnostna kopija se sklicuje na knjižnico external-media. Preverite, da je usmerjanje external-media v tej namestitvi nastavljeno.",
@@ -5071,8 +5071,8 @@
           "description": "Naloži datoteko varnostne kopije",
           "comingSoon": "Funkcija nalaganja bo kmalu na voljo",
           "manifestComingSoon": "Nalaganje manifesta bo na voljo kmalu",
-          "picpeak": {
-            "name": "Varnostna kopija .picpeak",
+          "fotodesk": {
+            "name": "Varnostna kopija .fotodesk",
             "description": "Prenosljiva popolna varnostna kopija — obnovi vse (popolna zamenjava, vaš trenutni račun se ohrani)."
           },
           "manifest": {
@@ -5227,7 +5227,7 @@
     "urgentMatters": "Za nujne zadeve se obrnite na"
   },
   "migrationBanner": {
-    "title": "PicPeakov register slik je bil prestavljen",
+    "title": "FotoDeskov register slik je bil prestavljen",
     "body": "Posodobite docker-compose.yml tako, da bo prenašal iz {{newPath}} — stara pot se ne posodablja več.",
     "link": "Oglejte si navodila za selitev"
   },
@@ -5511,11 +5511,11 @@
     "decisionUndecided": "Neodločeno"
   },
   "setup": {
-    "title": "Dobrodošli v PicPeaku",
+    "title": "Dobrodošli v FotoDesku",
     "subtitle": "Za začetek ustvarite skrbniški račun",
     "tokenStepSubtitle": "Najprej vnesite enkratni žeton za nastavitev",
     "accountStepSubtitle": "Zdaj ustvarite svoj skrbniški račun",
-    "usageSubtitle": "Kako boste uporabljali PicPeak?",
+    "usageSubtitle": "Kako boste uporabljali FotoDesk?",
     "usageAlwaysOn": "Galerije, analitika in upravljanje uporabnikov so vedno vključeni. Spodaj izberite dodatke — kadar koli jih lahko spremenite v Nastavitvah.",
     "usageGroupCrm": "Upravljanje strank",
     "usageGroupAccounting": "Računovodstvo",
@@ -5525,9 +5525,9 @@
     "finish": "Dokončaj nastavitev",
     "featuresSaveFailed": "Izbranih funkcij ni bilo mogoče shraniti — pozneje jih lahko nastavite v Nastavitve → Funkcije.",
     "restoreStepSubtitle": "Obnovi iz varnostne kopije",
-    "restoreEntry": "Se selite iz drugega PicPeaka?",
-    "restoreEntryHint": "Namesto sveže nastavitve obnovite varnostno kopijo .picpeak.",
-    "restoreIntro": "Naložite varnostno kopijo .picpeak, da klonirate drugo namestitev v to. Zamenja vse razen računa, ki ste ga pravkar ustvarili.",
+    "restoreEntry": "Se selite iz drugega FotoDeska?",
+    "restoreEntryHint": "Namesto sveže nastavitve obnovite varnostno kopijo .fotodesk.",
+    "restoreIntro": "Naložite varnostno kopijo .fotodesk, da klonirate drugo namestitev v to. Zamenja vse razen računa, ki ste ga pravkar ustvarili.",
     "config": {
       "subtitle": "Nastavite svoje funkcije",
       "intro": "Še nekaj podrobnosti za dokončanje nastavitve. Kar preskočite, ohrani privzeto vrednost in lahko pozneje nastavite v Nastavitvah.",
@@ -5554,7 +5554,7 @@
       "finish": "Dokončaj nastavitev",
       "saveFailed": "Nekaterih nastavitev ni bilo mogoče shraniti — preverite spodnje vrednosti ali uporabite »Za zdaj preskoči« in dokončajte v Nastavitvah.",
       "siteUrl": "Javni naslov",
-      "siteUrlHint": "Naslov, na katerem bodo stranke dostopale do te galerije. Vnaprej je izpolnjen z naslovom, ki ste ga pravkar odprli — spremenite ga, če boste PicPeak postavili za domeno ali reverse proxy. Kadar koli ga lahko posodobite v Nastavitve → Splošno.",
+      "siteUrlHint": "Naslov, na katerem bodo stranke dostopale do te galerije. Vnaprej je izpolnjen z naslovom, ki ste ga pravkar odprli — spremenite ga, če boste FotoDesk postavili za domeno ali reverse proxy. Kadar koli ga lahko posodobite v Nastavitve → Splošno.",
       "siteUrlInvalid": "Vnesite celoten naslov z http:// ali https://, na primer https://gallery.example.com",
       "siteUrlRejected": "Strežnik je ta naslov zavrnil. Uporabite celoten izvor, na primer https://gallery.example.com ali http://192.168.1.50:3000.",
       "fromEmailRequiredPlaceholder": "Naslov pošiljatelja (obvezno)",
@@ -5578,9 +5578,9 @@
     },
     "usageReporting": {
       "subtitle": "Še ena stvar",
-      "intro": "Pomagajte oblikovati PicPeak z neobveznimi poročili o uporabi izdelka. Poročila uporabljajo psevdonimiziran ID namestitve; pred odločitvijo natančno preglejte, kaj se deli.",
+      "intro": "Pomagajte oblikovati FotoDesk z neobveznimi poročili o uporabi izdelka. Poročila uporabljajo psevdonimiziran ID namestitve; pred odločitvijo natančno preglejte, kaj se deli.",
       "oneWayTitle": "Poročanje ostaja pod vašim nadzorom",
-      "oneWayDesc": "PicPeak pošilja podpisana poročila o uporabi. Ta kanal ne more izvajati ukazov v vaši namestitvi. Fotografije, imena strank, e-poštni naslovi in sledenje obiskovalcem galerij niso vključeni.",
+      "oneWayDesc": "FotoDesk pošilja podpisana poročila o uporabi. Ta kanal ne more izvajati ukazov v vaši namestitvi. Fotografije, imena strank, e-poštni naslovi in sledenje obiskovalcem galerij niso vključeni.",
       "mutualTitle": "Oglejte si, kaj uporabljajo drugi",
       "mutualDesc": "Sodelujoči lahko pregledajo skupne kombinacije funkcij ter skupno število galerij/fotografij, tudi skupine z enim članom. Razkritje privolitve pojasnjuje celoten obseg.",
       "feedbackTitle": "Delite povratne informacije neposredno",
@@ -5593,15 +5593,15 @@
     },
     "community": {
       "subtitle": "Vse je pripravljeno",
-      "mission": "PicPeak obstaja zato, da lahko fotografi sami upravljajo svoje galerije in podatke strank — na lastnem strežniku, brez mesečnih stroškov SaaS. Hvala, ker ga preizkušate.",
+      "mission": "FotoDesk obstaja zato, da lahko fotografi sami upravljajo svoje galerije in podatke strank — na lastnem strežniku, brez mesečnih stroškov SaaS. Hvala, ker ga preizkušate.",
       "bugTitle": "Ste našli napako?",
       "bugDesc": "Odprite issue in pogledali bomo.",
       "featureTitle": "Želite novo funkcijo?",
-      "featureDesc": "Povejte nam, kaj bi PicPeak naredilo boljši za vas.",
+      "featureDesc": "Povejte nam, kaj bi FotoDesk naredilo boljši za vas.",
       "starTitle": "Vam je všeč? Povejte naprej",
       "starDesc": "Povejte drugim fotografom, delite ga in projektu dodajte zvezdico na GitHubu.",
       "supportTitle": "Podprite razvoj",
-      "supportDesc": "Neobvezno — častite mi kavo in pomagajte, da se razvoj PicPeaka nadaljuje.",
+      "supportDesc": "Neobvezno — častite mi kavo in pomagajte, da se razvoj FotoDeska nadaljuje.",
       "finish": "Dokončaj → Nadzorna plošča"
     },
     "stepOf": "Korak {{current}} od {{total}}",
@@ -7274,7 +7274,7 @@
     }
   },
   "ledger": {
-    "intro": "Uporablja se samo za pripravo izvoza za fiduciarja — PicPeak ne vodi dvostavnega knjigovodstva. Privzeti kontni načrt in kode DDV sledijo švicarskemu/lihtenštajnskemu okviru KMU-Kontenrahmen; prilagodite jih nastavitvam svojega fiduciarja.",
+    "intro": "Uporablja se samo za pripravo izvoza za fiduciarja — FotoDesk ne vodi dvostavnega knjigovodstva. Privzeti kontni načrt in kode DDV sledijo švicarskemu/lihtenštajnskemu okviru KMU-Kontenrahmen; prilagodite jih nastavitvam svojega fiduciarja.",
     "settingsSaved": "Preslikave shranjene.",
     "saveDefaults": "Shrani preslikave",
     "accountType": {
@@ -7905,7 +7905,7 @@
     },
     "import": "Uvozi zgodovinski račun",
     "importTitle": "Uvozi zgodovinski račun",
-    "importHelp": "Priložite PDF iz prejšnjega sistema za izdajanje računov. Stranka v svojem portalu vidi ta izvirni dokument — PicPeak ga ne ustvari znova.",
+    "importHelp": "Priložite PDF iz prejšnjega sistema za izdajanje računov. Stranka v svojem portalu vidi ta izvirni dokument — FotoDesk ga ne ustvari znova.",
     "importedToast": "Račun uvožen.",
     "importError": "Uvoz ni uspel",
     "importing": "Uvažanje…",
@@ -8065,7 +8065,7 @@
     },
     "qrDisclaimer": {
       "title": "QR-račun / bančni podatki — preverite pred uporabo v produkciji",
-      "body": "PicPeak je odprtokoden. QR-kodo in blok IBAN izrišemo iz vrednosti, ki ste jih vnesli — ne preverjamo njihove pravilnosti. Pred pošiljanjem pravih računov natisnite preizkusni račun in ga optično preberite z aplikacijo svoje banke. Ne odgovarjamo za napake, ki nastanejo zaradi pošiljanja računa z napačnimi podatki."
+      "body": "FotoDesk je odprtokoden. QR-kodo in blok IBAN izrišemo iz vrednosti, ki ste jih vnesli — ne preverjamo njihove pravilnosti. Pred pošiljanjem pravih računov natisnite preizkusni račun in ga optično preberite z aplikacijo svoje banke. Ne odgovarjamo za napake, ki nastanejo zaradi pošiljanja računa z napačnimi podatki."
     },
     "logoUploadedToast": "Logotip PDF naložen.",
     "logoConfirmClear": "Odstranim logotip PDF? Upodabljalnik bo uporabil logotip iz Blagovne znamke, če je nastavljen.",
@@ -8690,7 +8690,7 @@
       "save": "Shrani",
       "saveError": "Shranjevanje ni uspelo",
       "savedToast": "Pogodba shranjena.",
-      "schriftformWarning": "Vrsta podpisa: preprost elektronski podpis (SES). Zadostuje za običajne fotografske pogodbe v CH / DE / AT / FL. NE zadostuje za dokumente, za katere zakon zahteva Schriftform / form qualifiée: Bürgschaft (DE § 766 BGB), Verbraucherdarlehensvertrag (DE § 492 BGB), befristete Arbeitsverträge (DE § 14 Abs. 4 TzBfG) in podobno. Zanje je potreben kvalificiran elektronski podpis (QES) ponudnika storitev zaupanja — PicPeak ne zagotavlja QES.",
+      "schriftformWarning": "Vrsta podpisa: preprost elektronski podpis (SES). Zadostuje za običajne fotografske pogodbe v CH / DE / AT / FL. NE zadostuje za dokumente, za katere zakon zahteva Schriftform / form qualifiée: Bürgschaft (DE § 766 BGB), Verbraucherdarlehensvertrag (DE § 492 BGB), befristete Arbeitsverträge (DE § 14 Abs. 4 TzBfG) in podobno. Zanje je potreben kvalificiran elektronski podpis (QES) ponudnika storitev zaupanja — FotoDesk ne zagotavlja QES.",
       "searchCustomer": "Išči po e-pošti …",
       "systemBadge": "Sistem",
       "titleEdit": "Uredi pogodbo",
@@ -8714,7 +8714,7 @@
       "hideInactive": "Skrij neaktivne",
       "disclaimerTitle": "Samo primeri — naj jih pregleda vaš pravnik",
       "disclaimerLink": "Preberite pravno obvestilo CRM",
-      "disclaimerBody": "Prednastavljene »sistemske« sklope je napisal vzdrževalec PicPeak, ne pravnik. Namenjeni so samo kot izhodišče — vsak sklop, ki ga nameravate poslati, preglejte in prilagodite skupaj s svojim pravnikom. Spremembe sistemskih sklopov se ohranijo; začetno besedilo na mestu zamenjajte z različico, ki jo je pregledal pravnik.",
+      "disclaimerBody": "Prednastavljene »sistemske« sklope je napisal vzdrževalec FotoDesk, ne pravnik. Namenjeni so samo kot izhodišče — vsak sklop, ki ga nameravate poslati, preglejte in prilagodite skupaj s svojim pravnikom. Spremembe sistemskih sklopov se ohranijo; začetno besedilo na mestu zamenjajte z različico, ki jo je pregledal pravnik.",
       "sidebarHeading": "Sklopi",
       "new": "Nov sklop",
       "systemBadge": "Sistem",

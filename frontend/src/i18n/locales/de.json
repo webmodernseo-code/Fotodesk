@@ -12,11 +12,11 @@
     "error": "Die Quellenzuweisung konnte nicht geändert werden. Prüfe, ob der Ordner existiert und keine andere Quelle überschneidet."
   },
   "productUsagePrompt": {
-    "title": "PicPeak mitgestalten?",
-    "intro": "Helfen Sie, PicPeak mit freiwilligen Produktnutzungsberichten weiterzuentwickeln. Prüfen Sie vor Ihrer Entscheidung, welche pseudonymen Daten geteilt werden, wer sie sehen kann und wohin sie gesendet werden."
+    "title": "FotoDesk mitgestalten?",
+    "intro": "Helfen Sie, FotoDesk mit freiwilligen Produktnutzungsberichten weiterzuentwickeln. Prüfen Sie vor Ihrer Entscheidung, welche pseudonymen Daten geteilt werden, wer sie sehen kann und wohin sie gesendet werden."
   },
   "productUsage": {
-    "fields": "usage.v6-Berichte enthalten einen Installationsfingerabdruck, die PicPeak-Version, UTC-Berichtsdatum und Erstellungszeit, Schema- und Signaturmetadaten, die Galerie-Layouts aus einer festen Liste, 87 Funktionssignale (64 Paare aus Konfiguriert und Genutzt, 23 reine Konfigurationswerte) sowie zwei Gesamtzahlen der Installation: gespeicherte Galerien und Fotoeinträge ohne Videos. Entwürfe, archivierte Galerien und deren erhaltene Fotoeinträge zählen mit. Der Katalog unten erklärt jedes Feld. Keine Aktionszähler, keine Beobachtung von Besuchern.",
+    "fields": "usage.v6-Berichte enthalten einen Installationsfingerabdruck, die FotoDesk-Version, UTC-Berichtsdatum und Erstellungszeit, Schema- und Signaturmetadaten, die Galerie-Layouts aus einer festen Liste, 87 Funktionssignale (64 Paare aus Konfiguriert und Genutzt, 23 reine Konfigurationswerte) sowie zwei Gesamtzahlen der Installation: gespeicherte Galerien und Fotoeinträge ohne Videos. Entwürfe, archivierte Galerien und deren erhaltene Fotoeinträge zählen mit. Der Katalog unten erklärt jedes Feld. Keine Aktionszähler, keine Beobachtung von Besuchern.",
     "catalogTitle": "Vollständiger Katalog: 87 Funktionssignale und 2 Bestandszahlen (usage.v6)",
     "catalogExplanation": "„Konfiguriert“ beschreibt, ob eine Funktion technisch verfügbar oder eingerichtet ist. „Integriert“ heißt: immer verfügbar, ohne Nutzungsnachweis. „Genutzt“ ist ein einzelnes Ja/Nein für die ganze Installation seit der Zustimmung zu diesem Schema; ein angenommener Auftrag zählt als gestartet, nicht als abgeschlossen. Reine Konfigurationssignale haben kein Genutzt-Feld. Der Bestand enthält nur die aktuellen Gesamtzahlen der Galerie- und Fotoeinträge, ohne Aufschlüsselung nach Galerien. Nutzungsmarker speichern keine Personen, Objektkennungen, Zeitpunkte oder Häufigkeiten.",
     "catalogSearch": "Funktionsname oder Schlüssel suchen",
@@ -287,7 +287,7 @@
         "used": "Eine dokumentierte erfolgreiche authentifizierte Admin-Funktionsoperation wurde seit Zustimmung zu diesem Schema beobachtet. Keine Person, Operationshistorie, Parameter oder Anzahlen."
       },
       "portable_backup": {
-        "name": "Portabler PicPeak-Export/Import",
+        "name": "Portabler FotoDesk-Export/Import",
         "configured": "Integrierte Funktion ist verfügbar; dies ist kein Nutzungsnachweis.",
         "used": "Eine dokumentierte erfolgreiche authentifizierte Admin-Funktionsoperation wurde seit Zustimmung zu diesem Schema beobachtet. Keine Person, Operationshistorie, Parameter oder Anzahlen."
       },
@@ -481,10 +481,10 @@
       }
     },
     "auditTitle": "Export- und Löschquittungen",
-    "auditDescription": "Lade deine privaten Nachweise herunter. PicPeak speichert nur die letzte Exportquittung während der Teilnahme und die letzte Löschbestätigung. Sie enthalten keinen Installationshash, keinen Schlüssel und keine Bericht- oder Feedbackinhalte. Ein Opt-out entfernt die lokale Exportquittung, die Löschbestätigung ohne Identitätsbezug bleibt erhalten. Der Collector führt keinen Export- oder Zugriffsverlauf.",
+    "auditDescription": "Lade deine privaten Nachweise herunter. FotoDesk speichert nur die letzte Exportquittung während der Teilnahme und die letzte Löschbestätigung. Sie enthalten keinen Installationshash, keinen Schlüssel und keine Bericht- oder Feedbackinhalte. Ein Opt-out entfernt die lokale Exportquittung, die Löschbestätigung ohne Identitätsbezug bleibt erhalten. Der Collector führt keinen Export- oder Zugriffsverlauf.",
     "auditDownload": "Datenschutzquittungen herunterladen",
     "title": "Produktnutzung & Feedback",
-    "noticeTitle": "Gestalte PicPeak mit",
+    "noticeTitle": "Gestalte FotoDesk mit",
     "notice": "Freiwillige Nutzungsberichte zeigen, welche Funktionen für die Community wichtig sind. Es wird nichts übermittelt, bis du dich aktiv dafür entscheidest.",
     "ignore": "Ignorieren",
     "ignoreHint": "Wenn du ignorierst, erscheint dieser Hinweis nicht erneut. Du kannst jederzeit unter Einstellungen → Produktnutzung teilnehmen.",
@@ -492,7 +492,7 @@
     "cancel": "Abbrechen",
     "loading": "Teilnahmeeinstellungen werden geladen …",
     "failed": "Der Vorgang konnte nicht abgeschlossen werden. Prüfe den Status und versuche es erneut.",
-    "purpose": "Hilf mit, PicPeak-Funktionen, Fehlerbehebungen und Wartung zu priorisieren, mit groben Informationen über teilnehmende Installationen.",
+    "purpose": "Hilf mit, FotoDesk-Funktionen, Fehlerbehebungen und Wartung zu priorisieren, mit groben Informationen über teilnehmende Installationen.",
     "consentTitle": "Produktnutzung freiwillig teilen",
     "sectionFields": "Was ein Bericht enthält",
     "sectionExcluded": "Was niemals enthalten ist",
@@ -501,11 +501,11 @@
     "sectionDeletion": "Beenden und löschen",
     "sectionFeedback": "Feedback ist getrennt",
     "excluded": "Automatische Berichte enthalten keine Besucheraktivität, keine Klickverläufe, keine Aufschlüsselung nach Galerien oder Fotos, keine Namen, E-Mail-Adressen, Domains, Dateinamen oder Bildinhalte, keine biometrischen Ergebnisse, keine Finanzwerte und keine Konfigurationsgeheimnisse.",
-    "transport": "Dein PicPeak-Backend verwahrt den Signaturschlüssel und sendet einmal pro UTC-Tag, während ein Admin angemeldet ist, einen signierten Nutzungsbericht an {{collector}}. Du kannst Berichte vorab ansehen und jeden angenommenen Bericht genau so herunterladen, wie er beim Collector angekommen ist; wiederholte Übertragungen zählen nicht doppelt. Abgelehnte Versuche und getrennt gesendetes Feedback gehören nicht zu diesem Export.",
+    "transport": "Dein FotoDesk-Backend verwahrt den Signaturschlüssel und sendet einmal pro UTC-Tag, während ein Admin angemeldet ist, einen signierten Nutzungsbericht an {{collector}}. Du kannst Berichte vorab ansehen und jeden angenommenen Bericht genau so herunterladen, wie er beim Collector angekommen ist; wiederholte Übertragungen zählen nicht doppelt. Abgelehnte Versuche und getrennt gesendetes Feedback gehören nicht zu diesem Export.",
     "sectionOneWay": "Nur senden, kein Rückkanal",
-    "oneWay": "PicPeak sendet ausschließlich. Es ruft beim Collector nichts ab, holt keine Anweisungen und bietet ihm keinen Endpunkt, den er aufrufen könnte: auf diesem Weg gibt es weder einen geplanten Job noch eine eingehende Route. Aus einer Antwort wird nur die Bestätigung für das gerade gesendete Paket gelesen, und jedes ihrer Felder wird gegen dieses Paket geprüft, bevor sie angenommen wird; alles andere wird verworfen. Ein von dir angeforderter Datenexport wird dir als Datei übergeben und niemals ausgewertet oder ausgeführt. Über diesen Kanal können also weder Code noch Konfiguration oder Inhalte in deine Installation gelangen, auch nicht von einem übernommenen Collector.",
+    "oneWay": "FotoDesk sendet ausschließlich. Es ruft beim Collector nichts ab, holt keine Anweisungen und bietet ihm keinen Endpunkt, den er aufrufen könnte: auf diesem Weg gibt es weder einen geplanten Job noch eine eingehende Route. Aus einer Antwort wird nur die Bestätigung für das gerade gesendete Paket gelesen, und jedes ihrer Felder wird gegen dieses Paket geprüft, bevor sie angenommen wird; alles andere wird verworfen. Ein von dir angeforderter Datenexport wird dir als Datei übergeben und niemals ausgewertet oder ausgeführt. Über diesen Kanal können also weder Code noch Konfiguration oder Inhalte in deine Installation gelangen, auch nicht von einem übernommenen Collector.",
     "visibility": "Teilnehmende Installationen können den gemeinsamen Datensatz der aktuellen Funktionskombinationen und Bestandszahlen einsehen, auch Gruppen mit nur einem Eintrag, sowie aggregierte Zeitverläufe. Betreuer können alle aufbewahrten Originalberichte und privates Feedback einsehen und exportieren. Das erlaubt keine Veröffentlichung privaten Feedbacks. Schema und Quellcode sind öffentlich. Dein Fingerabdruck und deine Daten sind pseudonym, nicht anonym. Halte deinen Abfrage-Hash geheim: Er gewährt Lesezugriff auf deine Berichte und den Teilnehmerdatensatz.",
-    "deletion": "Deaktivieren stoppt die Erfassung sofort und fordert die Löschung deiner Berichte, Aggregatbeiträge, Rückmeldungen, Veröffentlichungen, Stimmen und Sitzungen an. Bei einem Ausfall bleiben nur die für die Löschung nötigen Zugangsdaten erhalten, die Oberfläche zeigt die ausstehende Löschung. Nach der Bestätigung werden Hash und Schlüssel lokal gelöscht; eine erneute Teilnahme erzeugt eine neue Identität. Der Collector behält einen Einweg-Sperrwert und kurzlebige Missbrauchszähler ohne Installationsbezug. PicPeak speichert eine herunterladbare lokale Löschquittung ohne den alten Hash, Schlüssel oder Inhalte.",
+    "deletion": "Deaktivieren stoppt die Erfassung sofort und fordert die Löschung deiner Berichte, Aggregatbeiträge, Rückmeldungen, Veröffentlichungen, Stimmen und Sitzungen an. Bei einem Ausfall bleiben nur die für die Löschung nötigen Zugangsdaten erhalten, die Oberfläche zeigt die ausstehende Löschung. Nach der Bestätigung werden Hash und Schlüssel lokal gelöscht; eine erneute Teilnahme erzeugt eine neue Identität. Der Collector behält einen Einweg-Sperrwert und kurzlebige Missbrauchszähler ohne Installationsbezug. FotoDesk speichert eine herunterladbare lokale Löschquittung ohne den alten Hash, Schlüssel oder Inhalte.",
     "feedbackDisclosure": "Feedback wird getrennt von den automatischen Berichten und nur beim Absenden übertragen. Jeder Beitrag ist anonym, sofern du keinen Namen angibst, und nur für Betreuer sichtbar, sofern du die Veröffentlichung nicht ausdrücklich erlaubst. Öffentliche Beiträge werden vorher geprüft. Eine Empfehlung fürs Marketing zu verwenden braucht eine zusätzliche Erlaubnis.",
     "consentCheck": "Ich habe diese Hinweise gelesen und stimme der Teilnahme ausdrücklich zu.",
     "enable": "Produktnutzung aktivieren",
@@ -535,7 +535,7 @@
     "saveName": "Diesen Namen lokal merken",
     "saved": "Einstellung gespeichert. Neue Beiträge bleiben standardmäßig anonym.",
     "allowPublic": "Ich erlaube, diesen Text und den angegebenen Namen nach Prüfung im Nutzungsportal zu veröffentlichen.",
-    "allowMarketing": "Ich erlaube zusätzlich, diese Empfehlung und den angegebenen Namen für Marketing auf der PicPeak-Homepage zu verwenden.",
+    "allowMarketing": "Ich erlaube zusätzlich, diese Empfehlung und den angegebenen Namen für Marketing auf der FotoDesk-Homepage zu verwenden.",
     "sendFeedback": "Feedback absenden",
     "feedbackSent": "Feedback erhalten. Eine Veröffentlichung braucht deine Erlaubnis und die Prüfung durch die Betreuer.",
     "states": {
@@ -880,7 +880,7 @@
     "uploading": "Wird hochgeladen...",
     "transferring": "Übertragung",
     "processing": "Fotos werden verarbeitet...",
-    "processingHint": "Dateien sind hochgeladen. PicPeak erstellt jetzt Thumbnails und liest Metadaten. Sie können diese Seite verlassen — die Verarbeitung läuft im Hintergrund weiter.",
+    "processingHint": "Dateien sind hochgeladen. FotoDesk erstellt jetzt Thumbnails und liest Metadaten. Sie können diese Seite verlassen — die Verarbeitung läuft im Hintergrund weiter.",
     "processingProgress": "{{complete}} von {{total}} fertig",
     "processingFailed_one": "{{count}} Foto konnte nicht verarbeitet werden",
     "processingFailed_other": "{{count}} Fotos konnten nicht verarbeitet werden",
@@ -1133,7 +1133,7 @@
     "codeIssued": "Upload-Code erstellt",
     "codeRevoked": "Upload-Code zurückgezogen",
     "codeHint": "Optional: ein kurzer Code, den Sie am Telefon vorlesen können. Der vollständige Link oben funktioniert immer.",
-    "unscannedNote": "Diese Dateien werden genau so gespeichert, wie sie eingegangen sind, und von PicPeak nie geöffnet oder geprüft. Prüfen Sie sie, bevor Sie sie verwenden oder weitergeben.",
+    "unscannedNote": "Diese Dateien werden genau so gespeichert, wie sie eingegangen sind, und von FotoDesk nie geöffnet oder geprüft. Prüfen Sie sie, bevor Sie sie verwenden oder weitergeben.",
     "deleteRequestConfirmTitle": "Dateianfrage löschen?",
     "deleteRequestConfirmBody": "Damit wird der Upload-Link entfernt und jede vom Kunden gesendete Datei endgültig gelöscht.",
     "tab": {
@@ -1290,21 +1290,21 @@
     }
   },
   "backup": {
-    "picpeak": {
-      "restoreIntro": "Laden Sie eine .picpeak-Datei von dieser oder einer anderen Instanz hoch. Die Wiederherstellung eines SQLite-Backups auf einer PostgreSQL-Instanz wird unterstützt (Upgrade-Pfad); ansonsten müssen die Datenbank-Engines übereinstimmen.",
+    "fotodesk": {
+      "restoreIntro": "Laden Sie eine .fotodesk-Datei von dieser oder einer anderen Instanz hoch. Die Wiederherstellung eines SQLite-Backups auf einer PostgreSQL-Instanz wird unterstützt (Upgrade-Pfad); ansonsten müssen die Datenbank-Engines übereinstimmen.",
       "crossEngineNote": "Engine-übergreifende Wiederherstellung: Ein SQLite-Backup wurde auf diese PostgreSQL-Instanz übernommen.",
       "downloadFailed": "Die Backup-Datei konnte nicht erstellt werden.",
-      "title": "Portables Backup (.picpeak)",
+      "title": "Portables Backup (.fotodesk)",
       "intro": "Laden Sie eine einzelne, in sich geschlossene Datei herunter und laden Sie sie auf einer anderen Instanz wieder hoch, um diese zu klonen — alles direkt im Browser.",
       "includePhotos": "Original-Galeriefotos einschließen (größere Datei)",
       "secretsWarning": "Diese Datei enthält Geheimnisse im Klartext (E-Mail-Passwort, Admin-Zugangsdaten, API-Schlüssel). Bewahren Sie sie sicher auf und übertragen Sie sie nur über vertrauenswürdige Kanäle.",
-      "download": ".picpeak herunterladen",
+      "download": ".fotodesk herunterladen",
       "externalPathsFailed": "Backup wiederhergestellt, aber die externen Fotopfade konnten nicht umgestellt werden — diese Originale laden erst nach einem erneuten Versuch.",
       "restoreDone": "Backup wiederhergestellt.",
       "reloginRequired": "Wiederherstellung abgeschlossen — bitte melden Sie sich erneut an.",
       "restoreFailed": "Wiederherstellung fehlgeschlagen.",
-      "restoreTitle": "Aus einer .picpeak-Datei wiederherstellen",
-      "chooseFile": ".picpeak-Datei auswählen…",
+      "restoreTitle": "Aus einer .fotodesk-Datei wiederherstellen",
+      "chooseFile": ".fotodesk-Datei auswählen…",
       "restoreSummary": "{{tables}} Tabellen und {{files}} Dateien wiederhergestellt.",
       "externalPathsFailedDetail": "Die externen Fotopfade wurden nicht umgestellt, deshalb ist derzeit kein referenziertes Original erreichbar. Führen Sie die Wiederherstellung oder die ausstehenden Migrationen erneut aus, sobald die Ursache behoben ist.",
       "externalMediaNote": "Dieses Backup verweist auf eine externe Medienbibliothek. Stellen Sie sicher, dass das Routing für externe Medien auf dieser Instanz eingerichtet ist.",
@@ -1641,8 +1641,8 @@
           "description": "Eine Backup-Datei hochladen",
           "comingSoon": "Upload-Funktion kommt bald",
           "manifestComingSoon": "Manifest-Upload-Funktion kommt bald",
-          "picpeak": {
-            "name": ".picpeak-Backup",
+          "fotodesk": {
+            "name": ".fotodesk-Backup",
             "description": "Portables Voll-Backup — stellt alles wieder her (vollständige Überschreibung, Ihr aktuelles Konto bleibt erhalten)."
           },
           "manifest": {
@@ -2197,7 +2197,7 @@
     "categories": "Kategorien",
     "eventInformation": "Veranstaltungsinformationen",
     "sourceMode": "Quellenmodus",
-    "sourceModeManaged": "Verwaltet (Upload nach PicPeak)",
+    "sourceModeManaged": "Verwaltet (Upload nach FotoDesk)",
     "sourceModeReference": "Externen Ordner referenzieren",
     "sourceModeHelp": "Nutzen Sie den verwalteten Modus für direkte Uploads oder verweisen Sie auf einen gemounteten /external-media Ordner.",
     "externalFolder": "Externer Ordner",
@@ -2623,7 +2623,7 @@
       "watching": "Überwacht neue Dateien",
       "retry": "Erneut versuchen",
       "failedMissing": "Der letzte Import ist fehlgeschlagen: Der Ordner ist nicht mehr auffindbar.",
-      "failedPermission": "Der letzte Import ist fehlgeschlagen: PicPeak darf den Ordner nicht lesen.",
+      "failedPermission": "Der letzte Import ist fehlgeschlagen: FotoDesk darf den Ordner nicht lesen.",
       "failedGeneric": "Der letzte Import ist fehlgeschlagen.",
       "applyStructure": "Ordnerstruktur übernehmen",
       "applyStructureHint": "Unterordner auf Fotos übertragen, die importiert wurden, bevor die Ordnerstruktur aktiv war",
@@ -2706,8 +2706,8 @@
       "source": "Fotoquelle",
       "sourceImportHelp": "Importiert jetzt neue Fotos aus diesem Ordner. Läuft im Hintergrund; die Fotos erscheinen im Tab Fotos.",
       "sourceImportSaveFirst": "Zuerst den neuen Ordner speichern, dann hier importieren.",
-      "sourceManagedHelp": "Fotos werden im Tab Fotos hochgeladen und von PicPeak gespeichert.",
-      "sourceReferenceHelp": "Fotos bleiben in deinem Ordner; PicPeak verlinkt sie.",
+      "sourceManagedHelp": "Fotos werden im Tab Fotos hochgeladen und von FotoDesk gespeichert.",
+      "sourceReferenceHelp": "Fotos bleiben in deinem Ordner; FotoDesk verlinkt sie.",
       "summary": {
         "clientAccounts_one": "{{count}} Kundenkonto",
         "clientAccounts_other": "{{count}} Kundenkonten",
@@ -2734,7 +2734,7 @@
         "reminderGlobal": "Globaler Zeitplan",
         "reminderOff": "Für diese Galerie aus",
         "reminderOn": "Versand am {{date}}",
-        "uploaded": "In PicPeak hochgeladen",
+        "uploaded": "In FotoDesk hochgeladen",
         "uploadsOff": "Uploads aus",
         "uploadsOn": "Uploads an",
         "watching": "wird überwacht",
@@ -3195,7 +3195,7 @@
     },
     "updateNotifications": {
       "title": "Update-Benachrichtigungen",
-      "description": "Erhalten Sie E-Mail-Benachrichtigungen, wenn neue Versionen von PicPeak verfügbar sind.",
+      "description": "Erhalten Sie E-Mail-Benachrichtigungen, wenn neue Versionen von FotoDesk verfügbar sind.",
       "enableEmails": "E-Mail-Benachrichtigungen aktivieren",
       "enableEmailsDesc": "E-Mail an Admins senden, wenn eine neue Version verfügbar ist",
       "recipients": "E-Mail-Empfänger",
@@ -3247,7 +3247,7 @@
     "analytics": {
       "title": "Analyse",
       "providerHeading": "Analytics-Anbieter",
-      "providerDescription": "Wählen Sie Umami oder Rybbit für öffentliche Galerie-Analysen. PicPeak leitet nur Daten weiter; eigene Tracker-Skripte werden nicht mehr unterstützt.",
+      "providerDescription": "Wählen Sie Umami oder Rybbit für öffentliche Galerie-Analysen. FotoDesk leitet nur Daten weiter; eigene Tracker-Skripte werden nicht mehr unterstützt.",
       "providerLabel": "Anbieter",
       "provider": {
         "none": "Keiner",
@@ -3255,12 +3255,12 @@
         "rybbit": "Rybbit",
         "custom": "Custom (eigenes Skript einfügen)"
       },
-      "providerNoneInfo": "Keine Ereignisse werden extern weitergeleitet. Das Admin-Dashboard zeigt weiterhin Übersicht und Tagesverlauf aus PicPeaks access_logs; Geräte werden grob anhand des User-Agents zugeordnet.",
+      "providerNoneInfo": "Keine Ereignisse werden extern weitergeleitet. Das Admin-Dashboard zeigt weiterhin Übersicht und Tagesverlauf aus FotoDesks access_logs; Geräte werden grob anhand des User-Agents zugeordnet.",
       "proxiedNotice": "Datenbasierte Analytics-Weiterleitung",
       "customDisabled": "Eigene Skripte deaktiviert",
       "customDisabledHelp": "Ihr bisheriges eigenes Snippet ist deaktiviert und wird nicht an Besucher gesendet. Wählen Sie Umami, Rybbit oder Keinen und speichern Sie, um das alte Snippet zu löschen.",
-      "proxiedNoticeText": "PicPeak leitet bereinigte Seitenaufrufe und Galerie-Ereignisse weiter, ohne Drittanbieter-Code zu laden. Der Anbieter erhält Besucher-IP und User-Agent, aber keine URL-Parameter, Seitentitel, Referrer, Tokens oder Konto-Kennungen. In Produktion muss der Anbieter HTTPS verwenden.",
-      "customOnlyCspWarningText": "PicPeak liefert eine strikte CSP aus (`script-src 'self'; connect-src 'self'`). Anders als bei den Optionen Umami und Rybbit oben wird ein eingefügtes Snippet nicht über PicPeak geleitet — tragen Sie die Domain Ihres Trackers sowohl in `script-src` (zum Laden des Skripts) als auch in `connect-src` (für die gesendeten Ereignisse) Ihrer Reverse-Proxy- oder nginx-CSP-Konfiguration ein, sonst blockiert der Browser sie stillschweigend.",
+      "proxiedNoticeText": "FotoDesk leitet bereinigte Seitenaufrufe und Galerie-Ereignisse weiter, ohne Drittanbieter-Code zu laden. Der Anbieter erhält Besucher-IP und User-Agent, aber keine URL-Parameter, Seitentitel, Referrer, Tokens oder Konto-Kennungen. In Produktion muss der Anbieter HTTPS verwenden.",
+      "customOnlyCspWarningText": "FotoDesk liefert eine strikte CSP aus (`script-src 'self'; connect-src 'self'`). Anders als bei den Optionen Umami und Rybbit oben wird ein eingefügtes Snippet nicht über FotoDesk geleitet — tragen Sie die Domain Ihres Trackers sowohl in `script-src` (zum Laden des Skripts) als auch in `connect-src` (für die gesendeten Ereignisse) Ihrer Reverse-Proxy- oder nginx-CSP-Konfiguration ein, sonst blockiert der Browser sie stillschweigend.",
       "rybbitUrl": "Rybbit-URL",
       "rybbitUrlHelp": "URL Ihrer Rybbit-Instanz — `https://app.rybbit.io` für SaaS oder `https://rybbit.ihre-domain.de` für selbst gehostet.",
       "rybbitWebsiteId": "Site-ID",
@@ -3338,7 +3338,7 @@
     },
     "webhooks": {
       "title": "Webhooks",
-      "subtitle": "Senden Sie POST-Ereignisbenachrichtigungen an Ihre URL, sobald etwas passiert — Galerie veröffentlicht, Foto hochgeladen, Veranstaltung archiviert usw. Signiert mit HMAC-SHA256 im X-PicPeak-Signature-Header.",
+      "subtitle": "Senden Sie POST-Ereignisbenachrichtigungen an Ihre URL, sobald etwas passiert — Galerie veröffentlicht, Foto hochgeladen, Veranstaltung archiviert usw. Signiert mit HMAC-SHA256 im X-FotoDesk-Signature-Header.",
       "piiNotice": "event.*-Payloads enthalten Kundenkontaktdaten (Name, E-Mail, Telefon) und den Galerie-Share-Token, sofern gespeichert. Richten Sie Webhooks nur auf vertrauenswürdige Empfänger — sie haben alles, um den Kunden zu kontaktieren oder die Galerie zu öffnen.",
       "copyNow": "Kopieren Sie dieses Signaturgeheimnis jetzt — es wird nicht erneut angezeigt.",
       "name": "Name",
@@ -3350,7 +3350,7 @@
       "existing": "Vorhandene Webhooks",
       "empty": "Noch keine Webhooks. Erstellen Sie oben einen, um Ereignisbenachrichtigungen zu erhalten.",
       "namePlaceholder": "z. B. n8n WhatsApp",
-      "urlPlaceholder": "https://n8n.example.com/webhook/picpeak",
+      "urlPlaceholder": "https://n8n.example.com/webhook/fotodesk",
       "showAdvanced": "+ Erweitert (Filter, Vorlage)",
       "hideAdvanced": "− Erweitert ausblenden (Filter, Vorlage)",
       "filterHelp": "Dot-Pfad → erwarteter Wert. Alle Schlüssel müssen übereinstimmen (AND). Array für \"eines aus\".",
@@ -3463,8 +3463,8 @@
       },
       "galleries": {
         "title": "Galerien",
-        "description": "Der Kern von PicPeak. Immer verfügbar.",
-        "locked": "Galerien sind die Grundlage von PicPeak und können nicht deaktiviert werden."
+        "description": "Der Kern von FotoDesk. Immer verfügbar.",
+        "locked": "Galerien sind die Grundlage von FotoDesk und können nicht deaktiviert werden."
       },
       "incomingMail": {
         "title": "Eingehende E-Mails",
@@ -3748,14 +3748,14 @@
       "saveError": "SSO-Einstellungen konnten nicht gespeichert werden",
       "roleMapping": {
         "title": "Rollen-Mapping",
-        "intro": "Weisen Sie PicPeak-Rollen aus einem Rollen- oder Gruppen-Claim im ID-Token zu. Rollen werden bei jeder SSO-Anmeldung neu ausgewertet — der IdP wird zur führenden Quelle.",
+        "intro": "Weisen Sie FotoDesk-Rollen aus einem Rollen- oder Gruppen-Claim im ID-Token zu. Rollen werden bei jeder SSO-Anmeldung neu ausgewertet — der IdP wird zur führenden Quelle.",
         "enabled": "Rollen-Mapping aktivieren",
         "enabledHint": "Aus: Bestehende Admins behalten ihre Rolle, neue Benutzer erhalten die Standardrolle oben.",
         "claim": "Rollen-Claim (Punkt-Pfad)",
         "claimHint": "Keycloak: realm_access.roles · Authentik: groups · Entra ID: roles oder groups",
-        "mappings": "Zuordnungen (IdP-Wert → PicPeak-Rolle)",
+        "mappings": "Zuordnungen (IdP-Wert → FotoDesk-Rolle)",
         "noMappings": "Noch keine Zuordnungen — ohne Zuordnung erhält keine Anmeldung eine Rolle vom IdP.",
-        "idpValuePlaceholder": "IdP-Rolle oder -Gruppe, z. B. picpeak-admins",
+        "idpValuePlaceholder": "IdP-Rolle oder -Gruppe, z. B. fotodesk-admins",
         "addMapping": "Zuordnung hinzufügen",
         "requireRole": "Zugeordnete Rolle für die Anmeldung verlangen",
         "requireRoleHint": "SSO-Anmeldungen ohne zugeordnete Rolle werden abgelehnt — nur Mitglieder der zugeordneten IdP-Gruppen kommen hinein. Der letzte aktive Super Admin wird durch das Mapping nie herabgestuft."
@@ -3766,7 +3766,7 @@
         "disableLocalLoginHint": "Die Anmeldeseite zeigt nur noch den SSO-Button und die API lehnt Passwort-Anmeldungen ab. Nur möglich, solange SSO aktiviert ist; wird SSO deaktiviert, ist die Passwort-Anmeldung automatisch wieder möglich.",
         "breakGlassHint": "Ausgesperrt, weil der IdP down oder falsch konfiguriert ist? Setzen Sie die Umgebungsvariable OIDC_BREAK_GLASS=true am Backend und starten Sie neu — die Passwort-Anmeldung ist sofort wieder möglich.",
         "logoutFromIdp": "Auch beim Identity Provider abmelden",
-        "logoutFromIdpHint": "Die Abmeldung von PicPeak beendet auch die IdP-Sitzung (RP-initiated Logout). Gilt nur für Sitzungen, die per SSO angemeldet wurden; ohne diese Option bleibt die IdP-Sitzung bestehen und der nächste SSO-Klick meldet direkt wieder an.",
+        "logoutFromIdpHint": "Die Abmeldung von FotoDesk beendet auch die IdP-Sitzung (RP-initiated Logout). Gilt nur für Sitzungen, die per SSO angemeldet wurden; ohne diese Option bleibt die IdP-Sitzung bestehen und der nächste SSO-Klick meldet direkt wieder an.",
         "postLogoutRedirectUri": "Post-Logout-Redirect-URI (beim IdP-Client registrieren, z. B. Keycloak „Valid post logout redirect URIs“)"
       }
     },
@@ -4051,7 +4051,7 @@
       "uploadsIntro": "Gilt für Dateianfragen und für Dateien, die Sie einem Transfer anhängen. Ändert nicht, was in eine Galerie hochgeladen werden darf.",
       "acceptAll": "Alle Dateitypen akzeptieren",
       "acceptAllHint": "Jede Datei, die ein Kunde auswählt, wird angenommen. Größenlimit, Dateianzahl und Ablauf des Links gelten weiterhin.",
-      "acceptAllWarning": "Hochgeladene Dateien werden als undurchsichtige Downloads gespeichert und ausgeliefert. PicPeak öffnet, rendert und prüft sie nie und liefert sie nie als Webinhalt aus – kann Ihnen aber auch nicht sagen, ob eine Datei sicher ist. Prüfen Sie alles, was Sie öffnen oder weitergeben.",
+      "acceptAllWarning": "Hochgeladene Dateien werden als undurchsichtige Downloads gespeichert und ausgeliefert. FotoDesk öffnet, rendert und prüft sie nie und liefert sie nie als Webinhalt aus – kann Ihnen aber auch nicht sagen, ob eine Datei sicher ist. Prüfen Sie alles, was Sie öffnen oder weitergeben.",
       "allowedTypes": "Erlaubte Dateitypen",
       "addType": "Typ hinzufügen",
       "allowedTypesHint": "Eine Datei wird angenommen, wenn ihr Typ passt und ihre Endung eine der aufgeführten ist. Endungen leer lassen, um nur auf den Typ zu prüfen.",
@@ -4236,8 +4236,8 @@
     "pdfFontSavedToast": "PDF-Schriftart gespeichert.",
     "heroPlaceholderText": "Das Hero-Foto Ihrer Veranstaltung wird hier angezeigt",
     "whiteLabel": "White Label",
-    "hidePoweredBy": "\"Powered by PicPeak\" Branding ausblenden",
-    "hidePoweredByHelp": "Entfernen Sie die PicPeak-Kennzeichnung aus Galerie-Fußzeilen für ein vollständig personalisiertes Erscheinungsbild",
+    "hidePoweredBy": "\"Powered by FotoDesk\" Branding ausblenden",
+    "hidePoweredByHelp": "Entfernen Sie die FotoDesk-Kennzeichnung aus Galerie-Fußzeilen für ein vollständig personalisiertes Erscheinungsbild",
     "logoCustomization": "Logo-Anpassung",
     "changeLogo": "Logo ändern",
     "logoSizeSmall": "Klein (32px)",
@@ -4551,12 +4551,12 @@
       "channelBeta": "Beta",
       "beta": "BETA",
       "viewReleaseNotes": "Versionshinweise anzeigen",
-      "viewOnGithub": "PicPeak auf GitHub ansehen",
+      "viewOnGithub": "FotoDesk auf GitHub ansehen",
       "updateAvailableShort": "v{{version}} verfügbar",
       "upToDate": "Alles aktuell",
       "updateNow": "Jetzt aktualisieren",
       "updateDialog": {
-        "title": "PicPeak aktualisieren",
+        "title": "FotoDesk aktualisieren",
         "detectedEnv": "Erkannte Umgebung",
         "beforeUpdating": "Vor dem Update:",
         "updateCommands": "Update-Befehle:",
@@ -4585,35 +4585,35 @@
       "dismissUntilNext": "Bis zur nächsten Version ausblenden",
       "selfUpdate": {
         "title": "Direkt hier aktualisieren",
-        "description": "PicPeak sichert zuerst seine Datenbank und installiert dann die neueste Version seines Release-Kanals. Während des Neustarts ist die Seite ein bis zwei Minuten nicht erreichbar.",
+        "description": "FotoDesk sichert zuerst seine Datenbank und installiert dann die neueste Version seines Release-Kanals. Während des Neustarts ist die Seite ein bis zwei Minuten nicht erreichbar.",
         "password": "Mit Ihrem Passwort bestätigen",
         "submit": "Jetzt aktualisieren",
         "submitting": "Wird gestartet…",
-        "onlySuperAdmin": "Ein Super-Admin kann PicPeak hier aktualisieren.",
+        "onlySuperAdmin": "Ein Super-Admin kann FotoDesk hier aktualisieren.",
         "noAgent": "In-App-Updates sind aktiviert, aber der Updater ist nicht installiert oder nicht erreichbar. Nutzen Sie die Befehle unten oder richten Sie ihn wie in docs/self-update.md beschrieben ein.",
-        "unsupportedContract": "Der installierte Updater passt nicht zu dieser PicPeak-Version. Aktualisieren Sie ihn mit picpeak-setup.sh --update oder aktualisieren Sie den Updater-Container.",
+        "unsupportedContract": "Der installierte Updater passt nicht zu dieser FotoDesk-Version. Aktualisieren Sie ihn mit fotodesk-setup.sh --update oder aktualisieren Sie den Updater-Container.",
         "busyOther": "Es läuft bereits ein Update.",
         "keepOpen": "Sie können dieses Fenster offen lassen. Die Seite ist ein bis zwei Minuten nicht erreichbar, während die neue Version startet.",
-        "reload": "PicPeak neu laden",
+        "reload": "FotoDesk neu laden",
         "manualInstead": "Stattdessen manuell aktualisieren",
         "phase": {
           "backingUp": "Datenbank wird gesichert…",
           "waiting": "Warte darauf, dass der Updater startet…",
-          "waitingLong": "Der Updater hat die Anfrage noch nicht übernommen. Prüfen Sie, ob er auf dem Server läuft (journalctl -u picpeak-updater oder der Updater-Container).",
-          "restarting": "PicPeak startet neu…"
+          "waitingLong": "Der Updater hat die Anfrage noch nicht übernommen. Prüfen Sie, ob er auf dem Server läuft (journalctl -u fotodesk-updater oder der Updater-Container).",
+          "restarting": "FotoDesk startet neu…"
         },
         "step": {
           "discover": "Installation wird geprüft…",
           "pull": "Neue Version wird heruntergeladen…",
           "verify": "Neue Version wird geprüft…",
           "recreate": "Neue Version wird installiert…",
-          "health": "Warte, bis PicPeak gestartet ist…",
+          "health": "Warte, bis FotoDesk gestartet ist…",
           "rollback": "Die neue Version ist nicht gestartet. Die vorherige wird wiederhergestellt…",
           "working": "Wird aktualisiert…"
         },
         "result": {
-          "succeeded": "PicPeak wurde aktualisiert.",
-          "upToDate": "PicPeak ist bereits auf der neuesten Version seines Kanals.",
+          "succeeded": "FotoDesk wurde aktualisiert.",
+          "upToDate": "FotoDesk ist bereits auf der neuesten Version seines Kanals.",
           "refused": "Das Update wurde nicht installiert. Es wurde nichts verändert.",
           "failed": "Das Update ist fehlgeschlagen.",
           "rolledBack": "Die neue Version ist nicht gestartet, deshalb wurde die vorherige Version wiederhergestellt.",
@@ -4621,7 +4621,7 @@
           "requestFailed": "Die Sicherung wurde erstellt, aber die Update-Anfrage konnte nicht abgelegt werden. Es wurde nichts verändert.",
           "withdrawn": "Die Update-Anfrage wurde abgebrochen. Es wurde nichts verändert.",
           "expired": "Der Updater hat die Anfrage nicht rechtzeitig übernommen, deshalb wurde sie zurückgezogen. Es wurde nichts verändert. Prüfen Sie, ob der Updater läuft, und versuchen Sie es erneut.",
-          "lost": "Die Update-Anfrage hat den Updater nicht erreicht (PicPeak wurde neu gestartet oder die Anfrage zurückgezogen). Es wurde nichts verändert."
+          "lost": "Die Update-Anfrage hat den Updater nicht erreicht (FotoDesk wurde neu gestartet oder die Anfrage zurückgezogen). Es wurde nichts verändert."
         },
         "error": {
           "badPassword": "Das Passwort ist falsch.",
@@ -4630,12 +4630,12 @@
           "generic": "Das Update konnte nicht gestartet werden.",
           "disabled": "In-App-Updates sind auf dieser Installation nicht aktiviert.",
           "noAgent": "Der Updater ist nicht installiert oder nicht erreichbar.",
-          "unsupportedContract": "Der installierte Updater passt nicht zu dieser PicPeak-Version.",
-          "requestDirNotWritable": "PicPeak kann nicht in sein Update-Anfrageverzeichnis schreiben.",
+          "unsupportedContract": "Der installierte Updater passt nicht zu dieser FotoDesk-Version.",
+          "requestDirNotWritable": "FotoDesk kann nicht in sein Update-Anfrageverzeichnis schreiben.",
           "noLocalPassword": "In-App-Updates brauchen einen Super-Admin, der sich mit Passwort anmeldet."
         },
         "cancel": "Anfrage abbrechen",
-        "requestDirNotWritable": "PicPeak kann nicht in sein Update-Anfrageverzeichnis (update/request) schreiben und deshalb kein Update anfordern. Es muss für UID 1001 beschreibbar sein; siehe docs/self-update.md.",
+        "requestDirNotWritable": "FotoDesk kann nicht in sein Update-Anfrageverzeichnis (update/request) schreiben und deshalb kein Update anfordern. Es muss für UID 1001 beschreibbar sein; siehe docs/self-update.md.",
         "noLocalPassword": "In-App-Updates brauchen einen Super-Admin, der sich mit Passwort anmeldet. Ihr Konto meldet sich nur über SSO an."
       }
     },
@@ -5292,8 +5292,8 @@
       "autoCategories": "Fotos automatisch in Kategorien einsortieren",
       "autoCategoriesHint": "Nutzt die Anzahl der Gesichter, um Fotos als Details, Porträts, Kleine Gruppen oder Gruppen abzulegen. Gilt für alle Galerien, füllt ausschließlich leere Kategorien und ändert niemals eine von Ihnen gesetzte.",
       "sidecarUnreachable": "Der Gesichtserkennungs-Dienst unter {{url}} ist nicht erreichbar, deshalb werden die {{pending}} eingereihten Fotos nicht verarbeitet. Es geht nichts verloren — der Scan läuft von selbst weiter, sobald der Dienst wieder da ist. Starten Sie ihn mit `docker compose --profile faces up -d`; er beendet sich sofort, wenn FACE_ML_TOKEN nicht auf denselben Wert wie im Backend gesetzt ist — einen Standardwert gibt es nicht.",
-      "sidecarUnauthorized": "Der Gesichtserkennungs-Dienst unter {{url}} weist unser Token zurück; Fotos werden als fehlgeschlagen markiert statt erneut versucht. Setzen Sie FACE_ML_TOKEN im Backend und im picpeak-ml-Container identisch, starten Sie beide neu und nutzen Sie dann Neu scannen — das Token allein zu korrigieren verarbeitet die bereits fehlgeschlagenen Fotos nicht erneut.",
-      "sidecarRejected": "{{url}} antwortet, aber nicht wie der Gesichtserkennungs-Dienst — Fotos werden als fehlgeschlagen markiert statt erneut versucht. Prüfen Sie, ob FACE_ML_URL auf den picpeak-ml-Container zeigt und kein Proxy dazwischenliegt, und nutzen Sie dann Neu scannen für die bereits fehlgeschlagenen Fotos.",
+      "sidecarUnauthorized": "Der Gesichtserkennungs-Dienst unter {{url}} weist unser Token zurück; Fotos werden als fehlgeschlagen markiert statt erneut versucht. Setzen Sie FACE_ML_TOKEN im Backend und im fotodesk-ml-Container identisch, starten Sie beide neu und nutzen Sie dann Neu scannen — das Token allein zu korrigieren verarbeitet die bereits fehlgeschlagenen Fotos nicht erneut.",
+      "sidecarRejected": "{{url}} antwortet, aber nicht wie der Gesichtserkennungs-Dienst — Fotos werden als fehlgeschlagen markiert statt erneut versucht. Prüfen Sie, ob FACE_ML_URL auf den fotodesk-ml-Container zeigt und kein Proxy dazwischenliegt, und nutzen Sie dann Neu scannen für die bereits fehlgeschlagenen Fotos.",
       "sidecarStateNow": "Aktueller Zustand des Dienstes — einige der Fehler oben können eine andere Ursache haben, aber ein erneuter Scan wird erst nach der Behebung erfolgreich sein:",
       "consolidated_one": "Beim letzten Scan wurde {{count}} ähnliches Paar automatisch zusammengeführt. Prüfen Sie es unter „Personen verwalten“ — falsch Zusammengeführtes lässt sich mit „Trennen“ wieder aufteilen.",
       "consolidated_other": "Beim letzten Scan wurden {{count}} ähnliche Paare automatisch zusammengeführt. Prüfen Sie sie unter „Personen verwalten“ — falsch Zusammengeführtes lässt sich mit „Trennen“ wieder aufteilen.",
@@ -5311,7 +5311,7 @@
     "expandSidebar": "Seitenleiste ausklappen",
     "collapseSidebar": "Seitenleiste einklappen",
     "backToMenu": "Zurück zum Menü",
-    "viewOnGithub": "PicPeak auf GitHub ansehen"
+    "viewOnGithub": "FotoDesk auf GitHub ansehen"
   },
   "acceptInvitation": {
     "title": "Einladung annehmen",
@@ -5408,7 +5408,7 @@
     "title": "Analytics Dashboard",
     "subtitle": "Galerie-Performance und Besucherengagement verfolgen",
     "detailedSubtitle": "Detaillierte Analysen mit Umami",
-    "embedUnavailable": "Externe Dashboards benötigen einen HTTPS-Host außerhalb des PicPeak-Cookie-Bereichs und einen Browser mit Unterstützung für Iframes ohne Zugangsdaten. Die integrierten Statistiken bleiben verfügbar.",
+    "embedUnavailable": "Externe Dashboards benötigen einen HTTPS-Host außerhalb des FotoDesk-Cookie-Bereichs und einen Browser mit Unterstützung für Iframes ohne Zugangsdaten. Die integrierten Statistiken bleiben verfügbar.",
     "embedCspHint": "Für die Einbettung muss zusätzlich der Ursprung des Dashboards in der frame-src-Direktive der Content-Security-Policy des Reverse-Proxys eingetragen sein; ohne diesen Eintrag bleibt der Rahmen leer.",
     "openDashboard": "Dashboard in neuem Tab öffnen",
     "loadingAnalytics": "Analytik wird geladen...",
@@ -6189,11 +6189,11 @@
     "tokenRegenerated": "Kundenzugangs-Link neu generiert"
   },
   "setup": {
-    "title": "Willkommen bei PicPeak",
+    "title": "Willkommen bei FotoDesk",
     "subtitle": "Erstellen Sie Ihr Administrator-Konto, um loszulegen",
     "tokenStepSubtitle": "Geben Sie zunächst Ihren einmaligen Setup-Token ein",
     "accountStepSubtitle": "Erstellen Sie nun Ihr Administrator-Konto",
-    "usageSubtitle": "Wie möchten Sie PicPeak nutzen?",
+    "usageSubtitle": "Wie möchten Sie FotoDesk nutzen?",
     "usageAlwaysOn": "Galerien, Analysen und Benutzerverwaltung sind immer enthalten. Wählen Sie unten optionale Funktionen — Sie können dies jederzeit in den Einstellungen ändern.",
     "usageGroupCrm": "Kundenverwaltung",
     "usageGroupAccounting": "Buchhaltung",
@@ -6203,9 +6203,9 @@
     "finish": "Einrichtung abschließen",
     "featuresSaveFailed": "Ihre Funktionsauswahl konnte nicht gespeichert werden — Sie können sie später unter Einstellungen → Funktionen festlegen.",
     "restoreStepSubtitle": "Aus einem Backup wiederherstellen",
-    "restoreEntry": "Wechsel von einer anderen PicPeak-Instanz?",
-    "restoreEntryHint": "Stellen Sie stattdessen ein .picpeak-Backup wieder her, anstatt neu einzurichten.",
-    "restoreIntro": "Laden Sie ein .picpeak-Backup hoch, um eine andere Instanz auf diese zu klonen. Dies ersetzt alles außer dem gerade erstellten Konto.",
+    "restoreEntry": "Wechsel von einer anderen FotoDesk-Instanz?",
+    "restoreEntryHint": "Stellen Sie stattdessen ein .fotodesk-Backup wieder her, anstatt neu einzurichten.",
+    "restoreIntro": "Laden Sie ein .fotodesk-Backup hoch, um eine andere Instanz auf diese zu klonen. Dies ersetzt alles außer dem gerade erstellten Konto.",
     "config": {
       "subtitle": "Richten Sie Ihre Funktionen ein",
       "intro": "Ein paar Angaben zum Abschluss der Einrichtung. Alles, was Sie überspringen, behält seinen Standardwert und kann später in den Einstellungen gesetzt werden.",
@@ -6232,7 +6232,7 @@
       "finish": "Einrichtung abschließen",
       "saveFailed": "Einige Einstellungen konnten nicht gespeichert werden — prüfen Sie die Angaben unten oder wählen Sie „Vorerst überspringen“ und schliessen Sie sie in den Einstellungen ab.",
       "siteUrl": "Öffentliche Adresse",
-      "siteUrlHint": "Unter dieser Adresse erreichen Ihre Kundinnen und Kunden die Galerie. Vorausgefüllt mit der Adresse, die Sie gerade geöffnet haben — ändern Sie sie, wenn Sie PicPeak hinter einer Domain oder einem Reverse Proxy betreiben. Sie können das jederzeit unter Einstellungen → Allgemein anpassen.",
+      "siteUrlHint": "Unter dieser Adresse erreichen Ihre Kundinnen und Kunden die Galerie. Vorausgefüllt mit der Adresse, die Sie gerade geöffnet haben — ändern Sie sie, wenn Sie FotoDesk hinter einer Domain oder einem Reverse Proxy betreiben. Sie können das jederzeit unter Einstellungen → Allgemein anpassen.",
       "siteUrlInvalid": "Geben Sie die vollständige Adresse inklusive http:// oder https:// an, zum Beispiel https://galerie.example.com",
       "siteUrlRejected": "Der Server hat diese Adresse abgelehnt. Verwenden Sie den vollständigen Ursprung, zum Beispiel https://galerie.example.com oder http://192.168.1.50:3000.",
       "fromEmailRequiredPlaceholder": "Absenderadresse (erforderlich)",
@@ -6256,9 +6256,9 @@
     },
     "usageReporting": {
       "subtitle": "Noch eine Sache",
-      "intro": "Helfen Sie, PicPeak mit freiwilligen Produktnutzungsberichten weiterzuentwickeln. Die Berichte verwenden eine pseudonyme Installations-ID. Prüfen Sie vor Ihrer Entscheidung, was geteilt wird.",
+      "intro": "Helfen Sie, FotoDesk mit freiwilligen Produktnutzungsberichten weiterzuentwickeln. Die Berichte verwenden eine pseudonyme Installations-ID. Prüfen Sie vor Ihrer Entscheidung, was geteilt wird.",
       "oneWayTitle": "Die Berichterstattung bleibt unter Ihrer Kontrolle",
-      "oneWayDesc": "PicPeak sendet signierte Nutzungsberichte. Dieser Kanal kann keine Befehle auf Ihrer Installation ausführen. Fotos, Kundennamen, E-Mails und die Verfolgung von Galeriebesuchern sind ausgeschlossen.",
+      "oneWayDesc": "FotoDesk sendet signierte Nutzungsberichte. Dieser Kanal kann keine Befehle auf Ihrer Installation ausführen. Fotos, Kundennamen, E-Mails und die Verfolgung von Galeriebesuchern sind ausgeschlossen.",
       "mutualTitle": "Sehen, was alle anderen nutzen",
       "mutualDesc": "Teilnehmer können geteilte Funktionskombinationen und Galerie-/Fotoanzahlen einsehen, auch für Gruppen mit nur einer Installation. Die Einwilligungsinformationen erläutern den vollständigen Umfang.",
       "feedbackTitle": "Feedback direkt teilen",
@@ -6271,15 +6271,15 @@
     },
     "community": {
       "subtitle": "Alles bereit",
-      "mission": "PicPeak gibt es, damit Fotografinnen und Fotografen ihre Galerien und Kundendaten selbst besitzen — auf dem eigenen Server, ohne monatliche SaaS-Gebühren. Danke, dass Sie es ausprobieren.",
+      "mission": "FotoDesk gibt es, damit Fotografinnen und Fotografen ihre Galerien und Kundendaten selbst besitzen — auf dem eigenen Server, ohne monatliche SaaS-Gebühren. Danke, dass Sie es ausprobieren.",
       "bugTitle": "Fehler gefunden?",
       "bugDesc": "Melden Sie ihn und wir sehen ihn uns an.",
       "featureTitle": "Wunschfunktion?",
-      "featureDesc": "Sagen Sie uns, was PicPeak für Sie besser machen würde.",
+      "featureDesc": "Sagen Sie uns, was FotoDesk für Sie besser machen würde.",
       "starTitle": "Gefällt es Ihnen? Erzählen Sie davon",
       "starDesc": "Empfiehl es anderen Fotografen, teile es und gib dem Projekt einen Stern auf GitHub.",
       "supportTitle": "Entwicklung unterstützen",
-      "supportDesc": "Optional — spendier mir einen Kaffee, um PicPeak am Leben zu halten.",
+      "supportDesc": "Optional — spendier mir einen Kaffee, um FotoDesk am Leben zu halten.",
       "finish": "Fertig → Dashboard"
     },
     "stepOf": "Schritt {{current}} von {{total}}",
@@ -7811,7 +7811,7 @@
     }
   },
   "ledger": {
-    "intro": "Dient nur dem Treuhänder-Export — picpeak führt keine doppelte Buchhaltung. Der vorbelegte Kontenplan + die MWST-Codes folgen dem Schweizer/LI KMU-Kontenrahmen; passen Sie sie an das Setup Ihres Treuhänders an.",
+    "intro": "Dient nur dem Treuhänder-Export — fotodesk führt keine doppelte Buchhaltung. Der vorbelegte Kontenplan + die MWST-Codes folgen dem Schweizer/LI KMU-Kontenrahmen; passen Sie sie an das Setup Ihres Treuhänders an.",
     "settingsSaved": "Zuordnungen gespeichert.",
     "saveDefaults": "Zuordnungen speichern",
     "accountType": {
@@ -8395,7 +8395,7 @@
     },
     "import": "Historische Rechnung importieren",
     "importTitle": "Historische Rechnung importieren",
-    "importHelp": "Hänge ein PDF aus einem früheren Abrechnungssystem an. Der Kunde sieht dieses Originaldokument in seinem Portal — picpeak erzeugt es nicht neu.",
+    "importHelp": "Hänge ein PDF aus einem früheren Abrechnungssystem an. Der Kunde sieht dieses Originaldokument in seinem Portal — fotodesk erzeugt es nicht neu.",
     "importedToast": "Rechnung importiert.",
     "importError": "Import fehlgeschlagen",
     "importing": "Importiere…",
@@ -8604,7 +8604,7 @@
     },
     "qrDisclaimer": {
       "title": "QR-Rechnung / Bankdaten — vor dem Produktivbetrieb prüfen",
-      "body": "Picpeak ist Open Source. Wir erzeugen den QR-Code und den IBAN-Block aus den von Ihnen eingegebenen Werten — wir prüfen sie nicht. Drucken Sie eine Testrechnung und scannen Sie sie mit der App Ihrer Bank, bevor Sie echte Rechnungen versenden. Für Fehler, die aus dem Versand einer Rechnung mit falschen Daten entstehen, übernehmen wir keine Haftung."
+      "body": "FotoDesk ist Open Source. Wir erzeugen den QR-Code und den IBAN-Block aus den von Ihnen eingegebenen Werten — wir prüfen sie nicht. Drucken Sie eine Testrechnung und scannen Sie sie mit der App Ihrer Bank, bevor Sie echte Rechnungen versenden. Für Fehler, die aus dem Versand einer Rechnung mit falschen Daten entstehen, übernehmen wir keine Haftung."
     },
     "logoUploadedToast": "PDF-Logo hochgeladen.",
     "logoConfirmClear": "PDF-Logo entfernen? Der Renderer greift dann auf das Branding-Logo zurück, sofern eines hinterlegt ist.",
@@ -9235,7 +9235,7 @@
       "save": "Speichern",
       "saveError": "Speichern fehlgeschlagen",
       "savedToast": "Vertrag gespeichert.",
-      "schriftformWarning": "Signaturtyp: einfache elektronische Signatur (EES). Ausreichend für routinemäßige Fotografieverträge in CH / DE / AT / FL. NICHT ausreichend für Dokumente, die gesetzlich Schriftform / forme qualifiée verlangen: Bürgschaft (DE § 766 BGB), Verbraucherdarlehensvertrag (DE § 492 BGB), befristete Arbeitsverträge (DE § 14 Abs. 4 TzBfG) und Ähnliches. Dafür ist eine qualifizierte elektronische Signatur (QES) eines Vertrauensdiensteanbieters erforderlich — picpeak bietet keine QES.",
+      "schriftformWarning": "Signaturtyp: einfache elektronische Signatur (EES). Ausreichend für routinemäßige Fotografieverträge in CH / DE / AT / FL. NICHT ausreichend für Dokumente, die gesetzlich Schriftform / forme qualifiée verlangen: Bürgschaft (DE § 766 BGB), Verbraucherdarlehensvertrag (DE § 492 BGB), befristete Arbeitsverträge (DE § 14 Abs. 4 TzBfG) und Ähnliches. Dafür ist eine qualifizierte elektronische Signatur (QES) eines Vertrauensdiensteanbieters erforderlich — fotodesk bietet keine QES.",
       "searchCustomer": "Nach E-Mail suchen…",
       "systemBadge": "System",
       "titleEdit": "Vertrag bearbeiten",
@@ -9259,7 +9259,7 @@
       "hideInactive": "Inaktive ausblenden",
       "disclaimerTitle": "Nur Beispiele — lassen Sie sie von Ihrem Anwalt prüfen",
       "disclaimerLink": "CRM-Haftungshinweis lesen",
-      "disclaimerBody": "Die mitgelieferten „System“-Bausteine stammen vom picpeak-Maintainer, nicht von einem Anwalt. Sie sind ausschließlich als Ausgangspunkt gedacht — lassen Sie jeden Baustein, den Sie versenden wollen, von Ihrem eigenen Anwalt prüfen und anpassen. Änderungen an System-Bausteinen bleiben erhalten; ersetzen Sie den mitgelieferten Text einfach durch die anwaltlich geprüfte Fassung.",
+      "disclaimerBody": "Die mitgelieferten „System“-Bausteine stammen vom fotodesk-Maintainer, nicht von einem Anwalt. Sie sind ausschließlich als Ausgangspunkt gedacht — lassen Sie jeden Baustein, den Sie versenden wollen, von Ihrem eigenen Anwalt prüfen und anpassen. Änderungen an System-Bausteinen bleiben erhalten; ersetzen Sie den mitgelieferten Text einfach durch die anwaltlich geprüfte Fassung.",
       "sidebarHeading": "Bausteine",
       "new": "Neuer Baustein",
       "systemBadge": "System",

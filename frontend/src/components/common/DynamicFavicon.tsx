@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { usePublicSettings } from '../../hooks/usePublicSettings';
 import { buildResourceUrl } from '../../utils/url';
 
-const DEFAULT_TITLE = 'PicPeak - Photo Sharing Platform';
+const DEFAULT_TITLE = 'FotoDesk - Plateforme Photo & Gestion Clients';
 
 export const DynamicFavicon: React.FC = () => {
   const { data: settings } = usePublicSettings({ retry: false });
@@ -62,7 +62,7 @@ export const DynamicFavicon: React.FC = () => {
     }
 
     // Update OG meta tags
-    const title = companyName || 'PicPeak';
+    const title = companyName || 'FotoDesk';
     const description = tagline || 'Photo Sharing Platform';
 
     const updateMeta = (property: string, content: string) => {

@@ -1,4 +1,4 @@
-{
+﻿{
   "userManagement": {
     "title": "Gebruikersbeheer",
     "subtitle": "Beheer beheerders en uitnodigingen",
@@ -154,7 +154,7 @@
     "processingFailed_other": "{{count}} foto's konden niet worden verwerkt",
     "processing": "Foto's verwerken…",
     "processingProgress": "{{complete}} van {{total}} klaar",
-    "processingHint": "De bestanden zijn geüpload. PicPeak genereert nu miniaturen en leest metadata. U kunt deze pagina verlaten — het werk gaat op de achtergrond verder.",
+    "processingHint": "De bestanden zijn geüpload. FotoDesk genereert nu miniaturen en leest metadata. U kunt deze pagina verlaten — het werk gaat op de achtergrond verder.",
     "transferring": "Overdragen",
     "uploadingChunks_one": "{{count}} deel wordt geüpload",
     "uploadingChunks_other": "{{count}} delen worden geüpload",
@@ -534,7 +534,7 @@
     "categories": "Categorieen",
     "eventInformation": "Evenementinformatie",
     "sourceMode": "Bronmodus",
-    "sourceModeManaged": "Beheerd (uploaden naar PicPeak)",
+    "sourceModeManaged": "Beheerd (uploaden naar FotoDesk)",
     "sourceModeReference": "Verwijzen naar externe map",
     "sourceModeHelp": "Gebruik de beheerde modus voor directe uploads of verwijs naar een gekoppelde /external-media map bij gebruik van lokale opslag.",
     "externalFolder": "Externe map",
@@ -1100,7 +1100,7 @@
     },
     "updateNotifications": {
       "title": "Updatemeldingen",
-      "description": "Ontvang e-mailmeldingen wanneer nieuwe versies van PicPeak beschikbaar zijn.",
+      "description": "Ontvang e-mailmeldingen wanneer nieuwe versies van FotoDesk beschikbaar zijn.",
       "enableEmails": "E-mailmeldingen inschakelen",
       "enableEmailsDesc": "Stuur e-mail naar beheerders wanneer een nieuwe versie beschikbaar is",
       "recipients": "E-mailontvangers",
@@ -1341,7 +1341,7 @@
     },
     "webhooks": {
       "title": "Webhooks",
-      "subtitle": "Verstuur POST-meldingen naar uw URL zodra er iets gebeurt — galerij gepubliceerd, foto geüpload, evenement gearchiveerd, etc. Ondertekend met HMAC-SHA256 in de X-PicPeak-Signature header.",
+      "subtitle": "Verstuur POST-meldingen naar uw URL zodra er iets gebeurt — galerij gepubliceerd, foto geüpload, evenement gearchiveerd, etc. Ondertekend met HMAC-SHA256 in de X-FotoDesk-Signature header.",
       "piiNotice": "event.*-payloads bevatten klantcontactgegevens (naam, e-mail, telefoon) en het galerij-deeltoken indien opgeslagen. Wijs webhooks alleen toe aan vertrouwde ontvangers.",
       "copyNow": "Kopieer dit handtekeninggeheim nu — het wordt niet opnieuw getoond.",
       "name": "Naam",
@@ -1399,8 +1399,8 @@
       },
       "galleries": {
         "title": "Galerijen",
-        "description": "Het kernoppervlak van PicPeak. Altijd beschikbaar.",
-        "locked": "Galerijen zijn de basis van PicPeak en kunnen niet worden uitgeschakeld."
+        "description": "Het kernoppervlak van FotoDesk. Altijd beschikbaar.",
+        "locked": "Galerijen zijn de basis van FotoDesk en kunnen niet worden uitgeschakeld."
       },
       "reminderEmails": {
         "title": "Herinneringsmails",
@@ -1676,8 +1676,8 @@
     "pdfFontSavedToast": "PDF-lettertype opgeslagen.",
     "heroPlaceholderText": "De hero-foto van uw evenement verschijnt hier",
     "whiteLabel": "White Label",
-    "hidePoweredBy": "\"Powered by PicPeak\"-vermelding verbergen",
-    "hidePoweredByHelp": "Verwijder de PicPeak-vermelding uit galerij-voetteksten voor een volledig white-label ervaring",
+    "hidePoweredBy": "\"Powered by FotoDesk\"-vermelding verbergen",
+    "hidePoweredByHelp": "Verwijder de FotoDesk-vermelding uit galerij-voetteksten voor een volledig white-label ervaring",
     "logoCustomization": "Logo-aanpassing",
     "changeLogo": "Logo wijzigen",
     "logoSizeSmall": "Klein (32px)",
@@ -1830,7 +1830,7 @@
       "upToDate": "U bent up-to-date",
       "updateNow": "Nu bijwerken",
       "updateDialog": {
-        "title": "PicPeak bijwerken",
+        "title": "FotoDesk bijwerken",
         "detectedEnv": "Gedetecteerde omgeving",
         "beforeUpdating": "Voor het bijwerken:",
         "updateCommands": "Updateopdrachten:",

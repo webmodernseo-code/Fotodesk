@@ -127,7 +127,7 @@ export function useSectionSummaries(
           { text: s('externalFolder', 'External folder'), tone: 'strong' },
           ...(f.external_watch ? [{ text: s('watching', 'watching'), tone: 'ok' as const }] : []),
         ]
-        : [{ text: s('uploaded', 'Uploaded to PicPeak') }],
+        : [{ text: s('uploaded', 'Uploaded to FotoDesk') }],
     },
     // Folders + two-stage delivery (issues 1786, 1562).
     delivery: {

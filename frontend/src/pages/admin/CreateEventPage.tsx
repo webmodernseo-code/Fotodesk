@@ -834,13 +834,13 @@ export const CreateEventPage: React.FC = () => {
                 >
                   <span className="text-sm font-semibold text-heading">
                     {sourceMode === 'managed'
-                      ? t('events.sourceModeManaged', 'Managed (upload to PicPeak)')
+                      ? t('events.sourceModeManaged', 'Managed (upload to FotoDesk)')
                       : t('events.sourceModeReference', 'Reference external folder')}
                   </span>
                   <span className="text-xs text-soft">
                     {sourceMode === 'managed'
                       ? t('events.createSource.managedHelp', 'Upload on the Photos tab after creating.')
-                      : t('events.settingsTab.sourceReferenceHelp', 'Photos stay in your folder; PicPeak links to them.')}
+                      : t('events.settingsTab.sourceReferenceHelp', 'Photos stay in your folder; FotoDesk links to them.')}
                   </span>
                 </button>
               ))}

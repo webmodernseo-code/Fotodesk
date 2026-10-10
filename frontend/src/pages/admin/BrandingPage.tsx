@@ -1021,10 +1021,10 @@ export const BrandingPage: React.FC = () => {
               />
               <div>
                 <span className="text-sm font-medium text-heading">
-                  {t('branding.hidePoweredBy', 'Hide "Powered by PicPeak" branding')}
+                  {t('branding.hidePoweredBy', 'Hide "Powered by FotoDesk" branding')}
                 </span>
                 <p className="text-xs text-soft">
-                  {t('branding.hidePoweredByHelp', 'Remove the PicPeak attribution from gallery footers for a fully white-labeled experience')}
+                  {t('branding.hidePoweredByHelp', 'Remove the FotoDesk attribution from gallery footers for a fully white-labeled experience')}
                 </p>
               </div>
             </label>

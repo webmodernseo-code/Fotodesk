@@ -500,9 +500,9 @@ export const GalleryPage: React.FC = () => {
               <img
                 src={settingsData?.branding_logo_url ?
                   buildResourceUrl(settingsData.branding_logo_url) :
-                  '/picpeak-logo-transparent.png'
+                  '/logo.png'
                 }
-                alt={settingsData?.branding_company_name || 'PicPeak'}
+                alt={settingsData?.branding_company_name || 'FotoDesk'}
                 className="h-12 sm:h-16 lg:h-20 w-auto object-contain mx-auto mb-3 sm:mb-4"
               />
             )}

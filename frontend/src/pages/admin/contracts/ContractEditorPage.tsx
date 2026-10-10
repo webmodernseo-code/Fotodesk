@@ -942,7 +942,7 @@ export const ContractEditorPage: React.FC = () => {
         </p>
         <p className="text-xs mt-2 pt-2 border-t border-amber-200/60 dark:border-amber-800/60">
           {t('contracts.editor.schriftformWarning',
-            'Signature type: simple electronic signature (SES). Sufficient for routine photography contracts in CH / DE / AT / FL. NOT sufficient for documents that legally require Schriftform / form qualifiée: Bürgschaft (DE § 766 BGB), Verbraucherdarlehensvertrag (DE § 492 BGB), befristete Arbeitsverträge (DE § 14 Abs. 4 TzBfG), and similar. For those, a qualified electronic signature (QES) from a Trust Service Provider is required — picpeak does not provide QES.')}
+            'Signature type: simple electronic signature (SES). Sufficient for routine photography contracts in CH / DE / AT / FL. NOT sufficient for documents that legally require Schriftform / form qualifiée: Bürgschaft (DE § 766 BGB), Verbraucherdarlehensvertrag (DE § 492 BGB), befristete Arbeitsverträge (DE § 14 Abs. 4 TzBfG), and similar. For those, a qualified electronic signature (QES) from a Trust Service Provider is required — FotoDesk does not provide QES.')}
         </p>
       </div>
 

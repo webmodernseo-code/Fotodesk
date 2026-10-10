@@ -169,7 +169,7 @@ export const HeroHeader: React.FC<HeroHeaderProps> = ({
                 <img
                   src={eventLogo ?
                     buildResourceUrl(eventLogo) :
-                    '/picpeak-logo-transparent.png'
+                    '/logo.png'
                   }
                   alt="Event logo"
                   className={`${getLogoSizeClasses(heroLogoSize)} mx-auto`}
@@ -195,7 +195,7 @@ export const HeroHeader: React.FC<HeroHeaderProps> = ({
                 <img
                   src={eventLogo ?
                     buildResourceUrl(eventLogo) :
-                    '/picpeak-logo-transparent.png'
+                    '/logo.png'
                   }
                   alt="Event logo"
                   className={`${getLogoSizeClasses(heroLogoSize)} mx-auto`}
@@ -232,7 +232,7 @@ export const HeroHeader: React.FC<HeroHeaderProps> = ({
                 <img
                   src={eventLogo ?
                     buildResourceUrl(eventLogo) :
-                    '/picpeak-logo-transparent.png'
+                    '/logo.png'
                   }
                   alt="Event logo"
                   className={`${getLogoSizeClasses(heroLogoSize)} mx-auto`}

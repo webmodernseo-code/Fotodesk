@@ -259,7 +259,7 @@ export const BlockLibraryPage: React.FC = () => {
         <p className="text-xs">
           {t(
             'contracts.blocks.disclaimerBody',
-            'The seeded "System" blocks are written by the picpeak maintainer, not by a lawyer. They are intended as starting points only — review and adapt every block you intend to send with your own lawyer. Edits to system blocks are persisted; replace the seeded body text with the lawyer-reviewed version in place.',
+            'The seeded "System" blocks are written by the FotoDesk maintainer, not by a lawyer. They are intended as starting points only — review and adapt every block you intend to send with your own lawyer. Edits to system blocks are persisted; replace the seeded body text with the lawyer-reviewed version in place.',
           )}
         </p>
         <p className="text-xs mt-1">

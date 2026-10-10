@@ -64,7 +64,7 @@ export const LegalPage: React.FC = () => {
   // Update page title
   useEffect(() => {
     if (page?.title) {
-      document.title = `${page.title} - PicPeak`;
+      document.title = `${page.title} - FotoDesk`;
     }
   }, [page?.title]);
 
@@ -178,7 +178,7 @@ export const LegalPage: React.FC = () => {
             </Link>
           </div>
           <p className="text-sm text-neutral-500 mt-4">
-            © {new Date().getFullYear()} PicPeak. All rights reserved.
+            © {new Date().getFullYear()} FotoDesk. Tous droits réservés.
           </p>
         </div>
       </footer>

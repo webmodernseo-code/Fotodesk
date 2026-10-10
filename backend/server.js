@@ -356,8 +356,8 @@ function escapeHtml(str) {
 }
 
 function renderBrandHeader(branding) {
-  const displayName = escapeHtml(branding.companyName || 'PicPeak');
-  const logoSrc = encodeURI(branding.logoUrl || '/picpeak-logo-transparent.png');
+  const displayName = escapeHtml(branding.companyName || 'FotoDesk');
+  const logoSrc = encodeURI(branding.logoUrl || '/logo.png');
   const logo = `<img src="${logoSrc}" alt="${displayName}" class="brand-logo" loading="lazy" decoding="async" />`;
 
   const tagline = branding.companyTagline
@@ -385,10 +385,10 @@ function renderBrandHeader(branding) {
 }
 
 function renderBrandFooter(branding) {
-  const displayName = escapeHtml(branding.companyName || 'PicPeak');
+  const displayName = escapeHtml(branding.companyName || 'FotoDesk');
   const footerNote = branding.footerText
     ? `<p>${escapeHtml(branding.footerText)}</p>`
-    : '<p>Powered by PicPeak to keep every celebration beautifully organised.</p>';
+    : '<p>Propulsé par FotoDesk pour sublimer chaque prestation.</p>';
 
   const supportEmail = escapeHtml(branding.supportEmail || '');
   const supportLink = supportEmail

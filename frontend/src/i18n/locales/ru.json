@@ -1,4 +1,4 @@
-{
+﻿{
   "userManagement": {
     "title": "Управление пользователями",
     "subtitle": "Управление администраторами и приглашениями",
@@ -158,7 +158,7 @@
     "processingFailed_other": "{{count}} фото не удалось обработать",
     "processing": "Обработка фото…",
     "processingProgress": "{{complete}} из {{total}} готово",
-    "processingHint": "Файлы загружены. PicPeak создаёт миниатюры и читает метаданные. Вы можете покинуть страницу — работа продолжается в фоне.",
+    "processingHint": "Файлы загружены. FotoDesk создаёт миниатюры и читает метаданные. Вы можете покинуть страницу — работа продолжается в фоне.",
     "transferring": "Передача",
     "uploadingChunks_few": "{{count}} пакета загружается",
     "uploadingChunks_many": "{{count}} пакетов загружается",
@@ -568,7 +568,7 @@
     "categories": "Категории",
     "eventInformation": "Информация о событии",
     "sourceMode": "Режим источника",
-    "sourceModeManaged": "Управляемый (загрузка в PicPeak)",
+    "sourceModeManaged": "Управляемый (загрузка в FotoDesk)",
     "sourceModeReference": "Ссылка на внешнюю папку",
     "sourceModeHelp": "Используйте управляемый режим для прямой загрузки или укажите примонтированную папку /external-media при использовании локального хранилища.",
     "externalFolder": "Внешняя папка",
@@ -1147,7 +1147,7 @@
     },
     "updateNotifications": {
       "title": "Уведомления об обновлениях",
-      "description": "Получайте уведомления по email о новых версиях PicPeak.",
+      "description": "Получайте уведомления по email о новых версиях FotoDesk.",
       "enableEmails": "Включить email-уведомления",
       "enableEmailsDesc": "Отправлять письма администраторам при появлении новой версии",
       "recipients": "Получатели",
@@ -1401,7 +1401,7 @@
     },
     "webhooks": {
       "title": "Вебхуки",
-      "subtitle": "Отправляйте POST-уведомления на ваш URL при каждом событии — галерея опубликована, фото загружено, событие архивировано и т. д. Подписывается HMAC-SHA256 в заголовке X-PicPeak-Signature.",
+      "subtitle": "Отправляйте POST-уведомления на ваш URL при каждом событии — галерея опубликована, фото загружено, событие архивировано и т. д. Подписывается HMAC-SHA256 в заголовке X-FotoDesk-Signature.",
       "piiNotice": "Полезные данные event.* включают контактную информацию клиента (имя, email, телефон) и токен доступа к галерее. Указывайте вебхуки только на доверенные получатели.",
       "copyNow": "Скопируйте секрет подписи сейчас — он не будет показан повторно.",
       "name": "Название",
@@ -1459,8 +1459,8 @@
       },
       "galleries": {
         "title": "Галереи",
-        "description": "Основная поверхность PicPeak. Всегда доступна.",
-        "locked": "Галереи — основа PicPeak, их нельзя отключить."
+        "description": "Основная поверхность FotoDesk. Всегда доступна.",
+        "locked": "Галереи — основа FotoDesk, их нельзя отключить."
       },
       "reminderEmails": {
         "title": "Email-напоминания",
@@ -1736,8 +1736,8 @@
     "pdfFontSavedToast": "Шрифт PDF сохранён.",
     "heroPlaceholderText": "Здесь появится главное фото вашего события",
     "whiteLabel": "Собственный брендинг",
-    "hidePoweredBy": "Скрыть «Powered by PicPeak»",
-    "hidePoweredByHelp": "Убрать упоминание PicPeak из подвалов галерей для полной персонализации брендинга (White Label)",
+    "hidePoweredBy": "Скрыть «Powered by FotoDesk»",
+    "hidePoweredByHelp": "Убрать упоминание FotoDesk из подвалов галерей для полной персонализации брендинга (White Label)",
     "logoCustomization": "Настройка логотипа",
     "changeLogo": "Изменить логотип",
     "logoSizeSmall": "Маленький (32px)",
@@ -1890,7 +1890,7 @@
       "upToDate": "У вас актуальная версия",
       "updateNow": "Обновить сейчас",
       "updateDialog": {
-        "title": "Обновление PicPeak",
+        "title": "Обновление FotoDesk",
         "detectedEnv": "Обнаруженная среда",
         "beforeUpdating": "Перед обновлением:",
         "updateCommands": "Команды обновления:",
@@ -2663,7 +2663,7 @@
       },
       "fields": {
         "destinationPath": "Путь назначения",
-        "destinationPathHelp": "Каталог в том виде, как его видит сервер PicPeak. В Docker это путь внутри контейнера backend, а не на хосте: укажите каталог, смонтированный в контейнер.",
+        "destinationPathHelp": "Каталог в том виде, как его видит сервер FotoDesk. В Docker это путь внутри контейнера backend, а не на хосте: укажите каталог, смонтированный в контейнер.",
         "destinationPathPlaceholder": "/app/storage/backups",
         "rsyncHost": "Удалённый хост",
         "rsyncHostPlaceholder": "backup.example.com",

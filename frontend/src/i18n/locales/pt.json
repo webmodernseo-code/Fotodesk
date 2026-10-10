@@ -1,4 +1,4 @@
-{
+﻿{
   "userManagement": {
     "title": "Gerenciamento de Usuários",
     "subtitle": "Gerenciar usuários administradores e convites",
@@ -193,7 +193,7 @@
     "processingStillRunning": "Seu envio ainda está sendo processado — ele vai aparecer na galeria em instantes.",
     "processing": "Processando fotos…",
     "processingProgress": "{{complete}} de {{total}} concluídos",
-    "processingHint": "Os arquivos foram enviados. O PicPeak está gerando as miniaturas e lendo os metadados. Você pode sair desta página — o processo continua em segundo plano.",
+    "processingHint": "Os arquivos foram enviados. O FotoDesk está gerando as miniaturas e lendo os metadados. Você pode sair desta página — o processo continua em segundo plano.",
     "transferring": "Transferindo",
     "uploadingChunks_many": "Enviando {{count}} fragmentos",
     "uploadingChunks_one": "Enviando {{count}} fragmento",
@@ -650,7 +650,7 @@
     "categories": "Categorias",
     "eventInformation": "Informações do Evento",
     "sourceMode": "Modo de Origem",
-    "sourceModeManaged": "Gerenciado (upload para o PicPeak)",
+    "sourceModeManaged": "Gerenciado (upload para o FotoDesk)",
     "sourceModeReference": "Referenciar pasta externa",
     "sourceModeHelp": "Use o modo gerenciado para uploads diretos ou aponte para uma pasta /external-media montada ao usar armazenamento local.",
     "externalFolder": "Pasta Externa",
@@ -1227,7 +1227,7 @@
     },
     "updateNotifications": {
       "title": "Notificações de Atualização",
-      "description": "Receba e-mails quando novas versões do PicPeak estiverem disponíveis.",
+      "description": "Receba e-mails quando novas versões do FotoDesk estiverem disponíveis.",
       "enableEmails": "Ativar notificações por e-mail",
       "enableEmailsDesc": "Enviar e-mail para admins sobre novas versões",
       "recipients": "Destinatários",
@@ -1469,7 +1469,7 @@
     },
     "webhooks": {
       "title": "Webhooks",
-      "subtitle": "Envie notificações POST para o seu URL quando algo acontecer — galeria publicada, foto enviada, evento arquivado, etc. Assinado com HMAC-SHA256 no cabeçalho X-PicPeak-Signature.",
+      "subtitle": "Envie notificações POST para o seu URL quando algo acontecer — galeria publicada, foto enviada, evento arquivado, etc. Assinado com HMAC-SHA256 no cabeçalho X-FotoDesk-Signature.",
       "piiNotice": "Os payloads event.* incluem informações de contacto do cliente (nome, e-mail, telefone) e o token de partilha da galeria se estiverem guardados. Aponte webhooks apenas para recetores em que confia.",
       "copyNow": "Copie este segredo de assinatura agora — não será mostrado novamente.",
       "name": "Nome",
@@ -1527,8 +1527,8 @@
       },
       "galleries": {
         "title": "Galerias",
-        "description": "A interface principal do PicPeak. Sempre disponível.",
-        "locked": "Galerias são a base do PicPeak e não podem ser desativadas."
+        "description": "A interface principal do FotoDesk. Sempre disponível.",
+        "locked": "Galerias são a base do FotoDesk e não podem ser desativadas."
       },
       "reminderEmails": {
         "title": "E-mails de Lembrete",
@@ -1804,8 +1804,8 @@
     "pdfFontSavedToast": "Fonte do PDF salva.",
     "heroPlaceholderText": "A foto de destaque do seu evento aparecerá aqui",
     "whiteLabel": "White Label",
-    "hidePoweredBy": "Ocultar selo \"Powered by PicPeak\"",
-    "hidePoweredByHelp": "Remove a atribuição do PicPeak do rodapé da galeria",
+    "hidePoweredBy": "Ocultar selo \"Powered by FotoDesk\"",
+    "hidePoweredByHelp": "Remove a atribuição do FotoDesk do rodapé da galeria",
     "logoCustomization": "Customização da Logo",
     "changeLogo": "Alterar Logo",
     "logoSizeSmall": "Pequena (32px)",
@@ -1958,7 +1958,7 @@
       "upToDate": "Sistema atualizado",
       "updateNow": "Atualizar Agora",
       "updateDialog": {
-        "title": "Atualizar PicPeak",
+        "title": "Atualizar FotoDesk",
         "detectedEnv": "Ambiente Detectado",
         "beforeUpdating": "Antes de atualizar:",
         "updateCommands": "Comandos de Atualização:",

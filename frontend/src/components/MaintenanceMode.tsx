@@ -18,7 +18,7 @@ export const MaintenanceMode: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-neutral-50 flex flex-col">
-      {/* Header with branding - Always show, with PicPeak logo as fallback */}
+      {/* Header with branding - Always show, with FotoDesk logo as fallback */}
       <div className="bg-white border-b border-neutral-200 py-4">
         <div className="container">
           <div className="flex items-center justify-center">
@@ -27,12 +27,12 @@ export const MaintenanceMode: React.FC = () => {
                 (settings.branding_logo_url.startsWith('http') 
                   ? settings.branding_logo_url 
                   : buildResourceUrl(settings.branding_logo_url))
-                : '/picpeak-logo-transparent.png'
+                : '/logo.png'
               } 
-              alt={settings?.branding_company_name || 'PicPeak'}
+              alt={settings?.branding_company_name || 'FotoDesk'}
               className="h-12 w-auto object-contain"
             />
-            {settings?.branding_company_name && settings.branding_company_name !== 'PicPeak' && (
+            {settings?.branding_company_name && settings.branding_company_name !== 'FotoDesk' && (
               <div className="ml-4 text-center">
                 <h2 className="text-xl font-semibold text-neutral-800">{settings.branding_company_name}</h2>
                 {settings.branding_company_tagline && (

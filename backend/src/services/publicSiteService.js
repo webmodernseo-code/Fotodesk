@@ -293,7 +293,7 @@ function applyBrandTokens(html, branding) {
     company_name: branding.companyName || '',
     company_tagline: branding.companyTagline || '',
     support_email: branding.supportEmail || '',
-    brand_logo_url: branding.logoUrl || '/picpeak-logo-transparent.png',
+    brand_logo_url: branding.logoUrl || '/logo.png',
     brand_primary_hex: branding.colors?.primary || '#2563eb',
     brand_accent_hex: branding.colors?.accent || '#1d4ed8',
     brand_background_hex: branding.colors?.background || '#f8fafc',

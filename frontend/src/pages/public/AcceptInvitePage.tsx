@@ -342,8 +342,8 @@ export const AcceptInvitePage: React.FC = () => {
             style={{ backgroundColor: '#eee6d2' }}
           >
             <img
-              src="/picpeak-logo-transparent.png"
-              alt="PicPeak"
+              src="/logo.png"
+              alt="FotoDesk"
               className="w-[180px] h-[130px] object-contain"
             />
           </div>

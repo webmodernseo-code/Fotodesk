@@ -72,7 +72,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ onMenuClick, onOpenSea
   const logoInSidebar = logoPosition === 'sidepanel';
   const resolvedLogoUrl = logoUrl
     ? (logoUrl.startsWith('http') ? logoUrl : buildResourceUrl(logoUrl))
-    : '/picpeak-kamera-transparent.png';
+    : '/logo.png';
 
   // #523 follow-up 2: graceful fallback when the configured logo URL
   // 404s or stalls. Without an error handler, the <img> failure draws
@@ -80,7 +80,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ onMenuClick, onOpenSea
   // Rekoo-PS's 3.60.3-beta.0 screenshot where "Arkan Studio" appeared
   // as the alt text of a broken icon, not the real wordmark span. The
   // chain:
-  //   1. configured URL fails → try the bundled picpeak fallback
+  //   1. configured URL fails → try the bundled fotodesk fallback
   //   2. bundled fallback fails → hide the image entirely, let the
   //      wordmark carry the brand
   // Reset on URL change so a dark-mode toggle (which can flip lightLogo
@@ -91,7 +91,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ onMenuClick, onOpenSea
     setLogoLoadError(false);
     setFallbackLoadError(false);
   }, [resolvedLogoUrl]);
-  const logoImgSrc = logoLoadError ? '/picpeak-kamera-transparent.png' : resolvedLogoUrl;
+  const logoImgSrc = logoLoadError ? '/logo.png' : resolvedLogoUrl;
 
   // Renders the logo + wordmark block per the current logo_display_mode.
   // Re-used in left / center / right slots below so all three positions
@@ -117,7 +117,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ onMenuClick, onOpenSea
     // Skeleton placeholder while `usePublicSettings()` is in flight (#523
     // follow-up — Rekoo-PS's "logo took some time to load" screenshot in
     // 3.60.1-beta.0). The previous code used the static fallback image
-    // /picpeak-kamera-transparent.png as the during-loading state, and
+    // /logo.png as the during-loading state, and
     // because the wordmark is `hidden sm:inline` whenever a logo is
     // *intended* to be shown, a phone-width admin saw an empty header
     // for the ~hundreds-of-ms window before the real branding payload

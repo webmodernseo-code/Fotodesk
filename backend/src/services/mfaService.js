@@ -27,7 +27,7 @@ const QRCode = require('qrcode');
 // Standard TOTP params; window:1 tolerates ±1 step (30s) of clock drift.
 authenticator.options = { window: 1 };
 
-const ISSUER = 'PicPeak';
+const ISSUER = 'FotoDesk';
 const RECOVERY_CODE_COUNT = 10;
 const RECOVERY_CODE_BYTES = 10; // ~80 bits of entropy per code
 const RECOVERY_BCRYPT_ROUNDS = 10;

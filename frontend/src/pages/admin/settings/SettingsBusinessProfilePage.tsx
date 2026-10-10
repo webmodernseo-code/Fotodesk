@@ -383,7 +383,7 @@ export const SettingsBusinessProfilePage: React.FC = () => {
         <p className="text-xs">
           {t(
             'businessProfile.qrDisclaimer.body',
-            "Picpeak is open source. We render the QR code and IBAN block from the values you typed — we don't validate them. Print a test invoice and scan it with your bank's app before sending real invoices. We are not responsible for any mistakes that come from sending an invoice with bad data on it.",
+            "FotoDesk is open source. We render the QR code and IBAN block from the values you typed — we don't validate them. Print a test invoice and scan it with your bank's app before sending real invoices. We are not responsible for any mistakes that come from sending an invoice with bad data on it.",
           )}
         </p>
       </div>

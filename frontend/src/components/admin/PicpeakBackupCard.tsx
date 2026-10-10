@@ -40,7 +40,7 @@ export const PicpeakExportCard: React.FC = () => {
       });
       const cd = (res.headers['content-disposition'] as string) || '';
       const match = cd.match(/filename="?([^"]+)"?/);
-      const filename = (match && match[1]) || 'picpeak-backup.picpeak';
+      const filename = (match && match[1]) || 'fotodesk-backup.fotodesk';
       const url = window.URL.createObjectURL(res.data as Blob);
       const a = document.createElement('a');
       a.href = url;
@@ -59,7 +59,7 @@ export const PicpeakExportCard: React.FC = () => {
   return (
     <Card padding="lg">
       <h3 className="text-lg font-semibold text-heading">
-        {t('backup.picpeak.title', 'Portable backup (.picpeak)')}
+        {t('backup.picpeak.title', 'Portable backup (.fotodesk)')}
       </h3>
       <p className="mt-1 text-sm text-soft">
         {t('backup.picpeak.intro', 'Download a single self-contained file, then upload it on another instance to clone this one — all through the browser.')}
@@ -88,7 +88,7 @@ export const PicpeakExportCard: React.FC = () => {
           onClick={handleDownload}
           leftIcon={<Download className="h-4 w-4" />}
         >
-          {t('backup.picpeak.download', 'Download .picpeak')}
+          {t('backup.picpeak.download', 'Download .fotodesk')}
         </Button>
       </div>
     </Card>
@@ -145,19 +145,19 @@ export const PicpeakRestoreCard: React.FC = () => {
   return (
     <Card padding="lg">
       <h3 className="text-lg font-semibold text-heading">
-        {t('backup.picpeak.restoreTitle', 'Restore from a .picpeak')}
+        {t('backup.picpeak.restoreTitle', 'Restore from a .fotodesk file')}
       </h3>
       <p className="mt-1 text-sm text-soft">
-        {t('backup.picpeak.restoreIntro', 'Upload a .picpeak taken from this or another instance. Restoring a SQLite backup onto a PostgreSQL instance is supported (the upgrade path); other engine combinations must match.')}
+        {t('backup.picpeak.restoreIntro', 'Upload a .fotodesk backup taken from this or another instance. Restoring a SQLite backup onto a PostgreSQL instance is supported (the upgrade path); other engine combinations must match.')}
       </p>
-      <input ref={fileRef} type="file" accept=".picpeak,application/zip" className="hidden" onChange={onFilePick} />
+      <input ref={fileRef} type="file" accept=".fotodesk,.picpeak,application/zip" className="hidden" onChange={onFilePick} />
       <Button
         variant="outline"
         className="mt-4"
         onClick={() => fileRef.current?.click()}
         leftIcon={<Upload className="h-4 w-4" />}
       >
-        {t('backup.picpeak.chooseFile', 'Choose .picpeak file…')}
+        {t('backup.picpeak.chooseFile', 'Choose .fotodesk file…')}
       </Button>
 
       {result && (

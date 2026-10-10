@@ -1,4 +1,4 @@
-{
+﻿{
   "userManagement": {
     "title": "Gestión de usuarios",
     "subtitle": "Administrar usuarios administradores e invitaciones",
@@ -137,7 +137,7 @@
     "uploading": "Subiendo...",
     "transferring": "Transfiriendo",
     "processing": "Procesando fotos...",
-    "processingHint": "Los archivos están subidos. PicPeak está generando miniaturas y leyendo metadatos. Puedes salir de esta página — el trabajo sigue en segundo plano.",
+    "processingHint": "Los archivos están subidos. FotoDesk está generando miniaturas y leyendo metadatos. Puedes salir de esta página — el trabajo sigue en segundo plano.",
     "processingProgress": "{{complete}} de {{total}} completado",
     "processingFailed": "{{count}} foto(s) fallaron al procesar",
     "retryFailed": "Reintentar fallo",
@@ -545,7 +545,7 @@
     "categories": "Categorías",
     "eventInformation": "Información del evento",
     "sourceMode": "Modo de origen",
-    "sourceModeManaged": "Gestionado (subir a PicPeak)",
+    "sourceModeManaged": "Gestionado (subir a FotoDesk)",
     "sourceModeReference": "Referenciar carpeta externa",
     "sourceModeHelp": "Usa el modo gestionado para subidas directas o apunta a una carpeta /external-media montada cuando uses almacenamiento local.",
     "externalFolder": "Carpeta externa",
@@ -1142,7 +1142,7 @@
     },
     "updateNotifications": {
       "title": "Notificaciones de actualización",
-      "description": "Recibe notificaciones por correo cuando nuevas versiones de PicPeak están disponibles.",
+      "description": "Recibe notificaciones por correo cuando nuevas versiones de FotoDesk están disponibles.",
       "enableEmails": "Habilitar notificaciones por correo",
       "enableEmailsDesc": "Enviar correo a administradores cuando hay una nueva versión disponible",
       "recipients": "Destinatarios de correo",
@@ -1600,8 +1600,8 @@
     "livePreview": "Vista previa en vivo",
     "heroPlaceholderText": "La foto hero de tu evento aparecerá aquí",
     "whiteLabel": "Etiqueta blanca",
-    "hidePoweredBy": "Ocultar la marca \"Powered by PicPeak\"",
-    "hidePoweredByHelp": "Eliminar la atribución de PicPeak del pie de las galerías para una experiencia totalmente white-label",
+    "hidePoweredBy": "Ocultar la marca \"Powered by FotoDesk\"",
+    "hidePoweredByHelp": "Eliminar la atribución de FotoDesk del pie de las galerías para una experiencia totalmente white-label",
     "logoCustomization": "Personalización del logo",
     "changeLogo": "Cambiar logo",
     "logoSizeSmall": "Pequeño (32px)",
@@ -1700,7 +1700,7 @@
       "lastChecked": "Última comprobación: {{time}}",
       "updateNow": "Actualizar ahora",
       "updateDialog": {
-        "title": "Actualizar PicPeak",
+        "title": "Actualizar FotoDesk",
         "detectedEnv": "Entorno detectado",
         "beforeUpdating": "Antes de actualizar:",
         "updateCommands": "Comandos de actualización:",
@@ -1775,7 +1775,7 @@
     "lightMode": "Cambiar a modo claro",
     "accountSettings": {
       "title": "Cuenta de administrador",
-      "description": "Actualiza las credenciales usadas para iniciar sesión en PicPeak.",
+      "description": "Actualiza las credenciales usadas para iniciar sesión en FotoDesk.",
       "username": "Usuario",
       "usernamePlaceholder": "Admin",
       "email": "Correo",

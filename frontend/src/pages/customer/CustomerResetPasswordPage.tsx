@@ -38,11 +38,11 @@ export const CustomerResetPasswordPage: React.FC = () => {
   // branding_force_color_mode is dark / OS dark). No frame — logo sits on the
   // page bg, so pick the dark variant when dark.
   const { isDark } = usePublicDarkMode();
-  const companyName = settingsData?.branding_company_name?.trim() || 'PicPeak';
+  const companyName = settingsData?.branding_company_name?.trim() || 'FotoDesk';
   const lightLogo = settingsData?.branding_logo_url?.trim();
   const darkLogo = settingsData?.branding_logo_url_dark?.trim();
   const logoUrl = isDark ? (darkLogo || lightLogo) : (lightLogo || darkLogo);
-  const resolvedLogoUrl = logoUrl || '/picpeak-logo-transparent.png';
+  const resolvedLogoUrl = logoUrl || '/logo.png';
 
   // Pre-flight token validation. Same pattern as the invite page — if the
   // token is invalid we render an error state instead of a useless form.

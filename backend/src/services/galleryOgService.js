@@ -182,13 +182,13 @@ async function buildOgMetadata(slug, requestPath) {
   const event = isGalleryAvailable(resolved) ? resolved : null;
   const branding = await fetchBranding();
   const base = await frontendBase();
-  const siteName = branding.companyName || 'PicPeak';
-  const logoUrl = absoluteUrl(branding.logoUrl, base) || `${base}/picpeak-logo-transparent.png`;
+  const siteName = branding.companyName || 'FotoDesk';
+  const logoUrl = absoluteUrl(branding.logoUrl, base) || `${base}/logo.png`;
 
   if (!event) {
     return {
       title: siteName,
-      description: branding.companyTagline || 'Photo gallery shared with PicPeak.',
+      description: branding.companyTagline || 'Photo gallery shared with FotoDesk.',
       image: logoUrl,
       url: `${base}${requestPath}`,
       siteName

@@ -67,7 +67,7 @@ export const CustomerLayout: React.FC = () => {
   const { data: settingsData } = usePublicSettings();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const companyName = settingsData?.branding_company_name?.trim() || 'PicPeak';
+  const companyName = settingsData?.branding_company_name?.trim() || 'FotoDesk';
   // Theme-aware logo: the customer surface follows branding_force_color_mode.
   // Only 'dark' and 'light' are persisted; null/absent means "follow the OS
   // preference" — same resolution order as usePublicDarkMode. Symmetric
@@ -79,7 +79,7 @@ export const CustomerLayout: React.FC = () => {
   const lightLogo = settingsData?.branding_logo_url?.trim();
   const darkLogo = settingsData?.branding_logo_url_dark?.trim();
   const logoUrl = customerIsDark ? (darkLogo || lightLogo) : (lightLogo || darkLogo);
-  const resolvedLogoUrl = logoUrl || '/picpeak-logo-transparent.png';
+  const resolvedLogoUrl = logoUrl || '/logo.png';
 
   // Filter out feature-gated entries the customer can't see. Galleries +
   // Profile have no feature property, so they're always present.

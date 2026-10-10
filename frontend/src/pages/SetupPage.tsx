@@ -32,12 +32,7 @@ const COMMUNITY_LINKS: {
   key: string;
   href: string;
   icon: LucideIcon;
-}[] = [
-  { key: 'bug', href: 'https://github.com/PicPeak/picpeak/issues/new?template=bug_report.md', icon: Bug },
-  { key: 'feature', href: 'https://github.com/PicPeak/picpeak/issues/new?template=feature_request.md', icon: Lightbulb },
-  { key: 'star', href: 'https://github.com/PicPeak/picpeak', icon: Star },
-  { key: 'support', href: 'https://www.buymeacoffee.com/theluap', icon: Coffee },
-];
+}[] = [];
 
 // "How will you use PicPeak?" — the opt-in feature groups shown after the admin
 // account is created. galleries/analytics/userManagement are always on and not
@@ -327,7 +322,7 @@ export const SetupPage: React.FC = () => {
             const cls = resolveLoginLogoClasses(undefined);
             return (
               <div className={`${cls.frameOuter} mx-auto mb-6 rounded-2xl flex items-center justify-center`} style={{ backgroundColor: '#eee6d2' }}>
-                <img src="/picpeak-logo-transparent.png" alt="PicPeak" className={`${cls.frameInner} object-contain`} />
+                <img src="/logo.png" alt="FotoDesk" className={`${cls.frameInner} object-contain`} />
               </div>
             );
           })()}

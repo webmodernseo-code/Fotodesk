@@ -65,11 +65,11 @@ export const CMSContentBlock: React.FC<CMSContentBlockProps> = ({ slug, fallback
   }
 
   // Logo: per-page override beats global branding logo.
-  const rawLogo = page.logo_url || settings?.branding_logo_url || '/picpeak-logo-transparent.png';
-  const logoSrc = rawLogo.startsWith('http') || rawLogo.startsWith('/picpeak-')
+  const rawLogo = page.logo_url || settings?.branding_logo_url || '/logo.png';
+  const logoSrc = rawLogo.startsWith('http') || rawLogo.startsWith('/logo.png')
     ? rawLogo
     : buildResourceUrl(rawLogo);
-  const companyName = settings?.branding_company_name || 'PicPeak';
+  const companyName = settings?.branding_company_name || 'FotoDesk';
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--color-background, #fafafa)' }}>

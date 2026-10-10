@@ -81,11 +81,11 @@ export const CustomerAcceptInvitePage: React.FC = () => {
   // (dark when branding_force_color_mode is dark / OS dark), so pick the
   // dark logo variant accordingly. No frame here — logo sits on the page bg.
   const { isDark } = usePublicDarkMode();
-  const companyName = settingsData?.branding_company_name?.trim() || 'PicPeak';
+  const companyName = settingsData?.branding_company_name?.trim() || 'FotoDesk';
   const lightLogo = settingsData?.branding_logo_url?.trim();
   const darkLogo = settingsData?.branding_logo_url_dark?.trim();
   const logoUrl = isDark ? (darkLogo || lightLogo) : (lightLogo || darkLogo);
-  const resolvedLogoUrl = logoUrl || '/picpeak-logo-transparent.png';
+  const resolvedLogoUrl = logoUrl || '/logo.png';
 
   // Pre-flight invitation lookup. The response carries any prefill data
   // the admin attached on /admin/customers invite — populate the form

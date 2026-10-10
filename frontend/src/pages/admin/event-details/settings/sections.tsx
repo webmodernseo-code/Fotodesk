@@ -452,8 +452,8 @@ export const SourceSection: React.FC<FieldsProps & { event: Event; canEdit?: boo
           className={option(f.source_mode === 'managed')}
           onClick={() => set({ source_mode: 'managed', external_path: '' })}
         >
-          <span className="text-sm font-semibold text-heading">{t('events.sourceModeManaged', 'Managed (upload to PicPeak)')}</span>
-          <span className="text-xs text-soft">{t('events.settingsTab.sourceManagedHelp', 'Photos are uploaded on the Photos tab and stored by PicPeak.')}</span>
+          <span className="text-sm font-semibold text-heading">{t('events.sourceModeManaged', 'Managed (upload to FotoDesk)')}</span>
+          <span className="text-xs text-soft">{t('events.settingsTab.sourceManagedHelp', 'Photos are uploaded on the Photos tab and stored by FotoDesk.')}</span>
         </button>
         <button
           type="button"
@@ -463,7 +463,7 @@ export const SourceSection: React.FC<FieldsProps & { event: Event; canEdit?: boo
           onClick={() => set({ source_mode: 'reference', external_path: f.external_path || event.external_path || '' })}
         >
           <span className="text-sm font-semibold text-heading">{t('events.sourceModeReference', 'Reference external folder')}</span>
-          <span className="text-xs text-soft">{t('events.settingsTab.sourceReferenceHelp', 'Photos stay in your folder; PicPeak links to them.')}</span>
+          <span className="text-xs text-soft">{t('events.settingsTab.sourceReferenceHelp', 'Photos stay in your folder; FotoDesk links to them.')}</span>
         </button>
       </div>
       {f.source_mode === 'reference' && (

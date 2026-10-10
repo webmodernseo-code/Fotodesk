@@ -29,7 +29,7 @@ export const PoweredBy: React.FC<PoweredByProps> = ({ className, style, inline =
 
   const label = (
     <>
-      {t('common.poweredBy')} <span className="font-semibold">PicPeak</span>
+      {t('common.poweredBy')} <span className="font-semibold text-[#D4A853]">FotoDesk</span>
     </>
   );
 

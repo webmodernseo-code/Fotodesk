@@ -1,4 +1,4 @@
-{
+﻿{
   "userManagement": {
     "title": "Gestion des utilisateurs",
     "subtitle": "Gérer les utilisateurs administrateurs et les invitations",
@@ -140,7 +140,7 @@
     "uploading": "Téléversement en cours...",
     "transferring": "Transfert en cours",
     "processing": "Traitement des photos...",
-    "processingHint": "Les fichiers sont téléversés. PicPeak génère maintenant les miniatures et lit les métadonnées. Vous pouvez quitter cette page — le travail continue en arrière-plan.",
+    "processingHint": "Les fichiers sont téléversés. FotoDesk génère maintenant les miniatures et lit les métadonnées. Vous pouvez quitter cette page — le travail continue en arrière-plan.",
     "processingProgress": "{{complete}} sur {{total}} terminé",
     "retryFailed": "Réessayer les fichiers échoués",
     "uploadComplete": "Téléversement terminé !",
@@ -543,7 +543,7 @@
     "categories": "Catégories",
     "eventInformation": "Informations sur l'événement",
     "sourceMode": "Mode source",
-    "sourceModeManaged": "Géré (téléversement vers PicPeak)",
+    "sourceModeManaged": "Géré (téléversement vers FotoDesk)",
     "sourceModeReference": "Référencer un dossier externe",
     "sourceModeHelp": "Utilisez le mode géré pour les téléversements directs ou pointez vers un dossier /external-media monté lorsque vous utilisez un stockage local.",
     "externalFolder": "Dossier externe",
@@ -1116,7 +1116,7 @@
     },
     "updateNotifications": {
       "title": "Notifications de mise à jour",
-      "description": "Recevez des notifications par e-mail lorsqu'une nouvelle version de PicPeak est disponible.",
+      "description": "Recevez des notifications par e-mail lorsqu'une nouvelle version de FotoDesk est disponible.",
       "enableEmails": "Activer les notifications par e-mail",
       "enableEmailsDesc": "Envoyer un e-mail aux administrateurs lorsqu'une nouvelle version est disponible",
       "recipients": "Destinataires des e-mails",
@@ -1364,7 +1364,7 @@
     },
     "webhooks": {
       "title": "Webhooks",
-      "subtitle": "Notifications POST d'événements vers votre URL dès qu'un événement se produit — galerie publiée, photo téléversée, événement archivé, etc. Signé avec HMAC-SHA256 dans l'en-tête X-PicPeak-Signature.",
+      "subtitle": "Notifications POST d'événements vers votre URL dès qu'un événement se produit — galerie publiée, photo téléversée, événement archivé, etc. Signé avec HMAC-SHA256 dans l'en-tête X-FotoDesk-Signature.",
       "piiNotice": "Les payloads event.* incluent les informations de contact du client (nom, e-mail, téléphone) et le jeton de partage de la galerie si vous les avez stockés. Ne pointez les webhooks que vers des récepteurs de confiance — ils ont tout ce qui est nécessaire pour envoyer un message au client ou ouvrir la galerie.",
       "copyNow": "Copiez cette clé secrète de signature maintenant — elle ne sera plus affichée.",
       "name": "Nom",
@@ -1422,8 +1422,8 @@
       },
       "galleries": {
         "title": "Galeries",
-        "description": "La surface principale de PicPeak. Toujours disponible.",
-        "locked": "Les galeries sont la base de PicPeak et ne peuvent pas être désactivées."
+        "description": "La surface principale de FotoDesk. Toujours disponible.",
+        "locked": "Les galeries sont la base de FotoDesk et ne peuvent pas être désactivées."
       },
       "reminderEmails": {
         "title": "E-mails de rappel",
@@ -1719,8 +1719,8 @@
     "pdfFontSavedToast": "Police PDF enregistrée.",
     "heroPlaceholderText": "La photo d'en-tête de votre événement apparaîtra ici",
     "whiteLabel": "Marque blanche",
-    "hidePoweredBy": "Masquer la mention \"Propulsé par PicPeak\"",
-    "hidePoweredByHelp": "Supprimez la mention PicPeak des pieds de page des galeries pour une expérience entièrement en marque blanche",
+    "hidePoweredBy": "Masquer la mention \"Propulsé par FotoDesk\"",
+    "hidePoweredByHelp": "Supprimez la mention FotoDesk des pieds de page des galeries pour une expérience entièrement en marque blanche",
     "logoCustomization": "Personnalisation du logo",
     "changeLogo": "Modifier le logo",
     "logoSizeSmall": "Petit (32px)",
@@ -1873,7 +1873,7 @@
       "upToDate": "Vous êtes à jour",
       "updateNow": "Mettre à jour maintenant",
       "updateDialog": {
-        "title": "Mettre à jour PicPeak",
+        "title": "Mettre à jour FotoDesk",
         "detectedEnv": "Environnement détecté",
         "beforeUpdating": "Avant de mettre à jour :",
         "updateCommands": "Commandes de mise à jour :",

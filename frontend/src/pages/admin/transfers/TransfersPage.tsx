@@ -883,7 +883,7 @@ const TransferDetailModal: React.FC<DetailProps> = ({ transferId, onClose, onCop
                           opened them. Say so where the admin is about to. */}
                       <p className="mt-3 flex items-start gap-2 text-xs text-muted">
                         <ShieldAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                        {t('transfers.unscannedNote', 'These files are stored exactly as received and are never opened or scanned by PicPeak. Check them before you use or pass them on.')}
+                        {t('transfers.unscannedNote', 'These files are stored exactly as received and are never opened or scanned by FotoDesk. Check them before you use or pass them on.')}
                       </p>
                     </>
                   ) : (

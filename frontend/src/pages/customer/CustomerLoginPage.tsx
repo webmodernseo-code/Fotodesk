@@ -49,13 +49,13 @@ export const CustomerLoginPage: React.FC = () => {
   // plate (see render), so the light (dark-ink) logo always reads there;
   // only the frameless logo sits on the themed (possibly dark) page bg.
   const { isDark } = usePublicDarkMode();
-  const companyName = settingsData?.branding_company_name?.trim() || 'PicPeak';
+  const companyName = settingsData?.branding_company_name?.trim() || 'FotoDesk';
   const lightLogo = settingsData?.branding_logo_url?.trim();
   const darkLogo = settingsData?.branding_logo_url_dark?.trim();
   const loginFrameEnabled = settingsData?.branding_login_logo_frame_enabled !== false;
   const themedLogo = isDark ? (darkLogo || lightLogo) : (lightLogo || darkLogo);
   const logoUrl = loginFrameEnabled ? (lightLogo || darkLogo) : themedLogo;
-  const resolvedLogoUrl = logoUrl || '/picpeak-logo-transparent.png';
+  const resolvedLogoUrl = logoUrl || '/logo.png';
 
   // After /accept-invite the user is redirected here with ?accepted=1
   // so we can show a friendly success toast on first paint.

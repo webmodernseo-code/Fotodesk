@@ -360,9 +360,9 @@ export const GalleryLayout: React.FC<GalleryLayoutProps> = ({
                     <img
                       src={brandLogoUrl ?
                         buildResourceUrl(brandLogoUrl) :
-                        '/picpeak-logo-transparent.png'
+                        '/logo.png'
                       }
-                      alt={brandingSettings?.company_name || 'PicPeak'}
+                      alt={brandingSettings?.company_name || 'FotoDesk'}
                       className={`gallery-logo ${headerLogoSize.className} w-auto object-contain`}
                       style={headerLogoSize.style}
                     />
@@ -652,9 +652,9 @@ export const GalleryLayout: React.FC<GalleryLayoutProps> = ({
                   <img
                     src={brandLogoUrl ?
                       buildResourceUrl(brandLogoUrl) :
-                      '/picpeak-logo-transparent.png'
+                      '/logo.png'
                     }
-                    alt={brandingSettings?.company_name || 'PicPeak'}
+                    alt={brandingSettings?.company_name || 'FotoDesk'}
                     className={`${heroLogoDimensions.className} w-auto object-contain mx-auto`}
                     style={{
                       ...(heroLogoDimensions.style || {}),
