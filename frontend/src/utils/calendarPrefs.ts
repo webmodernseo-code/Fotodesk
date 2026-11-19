@@ -16,9 +16,9 @@
 
 const VIEW_KEY = 'picpeak.calendar.view';
 
-export type CalendarView = 'dayGridMonth' | 'timeGridWeek';
+export type CalendarView = 'dayGridMonth' | 'timeGridWeek' | 'timeGridDay';
 
-const ALLOWED_VIEWS: ReadonlyArray<CalendarView> = ['dayGridMonth', 'timeGridWeek'];
+const ALLOWED_VIEWS: ReadonlyArray<CalendarView> = ['dayGridMonth', 'timeGridWeek', 'timeGridDay'];
 
 /**
  * Return the persisted view or the default ('dayGridMonth' — Month).
