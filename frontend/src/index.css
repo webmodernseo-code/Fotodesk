@@ -124,7 +124,14 @@
   }
 
   .dark .btn-primary {
-    @apply bg-neutral-200 hover:bg-white text-neutral-950 shadow-sm;
+    background: linear-gradient(180deg, #FFFFFF 0%, #F7F7F7 60%, #D6D6D6 100%);
+    color: #050505;
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  }
+  .dark .btn-primary:hover {
+    filter: brightness(0.96);
   }
 
   .btn-alt {

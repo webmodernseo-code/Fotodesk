@@ -60,13 +60,14 @@ function MetricCard({ item }: {
     tone: MetricTone;
     subLabel?: string;
     usedPercent?: number;
+    iconTileStyle?: React.CSSProperties;
   };
 }) {
   const Icon = item.icon;
   return (
     <article className={`fd-card fd-metric fd-metric--${item.tone}`}>
       <div className="fd-metric-head">
-        <div className="fd-icon-tile"><Icon size={21} strokeWidth={1.8} /></div>
+        <div className="fd-icon-tile" style={item.iconTileStyle}><Icon size={21} strokeWidth={1.8} /></div>
         <span className="fd-metric-label">{item.label}</span>
       </div>
       <div className="fd-metric-bottom">
@@ -270,7 +271,7 @@ export const FotoDeskDashboard: React.FC<DashboardProps> = ({
         value: activeVal,
         change: "—",
         icon: ImageIcon,
-        tone: "amber" as MetricTone,
+        tone: "green" as MetricTone,
       },
       {
         label: "Galerie vidéo",
@@ -285,6 +286,7 @@ export const FotoDeskDashboard: React.FC<DashboardProps> = ({
         change: "",
         icon: HardDrive,
         tone: "storage" as MetricTone,
+        iconTileStyle: { background: 'rgba(249, 115, 22, 0.14)', color: '#f97316' },
         subLabel: storageBytes == null ? "Mesure indisponible" : `${usedPercent}% de la limite 118.57 GB`,
         usedPercent,
       },
@@ -402,7 +404,14 @@ export const FotoDeskDashboard: React.FC<DashboardProps> = ({
             </div>
           </div>
           <button
-            className="inline-flex items-center justify-center gap-2 h-10 px-4 rounded-xl bg-white text-neutral-950 hover:bg-neutral-100 active:scale-[0.99] text-[13px] font-semibold shadow-sm border border-white/20 transition-all cursor-pointer shrink-0"
+            className="inline-flex items-center justify-center gap-2 font-semibold text-[14px] transition-all hover:brightness-95 active:scale-[0.99] cursor-pointer shrink-0"
+            style={{
+              background: 'linear-gradient(180deg, #FFFFFF 0%, #F7F7F7 60%, #D6D6D6 100%)',
+              color: '#050505',
+              borderRadius: '8px',
+              padding: '10px 20px',
+              border: 'none',
+            }}
             type="button"
             onClick={handleCreateGallery}
           >
