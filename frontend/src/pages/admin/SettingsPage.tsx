@@ -39,7 +39,7 @@ import { CrmSettingsPage } from './settings/CrmSettingsPage';
 // lives in App.tsx's SettingsRoute, above this page: done here it raced the
 // URL-sync effect below, which rewrote ?tab= to the fallback before the
 // redirect could fire.
-import { UserManagementPage } from './UserManagementPage';
+import { TeamMembersPage } from './TeamMembersPage';
 import { SystemHealthPage } from './SystemHealthPage';
 import { BlockLibraryPage } from './contracts/BlockLibraryPage';
 import { useFeatureFlags } from '../../contexts/FeatureFlagsContext';
@@ -261,7 +261,7 @@ const LegacySettingsPage: React.FC = () => {
           {activeTab === 'cms' && <CMSPage />}
           {activeTab === 'email' && <EmailConfigPage />}
           {activeTab === 'backup' && <BackupManagement />}
-          {activeTab === 'users' && <UserManagementPage />}
+          {activeTab === 'users' && <TeamMembersPage />}
           {activeTab === 'health' && <SystemHealthPage />}
           {activeTab === 'businessProfile' && <SettingsBusinessProfilePage />}
           {activeTab === 'crm' && <CrmSettingsPage />}
