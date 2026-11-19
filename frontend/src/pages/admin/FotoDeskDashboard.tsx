@@ -5,10 +5,11 @@ import {
   Activity, ArrowRight, ArrowUpRight,
   CalendarDays, Download, Eye,
   ExternalLink, HardDrive, Image as ImageIcon,
-  MoreHorizontal, Plus, Settings2, Palette, Cloud, Globe,
+  MoreHorizontal, Plus, Settings2, Palette, Cloud, Globe, Video,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { adminService } from "../../services/admin.service";
+import { fotodeskService } from "../../services/fotodesk.service";
 import { eventsService } from "../../services/events.service";
 import { ErrorState, Loading } from "../../components/common";
 import { useAdminAuth } from "../../contexts/AdminAuthContext";
@@ -233,6 +234,13 @@ export const FotoDeskDashboard: React.FC<DashboardProps> = ({
     queryFn: () => adminService.getRecentActivity(8),
     staleTime: 30000,
   });
+
+  const videoGalleriesQuery = useQuery({
+    queryKey: ['admin-video-galleries-count'],
+    queryFn: () => fotodeskService.videoGalleries.list(),
+    staleTime: 30000,
+    retry: 1,
+  });
   const dashboardStats = dashboardQuery.data;
   const expiringEventsData = tasksQuery.data;
   const recentActivity = activityQuery.data;
@@ -246,9 +254,10 @@ export const FotoDeskDashboard: React.FC<DashboardProps> = ({
   const metrics = useMemo(() => {
     const unavailable = dashboardQuery.isLoading || dashboardQuery.isError;
     const activeVal = unavailable ? "—" : formatNumber(dashboardStats?.activeEvents ?? 0);
-    const viewsVal = unavailable ? "—" : formatNumber(dashboardStats?.totalViews ?? 0);
-    const downloadsVal = unavailable ? "—" : formatNumber(dashboardStats?.totalDownloads ?? 0);
-    const trend = (value?: number) => value == null ? "—" : `${value > 0 ? "+" : ""}${value}%`;
+    const videoCount = Array.isArray(videoGalleriesQuery.data?.galleries)
+      ? videoGalleriesQuery.data.galleries.length
+      : 0;
+    const videoVal = videoGalleriesQuery.isLoading ? "—" : formatNumber(videoCount);
 
     const storageBytes = dashboardStats?.storageUsed;
     const storageFormatted = unavailable || storageBytes == null ? "—" : adminService.formatBytes(storageBytes);
@@ -257,28 +266,21 @@ export const FotoDeskDashboard: React.FC<DashboardProps> = ({
 
     return [
       {
-        label: "Galeries actives",
+        label: "Galerie photo",
         value: activeVal,
         change: "—",
         icon: ImageIcon,
         tone: "amber" as MetricTone,
       },
       {
-        label: "Vues cette semaine",
-        value: viewsVal,
-        change: trend(dashboardStats?.viewsTrend),
-        icon: Eye,
+        label: "Galerie vidéo",
+        value: videoVal,
+        change: "—",
+        icon: Video,
         tone: "blue" as MetricTone,
       },
       {
-        label: "Téléchargements",
-        value: downloadsVal,
-        change: trend(dashboardStats?.downloadsTrend),
-        icon: Download,
-        tone: "green" as MetricTone,
-      },
-      {
-        label: "Stockage utilisé",
+        label: "Stockage",
         value: storageFormatted,
         change: "",
         icon: HardDrive,
@@ -287,7 +289,7 @@ export const FotoDeskDashboard: React.FC<DashboardProps> = ({
         usedPercent,
       },
     ];
-  }, [dashboardQuery.isError, dashboardQuery.isLoading, dashboardStats]);
+  }, [dashboardQuery.isError, dashboardQuery.isLoading, dashboardStats, videoGalleriesQuery.data, videoGalleriesQuery.isLoading]);
 
   const tasks = useMemo(() => {
     if (expiringEventsData?.events && expiringEventsData.events.length > 0) {
@@ -408,8 +410,12 @@ export const FotoDeskDashboard: React.FC<DashboardProps> = ({
           </button>
         </section>
 
-        {/* 4 KPIs avec courbes colorées identiques en sombre et en clair */}
-        <section className="fd-metrics" aria-label="Indicateurs clés">
+        {/* 3 KPIs : Galerie photo, Galerie vidéo et Stockage */}
+        <section
+          className="fd-metrics"
+          style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}
+          aria-label="Indicateurs clés"
+        >
           {metrics.map(item => <MetricCard key={item.label} item={item} />)}
         </section>
 
