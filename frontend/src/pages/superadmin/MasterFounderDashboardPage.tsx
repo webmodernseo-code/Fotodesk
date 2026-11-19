@@ -61,6 +61,10 @@ import { SuperAdminOverviewSection } from './sections/SuperAdminOverviewSection'
 import { SuperAdminStudiosSection } from './sections/SuperAdminStudiosSection';
 import { SuperAdminUsersSection } from './sections/SuperAdminUsersSection';
 import { SuperAdminSubscriptionsSection } from './sections/SuperAdminSubscriptionsSection';
+import { SuperAdminAffiliatesSection } from './sections/SuperAdminAffiliatesSection';
+import { SuperAdminCommissionsSection } from './sections/SuperAdminCommissionsSection';
+import { SuperAdminPayoutsSection } from './sections/SuperAdminPayoutsSection';
+import { SuperAdminSettingsSection } from './sections/SuperAdminSettingsSection';
 
 type AdminSection =
   | 'overview'
@@ -806,372 +810,34 @@ export function MasterFounderDashboardPage() {
 
           {/* AFFILIATES SECTION */}
           {activeSection === 'affiliates' && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="relative flex-1 max-w-md">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-faint pointer-events-none" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder={isEn ? 'Search affiliates by name, email or code…' : 'Rechercher un affilié par nom, e-mail ou code…'}
-                    className="input pl-9"
-                  />
-                </div>
-              </div>
-
-              <TableFrame className="shadow-sm">
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableHeaderCell>{isEn ? 'Affiliate' : 'Affilié'}</TableHeaderCell>
-                      <TableHeaderCell>{isEn ? 'Referral Code' : 'Code Partenaire'}</TableHeaderCell>
-                      <TableHeaderCell>{isEn ? 'Clicks / Signups' : 'Clics / Inscrits'}</TableHeaderCell>
-                      <TableHeaderCell>{isEn ? 'Earned' : 'Gains'}</TableHeaderCell>
-                      <TableHeaderCell>{isEn ? 'Status' : 'Statut'}</TableHeaderCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {filteredAffiliates.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={5} className="py-10 text-center text-muted">
-                          {isEn ? 'No affiliates found.' : 'Aucun affilié trouvé.'}
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      filteredAffiliates.map((aff) => (
-                        <TableRow key={aff.id}>
-                          <TableCell>
-                            <p className="font-semibold text-heading">{aff.displayName}</p>
-                            <p className="text-xs text-muted">{aff.email}</p>
-                          </TableCell>
-                          <TableCell>
-                            <div className="inline-flex items-center gap-2">
-                              <code className="rounded-lg bg-subtle border border-line px-2 py-1 text-xs font-mono text-heading">
-                                {aff.referralCode}
-                              </code>
-                              <button
-                                type="button"
-                                onClick={() => handleCopyLink(aff.referralCode)}
-                                className="p-1.5 rounded-lg hover:bg-hover text-muted hover:text-heading cursor-pointer"
-                                title={isEn ? 'Copy referral link' : 'Copier le lien'}
-                              >
-                                {copiedCode === aff.referralCode ? <Check size={14} className="text-success" /> : <Copy size={14} />}
-                              </button>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <span className="font-semibold text-heading">{(aff as any).clicks ?? (aff as any).clicksCount ?? 0}</span>
-                            <span className="text-muted"> / {(aff as any).signups ?? (aff as any).signupsCount ?? 0}</span>
-                          </TableCell>
-                          <TableCell className="font-semibold text-heading">
-                            {formatAmount(Number((aff as any).harvestedAmount ?? (aff as any).totalEarnedEur) || 0, region)}
-                          </TableCell>
-                          <TableCell>
-                            <Badge tone={aff.isActive ? 'success' : 'danger'} dot>
-                              {aff.isActive ? (isEn ? 'Active' : 'Actif') : isEn ? 'Suspended' : 'Suspendu'}
-                            </Badge>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </TableFrame>
-            </div>
+            <SuperAdminAffiliatesSection
+              onOpenStudio={(studioName) => {
+                setFocusedStudioName(studioName);
+                setActiveSection('studios');
+              }}
+            />
           )}
 
           {/* COMMISSIONS SECTION */}
           {activeSection === 'commissions' && (
-            <TableFrame className="shadow-sm">
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableHeaderCell>{isEn ? 'Referred Studio' : 'Studio Parrainé'}</TableHeaderCell>
-                    <TableHeaderCell>{isEn ? 'Commission' : 'Commission'}</TableHeaderCell>
-                    <TableHeaderCell>{isEn ? 'Status' : 'Statut'}</TableHeaderCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {referrals.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={3} className="py-10 text-center text-muted">
-                        {isEn ? 'No commissions recorded yet.' : 'Aucune commission enregistrée.'}
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    referrals.map((ref) => {
-                      const isPaid = ['récolté', 'payé'].includes((ref.status || '').toLowerCase());
-                      return (
-                        <TableRow key={ref.id}>
-                          <TableCell>
-                            <p className="font-semibold text-heading">{ref.referredName || 'Studio'}</p>
-                            <p className="text-xs text-muted">{ref.referredEmail || '—'}</p>
-                          </TableCell>
-                          <TableCell className="font-semibold text-heading">
-                            {formatAmount(Number(ref.commissionAmount) || 0, region)}
-                          </TableCell>
-                          <TableCell>
-                            <Badge tone={isPaid ? 'success' : 'warning'} dot>
-                              {ref.status}
-                            </Badge>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })
-                  )}
-                </TableBody>
-              </Table>
-            </TableFrame>
+            <SuperAdminCommissionsSection
+              onOpenStudio={(studioName) => {
+                setFocusedStudioName(studioName);
+                setActiveSection('studios');
+              }}
+              onOpenPayouts={() => setActiveSection('payouts')}
+            />
           )}
 
           {/* PAYOUTS SECTION */}
           {activeSection === 'payouts' && (
-            <TableFrame className="shadow-sm">
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableHeaderCell>{isEn ? 'Affiliate' : 'Affilié'}</TableHeaderCell>
-                    <TableHeaderCell>{isEn ? 'Amount' : 'Montant'}</TableHeaderCell>
-                    <TableHeaderCell>{isEn ? 'Method' : 'Méthode'}</TableHeaderCell>
-                    <TableHeaderCell>{isEn ? 'Requested' : 'Date'}</TableHeaderCell>
-                    <TableHeaderCell>{isEn ? 'Status' : 'Statut'}</TableHeaderCell>
-                    <TableHeaderCell className="text-right">{isEn ? 'Actions' : 'Actions'}</TableHeaderCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {payoutRequests.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={6} className="py-10 text-center text-muted">
-                        {isEn ? 'No payout requests yet.' : 'Aucune demande de virement pour le moment.'}
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    payoutRequests.map((req) => {
-                      const isPending = req.status === 'en attente';
-                      const isPaid = req.status === 'payé';
-                      return (
-                        <TableRow key={req.id}>
-                          <TableCell>
-                            <p className="font-semibold text-heading">
-                              {(req as any).affiliateName || `Affilié #${req.affiliate_id}`}
-                            </p>
-                            <p className="text-xs text-muted">{(req as any).affiliateEmail || req.details || '—'}</p>
-                          </TableCell>
-                          <TableCell className="font-semibold text-heading">
-                            {formatAmount(Number(req.amount) || 0, region)}
-                          </TableCell>
-                          <TableCell className="text-xs text-soft">
-                            {req.method || '—'}
-                          </TableCell>
-                          <TableCell className="text-xs text-muted">
-                            {formatDateLabel(req.requested_at, isEn)}
-                          </TableCell>
-                          <TableCell>
-                            <Badge tone={isPaid ? 'success' : isPending ? 'warning' : 'danger'} dot>
-                              {req.status}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {isPending ? (
-                              <div className="inline-flex items-center gap-2">
-                                <Button
-                                  size="sm"
-                                  variant="success"
-                                  disabled={processingId === req.id}
-                                  onClick={() => handleProcessPayout(req.id, 'payé')}
-                                  leftIcon={<CheckCircle2 size={13} />}
-                                >
-                                  {isEn ? 'Approve' : 'Valider'}
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  disabled={processingId === req.id}
-                                  onClick={() => handleProcessPayout(req.id, 'rejeté')}
-                                  className="border-danger-line text-danger hover:bg-danger-bg"
-                                >
-                                  {isEn ? 'Reject' : 'Rejeter'}
-                                </Button>
-                              </div>
-                            ) : (
-                              <span className="text-xs text-faint inline-flex items-center gap-1">
-                                <Clock size={12} /> {isEn ? 'Processed' : 'Traité'}
-                              </span>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })
-                  )}
-                </TableBody>
-              </Table>
-            </TableFrame>
+            <SuperAdminPayoutsSection
+              onOpenAffiliates={() => setActiveSection('affiliates')}
+            />
           )}
 
-          {/* SETTINGS SECTION (Figma 63:199426 · 5 tabs) */}
-          {activeSection === 'settings' && (
-            <div className="space-y-5">
-              <div className="flex flex-wrap items-center gap-1.5 rounded-2xl border border-line bg-panel p-1.5 w-fit">
-                {[
-                  { id: 'general' as const, label: isEn ? 'General' : 'Général', icon: SlidersHorizontal },
-                  { id: 'plans' as const, label: isEn ? 'Subscription Plans' : 'Formules', icon: CreditCard },
-                  { id: 'affiliates' as const, label: isEn ? 'Affiliate & Commission' : 'Affiliation', icon: Percent },
-                  { id: 'localization' as const, label: isEn ? 'Localization' : 'Localisation', icon: Globe },
-                  { id: 'security' as const, label: isEn ? 'Security & Privacy' : 'Sécurité', icon: ShieldCheck },
-                ].map((tab) => {
-                  const Icon = tab.icon;
-                  const active = settingsTab === tab.id;
-                  return (
-                    <button
-                      key={tab.id}
-                      type="button"
-                      onClick={() => setSettingsTab(tab.id)}
-                      className={cn(
-                        'inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-colors cursor-pointer',
-                        active ? 'bg-brand-soft text-brand' : 'text-muted hover:text-heading hover:bg-hover',
-                      )}
-                    >
-                      <Icon size={14} />
-                      <span>{tab.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {settingsTab === 'general' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="rounded-2xl border border-line bg-panel p-6 shadow-sm space-y-4">
-                    <h3 className="text-sm font-bold text-heading">
-                      {isEn ? 'Platform Identity' : 'Identité de la plateforme'}
-                    </h3>
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-xs font-medium text-muted mb-1">
-                          {isEn ? 'Platform Name' : 'Nom de la plateforme'}
-                        </label>
-                        <input type="text" readOnly value="FotoDesk" className="input h-10 text-sm bg-subtle" />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-medium text-muted mb-1">
-                          {isEn ? 'Active Studios' : 'Studios actifs'}
-                        </label>
-                        <input type="text" readOnly value={`${metrics.totalStudios} studios`} className="input h-10 text-sm bg-subtle" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="rounded-2xl border border-line bg-panel p-6 shadow-sm space-y-4 flex flex-col justify-between">
-                    <div className="space-y-2">
-                      <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-brand-soft text-brand">
-                        <Building2 size={18} strokeWidth={1.75} />
-                      </span>
-                      <h3 className="text-sm font-bold text-heading">
-                        {isEn ? 'Studio Workspace' : 'Espace Studio'}
-                      </h3>
-                      <p className="text-xs text-muted">
-                        {isEn
-                          ? 'Switch directly to the Photography Studio dashboard.'
-                          : 'Accédez directement à votre interface studio photo.'}
-                      </p>
-                    </div>
-                    <Link to="/admin/dashboard">
-                      <Button variant="brand" size="sm" rightIcon={<ArrowRight size={14} />}>
-                        {isEn ? 'Open Studio Dashboard' : 'Ouvrir le Tableau de bord Studio'}
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              )}
-
-              {settingsTab === 'plans' && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {[
-                    { name: 'Starter', price: 9, storage: '50 GB', count: planCounts.starter, badge: 'neutral' as const },
-                    { name: 'Pro', price: 19, storage: '250 GB', count: planCounts.pro, badge: 'brand' as const },
-                    { name: 'Studio', price: 39, storage: '1 TB', count: planCounts.studio, badge: 'purple' as const },
-                  ].map((p) => (
-                    <div key={p.name} className="rounded-2xl border border-line bg-panel p-5 shadow-sm space-y-3">
-                      <div className="flex items-center justify-between">
-                        <Badge tone={p.badge}>{p.name}</Badge>
-                        <span className="text-xs font-semibold text-muted">{p.count} studios</span>
-                      </div>
-                      <p className="text-2xl font-bold text-heading">
-                        {formatAmount(p.price, region)}
-                        <span className="text-xs font-normal text-muted"> / {isEn ? 'month' : 'mois'}</span>
-                      </p>
-                      <p className="text-xs text-muted">
-                        {isEn ? 'Included storage:' : 'Stockage inclus :'} <strong className="text-heading">{p.storage}</strong>
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {settingsTab === 'affiliates' && (
-                <div className="rounded-2xl border border-line bg-panel p-6 shadow-sm grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="rounded-xl border border-line bg-subtle p-4">
-                    <p className="text-xs text-muted">{isEn ? 'Active Affiliates' : 'Affiliés actifs'}</p>
-                    <p className="text-2xl font-bold text-heading mt-1">{metrics.totalAffiliates}</p>
-                  </div>
-                  <div className="rounded-xl border border-line bg-subtle p-4">
-                    <p className="text-xs text-muted">{isEn ? 'Pending Commissions' : 'Commissions en attente'}</p>
-                    <p className="text-2xl font-bold text-heading mt-1">{formatAmount(metrics.affiliatePendingEur, region)}</p>
-                  </div>
-                  <div className="rounded-xl border border-line bg-subtle p-4">
-                    <p className="text-xs text-muted">{isEn ? 'Harvested Total' : 'Total récolté'}</p>
-                    <p className="text-2xl font-bold text-heading mt-1">{formatAmount(metrics.affiliateHarvestedEur, region)}</p>
-                  </div>
-                </div>
-              )}
-
-              {settingsTab === 'localization' && (
-                <div className="rounded-2xl border border-line bg-panel p-6 shadow-sm space-y-4 max-w-xl">
-                  <h3 className="text-sm font-bold text-heading">
-                    {isEn ? 'Localization & Display Currency' : 'Langue & Devise d’affichage'}
-                  </h3>
-                  <div className="flex flex-wrap items-center gap-3">
-                    <LanguageToggle size="sm" />
-                    <div className="inline-flex items-center rounded-xl border border-line bg-subtle p-1">
-                      {REGIONS.map((r) => (
-                        <button
-                          key={r.id}
-                          type="button"
-                          onClick={() => setRegion(r.id)}
-                          className={cn(
-                            'h-7 rounded-lg px-3 text-xs font-medium cursor-pointer',
-                            region === r.id ? 'bg-cta text-cta-fg font-semibold' : 'text-muted',
-                          )}
-                        >
-                          {r.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {settingsTab === 'security' && (
-                <div className="rounded-2xl border border-line bg-panel p-6 shadow-sm space-y-3 max-w-xl">
-                  <div className="flex items-center gap-2.5">
-                    <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-success-bg text-success">
-                      <ShieldCheck size={18} strokeWidth={1.75} />
-                    </span>
-                    <div>
-                      <h3 className="text-sm font-bold text-heading">
-                        {isEn ? 'Super Admin Access & Security' : 'Accès Super Admin & Sécurité'}
-                      </h3>
-                      <p className="text-xs text-muted">
-                        {isEn
-                          ? 'Authenticated session protected by role-based access control.'
-                          : 'Session authentifiée protégée par contrôle d’accès fondateur.'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+          {/* SETTINGS SECTION */}
+          {activeSection === 'settings' && <SuperAdminSettingsSection />}
         </main>
       </div>
 
