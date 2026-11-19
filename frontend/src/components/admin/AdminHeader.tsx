@@ -24,7 +24,7 @@ import { useOnClickOutside } from '../../hooks/useOnClickOutside';
 import { usePublicSettings } from '../../hooks/usePublicSettings';
 import { useModal } from '../../hooks';
 import { PasswordChangeModal } from './PasswordChangeModal';
-import { SUPPORTED_LANGUAGES } from '../common';
+import { SUPPORTED_LANGUAGES, LanguageToggle } from '../common';
 import { notificationsService } from '../../services/notifications.service';
 import { toast } from 'react-toastify';
 import { buildResourceUrl } from '../../utils/url';
@@ -47,7 +47,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ onMenuClick, onOpenSea
   const { user, logout } = useAdminAuth();
   const { isDark, toggle: toggleDarkMode, forcedMode } = useAdminDarkMode();
   const { t, i18n } = useTranslation();
-  const { format, formatDistanceToNow } = useLocalizedDate();
+  const { formatDistanceToNow } = useLocalizedDate();
   const userMenuModal = useModal();
   const userMenuLangSectionModal = useModal();
   const notificationsModal = useModal();
@@ -57,7 +57,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ onMenuClick, onOpenSea
   const { data: brandingSettings, isLoading: brandingLoading } = usePublicSettings();
   const currentLanguage = SUPPORTED_LANGUAGES.find(lang => lang.code === i18n.language) || SUPPORTED_LANGUAGES[0];
 
-  const companyName = brandingSettings?.branding_company_name?.trim() || 'PicPeak';
+  const companyName = brandingSettings?.branding_company_name?.trim() || 'FotoDesk';
   // Dark-mode logo variant. Symmetric fallback: if only one logo is set,
   // use it for both modes (dark → dark||light, light → light||dark).
   const lightLogo = brandingSettings?.branding_logo_url?.trim();
@@ -153,7 +153,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ onMenuClick, onOpenSea
           />
         )}
         {showText && (
-          <span className={`${wordmarkVisibilityClass} text-xl sm:text-2xl truncate`} style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600, color: '#145346' }}>{companyName}</span>
+          <span className={`${wordmarkVisibilityClass} text-xl font-bold tracking-tight text-heading truncate`}>{companyName === 'FotoDesk' ? <>Foto<span className="font-normal text-muted">Desk</span></> : companyName}</span>
         )}
       </DashboardHomeLink>
     );
@@ -217,14 +217,11 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ onMenuClick, onOpenSea
     // started, visible as a missing segment between the sidebar's
     // brand-row bottom border and the header's bottom border.
     //
-    // The outer header is explicitly h-16 with the default border-box,
-    // so the 1px border is painted INSIDE the 64px height (y=63..64)
-    // — same model as the sidebar's brand row (also h-16 border-b
-    // border-box). Both bottom borders meet at the exact same
-    // y-coordinate.
-    <header className="sticky top-0 z-30 bg-shell h-16 border-b border-line">
-      <div className="px-4 sm:px-6 lg:px-8 h-full">
-        <div className="relative flex items-center justify-between h-full gap-3">
+    // From sm upward the outer header is h-16 with the default border-box,
+    // matching the sidebar brand row. Phones use a tighter 56px bar.
+    <header className="sticky top-0 z-30 bg-shell h-14 sm:h-16 border-b border-line">
+      <div className="px-3 sm:px-6 lg:px-8 h-full">
+        <div className="relative flex items-center justify-between h-full gap-2 sm:gap-3">
           {/* Left side - Menu button, optional left-positioned logo, Date.
               Logo block appears here when logo_position = 'left' (the
               default). For 'center' it's absolutely positioned across
@@ -233,87 +230,60 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ onMenuClick, onOpenSea
           <div className="flex items-center gap-3 min-w-0">
             <button
               onClick={onMenuClick}
-              className="lg:hidden text-neutral-500 hover:text-neutral-700"
+              className="lg:hidden inline-flex h-10 w-10 items-center justify-center rounded-lg text-muted hover:text-body hover:bg-hover-soft transition-colors"
+              aria-label={t('common.menu', 'Menu')}
             >
-              <Menu className="w-6 h-6" />
+              <Menu className="w-5 h-5" />
             </button>
 
-            {!logoInSidebar && logoPosition === 'left' && renderBrandBlock()}
-            {/* Narrow-viewport fallback for center / right positions.
-                On screens where the centered (lg+) or right-anchored
-                (md+) brand block is hidden, render it on the left so
-                the admin chrome doesn't go logo-less on phones. */}
+            {!logoInSidebar && logoPosition === 'left' && (
+              <div className="hidden sm:flex shrink-0">{renderBrandBlock()}</div>
+            )}
+            {/* Narrow-viewport fallback for center / right positions */}
             {!logoInSidebar && logoPosition === 'center' && (
-              <div className="flex lg:hidden">{renderBrandBlock()}</div>
+              <div className="hidden sm:flex lg:hidden shrink-0">{renderBrandBlock()}</div>
             )}
             {!logoInSidebar && logoPosition === 'right' && (
-              <div className="flex md:hidden">{renderBrandBlock()}</div>
+              <div className="hidden sm:flex md:hidden shrink-0">{renderBrandBlock()}</div>
             )}
-
-            {/* Date display - hidden on smaller screens.
-                The vertical divider + left padding only render when
-                the logo sits on the left of the date (logo_position
-                = 'left'). For 'center' / 'right' / 'sidepanel' the
-                left cluster has only the mobile menu (which is
-                hidden on xl+), so a divider would be floating on
-                its own with nothing to separate. */}
-            {/* Explicit `flex items-center` (not just block) + the
-                self-stretch on the border-l variant so the divider
-                covers the full header row, AND the text baseline sits
-                exactly on the same y-axis as the brand-block / sidebar
-                logo to its left. The previous `hidden xl:block` left
-                the <p> inheriting its block-level vertical position,
-                which read as slightly off-centre next to the larger
-                logo image. */}
-            <div className={`hidden xl:flex items-center self-stretch ml-1 ${
-              logoPosition === 'left' && !logoInSidebar
-                ? 'pl-3 border-l border-line'
-                : ''
-            }`}>
-              <p className="text-base leading-none text-body m-0">
-                {format(new Date(), 'PPPP')}
-              </p>
-            </div>
           </div>
 
-          {/* Centered logo. Absolutely positioned so the existing
-              left/right clusters keep their natural sizing; hidden on
-              sub-lg widths to avoid colliding with the right-side
-              action cluster on narrow screens. pointer-events-none on
-              the wrapper passes hover/click through to the header; the
-              brand link inside opts back in with pointer-events-auto. */}
-          {!logoInSidebar && logoPosition === 'center' && (
-            <div className="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+          {/* Phones get one predictable composition regardless of the desktop
+              logo-position preference: menu, centered brand, account actions. */}
+          {!logoInSidebar && (
+            <div className="sm:hidden absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[7rem] overflow-hidden">
               {renderBrandBlock()}
             </div>
           )}
 
-          {/* Right side actions (preceded by the brand block when
-              logo_position = 'right'). The right-anchored logo sits
-              before the language / dark-mode / notifications / user
-              cluster so the widgets stay where admins expect them. */}
-          <div className="flex items-center gap-3">
+          {/* Centered Search Bar */}
+          {onOpenSearch && (
+            <div className="hidden md:flex flex-1 max-w-xl mx-4 sm:mx-8 justify-center">
+              <button
+                type="button"
+                onClick={onOpenSearch}
+                className="w-full max-w-md flex items-center justify-between gap-3 px-3.5 py-1.5 rounded-xl bg-subtle/80 hover:bg-subtle border border-line text-muted hover:text-body transition-all shadow-2xs group cursor-pointer"
+                aria-label="Rechercher un client, une galerie, un événement..."
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <Search className="w-4 h-4 text-muted group-hover:text-primary-600 transition-colors shrink-0" />
+                  <span className="text-xs text-muted group-hover:text-body truncate">
+                    Rechercher un client, une galerie, un événement...
+                  </span>
+                </div>
+                <kbd className="text-[10px] font-medium px-1.5 py-0.5 rounded border border-line bg-panel text-muted shrink-0 shadow-2xs">
+                  {isMac ? '⌘K' : 'Ctrl K'}
+                </kbd>
+              </button>
+            </div>
+          )}
+
+          {/* Right side actions */}
+          <div className="flex items-center gap-1 sm:gap-2 lg:gap-3">
             {!logoInSidebar && logoPosition === 'right' && (
               <div className="hidden md:flex mr-1 pr-2 border-r border-line">
                 {renderBrandBlock()}
               </div>
-            )}
-            {/* Search trigger. Sits where the language selector used to, and
-                shows the shortcut because a palette nobody knows about is a
-                palette nobody uses. Hidden on phones, where the shortcut
-                cannot be typed and the row has no width to spare. */}
-            {onOpenSearch && (
-              <button
-                onClick={onOpenSearch}
-                className="hidden sm:flex items-center gap-2 pl-2.5 pr-2 py-1.5 rounded-lg border border-line text-muted hover:text-body hover:bg-hover-soft transition-colors"
-                aria-label={t('search.palette.open', 'Search pages and settings')}
-                title={t('search.palette.open', 'Search pages and settings')}
-              >
-                <Search className="w-4 h-4" />
-                <kbd className="text-[10px] font-medium px-1 py-0.5 rounded border border-line">
-                  {isMac ? '\u2318K' : 'Ctrl K'}
-                </kbd>
-              </button>
             )}
 
             {/* The language selector used to sit here on sm+. It now lives
@@ -326,10 +296,13 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ onMenuClick, onOpenSea
 
             {/* Dark Mode Toggle — hidden entirely when an admin has locked
                 the instance to a specific mode via Branding > Force color mode. */}
+            {/* Premium Language Switcher (FR / EN) with Flags */}
+            <LanguageToggle size="sm" className="inline-flex" />
+
             {!forcedMode && (
               <button
                 onClick={toggleDarkMode}
-                className="p-2 text-muted hover:text-body hover:bg-hover-soft rounded-lg transition-colors"
+                className="hidden sm:inline-flex h-10 w-10 items-center justify-center text-muted hover:text-body hover:bg-hover-soft rounded-lg transition-colors"
                 title={isDark ? t('admin.lightMode', 'Switch to light mode') : t('admin.darkMode', 'Switch to dark mode')}
               >
                 {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -340,7 +313,8 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ onMenuClick, onOpenSea
             <div className="relative" ref={notificationRef}>
               <button
                 onClick={notificationsModal.toggle}
-                className="relative p-2 text-muted hover:text-body hover:bg-hover-soft rounded-lg transition-colors"
+                className="relative inline-flex h-10 w-10 items-center justify-center text-muted hover:text-body hover:bg-hover-soft rounded-lg transition-colors"
+                aria-label={t('admin.notifications')}
               >
                 <Bell className="w-5 h-5" />
                 {unreadCount > 0 && (
@@ -350,7 +324,7 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ onMenuClick, onOpenSea
 
               {/* Notifications dropdown */}
               {notificationsModal.isOpen && (
-                <div className="absolute right-0 mt-2 w-96 bg-panel rounded-lg shadow-lg border border-line">
+                <div className="fixed left-3 right-3 top-14 mt-2 sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:w-96 bg-panel rounded-lg shadow-lg border border-line">
                   <div className="px-4 py-3 border-b border-line flex items-center justify-between">
                     <h3 className="text-sm font-semibold text-heading">{t('admin.notifications')}</h3>
                     <div className="flex items-center gap-2">
@@ -428,15 +402,21 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ onMenuClick, onOpenSea
             <div className="relative" ref={userMenuRef}>
               <button
                 onClick={userMenuModal.toggle}
-                className="flex items-center gap-3 p-2 hover:bg-hover-soft rounded-lg transition-colors"
+                className="flex h-9 items-center gap-2 px-1.5 hover:bg-hover-soft rounded-xl transition-colors border border-transparent hover:border-line cursor-pointer"
+                aria-label={t('admin.accountMenu', 'Account menu')}
               >
-                <div className="text-right hidden sm:block">
-                  <p className="text-sm font-medium text-heading">{user?.username}</p>
-                  <p className="text-xs text-muted">{user?.email}</p>
+                <div className="w-8 h-8 rounded-full bg-slate-800 text-white font-semibold text-xs flex items-center justify-center border border-line shrink-0">
+                  {(() => {
+                    const name = user?.username || brandingSettings?.branding_company_name || 'Studio FotoDesk';
+                    const parts = name.trim().split(/\s+/);
+                    if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+                    return name.slice(0, 2).toUpperCase();
+                  })()}
                 </div>
-                <div className="w-8 h-8 bg-accent-dark rounded-full flex items-center justify-center">
-                  <User className="w-5 h-5 text-white" />
-                </div>
+                <span className="hidden md:inline text-xs font-medium text-heading truncate max-w-[120px]">
+                  {user?.username || brandingSettings?.branding_company_name || 'Studio'}
+                </span>
+                <ChevronDown className="w-3.5 h-3.5 text-muted shrink-0 hidden sm:block" />
               </button>
 
               {/* User dropdown */}
@@ -446,6 +426,15 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({ onMenuClick, onOpenSea
                     <p className="text-sm font-medium text-heading">{user?.username}</p>
                     <p className="text-xs text-muted">{user?.email}</p>
                   </div>
+                  {!forcedMode && (
+                    <button
+                      onClick={toggleDarkMode}
+                      className="sm:hidden w-full px-4 py-2 text-left text-sm text-body hover:bg-hover flex items-center gap-3"
+                    >
+                      {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                      {isDark ? t('admin.lightMode', 'Switch to light mode') : t('admin.darkMode', 'Switch to dark mode')}
+                    </button>
+                  )}
                   {/* Language sub-section — phone-only (#523 follow-up).
                       Rekoo-PS asked for language to live inside the profile
                       menu since it's a set-once preference. It now shows at

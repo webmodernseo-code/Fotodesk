@@ -554,7 +554,7 @@ export const EventsListPage: React.FC<{ mediaMode?: 'photo' | 'video'; defaultVi
           </div>
 
           {/* Filter Buttons */}
-          <div className="-mx-1 flex max-w-full gap-2 overflow-x-auto px-1 pb-1" aria-label={t('events.filters', 'Filtres des événements')}>
+          <div className="-mx-1 flex max-w-full gap-2 overflow-x-auto px-1 py-1" aria-label={t('events.filters', 'Filtres des événements')}>
             <Button
               variant={!statusFilter ? 'primary' : 'outline'}
               size="md"
