@@ -189,7 +189,7 @@ const ToggleRow: React.FC<ToggleRowProps> = ({ title, enabled, onChange }) => (
       aria-checked={enabled}
       onClick={() => onChange(!enabled)}
       className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-accent/40 ${
-        enabled ? 'bg-accent' : 'bg-line'
+        enabled ? 'bg-emerald-500' : 'bg-line'
       }`}
     >
       <span
