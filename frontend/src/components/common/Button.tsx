@@ -3,7 +3,7 @@ import { clsx } from 'clsx';
 import { Loader2 } from 'lucide-react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
+  variant?: 'primary' | 'brand' | 'secondary' | 'outline' | 'ghost' | 'success' | 'danger';
   size?: 'sm' | 'md' | 'lg';
   isLoading?: boolean;
   leftIcon?: React.ReactNode;
@@ -30,9 +30,12 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     
     const variants = {
       primary: 'btn-primary',
+      brand: 'btn-brand',
       secondary: 'btn-secondary',
       outline: 'btn-outline',
       ghost: 'bg-transparent hover:bg-hover text-body',
+      success: 'btn-success',
+      danger: 'btn-danger',
     };
 
     const sizes = {
@@ -56,7 +59,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         aria-disabled={disabled || isLoading}
       >
         {isLoading ? (
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-label="Loading" />
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
         ) : (
           leftIcon && <span className="mr-2" aria-hidden="true">{leftIcon}</span>
         )}
