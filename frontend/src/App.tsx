@@ -21,6 +21,7 @@ import { RegisterPage } from './pages/public/RegisterPage';
 import { AffiliatePortalPage } from './pages/affiliate/AffiliatePortalPage';
 import { MasterFounderDashboardPage } from './pages/superadmin/MasterFounderDashboardPage';
 import { SuperAdminLoginPage } from './pages/superadmin/SuperAdminLoginPage';
+import { PublicVideoGalleryPage } from './pages/PublicVideoGalleryPage';
 import {
   AdminLoginPage,
   FotoDeskDashboard,
@@ -219,6 +220,7 @@ function App() {
                   <Route path="/superadmin" element={<AdminAuthWrapper><MasterFounderDashboardPage /></AdminAuthWrapper>} />
                   <Route path="/master" element={<Navigate to="/superadmin" replace />} />
                   <Route path="/portfolio/:slug" element={<PortfolioPage />} />
+                  <Route path="/video-gallery/:slug" element={<PublicVideoGalleryPage />} />
                   <Route path="/portfolio" element={<PortfolioPage />} />
                   <Route path="/gallery/preview" element={<PreviewPage />} />
                   {/* Live Slideshow ("Diashow") — token-only fullscreen kiosk.

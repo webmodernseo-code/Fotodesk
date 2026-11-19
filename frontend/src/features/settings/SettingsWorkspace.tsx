@@ -1,4 +1,5 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { fotodeskService } from '../../services/fotodesk.service';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -257,6 +258,54 @@ export const SettingsWorkspace: React.FC = () => {
   const [sessions, setSessions] = useState<ActiveSession[]>(INITIAL_SESSIONS);
   const [sessionToSignOut, setSessionToSignOut] = useState<ActiveSession | null>(null);
 
+  useEffect(() => {
+    let active = true;
+    fotodeskService.studioSettings
+      .getStudioProfile()
+      .then((res) => {
+        const p = res?.profile;
+        if (!active || !p) return;
+        const nextStudio: StudioProfileState = {
+          logoPreview: p.logo_url || null,
+          studioName: p.name || INITIAL_STUDIO.studioName,
+          city: p.city || '',
+          country: p.country || '',
+          description: p.description || '',
+          businessEmail: p.business_email || '',
+          phone: p.phone || '',
+          website: p.website || '',
+          instagram: p.social_links?.instagram || '',
+          facebook: p.social_links?.facebook || '',
+          linkedin: p.social_links?.linkedin || '',
+        };
+        setStudioSaved(nextStudio);
+        setStudioForm(nextStudio);
+      })
+      .catch(() => undefined);
+
+    fotodeskService.studioSettings
+      .listSessions()
+      .then((res) => {
+        if (!active || !Array.isArray(res?.sessions) || res.sessions.length === 0) return;
+        setSessions(
+          res.sessions.map((s: any) => ({
+            id: String(s.id),
+            device: s.deviceName || 'Navigateur web',
+            browserLocation: s.location || s.ipAddress || 'Session web',
+            lastActive: s.lastActiveAt
+              ? new Date(s.lastActiveAt).toLocaleDateString('fr-FR')
+              : "Aujourd'hui",
+            current: Boolean(s.isCurrent),
+          }))
+        );
+      })
+      .catch(() => undefined);
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
   // Workspace Preferences state
   const [workspaceSaved, setWorkspaceSaved] = useState<WorkspacePrefsState>(INITIAL_WORKSPACE);
   const [workspaceForm, setWorkspaceForm] = useState<WorkspacePrefsState>(INITIAL_WORKSPACE);
@@ -355,11 +404,18 @@ export const SettingsWorkspace: React.FC = () => {
       setPwError('La confirmation du mot de passe ne correspond pas.');
       return;
     }
-    setCurrentPw('');
-    setNewPw('');
-    setConfirmPw('');
-    setLastPwUpdate("Aujourd'hui");
-    showToast('Mot de passe mis à jour avec succès.');
+    fotodeskService.studioSettings
+      .updatePassword(currentPw, newPw)
+      .then(() => {
+        setCurrentPw('');
+        setNewPw('');
+        setConfirmPw('');
+        setLastPwUpdate("Aujourd'hui");
+        showToast('Mot de passe mis à jour avec succès.');
+      })
+      .catch((err) => {
+        setPwError(err?.response?.data?.error || 'Impossible de modifier le mot de passe.');
+      });
   };
 
   return (
@@ -691,8 +747,27 @@ export const SettingsWorkspace: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => {
-                    setStudioSaved(studioForm);
-                    showToast('Profil du studio mis à jour avec succès.');
+                    fotodeskService.studioSettings
+                      .updateStudioProfile({
+                        name: studioForm.studioName,
+                        city: studioForm.city,
+                        country: studioForm.country,
+                        description: studioForm.description,
+                        business_email: studioForm.businessEmail,
+                        phone: studioForm.phone,
+                        website: studioForm.website,
+                        logo_url: studioForm.logoPreview,
+                        social_links: {
+                          instagram: studioForm.instagram,
+                          facebook: studioForm.facebook,
+                          linkedin: studioForm.linkedin,
+                        },
+                      })
+                      .then(() => {
+                        setStudioSaved(studioForm);
+                        showToast('Profil du studio mis à jour avec succès.');
+                      })
+                      .catch(() => showToast('Erreur lors de la sauvegarde du profil studio.'));
                   }}
                   className="btn-primary text-sm"
                 >
@@ -889,6 +964,9 @@ export const SettingsWorkspace: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => {
+                    fotodeskService.studioSettings
+                      .updatePreferences('account-preferences', accountForm)
+                      .catch(() => undefined);
                     setAccountSaved(accountForm);
                     void i18n.changeLanguage(accountForm.language);
                     showToast('Préférences du compte mises à jour avec succès.');
@@ -1111,6 +1189,9 @@ export const SettingsWorkspace: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => {
+                    fotodeskService.studioSettings
+                      .updatePreferences('notifications', notifForm)
+                      .catch(() => undefined);
                     setNotifSaved(notifForm);
                     showToast('Préférences de notification mises à jour avec succès.');
                   }}
@@ -1444,6 +1525,9 @@ export const SettingsWorkspace: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => {
+                    fotodeskService.studioSettings
+                      .updatePreferences('workspace-preferences', workspaceForm)
+                      .catch(() => undefined);
                     setWorkspaceSaved(workspaceForm);
                     showToast("Préférences de l'espace enregistrées avec succès.");
                   }}
@@ -1503,6 +1587,10 @@ export const SettingsWorkspace: React.FC = () => {
                 type="button"
                 onClick={() => {
                   const target = sessionToSignOut;
+                  const numericId = Number(target.id);
+                  if (Number.isInteger(numericId) && numericId > 0) {
+                    fotodeskService.studioSettings.revokeSession(numericId).catch(() => undefined);
+                  }
                   setSessions((prev) => prev.filter((item) => item.id !== target.id));
                   setSessionToSignOut(null);
                   showToast(`Session ${target.device} déconnectée avec succès.`);

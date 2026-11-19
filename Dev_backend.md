@@ -24,6 +24,7 @@ Ce document est la feuille de route vivante du développement backend de **FotoD
 | Phase 6 | APIs Super Admin (`/api/superadmin/*`) | Terminée |
 | Phase 7 | Paramètres, Sécurité, Tests d'Intégration & Déploiement VPS | Terminée |
 | Phase 8 | Intégration Frontend ↔ Backend (Branchement complet des APIs) | Terminée |
+| Phase 9 | Finitions (Settings, Vidéo Publique, Stripe) & Infra Production | Terminée |
 
 ---
 
@@ -136,4 +137,12 @@ Protection stricte par middleware `requireSuperAdmin` (`role.name === 'super_adm
 - [x] **8.3** **Galeries Vidéo (`VideoGalleriesPage.tsx`)** : brancher sur `/api/admin/video-galleries` (listing, création, upload vidéo, suppression, gestion quota Starter `403`).
 - [x] **8.4** **Souscription & Affiliation (`SubscriptionPage.tsx` & `AdminAffiliatesPage.tsx`)** : brancher sur `/api/admin/subscription`, `/api/admin/subscription/upgrade` et `/api/admin/affiliates/overview`.
 - [x] **8.5** **Équipe & Paramètres (`TeamMembersPage.tsx` & `SettingsPage.tsx`)** : brancher sur `/api/admin/team-members`, `/api/admin/settings/sessions`, `/studio-profile`, `/account-preferences`, `/notifications`, `/workspace-preferences`, `/password`.
+
+---
+
+## Phase 9 — Finitions & Infrastructure Production
+- [x] **9.1** **Paramètres Studio (`SettingsWorkspace.tsx`)** : branché sur `/api/admin/settings/studio-profile`, `/sessions`, `/account-preferences`, `/notifications`, `/workspace-preferences`, `/password`.
+- [x] **9.2** **Galerie Vidéo Publique (`/video-gallery/:slug`)** : page client [PublicVideoGalleryPage.tsx](file:///c:/Projet%20web/FotoDesk/frontend/src/pages/PublicVideoGalleryPage.tsx) avec code d'accès et commentaires horodatés.
+- [x] **9.3** **Stripe Checkout** : endpoint `POST /api/admin/subscription/checkout` (Stripe réel si `STRIPE_SECRET_KEY` défini, sinon simulation locale).
+- [x] **9.4** **Infrastructure VPS / Docker** : [docker-compose.prod.yml](file:///c:/Projet%20web/FotoDesk/docker-compose.prod.yml), [fotodesk.conf](file:///c:/Projet%20web/FotoDesk/deploy/nginx/fotodesk.conf) et [deploy.sh](file:///c:/Projet%20web/FotoDesk/deploy/deploy.sh).
 

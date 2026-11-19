@@ -137,5 +137,66 @@ router.post(
   }
 );
 
+/**
+ * POST /api/admin/subscription/checkout
+ * Creates a Stripe Checkout session when STRIPE_SECRET_KEY is configured,
+ * or returns a structured local simulation fallback in dev/demo mode.
+ */
+router.post(
+  '/checkout',
+  requireModulePermission('settings', 'edit'),
+  [body('planId').isIn(['pro_monthly', 'pro_yearly'])],
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: safeValidationErrors(errors) });
+      }
+
+      const plan = UPGRADE_PLANS[req.body.planId];
+      const stripeKey = process.env.STRIPE_SECRET_KEY;
+
+      if (!stripeKey) {
+        return res.json({
+          mode: 'local_simulation',
+          planId: plan.planId,
+          amountMinor: plan.amountMinor,
+          currency: 'EUR',
+          checkoutUrl: null,
+        });
+      }
+
+      const stripe = require('stripe')(stripeKey);
+      const appUrl = process.env.APP_URL || 'http://localhost:5173';
+      const session = await stripe.checkout.sessions.create({
+        mode: 'subscription',
+        customer_email: req.admin.email || undefined,
+        line_items: [
+          {
+            price_data: {
+              currency: 'eur',
+              product_data: { name: `FotoDesk ${plan.planId === 'pro_yearly' ? 'Pro Annuel' : 'Pro Mensuel'}` },
+              unit_amount: plan.amountMinor,
+              recurring: { interval: plan.billingInterval === 'yearly' ? 'year' : 'month' },
+            },
+            quantity: 1,
+          },
+        ],
+        metadata: {
+          studioId: String(req.studioId),
+          planId: plan.planId,
+        },
+        success_url: `${appUrl}/admin/subscription?checkout=success`,
+        cancel_url: `${appUrl}/admin/subscription?checkout=cancel`,
+      });
+
+      return res.json({ mode: 'stripe', checkoutUrl: session.url, sessionId: session.id });
+    } catch (error) {
+      logger.error('POST /api/admin/subscription/checkout error:', error);
+      return res.status(500).json({ error: 'Erreur lors de la création de la session de paiement.' });
+    }
+  }
+);
+
 module.exports = router;
 
