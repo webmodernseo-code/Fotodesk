@@ -54,12 +54,22 @@ import {
   useSettingsNavGroups,
 } from '../../features/settings/settingsNav';
 import { SectionPageHeader } from '../../components/admin/SectionPageHeader';
+import { SettingsWorkspace } from '../../features/settings/SettingsWorkspace';
 
 // Tab keys, permissions and the grouped navigation live in
 // features/settings/settingsNav.tsx — shared with the admin sidebar, which
 // renders the Settings groups in place of the main menu while on this page.
 
 export const SettingsPage: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const urlTab = searchParams.get('tab');
+  if (!isValidTab(urlTab)) {
+    return <SettingsWorkspace />;
+  }
+  return <LegacySettingsPage />;
+};
+
+const LegacySettingsPage: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { flags, isLoading: flagsLoading } = useFeatureFlags();
