@@ -434,13 +434,13 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose, col
     collapsed ? 'px-3 lg:px-0 lg:justify-center' : 'px-3.5'
   } ${
     isActive
-      ? 'bg-amber-50/95 text-amber-800 border-amber-200/80 dark:bg-amber-950/45 dark:text-amber-200 dark:border-amber-800/50 font-semibold shadow-2xs'
+      ? 'bg-subtle text-heading border-line font-semibold shadow-2xs'
       : 'font-medium text-slate-700 dark:text-neutral-200 hover:text-slate-950 dark:hover:text-white hover:bg-slate-200/75 hover:border-transparent dark:hover:bg-neutral-800/70 dark:hover:border-transparent hover:shadow-[0_4px_14px_rgba(15,23,42,0.09)]'
   }`;
   const iconClass = (isActive: boolean) => `fd-solid-nav-icon w-[18px] h-[18px] flex-shrink-0 ${
     collapsed ? 'mr-3 lg:mr-0' : 'mr-3'
   } ${
-    isActive ? 'text-amber-600 dark:text-amber-400' : 'text-slate-500 dark:text-neutral-400 group-hover:text-black dark:group-hover:text-white'
+    isActive ? 'text-heading' : 'text-slate-500 dark:text-neutral-400 group-hover:text-black dark:group-hover:text-white'
   }`;
 
   return (
