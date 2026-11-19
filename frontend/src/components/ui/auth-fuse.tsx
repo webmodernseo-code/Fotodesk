@@ -605,7 +605,7 @@ export function AuthUI({ initialIsSignIn = true, signInContent = {}, signUpConte
   const currentContent = isSignIn ? finalSignInContent : finalSignUpContent;
 
   return (
-    <div className="relative min-h-screen w-full bg-canvas text-body selection:bg-gold-soft md:grid md:grid-cols-2">
+    <div className="relative flex min-h-screen w-full items-center justify-center bg-canvas text-body selection:bg-gold-soft p-4 sm:p-6 md:p-8 overflow-y-auto">
       <style>{`
         input[type="password"]::-ms-reveal,
         input[type="password"]::-ms-clear {
@@ -632,45 +632,12 @@ export function AuthUI({ initialIsSignIn = true, signInContent = {}, signUpConte
         {isDark ? <Sun className="h-4 w-4" aria-hidden="true" /> : <Moon className="h-4 w-4" aria-hidden="true" />}
       </button>
 
-      {/* Colonne Formulaire gauche avec texture subtile de studio & fond enrichi */}
-      <div className="relative flex min-h-screen items-center justify-center border-r border-line bg-canvas p-4 sm:p-6 md:p-8 lg:p-12 overflow-y-auto">
-        {/* Motifs géométriques subtils en mode clair & sombre pour donner du relief */}
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(#94a3b8_1px,transparent_1px)] dark:bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.22] dark:opacity-[0.18]" aria-hidden="true" />
-        <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[520px] h-[320px] bg-gradient-to-b from-[#C89561]/[0.08] dark:from-[#C89561]/[0.12] via-transparent to-transparent blur-3xl" aria-hidden="true" />
+      {/* Motifs géométriques subtils en mode clair & sombre */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(#94a3b8_1px,transparent_1px)] dark:bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.22] dark:opacity-[0.18]" aria-hidden="true" />
+      <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[520px] h-[320px] bg-gradient-to-b from-[#C89561]/[0.08] dark:from-[#C89561]/[0.12] via-transparent to-transparent blur-3xl" aria-hidden="true" />
+
+      <div className="relative z-10 w-full flex justify-center">
         <AuthFormContainer isSignIn={isSignIn} onToggle={toggleForm} />
-      </div>
-
-      {/* Colonne Hero droite */}
-      <div
-        className="hidden md:block relative bg-cover bg-center transition-all duration-700 ease-in-out"
-        style={{ backgroundImage: `url(${currentContent.image.src})` }}
-        key={currentContent.image.src}
-      >
-        {/* Rendu photo naturel sans voile blanc : image nette et contrastée */}
-        <div className="absolute inset-0 bg-black/20" />
-        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
-        
-        {/* Badge supérieur FotoDesk */}
-        <div className="absolute right-8 top-8 z-10 flex items-center gap-2 rounded-full border border-white/10 bg-black/60 px-3.5 py-1.5 text-xs font-medium text-white/80 backdrop-blur-md">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)] inline-block" />
-          FotoDesk Pro Engine
-        </div>
-
-        {/* Citation machine à écrire */}
-        <div className="relative z-10 flex h-full flex-col items-center justify-end p-8 pb-14">
-          <blockquote className="space-y-3.5 text-center text-white max-w-lg px-4">
-            <p className="text-xl font-medium leading-relaxed text-white drop-shadow-md lg:text-2xl">
-              “<Typewriter
-                key={currentContent.quote.text}
-                text={currentContent.quote.text}
-                speed={50}
-              />”
-            </p>
-            <cite className="block text-sm font-light not-italic tracking-wide text-white/70">
-              — {currentContent.quote.author}
-            </cite>
-          </blockquote>
-        </div>
       </div>
     </div>
   );
