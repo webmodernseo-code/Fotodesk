@@ -1145,6 +1145,129 @@ router.delete('/sessions/:id', adminAuth, async (req, res) => {
   }
 });
 
+router.get('/studio-profile', adminAuth, async (req, res) => {
+  try {
+    const studioId = req.studioId || req.admin?.studioId || 1;
+    const studio = await db('studios')
+      .where({ id: studioId })
+      .first(
+        'id',
+        'name',
+        'slug',
+        'city',
+        'country',
+        'business_email',
+        'phone',
+        'website',
+        'description',
+        'logo_url',
+        'social_links'
+      );
+    if (!studio) return res.status(404).json({ error: 'Studio introuvable.' });
+    return res.json({
+      profile: {
+        ...studio,
+        social_links: studio.social_links ? JSON.parse(studio.social_links) : {},
+      },
+    });
+  } catch (error) {
+    logger.error('GET /api/admin/settings/studio-profile error:', error);
+    return res.status(500).json({ error: 'Erreur lors du chargement du profil studio.' });
+  }
+});
+
+router.put('/studio-profile', adminAuth, async (req, res) => {
+  try {
+    const studioId = req.studioId || req.admin?.studioId || 1;
+    const patch = { updated_at: new Date() };
+    const fields = ['name', 'city', 'country', 'business_email', 'phone', 'website', 'description', 'logo_url'];
+    for (const f of fields) {
+      if (req.body[f] !== undefined) patch[f] = req.body[f];
+    }
+    if (req.body.social_links !== undefined) {
+      patch.social_links = typeof req.body.social_links === 'string'
+        ? req.body.social_links
+        : JSON.stringify(req.body.social_links || {});
+    }
+    await db('studios').where({ id: studioId }).update(patch);
+    const updated = await db('studios').where({ id: studioId }).first();
+    return res.json({ profile: updated });
+  } catch (error) {
+    logger.error('PUT /api/admin/settings/studio-profile error:', error);
+    return res.status(500).json({ error: 'Erreur lors de la mise à jour du profil studio.' });
+  }
+});
+
+for (const prefKey of ['account-preferences', 'notifications', 'workspace-preferences']) {
+  router.get(`/${prefKey}`, adminAuth, async (req, res) => {
+    try {
+      const studioId = req.studioId || req.admin?.studioId || 1;
+      const key = `studio_${studioId}_${prefKey}`;
+      const row = await db('app_settings').where({ setting_key: key }).first();
+      const data = row?.setting_value ? JSON.parse(row.setting_value) : {};
+      return res.json({ preferences: data });
+    } catch (error) {
+      logger.error(`GET /api/admin/settings/${prefKey} error:`, error);
+      return res.status(500).json({ error: 'Erreur lors du chargement des préférences.' });
+    }
+  });
+
+  router.put(`/${prefKey}`, adminAuth, async (req, res) => {
+    try {
+      const studioId = req.studioId || req.admin?.studioId || 1;
+      const key = `studio_${studioId}_${prefKey}`;
+      const serialized = JSON.stringify(req.body || {});
+      const existing = await db('app_settings').where({ setting_key: key }).first('id');
+      if (existing) {
+        await db('app_settings').where({ setting_key: key }).update({
+          setting_value: serialized,
+          updated_at: new Date(),
+        });
+      } else {
+        await db('app_settings').insert({
+          setting_key: key,
+          setting_value: serialized,
+          setting_type: 'studio_preferences',
+          created_at: new Date(),
+          updated_at: new Date(),
+        });
+      }
+      return res.json({ preferences: req.body || {} });
+    } catch (error) {
+      logger.error(`PUT /api/admin/settings/${prefKey} error:`, error);
+      return res.status(500).json({ error: 'Erreur lors de la sauvegarde des préférences.' });
+    }
+  });
+}
+
+router.put('/password', adminAuth, async (req, res) => {
+  try {
+    const bcrypt = require('bcrypt');
+    const { currentPassword, newPassword } = req.body || {};
+    if (!currentPassword || !newPassword || String(newPassword).length < 8) {
+      return res.status(400).json({ error: 'Mot de passe actuel et nouveau mot de passe (min 8 caractères) requis.' });
+    }
+    const admin = await db('admin_users').where({ id: req.admin.id }).first();
+    if (!admin) return res.status(404).json({ error: 'Compte introuvable.' });
+
+    const matches = await bcrypt.compare(String(currentPassword), admin.password_hash);
+    if (!matches) {
+      return res.status(401).json({ error: 'Mot de passe actuel incorrect.' });
+    }
+
+    const passwordHash = await bcrypt.hash(String(newPassword), 10);
+    await db('admin_users').where({ id: req.admin.id }).update({
+      password_hash: passwordHash,
+      must_change_password: false,
+      updated_at: new Date(),
+    });
+    return res.json({ success: true });
+  } catch (error) {
+    logger.error('PUT /api/admin/settings/password error:', error);
+    return res.status(500).json({ error: 'Erreur lors de la mise à jour du mot de passe.' });
+  }
+});
+
 router.get('/:type', adminAuth, requirePermission('settings.view'), async (req, res) => {
   try {
     const { type } = req.params;

@@ -902,6 +902,7 @@ app.use('/api/admin/subscription', require('./src/routes/adminSubscription'));
 app.use('/api/admin/affiliates', require('./src/routes/adminAffiliates'));
 app.use('/api/admin/users', require('./src/routes/adminUsers'));
 app.use('/api/admin/team-members', require('./src/routes/adminTeamMembers'));
+app.use('/api/superadmin', require('./src/routes/superadmin'));
 app.use('/api/admin/roles', require('./src/routes/adminRoles'));
 // Customer portal (#354). The customerPortal feature flag is a
 // VISIBILITY toggle for the admin surface, not a kill switch for

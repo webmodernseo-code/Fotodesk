@@ -21,8 +21,8 @@ Ce document est la feuille de route vivante du développement backend de **FotoD
 | Phase 3 | APIs Espace Studio (Dashboard, Clients, Projets, Calendrier, Factures) | Terminée |
 | Phase 4 | Galeries Photo, Galeries Vidéo, Commentaires Horodatés & Quotas | Terminée |
 | Phase 5 | Affiliation, Commissions (20 % 1er paiement) & Souscriptions | Terminée |
-| Phase 6 | APIs Super Admin (`/api/superadmin/*`) | À faire |
-| Phase 7 | Paramètres, Sécurité, Tests d'Intégration & Déploiement VPS | À faire |
+| Phase 6 | APIs Super Admin (`/api/superadmin/*`) | Terminée |
+| Phase 7 | Paramètres, Sécurité, Tests d'Intégration & Déploiement VPS | Terminée |
 
 ---
 
@@ -94,24 +94,24 @@ Ce document est la feuille de route vivante du développement backend de **FotoD
 
 ## Phase 6 — APIs Super Admin (`/api/superadmin/*`)
 Protection stricte par middleware `requireSuperAdmin` (`role.name === 'super_admin'`) :
-- [ ] **6.1** `GET /api/superadmin/overview` : KPIs globaux, croissance (7j/30j/90j), MRR/ARR, alertes plateforme.
-- [ ] **6.2** `GET /api/superadmin/studios` & `GET /api/superadmin/studios/:id` & `PATCH /api/superadmin/studios/:id/status` (suspension/réactivation avec motif obligatoire + `status_history`).
-- [ ] **6.3** `GET /api/superadmin/users` & `GET /api/superadmin/users/:id` & `PATCH /api/superadmin/users/:id/status` (suspension/réactivation + activité).
-- [ ] **6.4** `GET /api/superadmin/subscriptions` & `GET /api/superadmin/subscriptions/:id` (répartition, quotas, historique de facturation).
-- [ ] **6.5** `GET /api/superadmin/affiliates`, `PATCH /api/superadmin/affiliates/:id/status`.
-- [ ] **6.6** `GET /api/superadmin/commissions`, `PATCH /api/superadmin/commissions/:id/approve`.
-- [ ] **6.7** `GET /api/superadmin/payouts` & `GET /api/superadmin/payouts/:id`.
-- [ ] **6.8** `GET / PUT /api/superadmin/settings` (paramètres globaux de la plateforme).
+- [x] **6.1** `GET /api/superadmin/overview` : KPIs globaux, croissance (7j/30j/90j), MRR/ARR, alertes plateforme.
+- [x] **6.2** `GET /api/superadmin/studios` & `GET /api/superadmin/studios/:id` & `PATCH /api/superadmin/studios/:id/status` (suspension/réactivation avec motif obligatoire + `status_history`).
+- [x] **6.3** `GET /api/superadmin/users` & `GET /api/superadmin/users/:id` & `PATCH /api/superadmin/users/:id/status` (suspension/réactivation + activité).
+- [x] **6.4** `GET /api/superadmin/subscriptions` & `GET /api/superadmin/subscriptions/:id` (répartition, quotas, historique de facturation).
+- [x] **6.5** `GET /api/superadmin/affiliates`, `PATCH /api/superadmin/affiliates/:id/status`.
+- [x] **6.6** `GET /api/superadmin/commissions`, `PATCH /api/superadmin/commissions/:id/approve`.
+- [x] **6.7** `GET /api/superadmin/payouts` & `GET /api/superadmin/payouts/:id`.
+- [x] **6.8** `GET / PUT /api/superadmin/settings` (paramètres globaux de la plateforme).
 
 ---
 
 ## Phase 7 — Paramètres, Sécurité, Tests d'Intégration & Déploiement VPS
-- [ ] **7.1** **Paramètres Studio** : `GET / PUT /api/admin/settings/studio-profile`, `account-preferences`, `notifications`, `workspace-preferences`, `password`.
-- [ ] **7.2** **Tests d'intégration Jest + Supertest** :
+- [x] **7.1** **Paramètres Studio** : `GET / PUT /api/admin/settings/studio-profile`, `account-preferences`, `notifications`, `workspace-preferences`, `password`.
+- [x] **7.2** **Tests d'intégration Jest + Supertest** :
   - Isolation multi-tenant entre deux studios.
   - Contrôle des permissions modules (`view`, `create`, `edit`, `delete`).
   - Respect des quotas Starter/Pro.
   - Règle des commissions 20 % sur le 1er paiement uniquement.
   - Garde `super_admin` (403 pour un utilisateur studio).
-- [ ] **7.3** **Préparation Production** : configuration `.env.production`, Cloudflare R2, PostgreSQL, Nginx/Caddy SSL, PM2/Docker.
+- [x] **7.3** **Préparation Production** : configuration `.env.production`, Cloudflare R2, PostgreSQL, Nginx/Caddy SSL, PM2/Docker.
 
