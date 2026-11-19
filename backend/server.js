@@ -980,6 +980,7 @@ app.use('/api/admin/transfers',  require('./src/routes/adminTransfers'));
 // Newsletter campaigns (#1264). Flag-gated inside the router.
 app.use('/api/admin/newsletters', require('./src/routes/adminNewsletters'));
 app.use('/api/public/quotes',  require('./src/routes/publicQuotes'));
+app.use('/api/public/invoices', require('./src/routes/publicInvoices'));
 app.use('/api/public/contracts', require('./src/routes/publicContracts'));
 // Signing with a link per signer and an emailed code (#1446).
 app.use('/api/public/contract-signing', require('./src/routes/publicContractSigning'));

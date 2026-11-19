@@ -103,6 +103,7 @@ router.get('/', requirePermission('events.view'), handleAsync(async (req, res) =
     status: req.query.status || null,
     perms,
     projectIds,
+    studioId: req.studioId || req.admin?.studioId || 1,
   });
   const visible = (await mayViewCustomers(req)) ? projects : projects.map(withoutCustomer);
   return successResponse(res, { projects: visible });
@@ -116,7 +117,7 @@ router.post('/',
     validateRequest(req);
     await assertMayLinkCustomer(req);
     const project = await projectService.createProject(
-      { name: req.body.name, customerAccountId: req.body.customerAccountId || null },
+      { name: req.body.name, customerAccountId: req.body.customerAccountId || null, studioId: req.studioId || req.admin?.studioId || 1 },
       req.admin.id,
     );
     return successResponse(res, { project: await projectForCaller(req, project) }, 201, 'Project created');
@@ -151,6 +152,22 @@ router.put('/:id',
       status: req.body.status,
     });
     return successResponse(res, { project: await projectForCaller(req, project) }, 200, 'Project updated');
+  }),
+);
+
+// Delete
+router.delete('/:id',
+  requirePermission('events.delete'),
+  requireProjectOwnership,
+  [param('id').isInt({ min: 1 })],
+  handleAsync(async (req, res) => {
+    validateRequest(req);
+    const id = parseInt(req.params.id, 10);
+    const { db } = require('../database/db');
+    const studioId = req.studioId || req.admin?.studioId || 1;
+    const deleted = await db('projects').where({ id, studio_id: studioId }).del();
+    if (!deleted) return res.status(404).json({ error: 'Project not found' });
+    return successResponse(res, { id }, 200, 'Project deleted');
   }),
 );
 

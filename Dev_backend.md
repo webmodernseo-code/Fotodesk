@@ -18,7 +18,7 @@ Ce document est la feuille de route vivante du développement backend de **FotoD
 | --- | --- | --- |
 | Phase 1 | Socle Base de Données, Multi-Tenancy (`studios`) & Migrations | Terminée |
 | Phase 2 | Authentification, Sessions Actives & Permissions par Module | Terminée |
-| Phase 3 | APIs Espace Studio (Dashboard, Clients, Projets, Calendrier, Factures) | À faire |
+| Phase 3 | APIs Espace Studio (Dashboard, Clients, Projets, Calendrier, Factures) | Terminée |
 | Phase 4 | Galeries Photo, Galeries Vidéo, Commentaires Horodatés & Quotas | À faire |
 | Phase 5 | Affiliation, Commissions (20 % 1er paiement) & Souscriptions | À faire |
 | Phase 6 | APIs Super Admin (`/api/superadmin/*`) | À faire |
@@ -52,15 +52,15 @@ Ce document est la feuille de route vivante du développement backend de **FotoD
 ---
 
 ## Phase 3 — APIs Espace Studio (Dashboard, Clients, Projets, Calendrier, Factures)
-- [ ] **3.1** **Dashboard Studio** : `GET /api/admin/dashboard/overview` (KPIs clients, projets, factures, galeries, stockage).
-- [ ] **3.2** **Clients** : CRUD `/api/admin/customers` + fiche détaillée (projets, galeries et factures liés).
-- [ ] **3.3** **Projets** : CRUD `/api/admin/projects` (`planning`, `in_progress`, `editing`, `review`) avec filtres par statut/type et liaisons galeries/factures.
-- [ ] **3.4** **Calendrier** : CRUD `/api/admin/calendar/events` lié aux clients et projets.
-- [ ] **3.5** **Factures (suivi manuel hors plateforme)** :
+- [x] **3.1** **Dashboard Studio** : `GET /api/admin/dashboard/overview` (KPIs clients, projets, factures, galeries, stockage).
+- [x] **3.2** **Clients** : CRUD `/api/admin/customers` + fiche détaillée (projets, galeries et factures liés).
+- [x] **3.3** **Projets** : CRUD `/api/admin/projects` (`planning`, `in_progress`, `editing`, `review`) avec filtres par statut/type et liaisons galeries/factures.
+- [x] **3.4** **Calendrier** : CRUD `/api/admin/calendar/events` lié aux clients et projets.
+- [x] **3.5** **Factures (suivi manuel hors plateforme)** :
   - CRUD `/api/admin/invoices` + tables `invoice_items` et `invoice_activities`.
   - `PATCH /api/admin/invoices/:id/status` (`draft`, `sent`, `paid`, `overdue`, `cancelled`).
   - `POST /api/admin/invoices/:id/duplicate` & `GET /api/public/invoices/:token` (vue client + export PDF).
-- [ ] **3.6** **Constructeur de page d'accueil (`/admin/portfolio`)** :
+- [x] **3.6** **Constructeur de page d'accueil (`/admin/portfolio`)** :
   - `GET / PUT /api/admin/portfolio` (profil public studio, sections portfolio, services, contact) & `GET /api/public/portfolio/:slug`.
 
 ---

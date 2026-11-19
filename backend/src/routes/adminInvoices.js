@@ -384,6 +384,7 @@ router.get(
     const { rows, total, page, pageSize } = await invoiceService.listInvoices({
       filters: {
         status: statusFilter,
+        studioId: req.studioId || req.admin?.studioId || 1,
         customerAccountId: req.query.customerAccountId ? parseInt(req.query.customerAccountId, 10) : null,
         sourceQuoteId: req.query.sourceQuoteId ? parseInt(req.query.sourceQuoteId, 10) : null,
         unpaidOnly: req.query.unpaidOnly === 'true' || req.query.unpaidOnly === true,
@@ -425,6 +426,9 @@ router.get(
     const id = parseInt(req.params.id, 10);
     const data = await invoiceService.getInvoiceById(id);
     if (!data) return res.status(404).json({ error: 'Invoice not found' });
+    if (req.studioId && data.invoice.studio_id && Number(data.invoice.studio_id) !== Number(req.studioId) && req.admin?.roleId !== 1) {
+      return res.status(404).json({ error: 'Invoice not found' });
+    }
     // Resolve the effective Skonto percentage so the BillDetail
     // "Record payment" dialog can render the "Paid with Skonto"
     // checkbox + auto-fill the discounted amount (migration 126).
@@ -849,7 +853,13 @@ router.post(
   ],
   handleAsync(async (req, res) => {
     validateRequest(req);
-    const result = await invoiceService.markPaid(parseInt(req.params.id, 10), {
+    const id = parseInt(req.params.id, 10);
+    const existing = await invoiceService.getInvoiceById(id);
+    if (!existing) return res.status(404).json({ error: 'Invoice not found' });
+    if (req.studioId && existing.invoice.studio_id && Number(existing.invoice.studio_id) !== Number(req.studioId) && req.admin?.roleId !== 1) {
+      return res.status(404).json({ error: 'Invoice not found' });
+    }
+    const result = await invoiceService.markPaid(id, {
       amountMinor: req.body.amountMinor,
       paidAt: req.body.paidAt,
       paymentMethod: req.body.paymentMethod,
@@ -1016,6 +1026,39 @@ router.get(
     const data = await invoiceService.getInvoiceById(parseInt(req.params.id, 10));
     if (!data) return res.status(404).json({ error: 'Invoice not found' });
     return successResponse(res, { payments: data.payments.map(transformPaymentLog) });
+  })
+);
+
+router.patch(
+  '/:id/status',
+  requirePermission('bills.edit'),
+  [
+    param('id').isInt({ min: 1 }),
+    body('status').isIn(['draft', 'scheduled', 'sent', 'paid', 'overdue', 'cancelled']),
+  ],
+  handleAsync(async (req, res) => {
+    validateRequest(req);
+    const id = parseInt(req.params.id, 10);
+    const existing = await invoiceService.getInvoiceById(id);
+    if (!existing) return res.status(404).json({ error: 'Invoice not found' });
+    if (req.studioId && existing.invoice.studio_id && Number(existing.invoice.studio_id) !== Number(req.studioId) && req.admin?.roleId !== 1) {
+      return res.status(404).json({ error: 'Invoice not found' });
+    }
+
+    const nextStatus = req.body.status;
+    const { db } = require('../database/db');
+    const patch = {
+      status: nextStatus,
+      updated_at: new Date(),
+    };
+    if (nextStatus === 'paid' && !existing.invoice.paid_at) {
+      patch.paid_at = new Date();
+      patch.paid_amount_minor = existing.invoice.total_minor || 0;
+    }
+
+    await db('invoices').where({ id }).update(patch);
+    const updated = await invoiceService.getInvoiceById(id);
+    return successResponse(res, { invoice: transformInvoice(updated.invoice) }, 200, 'Invoice status updated');
   })
 );
 

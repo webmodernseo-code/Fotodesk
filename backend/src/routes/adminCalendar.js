@@ -45,7 +45,7 @@
  */
 
 const express = require('express');
-const { query } = require('express-validator');
+const { body, param, query } = require('express-validator');
 const { adminAuth } = require('../middleware/auth');
 const { requirePermission, userHasAnyPermission } = require('../middleware/permissions');
 const { scopeEventsListQuery } = require('../middleware/ownership');
@@ -77,6 +77,7 @@ router.use(requireCalendarFlag);
 const MAX_RANGE_DAYS = 90;
 const PENDING_QUOTE_STATUSES = ['sent', 'accepted'];
 const PENDING_CONTRACT_STATUSES = ['signed_by_customer', 'fully_signed'];
+const APPOINTMENT_STATUSES = ['scheduled', 'completed', 'cancelled', 'archived'];
 
 /**
  * Normalise a date column value to the `YYYY-MM-DD` string the
@@ -323,8 +324,202 @@ router.get(
         || null,
     }));
 
-    const items = [...events, ...hours, ...quotes, ...contracts];
+    const hasAppointments = await db.schema.hasTable('calendar_appointments');
+    const appointmentRows = !hasAppointments ? [] : await db('calendar_appointments as a')
+      .leftJoin('customer_accounts as ca', 'ca.id', 'a.customer_account_id')
+      .leftJoin('projects as p', 'p.id', 'a.project_id')
+      .whereBetween('a.appointment_date', [from, to])
+      .whereNot('a.status', 'archived')
+      .orderBy('a.appointment_date', 'asc')
+      .select(
+        'a.*',
+        'ca.display_name as customer_display_name',
+        'ca.first_name as customer_first_name',
+        'ca.last_name as customer_last_name',
+        'ca.company_name as customer_company_name',
+        'p.name as project_name',
+      );
+    const appointments = appointmentRows.map((r) => ({
+      kind: 'appointment',
+      id: r.id,
+      title: r.title,
+      clientName: r.customer_company_name
+        || [r.customer_first_name, r.customer_last_name].filter(Boolean).join(' ')
+        || r.customer_display_name
+        || r.client_name
+        || null,
+      customerAccountId: r.customer_account_id || null,
+      projectId: r.project_id || null,
+      projectName: r.project_name || null,
+      category: r.category,
+      date: toIsoDateString(r.appointment_date),
+      startTime: r.start_time,
+      endTime: r.end_time,
+      location: r.location || null,
+      notes: r.notes || null,
+      status: r.status,
+    }));
+
+    const items = [...events, ...hours, ...quotes, ...contracts, ...appointments];
     return successResponse(res, { items, range: { from, to } });
+  }),
+);
+
+router.post(
+  '/appointments',
+  requirePermission('customers.edit'),
+  [
+    body('title').isString().trim().isLength({ min: 1, max: 255 }),
+    body('clientName').optional({ nullable: true }).isString().trim().isLength({ max: 255 }),
+    body('customerAccountId').optional({ nullable: true }).isInt({ min: 1 }),
+    body('projectId').optional({ nullable: true }).isInt({ min: 1 }),
+    body('category').optional().isString().trim().isLength({ min: 1, max: 64 }),
+    body('date').isISO8601({ strict: true }),
+    body('startTime').matches(/^([01]\d|2[0-3]):[0-5]\d$/),
+    body('endTime').matches(/^([01]\d|2[0-3]):[0-5]\d$/),
+    body('location').optional({ nullable: true }).isString().trim().isLength({ max: 500 }),
+    body('notes').optional({ nullable: true }).isString().trim().isLength({ max: 5000 }),
+  ],
+  handleAsync(async (req, res) => {
+    validateRequest(req);
+    if (req.body.endTime <= req.body.startTime) {
+      return res.status(400).json({ error: 'endTime must be after startTime', code: 'INVALID_TIME_RANGE' });
+    }
+
+    const customerId = req.body.customerAccountId || null;
+    const projectId = req.body.projectId || null;
+    if (customerId && !(await db('customer_accounts').where({ id: customerId }).first('id'))) {
+      return res.status(400).json({ error: 'Unknown customer', code: 'INVALID_CUSTOMER' });
+    }
+    if (projectId) {
+      const project = await db('projects').where({ id: projectId }).first('id', 'customer_account_id');
+      if (!project) return res.status(400).json({ error: 'Unknown project', code: 'INVALID_PROJECT' });
+      if (customerId && project.customer_account_id && Number(project.customer_account_id) !== Number(customerId)) {
+        return res.status(400).json({ error: 'Project does not belong to customer', code: 'PROJECT_CUSTOMER_MISMATCH' });
+      }
+    }
+
+    const studioId = req.studioId || req.admin?.studioId || 1;
+    const inserted = await db('calendar_appointments').insert({
+      studio_id: studioId,
+      title: req.body.title,
+      client_name: req.body.clientName || null,
+      customer_account_id: customerId,
+      project_id: projectId,
+      category: req.body.category || 'other',
+      appointment_date: String(req.body.date).slice(0, 10),
+      start_time: req.body.startTime,
+      end_time: req.body.endTime,
+      location: req.body.location || null,
+      notes: req.body.notes || null,
+      status: 'scheduled',
+      created_by: req.admin.id,
+      created_at: db.fn.now(),
+      updated_at: db.fn.now(),
+    }).returning('id');
+    const id = (inserted[0] && typeof inserted[0] === 'object') ? inserted[0].id : inserted[0];
+    return successResponse(res, { appointment: { id: Number(id) } }, 201, 'Appointment created');
+  }),
+);
+
+router.patch(
+  '/appointments/:id',
+  requirePermission('customers.edit'),
+  [
+    param('id').isInt({ min: 1 }),
+    body('status').isIn(APPOINTMENT_STATUSES),
+  ],
+  handleAsync(async (req, res) => {
+    validateRequest(req);
+    const updated = await db('calendar_appointments')
+      .where({ id: Number(req.params.id) })
+      .update({ status: req.body.status, updated_at: db.fn.now() });
+    if (!updated) return res.status(404).json({ error: 'Appointment not found' });
+    return successResponse(res, { id: Number(req.params.id), status: req.body.status });
+  }),
+);
+
+router.put(
+  '/appointments/:id',
+  requirePermission('customers.edit'),
+  [
+    param('id').isInt({ min: 1 }),
+    body('title').isString().trim().isLength({ min: 1, max: 255 }),
+    body('clientName').optional({ nullable: true }).isString().trim().isLength({ max: 255 }),
+    body('customerAccountId').optional({ nullable: true }).isInt({ min: 1 }),
+    body('projectId').optional({ nullable: true }).isInt({ min: 1 }),
+    body('category').isString().trim().isLength({ min: 1, max: 64 }),
+    body('date').isISO8601({ strict: true }),
+    body('startTime').matches(/^([01]\d|2[0-3]):[0-5]\d$/),
+    body('endTime').matches(/^([01]\d|2[0-3]):[0-5]\d$/),
+    body('location').optional({ nullable: true }).isString().trim().isLength({ max: 500 }),
+    body('notes').optional({ nullable: true }).isString().trim().isLength({ max: 5000 }),
+    body('status').isIn(APPOINTMENT_STATUSES),
+  ],
+  handleAsync(async (req, res) => {
+    validateRequest(req);
+    const id = Number(req.params.id);
+    if (!(await db('calendar_appointments').where({ id }).first('id'))) {
+      return res.status(404).json({ error: 'Appointment not found' });
+    }
+    if (req.body.endTime <= req.body.startTime) {
+      return res.status(400).json({ error: 'endTime must be after startTime', code: 'INVALID_TIME_RANGE' });
+    }
+    const customerId = req.body.customerAccountId || null;
+    const projectId = req.body.projectId || null;
+    if (customerId && !(await db('customer_accounts').where({ id: customerId }).first('id'))) {
+      return res.status(400).json({ error: 'Unknown customer', code: 'INVALID_CUSTOMER' });
+    }
+    if (projectId) {
+      const project = await db('projects').where({ id: projectId }).first('id', 'customer_account_id');
+      if (!project) return res.status(400).json({ error: 'Unknown project', code: 'INVALID_PROJECT' });
+      if (customerId && project.customer_account_id && Number(project.customer_account_id) !== Number(customerId)) {
+        return res.status(400).json({ error: 'Project does not belong to customer', code: 'PROJECT_CUSTOMER_MISMATCH' });
+      }
+    }
+    await db('calendar_appointments').where({ id }).update({
+      title: req.body.title,
+      client_name: req.body.clientName || null,
+      customer_account_id: customerId,
+      project_id: projectId,
+      category: req.body.category,
+      appointment_date: String(req.body.date).slice(0, 10),
+      start_time: req.body.startTime,
+      end_time: req.body.endTime,
+      location: req.body.location || null,
+      notes: req.body.notes || null,
+      status: req.body.status,
+      updated_at: db.fn.now(),
+    });
+    return successResponse(res, { id }, 200, 'Appointment updated');
+  }),
+);
+
+router.delete(
+  '/appointments/:id',
+  requirePermission('customers.edit'),
+  [param('id').isInt({ min: 1 })],
+  handleAsync(async (req, res) => {
+    validateRequest(req);
+    const studioId = req.studioId || req.admin?.studioId || 1;
+    const deleted = await db('calendar_appointments').where({ id: Number(req.params.id), studio_id: studioId }).del();
+    if (!deleted) return res.status(404).json({ error: 'Appointment not found' });
+    return successResponse(res, { id: Number(req.params.id) }, 200, 'Appointment deleted');
+  }),
+);
+
+// Studio-scoped /events listing for calendar_appointments (Dev_backend 3.4)
+router.get(
+  '/events',
+  requirePermission('customers.view'),
+  handleAsync(async (req, res) => {
+    const studioId = req.studioId || req.admin?.studioId || 1;
+    const q = db('calendar_appointments').where({ studio_id: studioId }).orderBy('appointment_date', 'asc');
+    if (req.query.from && req.query.to) {
+      q.whereBetween('appointment_date', [String(req.query.from).slice(0, 10), String(req.query.to).slice(0, 10)]);
+    }
+    const events = await q.select('*');
+    return successResponse(res, { events });
   }),
 );
 

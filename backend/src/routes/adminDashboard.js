@@ -1,6 +1,8 @@
 const express = require('express');
 const { db } = require('../database/db');
 const { adminAuth } = require('../middleware/auth');
+const { attachStudioContext } = require('../middleware/studioContext');
+const { requireModulePermission } = require('../middleware/modulePermissions');
 const { requirePermission } = require('../middleware/permissions');
 const { seesAllEvents, scopeEventsQuery } = require('../middleware/ownership');
 const { sanitizeDays } = require('../utils/sqlSecurity');
@@ -64,6 +66,93 @@ function applyEventScope(query, admin, column) {
   if (!isScopedAdmin(admin)) return query;
   return query.whereIn(column, scopeEventsQuery(db('events').select('id'), admin));
 }
+
+/**
+ * GET /api/admin/dashboard/overview
+ * Studio-scoped KPI overview for FotoDesk Studio Dashboard.
+ */
+router.get('/overview', adminAuth, attachStudioContext, requireModulePermission('dashboard', 'view'), async (req, res) => {
+  try {
+    const studioId = req.studioId;
+
+    const [customersRow, galleriesRow, projectsRows, invoicesRows, storageRow, recentProjects, upcomingAppointments] =
+      await Promise.all([
+        db('customer_accounts').where({ studio_id: studioId }).count('* as count').first(),
+        db('events').where({ studio_id: studioId }).count('* as count').first(),
+        db('projects').where({ studio_id: studioId }).select('status').catch(() => []),
+        db('invoices').where({ studio_id: studioId }).select('status', 'total_minor', 'paid_amount_minor').catch(() => []),
+        db('photos')
+          .join('events', 'events.id', 'photos.event_id')
+          .where('events.studio_id', studioId)
+          .sum('photos.size_bytes as totalBytes')
+          .first()
+          .catch(() => ({ totalBytes: 0 })),
+        db('projects')
+          .where({ studio_id: studioId })
+          .orderBy('created_at', 'desc')
+          .limit(5)
+          .select('id', 'name', 'status', 'event_date', 'created_at')
+          .catch(() => []),
+        db('calendar_appointments')
+          .where({ studio_id: studioId })
+          .orderBy('appointment_date', 'asc')
+          .limit(5)
+          .select('id', 'title', 'appointment_date', 'start_time', 'end_time', 'status')
+          .catch(() => []),
+      ]);
+
+    const projectsByStatus = {};
+    for (const p of projectsRows) {
+      const st = p.status || 'planning';
+      projectsByStatus[st] = (projectsByStatus[st] || 0) + 1;
+    }
+
+    const invoicesSummary = {
+      totalCount: invoicesRows.length,
+      paidCount: 0,
+      pendingCount: 0,
+      overdueCount: 0,
+      totalAmountMinor: 0,
+      paidAmountMinor: 0,
+    };
+    for (const inv of invoicesRows) {
+      invoicesSummary.totalAmountMinor += Number(inv.total_minor || 0);
+      invoicesSummary.paidAmountMinor += Number(inv.paid_amount_minor || 0);
+      if (inv.status === 'paid') invoicesSummary.paidCount += 1;
+      else if (inv.status === 'overdue') invoicesSummary.overdueCount += 1;
+      else if (inv.status !== 'cancelled') invoicesSummary.pendingCount += 1;
+    }
+
+    return res.json({
+      studio: {
+        id: req.studio.id,
+        name: req.studio.name,
+        slug: req.studio.slug,
+        planId: req.studio.plan_id || 'starter',
+        status: req.studio.status || 'active',
+      },
+      kpis: {
+        customersCount: Number(customersRow?.count || 0),
+        projectsCount: projectsRows.length,
+        projectsByStatus,
+        galleriesCount: Number(galleriesRow?.count || 0),
+        invoicesSummary,
+      },
+      storage: {
+        photoUsedBytes: Number(storageRow?.totalBytes || 0),
+        photoLimitGb: Number(req.studio.storage_limit_gb ?? 3),
+        videoStorageLimitMin: Number(req.studio.video_storage_limit_min ?? 0),
+        videoPlaybackUsedMin: Number(req.studio.video_playback_used_min ?? 0),
+        videoPlaybackLimitMin: Number(req.studio.video_playback_limit_min ?? 0),
+      },
+      recentProjects,
+      upcomingAppointments,
+    });
+  } catch (error) {
+    logger.error('GET /api/admin/dashboard/overview error:', error);
+    return errorResponse(res, 500, 'Erreur lors du chargement du tableau de bord.');
+  }
+});
 
 // Get dashboard statistics
 router.get('/stats', adminAuth, requirePermission('analytics.view'), async (req, res) => {
