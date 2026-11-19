@@ -60,6 +60,8 @@ Ce document est la feuille de route vivante du développement backend de **FotoD
   - CRUD `/api/admin/invoices` + tables `invoice_items` et `invoice_activities`.
   - `PATCH /api/admin/invoices/:id/status` (`draft`, `sent`, `paid`, `overdue`, `cancelled`).
   - `POST /api/admin/invoices/:id/duplicate` & `GET /api/public/invoices/:token` (vue client + export PDF).
+- [ ] **3.6** **Constructeur de page d'accueil (`/admin/portfolio`)** :
+  - `GET / PUT /api/admin/portfolio` (profil public studio, sections portfolio, services, contact) & `GET /api/public/portfolio/:slug`.
 
 ---
 
@@ -112,3 +114,4 @@ Protection stricte par middleware `requireSuperAdmin` (`role.name === 'super_adm
   - Règle des commissions 20 % sur le 1er paiement uniquement.
   - Garde `super_admin` (403 pour un utilisateur studio).
 - [ ] **7.3** **Préparation Production** : configuration `.env.production`, Cloudflare R2, PostgreSQL, Nginx/Caddy SSL, PM2/Docker.
+
