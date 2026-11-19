@@ -58,6 +58,7 @@ import { NewsletterDetailPage } from './pages/admin/newsletters/NewsletterDetail
 import { TaxReportPage } from './pages/admin/clients/TaxReportPage';
 import { HoursLoggingPage } from './pages/admin/clients/HoursLoggingPage';
 import { AdminAffiliatesPage } from './pages/admin/affiliates/AdminAffiliatesPage';
+import { VideoGalleriesPage } from './pages/admin/VideoGalleriesPage';
 import { SubscriptionPage } from './pages/admin/SubscriptionPage';
 // E.6 — Calendar page lazy-loaded so the ~200 KB FullCalendar bundle
 // (carved into its own chunk in vite.config.ts) doesn't ship with the
@@ -255,7 +256,7 @@ function App() {
                       <Route element={<RequirePermission permission="events.view" />}>
                         <Route path="portfolio" element={<AdminPortfolioPage />} />
                         <Route path="landing-builder" element={<Navigate to="/admin/portfolio" replace />} />
-                        <Route path="video-galleries" element={<EventsListPage mediaMode="video" />} />
+                        <Route path="video-galleries" element={<VideoGalleriesPage />} />
                       </Route>
                       <Route path="events" element={<EventsListPage mediaMode="photo" />} />
                       <Route path="events/new" element={<CreateEventPage />} />
