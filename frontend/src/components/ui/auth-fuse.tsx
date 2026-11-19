@@ -202,7 +202,6 @@ function SignInForm() {
   const [email, setEmail] = useState('user_b@fotodesk.com');
   const [password, setPassword] = useState('admin2026');
   const [isLoading, setIsLoading] = useState(false);
-  const [showReferralInput, setShowReferralInput] = useState(() => Boolean(referralCode.trim()));
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
