@@ -453,7 +453,6 @@ router.put('/settings', [body('settings').isObject()], async (req, res) => {
         setting_key: 'superadmin_platform_settings',
         setting_value: serialized,
         setting_type: 'superadmin',
-        created_at: new Date(),
         updated_at: new Date(),
       });
     }

@@ -115,3 +115,15 @@ Protection stricte par middleware `requireSuperAdmin` (`role.name === 'super_adm
   - Garde `super_admin` (403 pour un utilisateur studio).
 - [x] **7.3** **Préparation Production** : configuration `.env.production`, Cloudflare R2, PostgreSQL, Nginx/Caddy SSL, PM2/Docker.
 
+---
+
+## Journal d'Audit & Vérifications Live (Phases 1 à 7)
+- [x] **Audit Schéma & Migrations (`286` à `290`)** : ajout de `studios.slug`, `studios.created_at`, `studios.updated_at` et exécution de `seedDemoStudios.js` (`FotoDesk HQ` + `Northlight Studio`).
+- [x] **Audit Multi-Tenant** : scoping `studio_id` vérifié et corrigé sur `eventCreationService.js`, `adminEvents/crud.js` et `adminCalendar.js`.
+- [x] **Audit `app_settings`** : suppression de `created_at` absent du schéma dans `adminSettings.js` et `superadmin.js` (`PUT /api/admin/settings/account-preferences`, `notifications`, `workspace-preferences` et `PUT /api/superadmin/settings`).
+- [x] **Tests Live E2E (serveur `http://localhost:3001` + SQLite)** :
+  - `backend/scripts/verifyPhases1to3.js` : **PASSÉ** (register, `/auth/me`, sessions, team-members, dashboard overview, customers, projects, calendar, invoices, portfolio).
+  - `backend/scripts/verifyPhases4to7.js` : **PASSÉ** (quotas Starter 403, upgrade Pro, commission 20 % = 198 centimes sur 1er paiement, galeries vidéo + verify-code, garde SuperAdmin 403, suspension/réactivation studio + blocage `STUDIO_SUSPENDED`, approbation commission, paramètres studio & mot de passe).
+- [x] **Tests Unitaires & Intégration Jest** : **7 suites, 30 tests passés** (`0` échec).
+- [x] **Compilation Frontend TypeScript** : `npx tsc --noEmit` terminé avec **0 erreur**.
+

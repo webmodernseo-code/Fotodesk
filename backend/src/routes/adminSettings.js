@@ -1228,7 +1228,6 @@ for (const prefKey of ['account-preferences', 'notifications', 'workspace-prefer
           setting_key: key,
           setting_value: serialized,
           setting_type: 'studio_preferences',
-          created_at: new Date(),
           updated_at: new Date(),
         });
       }
