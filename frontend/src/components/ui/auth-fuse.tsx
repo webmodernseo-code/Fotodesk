@@ -5,12 +5,16 @@ import { useState, useId, useEffect } from "react";
 import { Slot } from "@radix-ui/react-slot";
 import * as LabelPrimitive from "@radix-ui/react-label";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Eye, EyeOff, ShieldCheck, ArrowLeft, CheckCircle2, AlertCircle } from "lucide-react";
+import { Eye, EyeOff, ShieldCheck, ArrowLeft, Lock, UserPlus, Moon, Sun, Camera } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAdminAuth } from "../../contexts";
+import { authService } from "../../services/auth.service";
+import { affiliateService } from "../../services/affiliate.service";
+import { isMfaChallenge } from "../../types";
+import { FotoDeskLogo } from "../common/FotoDeskLogo";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -84,16 +88,16 @@ export function Typewriter({
   return (
     <span className={className}>
       {displayText}
-      <span className="animate-pulse text-[#C89561] ml-0.5">{cursor}</span>
+      <span className="ml-0.5 animate-pulse text-[#C89561]">{cursor}</span>
     </span>
   );
 }
 
 const labelVariants = cva(
-  "text-xs font-medium text-neutral-300 peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+  "text-xs font-semibold text-neutral-800 dark:text-neutral-200 peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 );
 
-const Label = React.forwardRef<
+export const Label = React.forwardRef<
   React.ElementRef<typeof LabelPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> &
     VariantProps<typeof labelVariants>
@@ -106,17 +110,17 @@ const Label = React.forwardRef<
 ));
 Label.displayName = LabelPrimitive.Root.displayName;
 
-const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C89561] focus-visible:ring-offset-2 focus-visible:ring-offset-[#090A0C] disabled:pointer-events-none disabled:opacity-50 cursor-pointer [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+export const buttonVariants = cva(
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-canvas disabled:pointer-events-none disabled:opacity-50 cursor-pointer [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-[#C89561] text-white hover:bg-[#B5824E] active:bg-[#96693E] shadow-[0_4px_16px_rgba(200,149,97,0.3)] hover:shadow-[0_6px_22px_rgba(200,149,97,0.45)]",
-        destructive: "bg-red-600 text-white hover:bg-red-700 shadow-sm",
-        outline: "border border-white/[0.1] bg-[#13161C] text-neutral-200 hover:bg-[#1A1E26] hover:text-white hover:border-white/[0.18]",
-        secondary: "bg-[#181C24] text-neutral-200 hover:bg-[#202530] hover:text-white",
-        ghost: "hover:bg-white/[0.06] text-neutral-300 hover:text-white",
-        link: "text-neutral-300 underline-offset-4 hover:underline hover:text-white",
+        default: "bg-cta text-cta-fg hover:bg-cta-hover shadow-sm",
+        destructive: "border border-danger-line bg-danger-bg text-danger hover:brightness-95 shadow-sm",
+        outline: "border border-line bg-panel text-body hover:bg-hover hover:text-heading hover:border-line-strong",
+        secondary: "bg-subtle text-body hover:bg-hover hover:text-heading",
+        ghost: "hover:bg-hover text-body hover:text-heading",
+        link: "text-body underline-offset-4 hover:underline hover:text-heading",
       },
       size: {
         default: "h-11 px-4 py-2",
@@ -132,10 +136,10 @@ const buttonVariants = cva(
   }
 );
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   asChild?: boolean;
 }
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
     return <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />;
@@ -143,13 +147,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 );
 Button.displayName = "Button";
 
-const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
+export const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
   ({ className, type, ...props }, ref) => {
     return (
       <input
         type={type}
         className={cn(
-          "flex h-11 w-full rounded-xl border border-white/[0.1] bg-[#13161C] px-3.5 py-2.5 text-sm text-white placeholder:text-neutral-500 shadow-inner transition-all hover:border-white/[0.18] focus-visible:outline-none focus-visible:border-[#C89561] focus-visible:ring-2 focus-visible:ring-[#C89561]/30 disabled:cursor-not-allowed disabled:opacity-50",
+          "flex h-11 w-full rounded-xl border border-slate-200/90 dark:border-white/10 bg-slate-50/80 dark:bg-[#15171C] px-3.5 py-2.5 text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 shadow-2xs transition-all hover:border-slate-300 dark:hover:border-white/20 focus:bg-white dark:focus:bg-[#0E1013] focus:border-[#C89561] dark:focus:border-[#C89561] focus:outline-none focus:ring-3 focus:ring-[#C89561]/20 disabled:cursor-not-allowed disabled:opacity-50",
           className
         )}
         ref={ref}
@@ -164,7 +168,7 @@ export interface PasswordInputProps extends React.InputHTMLAttributes<HTMLInputE
   label?: string;
 }
 
-const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
+export const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
   ({ className, label, id: explicitId, ...props }, ref) => {
     const generatedId = useId();
     const id = explicitId || generatedId;
@@ -178,7 +182,7 @@ const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
           <button
             type="button"
             onClick={togglePasswordVisibility}
-            className="absolute inset-y-0 end-0 flex h-full w-10 items-center justify-center text-neutral-400 transition-colors hover:text-white focus-visible:text-white focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 cursor-pointer"
+            className="absolute inset-y-0 end-0 flex h-full w-10 cursor-pointer items-center justify-center text-muted transition-colors hover:text-heading focus-visible:text-heading focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
             aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
           >
             {showPassword ? (<EyeOff className="size-4" aria-hidden="true" />) : (<Eye className="size-4" aria-hidden="true" />)}
@@ -193,43 +197,117 @@ PasswordInput.displayName = "PasswordInput";
 function SignInForm() {
   const { login } = useAdminAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState("founder@fotodesk.com");
-  const [password, setPassword] = useState("admin2026");
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const currentRoleParam = searchParams.get('role');
+  const initialRole: 'photographer' | 'superadmin' = currentRoleParam === 'superadmin' ? 'superadmin' : 'photographer';
+
+  const [role, setRole] = useState<'photographer' | 'superadmin'>(initialRole);
+  const [email, setEmail] = useState(() => initialRole === 'superadmin' ? 'founder@fotodesk.com' : 'user_b@fotodesk.com');
+  const [password, setPassword] = useState('admin2026');
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    const r = searchParams.get('role');
+    if (r === 'superadmin') {
+      setRole('superadmin');
+      setEmail('founder@fotodesk.com');
+      setPassword('admin2026');
+    } else if (r === 'photographer') {
+      setRole('photographer');
+      setEmail('user_b@fotodesk.com');
+      setPassword('admin2026');
+    }
+  }, [searchParams]);
+
+  const handleSelectRole = (newRole: 'photographer' | 'superadmin') => {
+    setRole(newRole);
+    setSearchParams({ role: newRole });
+    if (newRole === 'superadmin') {
+      setEmail('founder@fotodesk.com');
+      setPassword('admin2026');
+    } else {
+      setEmail('user_b@fotodesk.com');
+      setPassword('admin2026');
+    }
+  };
 
   const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setErrorMsg(null);
     setIsLoading(true);
     try {
-      const result = await login(email, password);
-      if (result.success) {
+      const response = await authService.adminLogin({ email, password });
+      if (isMfaChallenge(response)) {
+        toast.info("Validation supplémentaire requise.");
+      } else if (response.user) {
+        login((response as any).token || '', response.user);
         toast.success("Connexion réussie !");
-        navigate("/admin/dashboard");
+        const userRoleName = typeof response.user.role === 'object' ? (response.user.role as any)?.name : response.user.role;
+        if (userRoleName === 'super_admin' || role === 'superadmin') {
+          navigate("/superadmin");
+        } else {
+          navigate("/admin/dashboard");
+        }
       } else {
-        toast.error(result.error || "Échec de connexion. Vérifiez vos identifiants.");
+        const msg = "Échec de connexion. Vérifiez vos identifiants.";
+        setErrorMsg(msg);
+        toast.error(msg);
       }
     } catch (err: any) {
-      toast.error(err?.message || "Erreur de connexion au serveur FotoDesk");
+      const msg = err?.response?.data?.error || err?.message || "Erreur de connexion au serveur FotoDesk";
+      setErrorMsg(msg);
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSignIn} autoComplete="on" className="flex flex-col gap-6">
-      <div className="flex flex-col items-center gap-2 text-center">
-        <a href="/" className="mb-1 inline-flex items-center gap-2 transition-transform hover:scale-105">
-          <img src="/logo.png" alt="FotoDesk" className="h-9 w-auto object-contain filter drop-shadow-sm" />
-        </a>
-        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium text-neutral-400 bg-white/[0.04] border border-white/[0.08] mb-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-neutral-400" />
-          Espace Studio & Photographe
+    <form onSubmit={handleSignIn} autoComplete="on" className="flex flex-col gap-4">
+      {/* Sélecteur de rôle 1-clic avec pré-remplissage automatique */}
+      <div className="grid gap-2">
+        <div className="grid grid-cols-2 gap-1.5 p-1 bg-slate-100 dark:bg-white/5 rounded-xl border border-slate-200/80 dark:border-white/10">
+          <button
+            type="button"
+            onClick={() => handleSelectRole('photographer')}
+            className={cn(
+              "flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs transition-all cursor-pointer select-none",
+              role === 'photographer'
+                ? "bg-white dark:bg-[#1E2024] text-slate-900 dark:text-white shadow-xs font-semibold border border-slate-200/80 dark:border-white/10"
+                : "text-slate-500 hover:text-slate-900 dark:hover:text-white font-normal"
+            )}
+          >
+            <Camera className="w-3.5 h-3.5 text-neutral-800 dark:text-neutral-200" />
+            <span>Photographe Studio</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleSelectRole('superadmin')}
+            className={cn(
+              "flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs transition-all cursor-pointer select-none",
+              role === 'superadmin'
+                ? "bg-white dark:bg-[#1E2024] text-slate-900 dark:text-white shadow-xs font-semibold border border-slate-200/80 dark:border-white/10"
+                : "text-slate-500 hover:text-slate-900 dark:hover:text-white font-normal"
+            )}
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-neutral-800 dark:text-neutral-200" />
+            <span>Super-Admin</span>
+          </button>
         </div>
-        <h1 className="text-2xl font-bold tracking-tight text-white">Connexion à FotoDesk</h1>
-        <p className="text-balance text-sm text-neutral-400">Accédez à votre tableau de bord, galeries et gestion client</p>
+
+        <div className="flex items-center justify-between text-[11px] text-muted px-1">
+          <span>
+            {role === 'superadmin'
+              ? "Console Fondateur : Gestion de la plateforme"
+              : "Espace Studio : Galeries, factures & clients"}
+          </span>
+          <span className="badge-success text-[11px] py-0 px-2">Pré-rempli</span>
+        </div>
       </div>
 
-      <div className="grid gap-4">
+      <div className="grid gap-3.5">
         <div className="grid gap-1.5">
           <Label htmlFor="email">Adresse e-mail</Label>
           <Input
@@ -255,17 +333,23 @@ function SignInForm() {
         />
 
         <div className="flex items-center justify-between text-xs pt-0.5">
-          <label className="flex items-center gap-2 text-neutral-400 cursor-pointer select-none">
-            <input type="checkbox" defaultChecked className="w-4 h-4 rounded border-white/10 bg-[#13161C] accent-[#C89561] focus:ring-1 focus:ring-white/20" />
+          <label className="flex cursor-pointer select-none items-center gap-2 text-muted">
+            <input type="checkbox" defaultChecked className="h-4 w-4 rounded border-line bg-panel accent-neutral-900 dark:accent-neutral-200 focus:ring-1 focus:ring-neutral-500" />
             Se souvenir de moi
           </label>
-          <a href="/forgot-password" className="text-neutral-400 hover:text-white transition-colors">
+          <a href="/forgot-password" className="text-muted transition-colors hover:text-heading">
             Mot de passe oublié ?
           </a>
         </div>
 
-        <Button type="submit" variant="default" className="mt-2 w-full h-11 text-base font-semibold" disabled={isLoading}>
-          {isLoading ? "Connexion en cours..." : "Se connecter"}
+        {errorMsg && (
+          <div role="alert" className="banner-danger font-medium">
+            {errorMsg}
+          </div>
+        )}
+
+        <Button type="submit" variant="default" className="mt-1 w-full h-11 text-sm font-semibold" disabled={isLoading}>
+          {isLoading ? "Connexion en cours..." : role === 'superadmin' ? "Accéder à la console Super-Admin" : "Accéder à mon Studio"}
         </Button>
       </div>
     </form>
@@ -273,86 +357,70 @@ function SignInForm() {
 }
 
 function SignUpForm() {
+  const { login } = useAdminAuth();
   const navigate = useNavigate();
-  const [name, setName] = useState("");
+  const [studioName, setStudioName] = useState("");
   const [email, setEmail] = useState("");
-  const [confirmEmail, setConfirmEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [referralCode, setReferralCode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const fromUrl = new URLSearchParams(window.location.search).get('ref')?.trim();
+      if (fromUrl) return fromUrl;
+      return localStorage.getItem('fotodesk_referral_code') || '';
+    }
+    return '';
+  });
   const [isLoading, setIsLoading] = useState(false);
-  const [emailError, setEmailError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-
-  const trimmedEmail = email.trim().toLowerCase();
-  const trimmedConfirm = confirmEmail.trim().toLowerCase();
-  const hasConfirm = confirmEmail.length > 0;
-  const emailsMatch = hasConfirm && trimmedEmail.length > 0 && trimmedEmail === trimmedConfirm;
-  const emailsMismatch = hasConfirm && trimmedEmail !== trimmedConfirm;
-
-  // Critères de mot de passe fort
-  const passwordCriteria = [
-    { id: "length", label: "8 caractères minimum", test: (p: string) => p.length >= 8 },
-    { id: "uppercase", label: "1 majuscule (A-Z)", test: (p: string) => /[A-Z]/.test(p) },
-    { id: "lowercase", label: "1 minuscule (a-z)", test: (p: string) => /[a-z]/.test(p) },
-    { id: "number", label: "1 chiffre (0-9)", test: (p: string) => /[0-9]/.test(p) },
-    { id: "special", label: "1 caractère spécial (!@#...)", test: (p: string) => /[^A-Za-z0-9]/.test(p) },
-  ];
-
-  const metCriteriaCount = passwordCriteria.filter((c) => c.test(password)).length;
-
-  const passwordStrength = useMemo(() => {
-    if (!password) return { level: 0, label: "", color: "bg-transparent", textClass: "" };
-    if (metCriteriaCount <= 2) return { level: 1, label: "Faible", color: "bg-rose-500", textClass: "text-rose-400" };
-    if (metCriteriaCount === 3) return { level: 2, label: "Moyen", color: "bg-amber-500", textClass: "text-amber-400" };
-    if (metCriteriaCount === 4) return { level: 3, label: "Bon", color: "bg-emerald-500", textClass: "text-emerald-400" };
-    return { level: 4, label: "Très fort", color: "bg-emerald-400", textClass: "text-emerald-400 font-medium" };
-  }, [password, metCriteriaCount]);
 
   const handleSignUp = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (trimmedEmail !== trimmedConfirm) {
-      setEmailError("Les deux adresses e-mail ne correspondent pas.");
-      toast.error("Veuillez vérifier vos adresses e-mail : elles ne correspondent pas.");
+    if (!studioName.trim()) {
+      toast.warning("Veuillez renseigner le nom de votre studio ou votre nom.");
       return;
     }
-    if (password.length < 8 || metCriteriaCount < 3) {
-      setPasswordError("Veuillez choisir un mot de passe plus fort respectant les critères de sécurité.");
-      toast.warning("Votre mot de passe doit comporter au moins 8 caractères avec majuscule, chiffre ou symbole.");
+    if (!email.trim() || !email.includes('@')) {
+      toast.warning("Veuillez renseigner une adresse e-mail valide.");
       return;
     }
-    setEmailError("");
-    setPasswordError("");
+    if (password.length < 8) {
+      toast.warning("Votre mot de passe doit comporter au moins 8 caractères.");
+      return;
+    }
+
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      toast.success("Compte FotoDesk créé avec succès !");
+    try {
+      if (referralCode.trim()) {
+        localStorage.setItem('fotodesk_referral_code', referralCode.trim());
+        affiliateService.track(referralCode.trim(), '/register').catch(() => undefined);
+        affiliateService.recordReferral(referralCode.trim(), email, studioName).catch(() => undefined);
+      }
+      login('token', {
+        id: 1,
+        username: email,
+        email,
+        role: { name: 'admin', displayName: 'Administrateur' },
+      });
+      toast.success(`Bienvenue sur FotoDesk, ${studioName} ! Votre espace studio est prêt.`);
       navigate("/admin/dashboard");
-    }, 700);
+    } catch (err: any) {
+      toast.error(err?.message || "Erreur lors de la création du compte.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <form onSubmit={handleSignUp} autoComplete="on" className="flex flex-col gap-6">
-      <div className="flex flex-col items-center gap-2 text-center">
-        <a href="/" className="mb-1 inline-flex items-center gap-2 transition-transform hover:scale-105">
-          <img src="/logo.png" alt="FotoDesk" className="h-9 w-auto object-contain filter drop-shadow-sm" />
-        </a>
-        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium text-neutral-400 bg-white/[0.04] border border-white/[0.08] mb-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-neutral-400" />
-          Essai gratuit 14 jours
-        </div>
-        <h1 className="text-2xl font-bold tracking-tight text-white">Créer un compte FotoDesk</h1>
-        <p className="text-balance text-sm text-neutral-400">Rejoignez FotoDesk et offrez des galeries d'exception à vos clients</p>
-      </div>
-
-      <div className="grid gap-4">
+    <form onSubmit={handleSignUp} autoComplete="on" className="flex flex-col gap-4">
+      <div className="grid gap-3.5">
         <div className="grid gap-1.5">
-          <Label htmlFor="name">Nom complet ou Studio</Label>
+          <Label htmlFor="signup-studio">Nom du studio ou Photographe</Label>
           <Input
-            id="name"
-            name="name"
+            id="signup-studio"
+            name="studioName"
             type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Studio Lumina"
+            value={studioName}
+            onChange={(e) => setStudioName(e.target.value)}
+            placeholder="Ex : Studio Lumina ou Marc Dubois"
             required
             autoComplete="name"
           />
@@ -365,175 +433,133 @@ function SignUpForm() {
             name="email"
             type="email"
             value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              if (emailError) setEmailError("");
-            }}
-            onCopy={(e) => {
-              e.preventDefault();
-              toast.info("La copie est désactivée afin de vous encourager à saisir manuellement votre confirmation.");
-            }}
-            placeholder="contact@exemple.com"
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="votre-email@exemple.com"
             required
             autoComplete="email"
           />
         </div>
 
+        <PasswordInput
+          id="signup-password"
+          name="password"
+          label="Mot de passe"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          autoComplete="new-password"
+          placeholder="8 caractères minimum"
+        />
+
+        {/* Code de parrainage optionnel (avec détection automatique) */}
         <div className="grid gap-1.5">
           <div className="flex items-center justify-between">
-            <Label htmlFor="signup-confirm-email">Confirmer l'adresse e-mail</Label>
-            {emailsMatch && (
-              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-400">
-                <CheckCircle2 className="w-3 h-3" />
-                Adresses identiques
-              </span>
-            )}
-            {emailsMismatch && (
-              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-rose-400">
-                <AlertCircle className="w-3 h-3" />
-                Ne correspond pas
-              </span>
-            )}
+            <Label htmlFor="signup-referral">Code de parrainage</Label>
+            <span className="text-[11px] text-muted">Facultatif</span>
           </div>
           <Input
-            id="signup-confirm-email"
-            name="confirmEmail"
-            type="email"
-            value={confirmEmail}
-            onChange={(e) => {
-              setConfirmEmail(e.target.value);
-              if (emailError) setEmailError("");
-            }}
-            onPaste={(e) => {
-              e.preventDefault();
-              toast.warning("Le copier-coller est désactivé sur ce champ pour garantir l'exactitude de votre adresse e-mail.");
-            }}
-            onCopy={(e) => e.preventDefault()}
-            onDrop={(e) => e.preventDefault()}
-            onDragOver={(e) => e.preventDefault()}
-            placeholder="Confirmez votre adresse e-mail"
-            required
+            id="signup-referral"
+            name="referralCode"
+            type="text"
+            value={referralCode}
+            onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+            placeholder="Ex : AWA-FOTO"
             autoComplete="off"
-            className={cn(
-              emailsMismatch && "border-rose-500/50 focus-visible:border-rose-500 focus-visible:ring-rose-500/20",
-              emailsMatch && "border-emerald-500/40 focus-visible:border-emerald-500"
-            )}
           />
-          {emailError ? (
-            <p className="text-[11px] text-red-400 flex items-center gap-1 mt-0.5">
-              <AlertCircle className="w-3 h-3 shrink-0" /> {emailError}
-            </p>
-          ) : (
-            <p className="text-[11px] text-neutral-500">
-              Saisie manuelle requise (collage bloqué) pour s'assurer que l'adresse soit parfaitement exacte.
+          {referralCode.trim() && (
+            <p className="badge-success text-[11px] w-fit -mt-0.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-current inline-block" />
+              Code de parrainage appliqué
             </p>
           )}
         </div>
 
-        {/* Champ Mot de passe avec indicateur de robustesse */}
-        <div className="grid gap-1.5">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="signup-password">Créer un mot de passe fort</Label>
-            {password.length > 0 && (
-              <span className={cn("inline-flex items-center gap-1 text-[11px] font-medium transition-colors", passwordStrength.textClass)}>
-                Force : {passwordStrength.label}
-              </span>
-            )}
-          </div>
-          <PasswordInput
-            id="signup-password"
-            name="password"
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value);
-              if (passwordError) setPasswordError("");
-            }}
-            required
-            autoComplete="new-password"
-            placeholder="Votre mot de passe sécurisé"
-          />
+        <label className="flex cursor-pointer select-none items-center gap-2 pt-0.5 text-xs text-muted">
+          <input type="checkbox" defaultChecked required className="h-4 w-4 rounded border-line bg-panel accent-neutral-900 dark:accent-neutral-200 focus:ring-1 focus:ring-neutral-500" />
+          <span>J'accepte les conditions d'utilisation FotoDesk</span>
+        </label>
 
-          {/* Jauge visuelle de robustesse à 4 segments */}
-          {password.length > 0 && (
-            <div className="space-y-2.5 pt-1">
-              <div className="grid grid-cols-4 gap-1.5 h-1.5">
-                {[1, 2, 3, 4].map((step) => (
-                  <div
-                    key={step}
-                    className={cn(
-                      "h-full rounded-full transition-all duration-300",
-                      step <= passwordStrength.level ? passwordStrength.color : "bg-white/[0.08]"
-                    )}
-                  />
-                ))}
-              </div>
-
-              {/* Critères sous forme de micro-checklist élégante */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-0.5">
-                {passwordCriteria.map((criterion) => {
-                  const isMet = criterion.test(password);
-                  return (
-                    <div key={criterion.id} className="flex items-center gap-1.5 text-[11px] transition-colors">
-                      {isMet ? (
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                      ) : (
-                        <div className="w-3.5 h-3.5 rounded-full border border-white/20 shrink-0" />
-                      )}
-                      <span className={isMet ? "text-neutral-200 font-medium" : "text-neutral-500"}>
-                        {criterion.label}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {passwordError ? (
-            <p className="text-[11px] text-red-400 flex items-center gap-1 mt-0.5">
-              <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {passwordError}
-            </p>
-          ) : (
-            password.length === 0 && (
-              <p className="text-[11px] text-neutral-500">
-                Créez un mot de passe robuste (min. 8 caractères, majuscule, chiffre ou symbole).
-              </p>
-            )
-          )}
-        </div>
-
-        <Button type="submit" variant="default" className="mt-2 w-full h-11 text-base font-semibold" disabled={isLoading}>
-          {isLoading ? "Création en cours..." : "Créer mon compte"}
+        <Button type="submit" variant="default" className="mt-1 w-full h-11 text-sm font-semibold" disabled={isLoading}>
+          {isLoading ? "Création en cours..." : "Créer mon compte studio"}
         </Button>
       </div>
     </form>
   );
 }
 
-function AuthFormContainer({ isSignIn, onToggle }: { isSignIn: boolean; onToggle: () => void; }) {
+function AuthFormContainer({ isSignIn, onToggle }: {
+  isSignIn: boolean;
+  onToggle: () => void;
+}) {
   return (
-    <div className="mx-auto grid w-full max-w-[390px] gap-5">
-      {isSignIn ? <SignInForm /> : <SignUpForm />}
+    <div className="mx-auto w-full max-w-[440px] rounded-3xl border border-slate-200/90 dark:border-neutral-800 bg-white/95 dark:bg-neutral-900/95 p-6 sm:p-8 shadow-[0_20px_50px_-12px_rgba(15,23,42,0.12),0_4px_16px_-2px_rgba(15,23,42,0.04)] dark:shadow-[0_25px_65px_-12px_rgba(0,0,0,0.85)] backdrop-blur-2xl">
+      {/* En-tête partagé avec logo FotoDesk vectoriel */}
+      <div className="flex flex-col items-center gap-2 text-center mb-6">
+        <a href="/" className="mb-2 inline-flex items-center gap-2 transition-transform hover:scale-105" aria-label="Accueil FotoDesk">
+          <FotoDeskLogo size={52} className="text-neutral-900 dark:text-white" />
+        </a>
+        <div className="mb-1 badge-info px-3 py-1">
+          <span className="h-2 w-2 rounded-full bg-current inline-block" />
+          <span>{isSignIn ? "Espace Studio & Photographe" : "Nouveau Studio & Photographe"}</span>
+        </div>
+        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-900 dark:text-white">
+          {isSignIn ? "Connexion à FotoDesk" : "Créer un compte FotoDesk"}
+        </h1>
+        <p className="text-balance text-sm text-neutral-500 dark:text-neutral-400">
+          {isSignIn
+            ? "Accédez à votre tableau de bord, galeries et gestion client"
+            : "Lancez votre studio photo professionnel en quelques instants"}
+        </p>
+      </div>
 
-      <div className="text-center text-sm text-neutral-400">
-        {isSignIn ? "Vous n'avez pas encore de compte ?" : "Vous avez déjà un compte ?"}{" "}
+      {/* Switch segmented toggle moderne Apple/Stripe */}
+      <div className="grid grid-cols-2 rounded-2xl border border-slate-200/80 dark:border-neutral-800 bg-slate-100/90 dark:bg-neutral-800/80 p-1.5 shadow-inner mb-6">
         <button
           type="button"
-          className="font-medium text-white hover:underline underline-offset-4 cursor-pointer ml-1"
-          onClick={onToggle}
+          onClick={() => !isSignIn && onToggle()}
+          className={cn(
+            "h-10 text-xs font-semibold rounded-xl transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 select-none",
+            isSignIn
+              ? "bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white shadow-[0_2px_8px_rgba(0,0,0,0.08)] ring-1 ring-slate-900/5 dark:ring-white/10"
+              : "text-neutral-500 hover:text-neutral-900 dark:hover:text-white"
+          )}
         >
-          {isSignIn ? "Créer un compte" : "Se connecter"}
+          <Lock className="w-3.5 h-3.5" />
+          Connexion
+        </button>
+        <button
+          type="button"
+          onClick={() => isSignIn && onToggle()}
+          className={cn(
+            "h-10 text-xs font-semibold rounded-xl transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 select-none",
+            !isSignIn
+              ? "bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white shadow-[0_2px_8px_rgba(0,0,0,0.08)] ring-1 ring-slate-900/5 dark:ring-white/10"
+              : "text-neutral-500 hover:text-neutral-900 dark:hover:text-white"
+          )}
+        >
+          <UserPlus className="w-3.5 h-3.5" />
+          Créer un compte
         </button>
       </div>
 
-      <div className="relative text-center text-xs after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-white/[0.08]">
-        <span className="relative z-10 bg-[#090A0C] px-3 text-neutral-500 font-medium">Ou continuer avec</span>
+      {isSignIn ? <SignInForm /> : <SignUpForm />}
+
+      {/* Séparateur fluide et aéré */}
+      <div className="relative my-6 text-center text-xs">
+        <div className="absolute inset-0 flex items-center" aria-hidden="true">
+          <div className="w-full border-t border-slate-200/80 dark:border-white/10" />
+        </div>
+        <div className="relative flex justify-center">
+          <span className="bg-white dark:bg-neutral-900 px-3 text-xs text-neutral-500 dark:text-neutral-400 font-semibold">
+            Ou continuer avec
+          </span>
+        </div>
       </div>
 
       <Button
         variant="outline"
         type="button"
-        className="h-11 w-full"
+        className="h-11 w-full border-slate-200/90 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/[0.04] text-neutral-800 dark:text-neutral-200 text-sm font-medium"
         onClick={() => toast.info("Authentification Google disponible prochainement")}
       >
         <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
@@ -545,12 +571,26 @@ function AuthFormContainer({ isSignIn, onToggle }: { isSignIn: boolean; onToggle
         Continuer avec Google
       </Button>
 
-      <div className="flex items-center justify-between pt-2 border-t border-white/[0.06] text-xs text-neutral-400">
-        <a href="/" className="inline-flex items-center gap-1.5 hover:text-white transition-colors">
-          <ArrowLeft className="w-3.5 h-3.5 text-neutral-500" /> Accueil FotoDesk
+      <div className="mt-6 mb-2 text-center text-xs">
+        <span className="font-semibold text-neutral-700 dark:text-neutral-300">
+          {isSignIn ? "Vous n'avez pas encore de compte ?" : "Vous avez déjà un compte ?"}
+        </span>{" "}
+        <button
+          type="button"
+          className="ml-1 cursor-pointer font-bold hover:underline"
+          style={{ color: 'var(--sem-info-fg)' }}
+          onClick={onToggle}
+        >
+          {isSignIn ? "Créer un compte" : "Se connecter"}
+        </button>
+      </div>
+
+      <div className="mt-6 flex items-center justify-between border-t border-slate-200/80 dark:border-white/10 pt-4 text-xs text-muted">
+        <a href="/" className="inline-flex items-center gap-1.5 transition-colors hover:text-heading">
+          <ArrowLeft className="w-3.5 h-3.5 text-muted" /> Accueil FotoDesk
         </a>
-        <div className="flex items-center gap-1.5 text-neutral-500">
-          <ShieldCheck className="w-3.5 h-3.5 text-neutral-400" />
+        <div className="flex items-center gap-1.5 text-muted">
+          <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
           <span>SSL 256-bit certifié</span>
         </div>
       </div>
@@ -577,7 +617,7 @@ interface AuthUIProps {
 
 const defaultSignInContent = {
   image: {
-    src: "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&w=1600&q=80",
+    src: "/assets/images/camera-hero.jpg",
     alt: "Photographie professionnelle de studio FotoDesk"
   },
   quote: {
@@ -588,7 +628,7 @@ const defaultSignInContent = {
 
 const defaultSignUpContent = {
   image: {
-    src: "https://images.unsplash.com/photo-1554048612-b6a482bc67e5?auto=format&fit=crop&w=1600&q=80",
+    src: "/assets/images/studio-pulse-bg.jpg",
     alt: "Espace moderne de création pour photographes FotoDesk"
   },
   quote: {
@@ -599,7 +639,30 @@ const defaultSignUpContent = {
 
 export function AuthUI({ initialIsSignIn = true, signInContent = {}, signUpContent = {} }: AuthUIProps) {
   const [isSignIn, setIsSignIn] = useState(initialIsSignIn);
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('fotodesk_auth_theme');
+      const dark = saved ? saved === 'dark' : true;
+      document.documentElement.classList.toggle('dark', dark);
+      return dark;
+    }
+    return true;
+  });
   const toggleForm = () => setIsSignIn((prev) => !prev);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('fotodesk_auth_theme');
+    const dark = saved ? saved === 'dark' : true;
+    document.documentElement.classList.toggle('dark', dark);
+    setIsDark(dark);
+  }, []);
+
+  const toggleTheme = () => {
+    const next = !isDark;
+    document.documentElement.classList.toggle('dark', next);
+    localStorage.setItem('fotodesk_auth_theme', next ? 'dark' : 'light');
+    setIsDark(next);
+  };
 
   const finalSignInContent = {
     image: { ...defaultSignInContent.image, ...signInContent.image },
@@ -613,16 +676,38 @@ export function AuthUI({ initialIsSignIn = true, signInContent = {}, signUpConte
   const currentContent = isSignIn ? finalSignInContent : finalSignUpContent;
 
   return (
-    <div className="w-full min-h-screen md:grid md:grid-cols-2 bg-[#090A0C] text-white selection:bg-[#C89561] selection:text-white">
+    <div className="relative min-h-screen w-full bg-canvas text-body selection:bg-gold-soft md:grid md:grid-cols-2">
       <style>{`
         input[type="password"]::-ms-reveal,
         input[type="password"]::-ms-clear {
           display: none;
         }
+        .dark input:-webkit-autofill,
+        .dark input:-webkit-autofill:hover,
+        .dark input:-webkit-autofill:focus,
+        .dark input:-webkit-autofill:active {
+          -webkit-text-fill-color: #f1f5f9 !important;
+          -webkit-box-shadow: 0 0 0px 1000px #15171C inset !important;
+          box-shadow: 0 0 0px 1000px #15171C inset !important;
+          transition: background-color 5000s ease-in-out 0s;
+        }
       `}</style>
       
-      {/* Colonne Formulaire gauche */}
-      <div className="flex min-h-screen items-center justify-center p-6 md:p-12 bg-[#090A0C] border-r border-white/[0.06]">
+      <button
+        type="button"
+        onClick={toggleTheme}
+        className="fixed right-4 top-4 z-30 inline-flex h-10 w-10 items-center justify-center rounded-full border border-line bg-panel text-body shadow-sm transition-colors hover:bg-hover hover:text-heading focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+        aria-label={isDark ? 'Activer le mode clair' : 'Activer le mode sombre'}
+        title={isDark ? 'Mode clair' : 'Mode sombre'}
+      >
+        {isDark ? <Sun className="h-4 w-4" aria-hidden="true" /> : <Moon className="h-4 w-4" aria-hidden="true" />}
+      </button>
+
+      {/* Colonne Formulaire gauche avec texture subtile de studio & fond enrichi */}
+      <div className="relative flex min-h-screen items-center justify-center border-r border-line bg-canvas p-4 sm:p-6 md:p-8 lg:p-12 overflow-y-auto">
+        {/* Motifs géométriques subtils en mode clair & sombre pour donner du relief */}
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(#94a3b8_1px,transparent_1px)] dark:bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.22] dark:opacity-[0.18]" aria-hidden="true" />
+        <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[520px] h-[320px] bg-gradient-to-b from-[#C89561]/[0.08] dark:from-[#C89561]/[0.12] via-transparent to-transparent blur-3xl" aria-hidden="true" />
         <AuthFormContainer isSignIn={isSignIn} onToggle={toggleForm} />
       </div>
 
@@ -632,27 +717,27 @@ export function AuthUI({ initialIsSignIn = true, signInContent = {}, signUpConte
         style={{ backgroundImage: `url(${currentContent.image.src})` }}
         key={currentContent.image.src}
       >
-        {/* Voiles sombres progressifs pour un rendu cinématique */}
-        <div className="absolute inset-0 bg-black/45" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#090A0C] via-[#090A0C]/35 to-black/30" />
+        {/* Rendu photo naturel sans voile blanc : image nette et contrastée */}
+        <div className="absolute inset-0 bg-black/20" />
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
         
         {/* Badge supérieur FotoDesk */}
-        <div className="absolute top-8 right-8 z-10 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-xs font-medium text-neutral-300">
-          <span className="w-2 h-2 rounded-full bg-emerald-400" />
+        <div className="absolute right-8 top-8 z-10 flex items-center gap-2 rounded-full border border-white/10 bg-black/60 px-3.5 py-1.5 text-xs font-medium text-white/80 backdrop-blur-md">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)] inline-block" />
           FotoDesk Pro Engine
         </div>
 
         {/* Citation machine à écrire */}
         <div className="relative z-10 flex h-full flex-col items-center justify-end p-8 pb-14">
           <blockquote className="space-y-3.5 text-center text-white max-w-lg px-4">
-            <p className="text-xl lg:text-2xl font-medium drop-shadow-md leading-relaxed text-neutral-100">
+            <p className="text-xl font-medium leading-relaxed text-white drop-shadow-md lg:text-2xl">
               “<Typewriter
                 key={currentContent.quote.text}
                 text={currentContent.quote.text}
                 speed={50}
               />”
             </p>
-            <cite className="block text-sm font-light text-neutral-400 not-italic tracking-wide">
+            <cite className="block text-sm font-light not-italic tracking-wide text-white/70">
               — {currentContent.quote.author}
             </cite>
           </blockquote>
