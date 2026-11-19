@@ -886,7 +886,7 @@ export const AdminAffiliatesPage: React.FC = () => {
           </div>
 
           <div className="rounded-2xl border border-line bg-panel shadow-2xs overflow-hidden">
-            <div className="border-b border-amber-200/60 dark:border-amber-800/40 bg-amber-50/70 dark:bg-amber-950/20 px-5 py-3 flex items-center gap-2 text-xs font-medium text-amber-800 dark:text-amber-200">
+            <div className="banner-info rounded-none border-b border-line px-5 py-3 font-medium">
               <Check className="w-4 h-4 flex-shrink-0" />
               <span>La commission s’applique uniquement au premier paiement d’abonnement. Les renouvellements ne génèrent pas de commission supplémentaire.</span>
             </div>

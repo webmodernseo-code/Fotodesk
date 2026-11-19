@@ -458,10 +458,10 @@ export const SettingsWorkspace: React.FC = () => {
                 })}
               </div>
 
-              <div className="bg-blue-500/8 border border-blue-500/20 rounded-xl px-4 py-3 flex items-start gap-2.5 text-xs text-soft">
-                <Info className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+              <div className="banner-info">
+                <Info className="w-4 h-4 shrink-0 mt-0.5" />
                 <p>
-                  <span className="font-semibold text-heading">Accès propriétaire du studio</span> — Les membres de l&apos;équipe ne voient que les sections de paramètres autorisées par leurs permissions.
+                  <strong className="font-semibold">Accès propriétaire du studio</strong> — Les membres de l&apos;équipe ne voient que les sections de paramètres autorisées par leurs permissions.
                 </p>
               </div>
             </>
@@ -1145,7 +1145,7 @@ export const SettingsWorkspace: React.FC = () => {
                 </div>
 
                 {pwError && (
-                  <p className="text-xs font-medium text-red-600 bg-red-500/10 border border-red-500/20 rounded-xl px-3.5 py-2">
+                  <p role="alert" className="banner-danger font-medium">
                     {pwError}
                   </p>
                 )}
@@ -1247,8 +1247,8 @@ export const SettingsWorkspace: React.FC = () => {
                   </div>
                   <div className="bg-subtle border border-line/70 rounded-xl p-3.5">
                     <p className="text-xs text-muted">Statut du compte</p>
-                    <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full mt-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    <span className="badge-success mt-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-current" />
                       Actif
                     </span>
                   </div>
@@ -1281,8 +1281,8 @@ export const SettingsWorkspace: React.FC = () => {
                         </div>
                       </div>
                       {s.isCurrent ? (
-                        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600 bg-emerald-500/10 px-2.5 py-1 rounded-full shrink-0">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                        <span className="badge-success shrink-0">
+                          <span className="w-1.5 h-1.5 rounded-full bg-current" />
                           Actuelle
                         </span>
                       ) : (
