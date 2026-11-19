@@ -1,5 +1,5 @@
 /*
- * FotoDesk design tokens — the one place to change how the app looks.
+ * PicPeak design tokens — the one place to change how the app looks.
  *
  * Read frontend/STYLING.md before editing. Two token families live here:
  *
@@ -23,71 +23,39 @@
  */
 
 :root {
-  /* ---- 1. UI tokens: light (Figma Design System 0:1 + Super Admin 63:199426) ---- */
+  /* ---- 1. UI tokens: light -------------------------------------------- */
 
   /* Surfaces, from the page floor upwards */
-  --ui-canvas: #f7f7f7;        /* page background            (Figma gray/50)  */
-  --ui-shell: #ffffff;         /* header, topbar                              */
-  --ui-panel: #ffffff;         /* cards, modals, tables, inputs               */
-  --ui-subtle: #f7f7f7;        /* quiet boxes on a panel     (Figma gray/50)  */
-  --ui-inset: #f5f5f6;         /* wells, code, sunken rows   (Figma light/50) */
-  --ui-fill: #ededed;          /* tracks, thumbs, chips      (Figma gray/100) */
-  --ui-fill-strong: #dfdfdf;   /* stronger fills             (Figma gray/200) */
-  --ui-hover: #f5f5f6;         /* row / button hover         (Figma light/50) */
-  --ui-hover-soft: #f7f7f7;    /* hover on a subtle box      (Figma gray/50)  */
+  --ui-canvas: #fafafa;        /* page background            (neutral-50)  */
+  --ui-shell: #ffffff;         /* header, sidebar                          */
+  --ui-panel: #ffffff;         /* cards, modals, tables, inputs            */
+  --ui-subtle: #fafafa;        /* quiet boxes on a panel      (neutral-50) */
+  --ui-inset: #f5f5f5;         /* wells, code, sunken rows   (neutral-100) */
+  --ui-fill: #e5e5e5;          /* tracks, thumbs, chips      (neutral-200) */
+  --ui-fill-strong: #d4d4d4;   /* stronger fills             (neutral-300) */
+  --ui-hover: #f5f5f5;         /* row / button hover         (neutral-100) */
+  --ui-hover-soft: #fafafa;    /* hover on a subtle box       (neutral-50) */
 
   /* Text, from loudest to quietest */
-  --ui-text-heading: #0a0503;  /* titles, values             (Figma dark/500) */
-  --ui-text-body: #242528;     /* running text, labels       (Figma light/950)*/
-  --ui-text-soft: #4a4d54;     /* secondary text             (Figma light/700)*/
-  --ui-text-muted: #6d727d;    /* captions, helper text      (Figma light/500)*/
-  --ui-text-faint: #81858f;    /* icons at rest, placeholders(Figma light/400)*/
+  --ui-text-heading: #171717;  /* titles, values             (neutral-900) */
+  --ui-text-body: #404040;     /* running text, labels       (neutral-700) */
+  --ui-text-soft: #525252;     /* secondary text             (neutral-600) */
+  --ui-text-muted: #737373;    /* captions, helper text      (neutral-500) */
+  --ui-text-faint: #a3a3a3;    /* icons at rest, placeholders(neutral-400) */
 
   /* Lines */
-  --ui-line: #ededed;          /* card and table borders     (Figma gray/100) */
-  --ui-line-strong: #dfdfdf;   /* input borders, hover       (Figma gray/200) */
-  --ui-line-faint: #f5f5f6;    /* hairlines inside a panel   (Figma light/50) */
-
-  /* Brand & Reference accents + primary call-to-action (inverts with the mode) */
-  --ui-brand: #f97316;         /* FotoDesk brand orange (active nav, charts)  */
-  --ui-brand-hover: #ea580c;   /* brand hover                                 */
-  --ui-brand-soft: #fff7ed;    /* soft brand badge/pill surface               */
-  --ui-brand-line: #fed7aa;    /* soft brand border                           */
-  --ui-gold: #C89561;          /* halo, dots, focus border                    */
-  --ui-gold-soft: #E8BFA1;     /* check marks, featured edge                  */
-  --ui-focus: #f97316;         /* keyboard focus; stronger than decoration    */
-  --ui-cta-bg: #0a0503;        /* primary button fill        (Figma dark/500) */
-  --ui-cta-fg: #ffffff;        /* primary button text                         */
-  --ui-cta-hover: #242528;     /* primary button hover       (Figma light/950)*/
-  --ui-halo: rgba(249, 115, 22, 0.08);           /* top-of-page glow          */
-  --ui-featured-shadow: 0 16px 48px -12px rgba(249, 115, 22, 0.20);
-
-  /* Semantic colours carry information, never decoration. Every use pairs
-   * colour with text and/or an icon through Badge or Notice. */
-  --ui-success-bg: #f0fdf4;
-  --ui-success-text: #15803d;
-  --ui-success-line: #bbf7d0;
-  --ui-warning-bg: #fefce8;
-  --ui-warning-text: #a16207;
-  --ui-warning-line: #fef08a;
-  --ui-danger-bg: #fef2f2;
-  --ui-danger-text: #b91c1c;
-  --ui-danger-line: #fecaca;
-  --ui-info-bg: #eff6ff;
-  --ui-info-text: #1d4ed8;
-  --ui-info-line: #bfdbfe;
-  --ui-purple-bg: #f4f2ff;
-  --ui-purple-text: #6b16eb;
-  --ui-purple-line: #dad2ff;
+  --ui-line: #e5e5e5;          /* card and table borders     (neutral-200) */
+  --ui-line-strong: #d4d4d4;   /* input borders              (neutral-300) */
+  --ui-line-faint: #f5f5f5;    /* hairlines inside a panel   (neutral-100) */
 
   /* ---- 2. Theme tokens: defaults ("Classic Grid") --------------------- */
   /* Names match ThemeConfig in src/types/theme.types.ts. */
-  --color-background: #0A0A0B;        /* page base */
-  --color-surface: #121316;           /* cards, nav, alternating sections */
-  --color-elevated: #18191d;          /* raised panels */
-  --color-surface-border: rgba(255, 255, 255, 0.08); /* dividers, borders */
-  --color-text: #ffffff;              /* primary text */
-  --color-muted-text: #a1a1aa;        /* secondary text */
+  --color-background: #fafafa;        /* page base */
+  --color-surface: #ffffff;           /* cards, nav, alternating sections */
+  --color-elevated: #f5f5f5;          /* raised panels */
+  --color-surface-border: #e5e5e5;    /* dividers, borders */
+  --color-text: #171717;              /* primary text */
+  --color-muted-text: #737373;        /* secondary text */
   --color-accent: #C89561;            /* links, focus rings, hover */
   --color-accent-dark: #C89561;       /* primary CTA fill */
   /* Legacy aliases — kept for any consumer that still reads --color-primary.
@@ -101,10 +69,10 @@
   --font-size-base: 16px;
   --shadow-default: 0 4px 6px rgba(0,0,0,0.1);   /* gallery card shadow */
   /* Tailwind RGB values for primary color (legacy, used by primary-* utilities) */
-  --tw-color-primary: 200 149 97;
+  --tw-color-primary: 92 135 98;
   --radius: 0.5rem;
 
-  /* ---- 3. Scale tokens (Figma Shadows 7:890 & Typography 7:785) ------- */
+  /* ---- 3. Scale tokens ------------------------------------------------ */
   /* Tailwind's rounded-*, shadow-* and font-sans read these. */
   --radius-sm: 0.125rem;
   --radius-md: 0.375rem;
@@ -113,38 +81,14 @@
   --radius-2xl: 1.25rem;
   --radius-3xl: 1.5rem;
 
-  --shadow-sm: 0px 1px 2px 0px rgba(0, 0, 0, 0.06), 0px 1px 3px 0px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0px 5px 8px -2px rgba(0, 0, 0, 0.08), 0px 2px 4px -2px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0px 20px 24px -4px rgba(0, 0, 0, 0.08), 0px 8px 8px -4px rgba(0, 0, 0, 0.03);
-  --shadow-xl: 0px 24px 48px -12px rgba(0, 0, 0, 0.18);
-  --shadow-2xl: 0px 32px 64px -12px rgba(0, 0, 0, 0.06);
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
   --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.04);
   --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.08);
   --shadow-large: 0 8px 32px rgba(0, 0, 0, 0.12);
-
-  /* Typography: Inter is the product UI; Clash Display / Playfair for display titles */
-  --font-ui: 'Inter', 'Noto Sans', system-ui, -apple-system, sans-serif;
-  --font-display: 'Clash Display', 'Inter', 'Noto Sans', system-ui, -apple-system, sans-serif;
-  --font-editorial: 'Playfair Display', Georgia, serif;
-  --text-xs: 0.75rem;          /* 12px · 150% */
-  --text-sm: 0.875rem;         /* 14px · 140% */
-  --text-base: 1rem;           /* 16px · 150% */
-  --text-lg: 1.125rem;         /* 18px · 155% */
-  --text-xl: 1.25rem;          /* 20px · 150% */
-  --text-2xl: 1.5rem;          /* 24px · 132% */
-  --text-3xl: 1.875rem;        /* 30px · 120% */
-  --text-display-md: 2.25rem;  /* 36px · 128% */
-  --text-display-lg: 3rem;     /* 48px · 126% */
-  --text-display-xl: 3.75rem;  /* 60px · 125% */
-  --text-display-2xl: 4.5rem;  /* 72px · 125% */
-  --leading-tight: 1.25;
-  --leading-body: 1.5;
-
-  /* Motion stays restrained and disappears when the user requests it. */
-  --motion-fast: 120ms;
-  --motion-base: 180ms;
-  --motion-slow: 260ms;
-  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
 }
 
 /*
@@ -155,65 +99,32 @@
  * wins because it writes inline --color-* styles on <html>.
  */
 .dark {
-  --ui-canvas: #000000;        /* section background */
-  --ui-shell: #050508;         /* header, sidebar: sleek obsidian */
-  --ui-panel: #0d0d12;         /* cards: slightly elevated from pure black */
-  --ui-subtle: #121218;        /* quiet boxes on a card */
-  --ui-inset: #16161d;         /* wells, sunken rows */
-  --ui-fill: #1c1c24;          /* tracks, chips */
-  --ui-fill-strong: #282834;   /* stronger fills */
-  --ui-hover: #171720;         /* row hover */
-  --ui-hover-soft: #121218;    /* hover on subtle boxes */
+  --ui-canvas: #0a0a0a;        /* neutral-950 */
+  --ui-shell: #171717;         /* neutral-900 */
+  --ui-panel: #262626;         /* neutral-800 */
+  --ui-subtle: #262626;        /* neutral-800 */
+  --ui-inset: #404040;         /* neutral-700 */
+  --ui-fill: #404040;          /* neutral-700 */
+  --ui-fill-strong: #525252;   /* neutral-600 */
+  --ui-hover: #404040;         /* neutral-700 */
+  --ui-hover-soft: #262626;    /* neutral-800 */
 
-  --ui-text-heading: #ffffff;
+  --ui-text-heading: #f5f5f5;  /* neutral-100 */
   --ui-text-body: #d4d4d4;     /* neutral-300 */
   --ui-text-soft: #a3a3a3;     /* neutral-400 */
-  --ui-text-muted: #737373;    /* neutral-500 */
-  --ui-text-faint: #525252;    /* neutral-600 */
+  --ui-text-muted: #a3a3a3;    /* neutral-400 */
+  --ui-text-faint: #737373;    /* neutral-500 */
 
-  --ui-line: #1e1e28;          /* subtle crisp border */
-  --ui-line-strong: #2e2e3c;   /* hover border */
-  --ui-line-faint: #14141c;
+  --ui-line: #404040;          /* neutral-700 */
+  --ui-line-strong: #525252;   /* neutral-600 */
+  --ui-line-faint: #262626;    /* neutral-800 */
 
-  --ui-brand: #fb923c;
-  --ui-brand-hover: #f97316;
-  --ui-brand-soft: rgba(249, 115, 22, 0.14);
-  --ui-brand-line: rgba(249, 115, 22, 0.30);
-  --ui-gold: #C89561;
-  --ui-gold-soft: #E8BFA1;
-  --ui-focus: #fb923c;
-  --ui-cta-bg: #ffffff;        /* featured plan button: white on black */
-  --ui-cta-fg: #000000;
-  --ui-cta-hover: #e5e5e5;     /* neutral-200 */
-  --ui-halo: rgba(249, 115, 22, 0.10);
-  --ui-featured-shadow: 0 16px 48px -12px rgba(249, 115, 22, 0.18);
-
-  --ui-success-bg: #10261a;
-  --ui-success-text: #86efac;
-  --ui-success-line: #245b37;
-  --ui-warning-bg: #2a2110;
-  --ui-warning-text: #fcd34d;
-  --ui-warning-line: #654b16;
-  --ui-danger-bg: #2b1419;
-  --ui-danger-text: #fda4af;
-  --ui-danger-line: #6b2633;
-  --ui-info-bg: #111f38;
-  --ui-info-text: #93c5fd;
-  --ui-info-line: #274c7c;
-  --ui-purple-bg: #1f1638;
-  --ui-purple-text: #c1aeff;
-  --ui-purple-line: #4b11a2;
-
-  --color-background: #000000;
-  --color-surface: #050505;
-  --color-elevated: #0a0a0a;
-  --color-surface-border: #141414;
+  --color-background: #0a0a0a;
+  --color-surface: #171717;
+  --color-elevated: #1f1f1f;
+  --color-surface-border: #262626;
   --color-text: #f5f5f5;
   --color-muted-text: #a3a3a3;
   --color-accent: #C89561;
   --color-accent-dark: #C89561;
-  --color-primary: #C89561;
-  --color-primary-light: #E8BFA1;
-  --color-primary-dark: #B5824E;
-  --tw-color-primary: 200 149 97;
 }

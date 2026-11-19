@@ -29,16 +29,6 @@ export default {
         muted: 'var(--ui-text-muted)',
         faint: 'var(--ui-text-faint)',
         line: { DEFAULT: 'var(--ui-line)', strong: 'var(--ui-line-strong)', faint: 'var(--ui-line-faint)' },
-        // Reference accents (pricing section): gold + inverting primary CTA.
-        brand: { DEFAULT: 'var(--ui-brand)', hover: 'var(--ui-brand-hover)', soft: 'var(--ui-brand-soft)', line: 'var(--ui-brand-line)' },
-        gold: { DEFAULT: 'var(--ui-gold)', soft: 'var(--ui-gold-soft)' },
-        focus: 'var(--ui-focus)',
-        cta: { DEFAULT: 'var(--ui-cta-bg)', fg: 'var(--ui-cta-fg)', hover: 'var(--ui-cta-hover)' },
-        success: { DEFAULT: 'var(--ui-success-text)', bg: 'var(--ui-success-bg)', line: 'var(--ui-success-line)' },
-        warning: { DEFAULT: 'var(--ui-warning-text)', bg: 'var(--ui-warning-bg)', line: 'var(--ui-warning-line)' },
-        danger: { DEFAULT: 'var(--ui-danger-text)', bg: 'var(--ui-danger-bg)', line: 'var(--ui-danger-line)' },
-        info: { DEFAULT: 'var(--ui-info-text)', bg: 'var(--ui-info-bg)', line: 'var(--ui-info-line)' },
-        purple: { DEFAULT: 'var(--ui-purple-text)', bg: 'var(--ui-purple-bg)', line: 'var(--ui-purple-line)' },
         // Theme tokens — operator-themed surfaces (gallery, portal, public pages).
         background: 'var(--color-background)',
         surface: 'var(--color-surface)',
@@ -62,23 +52,18 @@ export default {
           DEFAULT: 'var(--destructive, #ef4444)',
           foreground: 'var(--destructive-foreground, #ffffff)',
         },
-        card: {
-          DEFAULT: 'var(--card, #ffffff)',
-          foreground: 'var(--card-foreground, #0f172a)',
-        },
         'accent-foreground': 'var(--accent-foreground, #0f172a)',
         primary: {
-          50: '#faf6f0',
-          100: '#f4ebdd',
-          200: '#e8d5bc',
-          300: '#dcbf9b',
-          400: '#d0a97c',
-          500: '#c89561',
-          600: '#b5824e',
-          700: '#966a3d',
-          800: '#78532d',
-          900: '#5a3c1e',
-          DEFAULT: '#c89561',
+          50: '#f0fdf4',
+          100: '#dcfce7',
+          200: '#bbf7d0',
+          300: '#86efac',
+          400: '#4ade80',
+          500: '#22c55e',
+          600: '#5C8762', // Main brand color from scrappbook.de
+          700: '#4a6f4f',
+          800: '#3f5d42',
+          900: '#365238',
         },
         sand: {
           50: '#fdfcfb',
@@ -103,9 +88,7 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['var(--font-ui)'],
-        display: ['var(--font-display)'],
-        editorial: ['var(--font-editorial)'],
+        sans: ['Inter', 'Noto Sans', 'system-ui', '-apple-system', 'sans-serif'],
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',
@@ -156,8 +139,6 @@ export default {
         '3xl': 'var(--radius-3xl)',
       },
       boxShadow: {
-        '2xs': '0 1px 2px 0 rgba(0, 0, 0, 0.03)',
-        'xs': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
         'sm': 'var(--shadow-sm)',
         'md': 'var(--shadow-md)',
         'lg': 'var(--shadow-lg)',

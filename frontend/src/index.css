@@ -3,7 +3,6 @@
  * design tokens (frontend/STYLING.md) are imported before the @font-face block.
  */
 @import './styles/tokens.css';
-@import './styles/image-protection.css';
 
 /*
  * Self-hosted Inter is bootstrapped here so the very first paint —
@@ -16,9 +15,13 @@
 @font-face { font-family: 'Inter'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/Inter/400.woff2') format('woff2'); }
 @font-face { font-family: 'Inter'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/Inter/600.woff2') format('woff2'); }
 @font-face { font-family: 'Inter'; font-style: normal; font-weight: 700; font-display: swap; src: url('/fonts/Inter/700.woff2') format('woff2'); }
-@font-face { font-family: 'Playfair Display'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/Playfair-Display/400.woff2') format('woff2'); }
-@font-face { font-family: 'Playfair Display'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/Playfair-Display/600.woff2') format('woff2'); }
-@font-face { font-family: 'Playfair Display'; font-style: normal; font-weight: 700; font-display: swap; src: url('/fonts/Playfair-Display/700.woff2') format('woff2'); }
+
+/* Import image protection styles.
+   NOTE: an @import below @font-face is dropped by CSS (Vite warns on every
+   build), so this stylesheet has not been applied since the self-hosted fonts
+   landed. Moving it up restores gallery protection overlays, which is a
+   visible change for guests and is therefore left for its own PR. */
+@import './styles/image-protection.css';
 
 @tailwind base;
 @tailwind components;
@@ -26,16 +29,14 @@
 
 :root {
   --radius: 1rem;
-  --accent: #C89561;
+  --accent: oklch(0.89 0 0);
   --destructive-foreground: oklch(0.985 0 0);
   --border: #e2e8f0;
   --input: #e2e8f0;
-  --ring: #C89561;
+  --ring: #0f172a;
   --foreground: #0f172a;
   --muted-foreground: #64748b;
   --primary-foreground: #ffffff;
-  --card: #ffffff;
-  --card-foreground: #0f172a;
 }
 
 .dark {
@@ -48,8 +49,6 @@
   --foreground: #f8fafc;
   --muted-foreground: #94a3b8;
   --primary-foreground: #ffffff;
-  --card: #18191c;
-  --card-foreground: #f8fafc;
 }
 
 @layer base {
@@ -64,27 +63,6 @@
     @apply antialiased;
     overflow-x: hidden;
   }
-}
-
-.font-serif-luxury {
-  font-family: var(--font-editorial) !important;
-}
-
-.font-signature {
-  font-family: var(--font-editorial) !important;
-  font-style: normal;
-}
-
-/* Product typography is not a gallery branding setting. Gallery themes may
- * choose their own family, but the marketing and application shells stay on
- * the reviewed FotoDesk UI face. */
-.fotodesk-landing-container,
-.fd-admin,
-.fd-auth {
-  font-family: var(--font-ui);
-}
-
-@layer base {
   
   body::before {
     content: '';
@@ -98,22 +76,6 @@
     opacity: 1;
     pointer-events: none;
     z-index: -1;
-  }
-
-  /* A keyboard focus must remain visible even when a component only changes
-     its border on pointer focus. Component-specific rings may refine it. */
-  :where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
-    outline: 2px solid var(--ui-focus) !important;
-    outline-offset: 2px;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      scroll-behavior: auto !important;
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-    }
   }
 
   /* Custom scrollbar */
@@ -168,26 +130,6 @@
     background-color: var(--color-primary-dark);
   }
 
-  .btn-success {
-    background-color: #16a34a;
-    color: white;
-    @apply shadow-sm focus-visible:ring-emerald-500;
-  }
-
-  .btn-success:hover {
-    background-color: #15803d;
-  }
-
-  .btn-danger {
-    background-color: var(--ui-danger-text);
-    color: white;
-    @apply shadow-sm;
-  }
-
-  .btn-danger:hover {
-    filter: brightness(0.92);
-  }
-
   .btn-alt {
     background-color: transparent;
     color: var(--color-text);
@@ -232,9 +174,8 @@
    * binds to the 8-token palette via CSS variables.
    */
   .input {
-    @apply flex h-10 w-full rounded-lg border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none focus:outline-none focus:ring-0 focus-visible:ring-0 focus:border-primary disabled:cursor-not-allowed disabled:opacity-50;
-    @apply bg-panel border-line text-heading;
-    box-shadow: none !important;
+    @apply flex h-10 w-full rounded-lg border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+        @apply bg-panel border-line-strong text-heading;
   }
 
   .input::placeholder {
@@ -243,11 +184,10 @@
 
   /* Gallery-specific input that uses theme variables */
   .input-themed {
-    @apply flex h-10 w-full rounded-lg border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none focus:outline-none focus:ring-0 focus-visible:ring-0 focus:border-primary disabled:cursor-not-allowed disabled:opacity-50;
+    @apply flex h-10 w-full rounded-lg border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
     background-color: var(--color-surface);
     border-color: var(--color-surface-border);
     color: var(--color-text);
-    box-shadow: none !important;
   }
 
   .input-themed::placeholder {
@@ -262,16 +202,11 @@
      card (discussion 1541). The gallery's .card-themed below keeps the
      operator-configurable --shadow-default. */
   .card {
-    @apply rounded-2xl border bg-panel border-line transition-all duration-200;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 6px 18px -3px rgba(0, 0, 0, 0.06), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+    @apply rounded-xl border bg-panel border-line;
   }
 
   .card-hover {
     @apply card transition-all duration-200 hover:translate-y-[-2px];
-  }
-
-  .card-hover:hover {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 14px 28px -4px rgba(0, 0, 0, 0.09);
   }
 
   /* Gallery-specific card that uses theme variables */
@@ -580,13 +515,13 @@
    * follows the operator's palette rather than replacing it.
    */
   .status-chip {
-    background-color: color-mix(in srgb, var(--chip-hue) 18%, var(--color-surface, #121316));
-    color: color-mix(in srgb, var(--chip-hue) 72%, var(--color-text, #ffffff));
+    background-color: color-mix(in srgb, var(--chip-hue) 18%, var(--color-surface, #ffffff));
+    color: color-mix(in srgb, var(--chip-hue) 72%, var(--color-text, #171717));
   }
 
   /* The same hue as text, for a line that is not a chip. */
   .text-status {
-    color: color-mix(in srgb, var(--chip-hue) 72%, var(--color-text, #ffffff));
+    color: color-mix(in srgb, var(--chip-hue) 72%, var(--color-text, #171717));
   }
 
   .hue-success { --chip-hue: #16a34a; }
@@ -594,7 +529,7 @@
   .hue-danger { --chip-hue: #dc2626; }
   .hue-info { --chip-hue: #2563eb; }
   .hue-storno { --chip-hue: #9333ea; }
-  .hue-neutral { --chip-hue: var(--color-muted-text, #a1a1aa); }
+  .hue-neutral { --chip-hue: var(--color-muted-text, #737373); }
 
   /* A row that is cancelled or reversed: dimmed against its own surface. */
   .row-muted {
@@ -641,28 +576,18 @@
     @apply bg-red-900/40 text-red-300;
   }
 
-  /* Secondary and outline buttons: the reference ghost button
-   * (pricing "Commencer": border white/10, fill white/[0.04]). */
+  /* Secondary and outline buttons for admin dark mode — restore explicit
+   * neutral overrides so existing admin pages render exactly as before. */
   .dark .btn-secondary {
-    background-color: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.10);
-    color: #ffffff;
-  }
-
-  .dark .btn-secondary:hover {
-    background-color: rgba(255, 255, 255, 0.08);
-    opacity: 1;
+    @apply bg-neutral-700 border-neutral-600 text-neutral-100;
   }
 
   .dark .btn-outline {
-    border-color: rgba(255, 255, 255, 0.10);
-    background-color: rgba(255, 255, 255, 0.04);
-    color: #ffffff;
+    @apply border-neutral-600 text-neutral-300;
   }
 
   .dark .btn-outline:hover {
-    background-color: rgba(255, 255, 255, 0.08);
-    opacity: 1;
+    @apply bg-neutral-800;
   }
 
   /* Table and select defaults for admin dark mode. `:where()` keeps them at
@@ -670,45 +595,39 @@
      text-muted, ...) wins, as the old dark: variants did; a bare element with
      no colour class still gets these. */
   .dark :where(table) {
-    background-color: var(--ui-panel);
+    @apply bg-neutral-800;
   }
 
   .dark :where(thead) {
-    background-color: var(--ui-subtle);
+    @apply bg-neutral-900/50;
   }
 
   .dark :where(th) {
-    color: var(--ui-text-soft);
-    border-color: var(--ui-line);
+    @apply text-neutral-300 border-neutral-700;
   }
 
   .dark :where(td) {
-    color: var(--ui-text-body);
-    border-color: var(--ui-line);
+    @apply text-neutral-200 border-neutral-700;
   }
 
   .dark :where(tbody tr) {
-    border-color: var(--ui-line);
+    @apply border-neutral-700;
   }
 
   .dark :where(tbody tr):hover {
-    background-color: var(--ui-hover);
+    @apply bg-neutral-700/50;
   }
 
   /* Select/dropdown for admin dark mode */
   .dark :where(select) {
-    background-color: var(--ui-panel);
-    border-color: var(--ui-line-strong);
-    color: var(--ui-text-heading);
+    @apply bg-neutral-800 border-neutral-700 text-neutral-100;
   }
 
-  /* Tag/chip styles: the reference eyebrow chip (white/3% fill, white/8% line) */
+  /* Tag/chip styles for admin dark mode */
   .dark .tag,
   .dark [class*="tag-"],
   .dark .chip {
-    background-color: rgba(255, 255, 255, 0.03);
-    color: #d4d4d4;
-    border-color: rgba(255, 255, 255, 0.08);
+    @apply bg-neutral-700 text-neutral-200 border-neutral-600;
   }
 
   /* Alert/info boxes for admin dark mode */
@@ -726,141 +645,6 @@
 
   .dark .alert-danger {
     @apply bg-red-900/30 border-red-800 text-red-200;
-  }
-
-  /* ==========================================================================
-   * FOTODESK REFERENCE (source: components/ui/pricing-section.tsx)
-   * Scoped to .fd-admin (AdminLayout root) so gallery/customer themes keep
-   * their operator colours. Same classes work in light and dark: the --ui-*
-   * tokens invert, the proportions do not.
-   *   cards    rounded-2xl · 1px hairline · hover line-strong
-   *   buttons  h-10 · rounded-xl · text-sm font-semibold · active:scale-[.98]
-   *   fields   h-10 · rounded-xl · focus border gold (no ring)
-   *   eyebrow  rounded-full pill · text-xs font-medium · gold dot
-   * ========================================================================== */
-  .fd-admin .card {
-    @apply rounded-2xl border bg-panel border-line transition-all duration-200;
-    box-shadow: var(--shadow-sm);
-  }
-
-  .fd-admin .card-hover:hover {
-    border-color: var(--ui-line-strong);
-    box-shadow: var(--shadow-md);
-  }
-
-  .fd-admin .btn {
-    @apply rounded-xl font-semibold active:scale-[0.98];
-  }
-
-  .fd-admin .btn-primary {
-    background-color: var(--ui-cta-bg);
-    color: var(--ui-cta-fg);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
-  }
-
-  .fd-admin .btn-primary:hover {
-    background-color: var(--ui-cta-hover);
-    opacity: 1;
-  }
-
-  .fd-admin .btn-brand {
-    background-color: var(--ui-brand);
-    color: #ffffff;
-    box-shadow: 0 1px 2px rgba(249, 115, 22, 0.24);
-  }
-
-  .fd-admin .btn-brand:hover {
-    background-color: var(--ui-brand-hover);
-    opacity: 1;
-  }
-
-  .fd-admin .btn-secondary,
-  .fd-admin .btn-outline {
-    border: 1px solid var(--ui-line-strong);
-    background-color: var(--ui-subtle);
-    color: var(--ui-text-heading);
-  }
-
-  .dark .fd-admin .btn-secondary,
-  .dark .fd-admin .btn-outline {
-    border-color: rgba(255, 255, 255, 0.10);
-    background-color: rgba(255, 255, 255, 0.04);
-  }
-
-  .fd-admin .btn-secondary:hover,
-  .fd-admin .btn-outline:hover {
-    background-color: var(--ui-hover);
-    opacity: 1;
-  }
-
-  .fd-admin .input,
-  .fd-admin select.input {
-    @apply rounded-xl;
-    border-color: var(--ui-line-strong);
-    transition: border-color 0.2s;
-  }
-
-  .dark .fd-admin .input,
-  .dark .fd-admin select.input {
-    border-color: rgba(255, 255, 255, 0.10);
-  }
-
-  .fd-admin .input:hover {
-    border-color: var(--ui-text-faint);
-  }
-
-  .fd-admin .input:focus,
-  .fd-admin .input:focus-visible {
-    border-color: var(--ui-brand) !important;
-  }
-
-  /* Eyebrow pill above a page or section title ("Tarifs simples et transparents") */
-  .fd-eyebrow {
-    @apply inline-flex items-center gap-2 rounded-full border px-3.5 py-1 text-xs font-medium;
-    border-color: var(--ui-line-strong);
-    background-color: var(--ui-subtle);
-    color: var(--ui-text-soft);
-  }
-
-  .dark .fd-eyebrow {
-    border-color: rgba(255, 255, 255, 0.08);
-    background-color: rgba(255, 255, 255, 0.03);
-  }
-
-  .fd-eyebrow::before {
-    content: '';
-    width: 6px;
-    height: 6px;
-    border-radius: 9999px;
-    background-color: var(--ui-gold);
-  }
-
-  /* Featured card: gold hairline on top + warm shadow (the "Populaire" plan) */
-  .fd-featured {
-    position: relative;
-    box-shadow: var(--ui-featured-shadow);
-  }
-
-  .fd-featured::before {
-    content: '';
-    position: absolute;
-    inset-inline: 1.5rem;
-    top: 0;
-    height: 1px;
-    background: linear-gradient(to right, transparent, var(--ui-gold-soft), transparent);
-  }
-
-  /* Soft gold glow at the top of a page */
-  .fd-halo::before {
-    content: '';
-    position: absolute;
-    inset-inline: 0;
-    top: 0;
-    margin-inline: auto;
-    height: 18rem;
-    max-width: 56rem;
-    pointer-events: none;
-    background: radial-gradient(ellipse at top, var(--ui-halo), transparent 70%);
   }
 }
 

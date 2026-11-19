@@ -13,9 +13,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import {
   Mail, FileText, ScrollText, Receipt, Image as ImageIcon, Clock,
-  X, Send, RotateCw, Ban, Eye, Save, Plus, Search, ChevronRight, FolderKanban,
+  X, Send, RotateCw, Ban, Eye, Save, Plus, Search,
 } from 'lucide-react';
-import { Badge, Button, Card, Input, Loading } from '../../../components/common';
+import { Button, Card, Input, Loading } from '../../../components/common';
 import {
   projectsService,
   type ProjectOverview,
@@ -74,7 +74,7 @@ function hrefFor(
   switch (kind) {
     case 'quote': return `/admin/clients/quotes/${id}`;
     case 'contract': return `/admin/clients/contracts/${id}`;
-    case 'invoice': return `/admin/factures/${id}`;
+    case 'invoice': return `/admin/clients/bills/${id}`;
     case 'gallery': return `/admin/events/${id}`;
     default: return null;
   }
@@ -263,77 +263,53 @@ export const ProjectCockpitPage: React.FC = () => {
   const valueBuckets = valuation?.byCurrency?.filter((b) => b.totalMinor !== 0 || b.paidMinor !== 0) || [];
 
   return (
-    <div className="space-y-5">
-      {/* Breadcrumb (Figma Projects Details page) */}
-      <div className="flex items-center gap-1.5 text-xs text-muted">
-        <button
-          type="button"
-          onClick={() => navigate('/admin/clients/projects')}
-          className="text-info hover:underline font-medium cursor-pointer"
-        >
-          {t('projects.crumb', 'Projects')}
-        </button>
-        <ChevronRight className="w-3.5 h-3.5 text-faint" />
-        <span className="font-semibold text-heading truncate">{project.name}</span>
-      </div>
-
-      {/* Header Card */}
-      <Card className="shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-          <div className="flex items-start gap-3.5 flex-1 min-w-0">
-            <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-subtle border border-line text-soft">
-              <FolderKanban className="w-5 h-5" />
-            </span>
-            <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-bold tracking-[0.08em] text-muted uppercase">
-                {t('projects.detailLabel', 'Photography Project')}
-              </p>
-              {editName === null ? (
-                <h1 className="text-2xl font-bold text-heading mt-0.5 truncate">{project.name}</h1>
-              ) : (
-                <div className="flex items-center gap-2 mt-1">
-                  <Input value={editName} onChange={(e) => setEditName(e.target.value)} className="max-w-sm h-9" />
-                  <Button variant="brand" size="sm" disabled={!editName.trim() || renameMutation.isPending} onClick={() => renameMutation.mutate(editName.trim())}>
-                    <Save className="w-4 h-4" />
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => setEditName(null)}><X className="w-4 h-4" /></Button>
-                </div>
-              )}
-              <div className="flex flex-wrap items-center gap-2 text-xs text-muted mt-2">
-                <span className="text-info font-medium">
-                  {project.customerEmail || t('projects.noCustomer', 'No single customer')}
-                </span>
-                {project.customerGroups && project.customerGroups.length > 0 && (
-                  <CustomerGroupChipList groups={project.customerGroups} max={2} />
-                )}
-                <span>·</span>
-                <span>{t('projects.eventCount', '{{count}} events', { count: data.events.length })}</span>
-                <span>·</span>
-                <span>{t('projects.totalHours', '{{hours}} logged', { hours: minutesToHours(hours.totalMinutes) })}</span>
+    <div>
+      {/* Header */}
+      <Card className="mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+          <div className="flex-1">
+            {editName === null ? (
+              <h1 className="text-2xl font-bold text-heading">{project.name}</h1>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Input value={editName} onChange={(e) => setEditName(e.target.value)} className="max-w-sm" />
+                <Button variant="primary" disabled={!editName.trim() || renameMutation.isPending} onClick={() => renameMutation.mutate(editName.trim())}>
+                  <Save className="w-4 h-4" />
+                </Button>
+                <Button variant="outline" onClick={() => setEditName(null)}><X className="w-4 h-4" /></Button>
               </div>
-            </div>
+            )}
+            <p className="text-sm text-soft mt-1">
+              {project.customerEmail || t('projects.noCustomer', 'No single customer')}
+              {project.customerGroups && project.customerGroups.length > 0 && (
+                <span className="ml-2 inline-flex align-middle">
+                  <CustomerGroupChipList groups={project.customerGroups} max={2} />
+                </span>
+              )}
+              {' · '}
+              {t('projects.eventCount', '{{count}} events', { count: data.events.length })}
+              {' · '}
+              {t('projects.totalHours', '{{hours}} logged', { hours: minutesToHours(hours.totalMinutes) })}
+            </p>
           </div>
-
-          <div className="flex flex-wrap items-center gap-3 shrink-0">
-            <Badge tone={project.status === 'archived' ? 'neutral' : 'brand'} dot>
-              {t(`projects.status.${project.status}`, project.status)}
-            </Badge>
+          <div className="flex items-start gap-4">
             {valueBuckets.length > 0 && (
-              <div className="text-right px-3 py-1.5 rounded-xl bg-subtle border border-line">
-                <div className="text-[10px] font-semibold uppercase tracking-wide text-muted">
-                  {t('projects.value.label', 'Project value')}
-                </div>
+              <div className="text-right">
+                <div className="text-xs text-muted">{t('projects.value.label', 'Project value')}</div>
                 {valueBuckets.map((b) => (
-                  <div key={b.currency} className="text-sm font-bold text-heading tabular-nums">
+                  <div key={b.currency} className="text-lg font-bold text-heading tabular-nums">
                     {formatMoneyMinor(b.totalMinor, b.currency)}
                   </div>
                 ))}
+                {valueBuckets.some((b) => b.paidMinor !== 0) && (
+                  <div className="text-xs text-muted">
+                    {t('projects.value.paid', 'paid')}: {valueBuckets.map((b) => formatMoneyMinor(b.paidMinor, b.currency)).join(' · ')}
+                  </div>
+                )}
               </div>
             )}
             {editName === null && (
-              <Button variant="outline" size="sm" onClick={() => setEditName(project.name)}>
-                {t('projects.rename', 'Edit project')}
-              </Button>
+              <Button variant="outline" onClick={() => setEditName(project.name)}>{t('projects.rename', 'Rename')}</Button>
             )}
           </div>
         </div>
