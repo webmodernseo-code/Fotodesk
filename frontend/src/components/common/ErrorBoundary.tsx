@@ -11,6 +11,7 @@ interface Props {
 interface State {
   hasError: boolean;
   error: Error | null;
+  componentStack: string | null;
 }
 
 const isNotFoundError = (error: Error | null): boolean => {
@@ -31,15 +32,18 @@ const isNotFoundError = (error: Error | null): boolean => {
 export class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false, error: null, componentStack: null };
   }
 
-  static getDerivedStateFromError(error: Error): State {
+  static getDerivedStateFromError(error: Error): Partial<State> {
     return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('Error caught by boundary:', error, errorInfo);
+    if (errorInfo?.componentStack) {
+      this.setState({ componentStack: errorInfo.componentStack });
+    }
     try {
       fetch('/api/public/settings/client-error', {
         method: 'POST',
@@ -122,12 +126,13 @@ export class ErrorBoundary extends Component<Props, State> {
             </div>
 
             {this.state.error && (
-              <details className="mt-8 text-left border-t border-neutral-800 pt-4 w-full max-w-md">
+              <details open={import.meta.env.DEV} className="mt-8 text-left border-t border-neutral-800 pt-4 w-full max-w-md">
                 <summary className="text-xs text-neutral-500 cursor-pointer hover:text-neutral-300">
                   Détails techniques de l'erreur
                 </summary>
                 <pre className="mt-2 max-h-40 overflow-auto rounded-lg border border-neutral-800 bg-neutral-950 p-3 text-[11px] text-neutral-400 font-mono">
                   {this.state.error.message}
+                  {this.state.componentStack ? `\n\nComponent stack:${this.state.componentStack}` : ''}
                   {this.state.error.stack ? `\n\n${this.state.error.stack}` : ''}
                 </pre>
               </details>

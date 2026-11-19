@@ -84,7 +84,7 @@ export const CustomerDetailPage: React.FC = () => {
   if (error || !customer) {
     return (
       <EmptyState
-        icon={Users}
+        icon={<Users className="h-5 w-5" />}
         title={t('customers.notFoundTitle', 'Client introuvable')}
         description={t('customers.notFoundDesc', 'Cette fiche client n’existe plus ou vous n’y avez pas accès.')}
         actionLabel={t('customers.backToList', 'Retour aux clients')}
@@ -130,7 +130,7 @@ export const CustomerDetailPage: React.FC = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
-          <PermissionGate permission="customers.manage">
+          <PermissionGate permission="customers.edit">
             <Button
               type="button"
               variant="outline"

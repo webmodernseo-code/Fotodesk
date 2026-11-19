@@ -156,7 +156,7 @@ export const CustomerManagementPage: React.FC = () => {
             {t('customers.subtitle', 'Gérez les clients de votre studio et leurs informations.')}
           </p>
         </div>
-        <PermissionGate permission="customers.manage">
+        <PermissionGate permission="customers.create">
           <Button
             type="button"
             variant="primary"
@@ -268,7 +268,7 @@ export const CustomerManagementPage: React.FC = () => {
         ) : paginated.length === 0 ? (
           <div className="p-8">
             <EmptyState
-              icon={Users}
+              icon={<Users className="h-5 w-5" />}
               title={
                 search || projectFilter !== 'all'
                   ? t('customers.emptyFilteredTitle', 'Aucun client trouvé')
@@ -280,7 +280,7 @@ export const CustomerManagementPage: React.FC = () => {
                   : t('customers.emptyDesc', 'Ajoutez votre premier client pour suivre ses projets et galeries.')
               }
               actionLabel={
-                !search && projectFilter === 'all' && hasPermission('customers.manage')
+                !search && projectFilter === 'all' && hasPermission('customers.create')
                   ? t('customers.addClient', 'Ajouter un client')
                   : undefined
               }
@@ -332,8 +332,8 @@ export const CustomerManagementPage: React.FC = () => {
                         </td>
                         <td className="px-5 py-3.5 text-soft whitespace-nowrap">{formatDate(c.createdAt)}</td>
                         <td className="px-5 py-3.5 text-right whitespace-nowrap">
-                          <PermissionGate permission="customers.manage">
-                            <div className="inline-flex items-center gap-3">
+                          <div className="inline-flex items-center gap-3">
+                            <PermissionGate permission="customers.edit">
                               <button
                                 type="button"
                                 onClick={() => openEditModal(c)}
@@ -341,6 +341,8 @@ export const CustomerManagementPage: React.FC = () => {
                               >
                                 {t('common.edit', 'Modifier')}
                               </button>
+                            </PermissionGate>
+                            <PermissionGate permission="customers.delete">
                               <button
                                 type="button"
                                 onClick={() => setDeletingClient({ id: c.id, name })}
@@ -348,8 +350,8 @@ export const CustomerManagementPage: React.FC = () => {
                               >
                                 {t('common.delete', 'Supprimer')}
                               </button>
-                            </div>
-                          </PermissionGate>
+                            </PermissionGate>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -385,8 +387,8 @@ export const CustomerManagementPage: React.FC = () => {
                     </div>
                     <div className="flex items-center justify-between text-xs text-muted pt-1">
                       <span>{c.phone || '—'} · {formatDate(c.createdAt)}</span>
-                      <PermissionGate permission="customers.manage">
-                        <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3">
+                        <PermissionGate permission="customers.edit">
                           <button
                             type="button"
                             onClick={() => openEditModal(c)}
@@ -394,6 +396,8 @@ export const CustomerManagementPage: React.FC = () => {
                           >
                             {t('common.edit', 'Modifier')}
                           </button>
+                        </PermissionGate>
+                        <PermissionGate permission="customers.delete">
                           <button
                             type="button"
                             onClick={() => setDeletingClient({ id: c.id, name })}
@@ -401,8 +405,8 @@ export const CustomerManagementPage: React.FC = () => {
                           >
                             {t('common.delete', 'Supprimer')}
                           </button>
-                        </div>
-                      </PermissionGate>
+                        </PermissionGate>
+                      </div>
                     </div>
                   </div>
                 );
