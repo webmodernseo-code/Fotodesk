@@ -431,52 +431,34 @@ export const SettingsWorkspace: React.FC = () => {
         </p>
       </div>
 
-      {/* Main Split Layout */}
-      <div className="flex flex-col lg:flex-row gap-6 items-start">
-        {/* Left Navigation Card */}
-        <aside className="w-full lg:w-64 shrink-0 bg-panel border border-line rounded-2xl p-3 shadow-xs">
-          <button
-            type="button"
-            onClick={() => setActiveSection('overview')}
-            className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-              activeSection === 'overview'
-                ? 'bg-accent/10 text-accent'
-                : 'text-soft hover:text-heading hover:bg-subtle'
-            }`}
-          >
-            <Settings2 className="w-4 h-4 shrink-0" />
-            <span className="truncate">Vue d&apos;ensemble</span>
-          </button>
+      {/* Horizontal Tabs Navigation */}
+      <nav className="rounded-2xl border border-line bg-panel p-1.5 shadow-2xs flex flex-wrap gap-1" aria-label="Navigation des paramètres">
+        {[
+          { key: 'overview' as const, label: "Vue d'ensemble", icon: Settings2 },
+          ...navItems.map((item) => ({ key: item.key, label: item.label, icon: item.icon })),
+        ].map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeSection === tab.key;
+          return (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => setActiveSection(tab.key)}
+              className={`inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-semibold transition-all cursor-pointer ${
+                isActive
+                  ? 'bg-white text-neutral-950 border border-neutral-200/80 shadow-xs dark:bg-neutral-800 dark:text-white dark:border-white/10'
+                  : 'text-muted hover:text-heading hover:bg-hover/70 border border-transparent'
+              }`}
+            >
+              <Icon className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-emerald-600 dark:text-emerald-400' : ''}`} />
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
+      </nav>
 
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted px-3 pt-4 pb-1.5">
-            Préférences
-          </p>
-
-          <nav className="space-y-1">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = activeSection === item.key;
-              return (
-                <button
-                  key={item.key}
-                  type="button"
-                  onClick={() => setActiveSection(item.key)}
-                  className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-left ${
-                    isActive
-                      ? 'bg-accent/10 text-accent'
-                      : 'text-soft hover:text-heading hover:bg-subtle'
-                  }`}
-                >
-                  <Icon className="w-4 h-4 shrink-0" />
-                  <span className="truncate">{item.label}</span>
-                </button>
-              );
-            })}
-          </nav>
-        </aside>
-
-        {/* Right Content Area */}
-        <div className="flex-1 min-w-0 w-full space-y-5">
+      {/* Main Content Area */}
+      <div className="w-full space-y-5">
           {/* OVERVIEW */}
           {activeSection === 'overview' && (
             <>
