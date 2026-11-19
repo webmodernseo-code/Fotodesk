@@ -20,6 +20,7 @@ import { PortfolioPage } from './pages/public/PortfolioPage';
 import { RegisterPage } from './pages/public/RegisterPage';
 import { AffiliatePortalPage } from './pages/affiliate/AffiliatePortalPage';
 import { MasterFounderDashboardPage } from './pages/superadmin/MasterFounderDashboardPage';
+import { SuperAdminLoginPage } from './pages/superadmin/SuperAdminLoginPage';
 import {
   AdminLoginPage,
   FotoDeskDashboard,
@@ -214,6 +215,7 @@ function App() {
                   <Route path="/affiliate/demo" element={<AffiliatePortalPage />} />
                   <Route path="/affiliate" element={<Navigate to="/affiliate/login" replace />} />
                   <Route path="/affiliation" element={<Navigate to="/affiliate/login" replace />} />
+                  <Route path="/superadmin/login" element={<AdminAuthWrapper><SuperAdminLoginPage /></AdminAuthWrapper>} />
                   <Route path="/superadmin" element={<AdminAuthWrapper><MasterFounderDashboardPage /></AdminAuthWrapper>} />
                   <Route path="/master" element={<Navigate to="/superadmin" replace />} />
                   <Route path="/portfolio/:slug" element={<PortfolioPage />} />

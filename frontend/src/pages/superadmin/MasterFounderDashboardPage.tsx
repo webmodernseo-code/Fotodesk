@@ -129,10 +129,18 @@ function formatDateLabel(value?: string, isEn?: boolean): string {
 
 export function MasterFounderDashboardPage() {
   const navigate = useNavigate();
-  const { user, logout } = useAdminAuth();
+  const { user, isAuthenticated, isLoading: authLoading, logout } = useAdminAuth();
   const { isDark, toggle: toggleDarkMode } = useAdminDarkMode();
   const { i18n } = useTranslation();
   const isEn = (i18n.language || '').toLowerCase().startsWith('en');
+
+  useEffect(() => {
+    if (authLoading) return;
+    const roleName = typeof user?.role === 'object' ? (user.role as any)?.name : user?.role;
+    if (!isAuthenticated || roleName !== 'super_admin') {
+      navigate('/superadmin/login', { replace: true });
+    }
+  }, [authLoading, isAuthenticated, user, navigate]);
 
   const [data, setData] = useState<SuperAdminOverview | null>(null);
   const [loading, setLoading] = useState(true);
@@ -460,16 +468,16 @@ export function MasterFounderDashboardPage() {
       {/* SIDEBAR (Figma 63:199429 · 260px / collapsed 76px) */}
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-50 shrink-0 bg-subtle border-r border-line flex flex-col transition-all duration-200 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0',
+          'fixed inset-y-0 left-0 z-50 shrink-0 bg-shell border-r border-line flex flex-col transition-all duration-200 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0',
           sidebarCollapsed ? 'lg:w-[76px] w-[260px]' : 'w-[260px]',
           mobileNavOpen ? 'translate-x-0' : '-translate-x-full',
         )}
       >
         {/* Brand Header */}
-        <div className={cn('h-[74px] flex items-center border-b border-line bg-panel', sidebarCollapsed ? 'px-3 justify-center lg:justify-between' : 'px-5 justify-between')}>
+        <div className={cn('h-[74px] flex items-center border-b border-line bg-shell', sidebarCollapsed ? 'px-3 justify-center lg:justify-between' : 'px-5 justify-between')}>
           <Link to="/superadmin" className="flex items-center gap-2.5 min-w-0">
-            <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand text-white shadow-sm">
-              <FotoDeskLogo size={20} className="text-white" />
+            <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-950 shadow-sm">
+              <FotoDeskLogo size={20} />
             </span>
             {!sidebarCollapsed && (
               <div className="leading-tight">
@@ -519,19 +527,19 @@ export function MasterFounderDashboardPage() {
                     className={cn(
                       'w-full flex items-center justify-between gap-2.5 px-3 py-2.5 rounded-xl text-[13.5px] transition-all text-left cursor-pointer border',
                       active
-                        ? 'bg-brand-soft text-brand border-brand-line font-semibold shadow-2xs'
-                        : 'border-transparent text-soft hover:bg-panel hover:text-heading font-medium',
+                        ? 'bg-subtle text-heading border-line font-semibold shadow-2xs'
+                        : 'border-transparent text-soft hover:bg-hover hover:text-heading font-medium',
                     )}
                   >
                     <span className={cn('flex items-center gap-2.5 min-w-0', sidebarCollapsed && 'lg:mx-auto')}>
-                      <Icon size={17} strokeWidth={1.75} className={active ? 'text-brand shrink-0' : 'text-faint shrink-0'} />
+                      <Icon size={17} strokeWidth={1.75} className={active ? 'text-heading shrink-0' : 'text-faint shrink-0'} />
                       {!sidebarCollapsed && <span className="truncate">{item.label}</span>}
                     </span>
                     {!sidebarCollapsed && item.badge !== undefined && (
                       <span
                         className={cn(
                           'px-2 py-0.5 rounded-full text-[11px] font-semibold',
-                          active ? 'bg-brand text-white' : 'bg-fill text-soft',
+                          active ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-950' : 'bg-fill text-soft',
                         )}
                       >
                         {item.badge}

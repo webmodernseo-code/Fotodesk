@@ -115,9 +115,10 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-cta text-cta-fg hover:bg-cta-hover shadow-sm",
-        destructive: "border border-danger-line bg-danger-bg text-danger hover:brightness-95 shadow-sm",
-        outline: "border border-line bg-panel text-body hover:bg-hover hover:text-heading hover:border-line-strong",
+        default: "btn-primary",
+        primary: "btn-primary",
+        destructive: "btn-danger",
+        outline: "btn-outline",
         secondary: "bg-subtle text-body hover:bg-hover hover:text-heading",
         ghost: "hover:bg-hover text-body hover:text-heading",
         link: "text-body underline-offset-4 hover:underline hover:text-heading",
@@ -197,41 +198,10 @@ PasswordInput.displayName = "PasswordInput";
 function SignInForm() {
   const { login } = useAdminAuth();
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const currentRoleParam = searchParams.get('role');
-  const initialRole: 'photographer' | 'superadmin' = currentRoleParam === 'superadmin' ? 'superadmin' : 'photographer';
-
-  const [role, setRole] = useState<'photographer' | 'superadmin'>(initialRole);
-  const [email, setEmail] = useState(() => initialRole === 'superadmin' ? 'founder@fotodesk.com' : 'user_b@fotodesk.com');
+  const [email, setEmail] = useState('user_b@fotodesk.com');
   const [password, setPassword] = useState('admin2026');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  useEffect(() => {
-    const r = searchParams.get('role');
-    if (r === 'superadmin') {
-      setRole('superadmin');
-      setEmail('founder@fotodesk.com');
-      setPassword('admin2026');
-    } else if (r === 'photographer') {
-      setRole('photographer');
-      setEmail('user_b@fotodesk.com');
-      setPassword('admin2026');
-    }
-  }, [searchParams]);
-
-  const handleSelectRole = (newRole: 'photographer' | 'superadmin') => {
-    setRole(newRole);
-    setSearchParams({ role: newRole });
-    if (newRole === 'superadmin') {
-      setEmail('founder@fotodesk.com');
-      setPassword('admin2026');
-    } else {
-      setEmail('user_b@fotodesk.com');
-      setPassword('admin2026');
-    }
-  };
 
   const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -244,12 +214,7 @@ function SignInForm() {
       } else if (response.user) {
         login((response as any).token || '', response.user);
         toast.success("Connexion réussie !");
-        const userRoleName = typeof response.user.role === 'object' ? (response.user.role as any)?.name : response.user.role;
-        if (userRoleName === 'super_admin' || role === 'superadmin') {
-          navigate("/superadmin");
-        } else {
-          navigate("/admin/dashboard");
-        }
+        navigate("/admin/dashboard");
       } else {
         const msg = "Échec de connexion. Vérifiez vos identifiants.";
         setErrorMsg(msg);
@@ -266,45 +231,9 @@ function SignInForm() {
 
   return (
     <form onSubmit={handleSignIn} autoComplete="on" className="flex flex-col gap-4">
-      {/* Sélecteur de rôle 1-clic avec pré-remplissage automatique */}
-      <div className="grid gap-2">
-        <div className="grid grid-cols-2 gap-1.5 p-1 bg-slate-100 dark:bg-white/5 rounded-xl border border-slate-200/80 dark:border-white/10">
-          <button
-            type="button"
-            onClick={() => handleSelectRole('photographer')}
-            className={cn(
-              "flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs transition-all cursor-pointer select-none",
-              role === 'photographer'
-                ? "bg-white dark:bg-[#1E2024] text-slate-900 dark:text-white shadow-xs font-semibold border border-slate-200/80 dark:border-white/10"
-                : "text-slate-500 hover:text-slate-900 dark:hover:text-white font-normal"
-            )}
-          >
-            <Camera className="w-3.5 h-3.5 text-neutral-800 dark:text-neutral-200" />
-            <span>Photographe Studio</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => handleSelectRole('superadmin')}
-            className={cn(
-              "flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs transition-all cursor-pointer select-none",
-              role === 'superadmin'
-                ? "bg-white dark:bg-[#1E2024] text-slate-900 dark:text-white shadow-xs font-semibold border border-slate-200/80 dark:border-white/10"
-                : "text-slate-500 hover:text-slate-900 dark:hover:text-white font-normal"
-            )}
-          >
-            <ShieldCheck className="w-3.5 h-3.5 text-neutral-800 dark:text-neutral-200" />
-            <span>Super-Admin</span>
-          </button>
-        </div>
-
-        <div className="flex items-center justify-between text-[11px] text-muted px-1">
-          <span>
-            {role === 'superadmin'
-              ? "Console Fondateur : Gestion de la plateforme"
-              : "Espace Studio : Galeries, factures & clients"}
-          </span>
-          <span className="badge-success text-[11px] py-0 px-2">Pré-rempli</span>
-        </div>
+      <div className="flex items-center justify-between text-[11px] text-muted px-1">
+        <span>Espace Studio : Galeries, factures &amp; clients</span>
+        <span className="badge-success text-[11px] py-0 px-2">Pré-rempli</span>
       </div>
 
       <div className="grid gap-3.5">
@@ -349,7 +278,7 @@ function SignInForm() {
         )}
 
         <Button type="submit" variant="primary" className="mt-1 w-full h-11 text-sm font-semibold" disabled={isLoading}>
-          {isLoading ? "Connexion en cours..." : role === 'superadmin' ? "Accéder à la console Super-Admin" : "Accéder à mon Studio"}
+          {isLoading ? "Connexion en cours..." : "Accéder à mon Studio"}
         </Button>
       </div>
     </form>
