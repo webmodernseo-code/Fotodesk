@@ -786,7 +786,7 @@ export const AdminAffiliatesPage: React.FC = () => {
             ].map((c) => (
               <div key={c.label} className="rounded-2xl border border-line bg-panel p-4 shadow-2xs">
                 <p className="text-xs text-muted">{c.label}</p>
-                <p className="mt-1 text-2xl font-bold text-heading">{c.val}</p>
+                <p className="mt-1 text-2xl font-bold text-emerald-600 dark:text-emerald-400">{c.val}</p>
               </div>
             ))}
           </div>
@@ -833,9 +833,9 @@ export const AdminAffiliatesPage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="rounded-2xl border border-line bg-panel p-4 shadow-2xs"><p className="text-xs text-muted">Total gagné</p><p className="mt-1 text-2xl font-bold text-heading">€43.56</p></div>
-            <div className="rounded-2xl border border-line bg-panel p-4 shadow-2xs"><p className="text-xs text-muted">Payé</p><p className="mt-1 text-2xl font-bold text-heading">€19.80</p></div>
-            <div className="rounded-2xl border border-line bg-panel p-4 shadow-2xs"><p className="text-xs text-muted">En attente</p><p className="mt-1 text-2xl font-bold text-heading">€21.78</p></div>
+            <div className="rounded-2xl border border-line bg-panel p-4 shadow-2xs"><p className="text-xs text-muted">Total gagné</p><p className="mt-1 text-2xl font-bold text-emerald-600 dark:text-emerald-400">€43.56</p></div>
+            <div className="rounded-2xl border border-line bg-panel p-4 shadow-2xs"><p className="text-xs text-muted">Payé</p><p className="mt-1 text-2xl font-bold text-emerald-600 dark:text-emerald-400">€19.80</p></div>
+            <div className="rounded-2xl border border-line bg-panel p-4 shadow-2xs"><p className="text-xs text-muted">En attente</p><p className="mt-1 text-2xl font-bold text-emerald-600 dark:text-emerald-400">€21.78</p></div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
