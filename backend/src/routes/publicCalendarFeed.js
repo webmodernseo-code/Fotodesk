@@ -1,8 +1,78 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const { db } = require('../database/db');
 const logger = require('../utils/logger');
 
 const router = express.Router();
+
+/**
+ * GET /api/public/calendar/google/callback
+ * OAuth 2.0 callback for connecting a studio's Google Calendar account.
+ */
+router.get('/google/callback', async (req, res) => {
+  const frontendUrl = process.env.APP_URL || 'http://localhost:5173';
+  try {
+    const { code, state } = req.query;
+    if (!code || !state) {
+      return res.redirect(`${frontendUrl}/admin/agenda?google=error`);
+    }
+    const decoded = jwt.verify(String(state), process.env.JWT_SECRET);
+    const studioId = Number(decoded.studioId || 1);
+    const backendBase = process.env.BACKEND_PUBLIC_URL || `${req.protocol}://${req.get('host')}`;
+    const redirectUri = process.env.GOOGLE_CALENDAR_REDIRECT_URI || `${backendBase}/api/public/calendar/google/callback`;
+
+    const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        code: String(code),
+        client_id: process.env.GOOGLE_CLIENT_ID || '',
+        client_secret: process.env.GOOGLE_CLIENT_SECRET || '',
+        redirect_uri: redirectUri,
+        grant_type: 'authorization_code',
+      }),
+    });
+    if (!tokenRes.ok) {
+      return res.redirect(`${frontendUrl}/admin/agenda?google=error`);
+    }
+    const tokens = await tokenRes.json();
+
+    let email = null;
+    if (tokens.access_token) {
+      const userRes = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+        headers: { Authorization: `Bearer ${tokens.access_token}` },
+      });
+      if (userRes.ok) {
+        const userJson = await userRes.json();
+        email = userJson.email || null;
+      }
+    }
+
+    const key = `studio_${studioId}_google_tokens`;
+    const serialized = JSON.stringify({
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token,
+      expires_at: Date.now() + (tokens.expires_in || 3600) * 1000,
+      email,
+    });
+    const existing = await db('app_settings').where({ setting_key: key }).first('id');
+    if (existing) {
+      await db('app_settings').where({ setting_key: key }).update({ setting_value: serialized, updated_at: new Date() });
+    } else {
+      await db('app_settings').insert({
+        setting_key: key,
+        setting_value: serialized,
+        setting_type: 'calendar',
+        updated_at: new Date(),
+      });
+    }
+
+    return res.redirect(`${frontendUrl}/admin/agenda?google=connected`);
+  } catch (error) {
+    logger.error('Google Calendar OAuth callback error:', error);
+    return res.redirect(`${frontendUrl}/admin/agenda?google=error`);
+  }
+});
 
 function escapeIcsText(val = '') {
   return String(val || '')
@@ -117,3 +187,4 @@ router.get('/:token/feed.ics', async (req, res) => {
 });
 
 module.exports = router;
+

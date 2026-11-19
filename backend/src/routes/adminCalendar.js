@@ -577,4 +577,212 @@ router.post(
   }),
 );
 
+async function saveStudioSetting(key, value, type = 'calendar') {
+  const serialized = typeof value === 'string' ? value : JSON.stringify(value);
+  const existing = await db('app_settings').where({ setting_key: key }).first('id');
+  if (existing) {
+    await db('app_settings').where({ setting_key: key }).update({
+      setting_value: serialized,
+      updated_at: new Date(),
+    });
+  } else {
+    await db('app_settings').insert({
+      setting_key: key,
+      setting_value: serialized,
+      setting_type: type,
+      updated_at: new Date(),
+    });
+  }
+}
+
+function parseIcsEvents(icsText, fromIso, toIso) {
+  const blocks = String(icsText || '').split('BEGIN:VEVENT').slice(1);
+  const items = [];
+  for (const block of blocks) {
+    const body = block.split('END:VEVENT')[0] || '';
+    const unfolded = body.replace(/\r?\n[ \t]/g, '');
+    const getField = (name) => {
+      const m = unfolded.match(new RegExp(`^${name}(?:;[^:]*)?:(.*)$`, 'm'));
+      return m ? m[1].trim().replace(/\\n/g, '\n').replace(/\\,/g, ',').replace(/\\;/g, ';') : '';
+    };
+    const uid = getField('UID') || String(Math.random());
+    const summary = getField('SUMMARY') || 'Événement Google Agenda';
+    const dtStartRaw = getField('DTSTART');
+    const dtEndRaw = getField('DTEND');
+    const location = getField('LOCATION');
+    const mDate = dtStartRaw.match(/^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2}))?/);
+    if (!mDate) continue;
+    const date = `${mDate[1]}-${mDate[2]}-${mDate[3]}`;
+    if (fromIso && date < fromIso) continue;
+    if (toIso && date > toIso) continue;
+    const startTime = mDate[4] && mDate[5] ? `${mDate[4]}:${mDate[5]}:00` : null;
+    const mEnd = dtEndRaw.match(/^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2}))?/);
+    const endTime = mEnd && mEnd[4] && mEnd[5] ? `${mEnd[4]}:${mEnd[5]}:00` : null;
+    items.push({
+      id: uid,
+      title: summary,
+      date,
+      startTime,
+      endTime,
+      isAllDay: !startTime,
+      location: location || null,
+      source: 'google',
+    });
+  }
+  return items;
+}
+
+router.get(
+  '/google/status',
+  requirePermission('customers.view'),
+  handleAsync(async (req, res) => {
+    const studioId = req.studioId || req.admin?.studioId || 1;
+    const oauthConfigured = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
+    const [tokenRow, icalRow] = await Promise.all([
+      db('app_settings').where({ setting_key: `studio_${studioId}_google_tokens` }).first(),
+      db('app_settings').where({ setting_key: `studio_${studioId}_google_ical_url` }).first(),
+    ]);
+    let tokenData = null;
+    if (tokenRow?.setting_value) {
+      try { tokenData = JSON.parse(tokenRow.setting_value); } catch {}
+    }
+    return successResponse(res, {
+      oauthConfigured,
+      connected: Boolean(tokenData?.access_token || icalRow?.setting_value),
+      mode: tokenData?.access_token ? 'oauth' : icalRow?.setting_value ? 'ical' : null,
+      email: tokenData?.email || null,
+      hasIcalUrl: Boolean(icalRow?.setting_value),
+    });
+  }),
+);
+
+router.get(
+  '/google/auth-url',
+  requirePermission('customers.edit'),
+  handleAsync(async (req, res) => {
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+    if (!clientId || !clientSecret) {
+      return res.status(400).json({
+        error: 'Google OAuth non configuré sur le serveur (GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET manquants). Utilisez le lien iCal privé Google Agenda.',
+        code: 'GOOGLE_OAUTH_NOT_CONFIGURED',
+      });
+    }
+    const jwt = require('jsonwebtoken');
+    const studioId = req.studioId || req.admin?.studioId || 1;
+    const state = jwt.sign({ studioId, adminId: req.admin.id }, process.env.JWT_SECRET, { expiresIn: '15m' });
+    const backendBase = process.env.BACKEND_PUBLIC_URL || `${req.protocol}://${req.get('host')}`;
+    const redirectUri = process.env.GOOGLE_CALENDAR_REDIRECT_URI || `${backendBase}/api/public/calendar/google/callback`;
+    const params = new URLSearchParams({
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      response_type: 'code',
+      access_type: 'offline',
+      prompt: 'consent',
+      scope: 'https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/userinfo.email',
+      state,
+    });
+    return successResponse(res, { url: `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}` });
+  }),
+);
+
+router.post(
+  '/google/ical-url',
+  requirePermission('customers.edit'),
+  [body('icalUrl').isURL({ protocols: ['https', 'http'], require_protocol: true })],
+  handleAsync(async (req, res) => {
+    validateRequest(req);
+    const studioId = req.studioId || req.admin?.studioId || 1;
+    await saveStudioSetting(`studio_${studioId}_google_ical_url`, String(req.body.icalUrl).trim(), 'calendar');
+    return successResponse(res, { connected: true, mode: 'ical' });
+  }),
+);
+
+router.post(
+  '/google/disconnect',
+  requirePermission('customers.edit'),
+  handleAsync(async (req, res) => {
+    const studioId = req.studioId || req.admin?.studioId || 1;
+    await db('app_settings')
+      .whereIn('setting_key', [`studio_${studioId}_google_tokens`, `studio_${studioId}_google_ical_url`])
+      .del();
+    return successResponse(res, { connected: false });
+  }),
+);
+
+router.get(
+  '/google/events',
+  requirePermission('customers.view'),
+  handleAsync(async (req, res) => {
+    const studioId = req.studioId || req.admin?.studioId || 1;
+    const fromIso = req.query.from ? String(req.query.from).slice(0, 10) : null;
+    const toIso = req.query.to ? String(req.query.to).slice(0, 10) : null;
+
+    const tokenRow = await db('app_settings').where({ setting_key: `studio_${studioId}_google_tokens` }).first();
+    if (tokenRow?.setting_value) {
+      let tokens = JSON.parse(tokenRow.setting_value);
+      if (tokens.refresh_token && tokens.expires_at && Date.now() > tokens.expires_at - 60_000 && process.env.GOOGLE_CLIENT_ID) {
+        const refreshRes = await fetch('https://oauth2.googleapis.com/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({
+            client_id: process.env.GOOGLE_CLIENT_ID,
+            client_secret: process.env.GOOGLE_CLIENT_SECRET || '',
+            refresh_token: tokens.refresh_token,
+            grant_type: 'refresh_token',
+          }),
+        });
+        if (refreshRes.ok) {
+          const refreshed = await refreshRes.json();
+          tokens = {
+            ...tokens,
+            access_token: refreshed.access_token,
+            expires_at: Date.now() + (refreshed.expires_in || 3600) * 1000,
+          };
+          await saveStudioSetting(`studio_${studioId}_google_tokens`, tokens, 'calendar');
+        }
+      }
+
+      const calParams = new URLSearchParams({ singleEvents: 'true', orderBy: 'startTime', maxResults: '250' });
+      if (fromIso) calParams.set('timeMin', `${fromIso}T00:00:00Z`);
+      if (toIso) calParams.set('timeMax', `${toIso}T23:59:59Z`);
+
+      const gRes = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?${calParams.toString()}`, {
+        headers: { Authorization: `Bearer ${tokens.access_token}` },
+      });
+      if (gRes.ok) {
+        const payload = await gRes.json();
+        const events = (payload.items || []).map((ev) => {
+          const startRaw = ev.start?.dateTime || ev.start?.date || '';
+          const endRaw = ev.end?.dateTime || ev.end?.date || '';
+          const isAllDay = Boolean(ev.start?.date && !ev.start?.dateTime);
+          return {
+            id: ev.id,
+            title: ev.summary || 'Événement Google',
+            date: startRaw.slice(0, 10),
+            startTime: isAllDay ? null : startRaw.slice(11, 19),
+            endTime: isAllDay ? null : endRaw.slice(11, 19),
+            isAllDay,
+            location: ev.location || null,
+            htmlLink: ev.htmlLink || null,
+            source: 'google',
+          };
+        });
+        return successResponse(res, { events, mode: 'oauth' });
+      }
+    }
+
+    const icalRow = await db('app_settings').where({ setting_key: `studio_${studioId}_google_ical_url` }).first();
+    if (icalRow?.setting_value) {
+      const icalRes = await fetch(icalRow.setting_value);
+      if (icalRes.ok) {
+        const text = await icalRes.text();
+        return successResponse(res, { events: parseIcsEvents(text, fromIso, toIso), mode: 'ical' });
+      }
+    }
+
+    return successResponse(res, { events: [], mode: null });
+  }),
+);
+
 module.exports = router;

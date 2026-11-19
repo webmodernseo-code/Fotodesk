@@ -34,10 +34,7 @@ import {
   Calendar as CalendarIcon,
   ChevronLeft,
   ChevronRight,
-  Copy,
-  ExternalLink,
   Plus,
-  RefreshCw,
   X,
 } from 'lucide-react';
 import { api } from '../../../config/api';
@@ -239,38 +236,76 @@ export const CalendarPage: React.FC = () => {
   const [selectedClientId, setSelectedClientId] = useState<string>('all');
   const [selectedProjectId, setSelectedProjectId] = useState<string>('all');
   const [syncModalOpen, setSyncModalOpen] = useState(false);
-  const [feedUrl, setFeedUrl] = useState<string>('');
-  const [feedLoading, setFeedLoading] = useState(false);
+  const [icalInput, setIcalInput] = useState('');
+  const [googleBusy, setGoogleBusy] = useState(false);
 
-  const openSyncModal = async () => {
-    setSyncModalOpen(true);
-    if (feedUrl) return;
-    setFeedLoading(true);
+  const { data: googleStatus, refetch: refetchGoogleStatus } = useQuery({
+    queryKey: ['admin-google-calendar-status'],
+    queryFn: async () => (await api.get('/admin/calendar/google/status')).data,
+    staleTime: 30_000,
+  });
+
+  const { data: googleEventsResp, refetch: refetchGoogleEvents } = useQuery({
+    queryKey: ['admin-google-calendar-events', range?.from, range?.to, googleStatus?.connected],
+    queryFn: async () => {
+      const res = await api.get('/admin/calendar/google/events', {
+        params: { from: range?.from, to: range?.to },
+      });
+      return res.data;
+    },
+    enabled: Boolean(googleStatus?.connected && range),
+    staleTime: 60_000,
+  });
+
+  const handleConnectGoogleOAuth = async () => {
+    setGoogleBusy(true);
     try {
-      const res = await api.get('/admin/calendar/feed-url');
-      const path = res.data?.feedPath || '';
-      const origin = typeof window !== 'undefined' ? window.location.origin : '';
-      setFeedUrl(path ? `${origin}${path}` : '');
-    } catch {
-      toast.error('Impossible de charger le lien de synchronisation.');
+      const res = await api.get('/admin/calendar/google/auth-url');
+      if (res.data?.url) {
+        window.location.href = res.data.url;
+      }
+    } catch (err: any) {
+      toast.info(
+        err?.response?.data?.error ||
+          "Renseignez GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET sur le serveur, ou collez votre lien secret iCal Google ci-dessous."
+      );
     } finally {
-      setFeedLoading(false);
+      setGoogleBusy(false);
     }
   };
 
-  const handleRegenerateFeed = async () => {
-    setFeedLoading(true);
+  const handleSaveGoogleIcal = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!icalInput.trim()) return;
+    setGoogleBusy(true);
     try {
-      const res = await api.post('/admin/calendar/feed-url/regenerate');
-      const path = res.data?.feedPath || '';
-      const origin = typeof window !== 'undefined' ? window.location.origin : '';
-      setFeedUrl(path ? `${origin}${path}` : '');
-      toast.success('Nouveau lien de synchronisation généré.');
-    } catch {
-      toast.error('Erreur lors de la régénération du lien.');
+      await api.post('/admin/calendar/google/ical-url', { icalUrl: icalInput.trim() });
+      await refetchGoogleStatus();
+      await refetchGoogleEvents();
+      toast.success('Votre compte Google Agenda est connecté !');
+      setIcalInput('');
+      setSyncModalOpen(false);
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error || 'Lien iCal invalide.');
     } finally {
-      setFeedLoading(false);
+      setGoogleBusy(false);
     }
+  };
+
+  const handleDisconnectGoogle = async () => {
+    setGoogleBusy(true);
+    try {
+      await api.post('/admin/calendar/google/disconnect');
+      await refetchGoogleStatus();
+      await refetchGoogleEvents();
+      toast.info('Compte Google Agenda déconnecté.');
+    } finally {
+      setGoogleBusy(false);
+    }
+  };
+
+  const openSyncModal = () => {
+    setSyncModalOpen(true);
   };
 
   const [dragCreateState, setDragCreateState] = useState<{
@@ -373,10 +408,23 @@ export const CalendarPage: React.FC = () => {
     });
   }, [itemsResp, selectedClientId, selectedProjectId, clients]);
 
-  const fcEvents = useMemo(
-    () => filteredItems.map(mapItemToFcEvent),
-    [filteredItems],
-  );
+  const fcEvents = useMemo(() => {
+    const base = filteredItems.map(mapItemToFcEvent);
+    const gEvents: EventInput[] = Array.isArray(googleEventsResp?.events)
+      ? googleEventsResp.events.map((ev: any) => ({
+          id: `google-${ev.id}`,
+          title: ev.title,
+          start: ev.isAllDay ? ev.date : `${ev.date}T${ev.startTime}`,
+          end: ev.endTime && !ev.isAllDay ? `${ev.date}T${ev.endTime}` : undefined,
+          allDay: Boolean(ev.isAllDay),
+          backgroundColor: '#4285f4',
+          borderColor: '#1967d2',
+          editable: false,
+          extendedProps: { googleEvent: ev },
+        }))
+      : [];
+    return [...base, ...gEvents];
+  }, [filteredItems, googleEventsResp]);
 
   const selectedDayItems = useMemo(
     () => filteredItems.filter((item) => getItemDate(item) === selectedDate),
@@ -403,6 +451,15 @@ export const CalendarPage: React.FC = () => {
   };
 
   const handleEventClick = (arg: EventClickArg) => {
+    const googleEv = arg.event.extendedProps.googleEvent;
+    if (googleEv) {
+      if (googleEv.htmlLink) {
+        window.open(googleEv.htmlLink, '_blank', 'noopener,noreferrer');
+      } else {
+        toast.info(`Google Agenda : ${googleEv.title}${googleEv.location ? ` (${googleEv.location})` : ''}`);
+      }
+      return;
+    }
     const item = arg.event.extendedProps.item as CalendarItem | undefined;
     if (!item) return;
     openItem(item);
@@ -566,7 +623,7 @@ export const CalendarPage: React.FC = () => {
             onClick={openSyncModal}
             className="w-full sm:w-auto"
           >
-            Connecter Google Agenda
+            {googleStatus?.connected ? 'Google Agenda connecté' : 'Connecter Google Agenda'}
           </Button>
           <Button
             type="button"
@@ -902,14 +959,14 @@ export const CalendarPage: React.FC = () => {
 
       {syncModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-          <div className="w-full max-w-lg rounded-2xl border border-line bg-panel p-6 shadow-xl space-y-4">
+          <div className="w-full max-w-lg rounded-2xl border border-line bg-panel p-6 shadow-xl space-y-5">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-2.5">
                 <GoogleCalendarLogo size={22} />
                 <div>
-                  <h2 className="text-base font-semibold text-heading">Connecter Google Agenda</h2>
+                  <h2 className="text-base font-semibold text-heading">Connecter votre Google Agenda</h2>
                   <p className="text-xs text-muted mt-0.5">
-                    Abonnez votre Google Agenda, Apple Calendar ou Outlook à ce flux privé (.ics).
+                    Affichez vos événements Google Calendar directement dans votre agenda FotoDesk.
                   </p>
                 </div>
               </div>
@@ -923,58 +980,56 @@ export const CalendarPage: React.FC = () => {
               </button>
             </div>
 
-            <div className="space-y-2">
-              <label className="block text-xs font-medium text-heading">Lien d&apos;abonnement privé (.ics)</label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  readOnly
-                  value={feedLoading ? 'Chargement…' : feedUrl}
-                  className="flex-1 h-10 px-3 rounded-lg border border-line bg-canvas text-xs font-mono text-heading"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  leftIcon={<Copy className="w-3.5 h-3.5" />}
-                  onClick={() => {
-                    if (!feedUrl) return;
-                    navigator.clipboard?.writeText(feedUrl);
-                    toast.success('Lien .ics copié dans le presse-papier.');
-                  }}
-                >
-                  Copier
+            {googleStatus?.connected ? (
+              <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+                    Google Agenda connecté ({googleStatus.mode === 'oauth' ? 'Compte Google OAuth' : 'Flux iCal privé'})
+                  </p>
+                  {googleStatus.email && (
+                    <p className="text-xs text-muted mt-0.5">{googleStatus.email}</p>
+                  )}
+                </div>
+                <Button type="button" variant="outline" size="sm" onClick={handleDisconnectGoogle} disabled={googleBusy}>
+                  Déconnecter
                 </Button>
               </div>
-            </div>
+            ) : null}
 
-            <div className="rounded-xl border border-line bg-canvas/60 p-3.5 space-y-1.5 text-xs text-body">
-              <p className="font-medium text-heading">Comment l&apos;ajouter dans Google Agenda :</p>
-              <p className="text-muted">1. Ouvrez Google Agenda → à gauche cliquez sur <strong>+</strong> à côté de « Autres agendas ».</p>
-              <p className="text-muted">2. Choisissez <strong>À partir de l&apos;URL</strong> et collez ce lien privé.</p>
-              <p className="text-muted">3. Vos séances et projets FotoDesk apparaîtront automatiquement.</p>
-            </div>
-
-            <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-line">
+            <div className="space-y-2">
               <button
                 type="button"
-                onClick={handleRegenerateFeed}
-                disabled={feedLoading}
-                className="inline-flex items-center gap-1.5 text-xs font-medium text-muted hover:text-heading cursor-pointer"
+                onClick={handleConnectGoogleOAuth}
+                disabled={googleBusy}
+                className="w-full h-11 rounded-xl border border-line bg-canvas hover:bg-hover flex items-center justify-center gap-2.5 text-sm font-semibold text-heading transition-colors cursor-pointer"
               >
-                <RefreshCw className="w-3.5 h-3.5" />
-                Régénérer le lien secret
+                <GoogleCalendarLogo size={18} />
+                Se connecter avec mon compte Google
               </button>
-              <a
-                href={`https://calendar.google.com/calendar/r/settings/addbyurl${feedUrl ? `?cid=${encodeURIComponent(feedUrl)}` : ''}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg bg-neutral-900 dark:bg-white text-white dark:text-neutral-950 text-xs font-semibold hover:opacity-90 transition-opacity"
-              >
-                Ouvrir Google Agenda
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
             </div>
+
+            <div className="relative text-center text-xs">
+              <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                <div className="w-full border-t border-line" />
+              </div>
+              <span className="relative bg-panel px-2.5 text-[11px] text-muted">
+                Ou connecter via l&apos;adresse secrète iCal Google
+              </span>
+            </div>
+
+            <form onSubmit={handleSaveGoogleIcal} className="space-y-2.5">
+              <input
+                type="url"
+                value={icalInput}
+                onChange={(e) => setIcalInput(e.target.value)}
+                placeholder="https://calendar.google.com/calendar/ical/.../basic.ics"
+                className="w-full h-10 px-3 rounded-lg border border-line bg-canvas text-xs text-heading"
+                required
+              />
+              <Button type="submit" variant="primary" className="w-full" disabled={googleBusy}>
+                Afficher mon Google Agenda dans FotoDesk
+              </Button>
+            </form>
           </div>
         </div>
       )}
