@@ -264,12 +264,18 @@ module.exports = (router) => {
         return res.status(403).json({ error: 'The customers.events permission is required to assign customers to an event' });
       }
 
+      const studioId = req.studioId || req.admin?.studioId || 1;
+      await require('../../services/quotaService').assertCanCreatePhotoGallery(studioId);
+
       const created = await require('../../services/eventCreationService').createEvent(req.body, {
         actor: req.admin,
         frontendUrl: await getAbsoluteFrontendUrl(req, { override: process.env.APP_URL }),
       });
       res.json(created);
     } catch (error) {
+      if (error.statusCode === 403 || error.statusCode === 413) {
+        return res.status(error.statusCode).json({ error: error.message, code: error.code });
+      }
       if (error.isOperational) return res.status(error.statusCode).json(error.responseBody || { error: error.message, code: error.code });
       if (isDuplicateSlugError(error)) {
         logger.warn('Event creation lost the slug race', { error: error.message });

@@ -19,8 +19,8 @@ Ce document est la feuille de route vivante du développement backend de **FotoD
 | Phase 1 | Socle Base de Données, Multi-Tenancy (`studios`) & Migrations | Terminée |
 | Phase 2 | Authentification, Sessions Actives & Permissions par Module | Terminée |
 | Phase 3 | APIs Espace Studio (Dashboard, Clients, Projets, Calendrier, Factures) | Terminée |
-| Phase 4 | Galeries Photo, Galeries Vidéo, Commentaires Horodatés & Quotas | À faire |
-| Phase 5 | Affiliation, Commissions (20 % 1er paiement) & Souscriptions | À faire |
+| Phase 4 | Galeries Photo, Galeries Vidéo, Commentaires Horodatés & Quotas | Terminée |
+| Phase 5 | Affiliation, Commissions (20 % 1er paiement) & Souscriptions | Terminée |
 | Phase 6 | APIs Super Admin (`/api/superadmin/*`) | À faire |
 | Phase 7 | Paramètres, Sécurité, Tests d'Intégration & Déploiement VPS | À faire |
 
@@ -66,12 +66,12 @@ Ce document est la feuille de route vivante du développement backend de **FotoD
 ---
 
 ## Phase 4 — Galeries Photo, Galeries Vidéo, Commentaires Horodatés & Quotas
-- [ ] **4.1** **Service de quotas par offre** (`starter` vs `pro_monthly` / `pro_yearly`) :
+- [x] **4.1** **Service de quotas par offre** (`starter` vs `pro_monthly` / `pro_yearly`) :
   - Starter : max 3 galeries photo, 3 Go photo, 0 min vidéo.
   - Pro : galeries photo illimitées, 100 Go photo, 500 min stockage vidéo, 1 000 min lecture vidéo/mois.
   - Rejet HTTP `403` / `413` côté serveur si dépassement de quota.
-- [ ] **4.2** **Galeries Photo** : CRUD `/api/admin/galleries`, upload vers stockage local/R2, sélection favoris client, expiration de lien.
-- [ ] **4.3** **Galeries Vidéo** :
+- [x] **4.2** **Galeries Photo** : CRUD `/api/admin/galleries`, upload vers stockage local/R2, sélection favoris client, expiration de lien.
+- [x] **4.3** **Galeries Vidéo** :
   - CRUD `/api/admin/video-galleries` + upload vidéo avec extraction automatique de durée (`ffprobe`).
   - `POST /api/public/video-galleries/:slug/verify-code` (vérification code d'accès client).
   - `GET` / `POST /api/public/video-galleries/:slug/videos/:videoId/comments` (commentaires horodatés `timestamp_sec`).
@@ -80,13 +80,13 @@ Ce document est la feuille de route vivante du développement backend de **FotoD
 ---
 
 ## Phase 5 — Affiliation, Commissions (20 % 1er Paiement) & Souscriptions
-- [ ] **5.1** **Souscription Studio** :
+- [x] **5.1** **Souscription Studio** :
   - `GET /api/admin/subscription` (plan actuel, quotas utilisés, factures `subscription_invoices`).
   - `POST /api/admin/subscription/upgrade` (passage Starter -> Pro Mensuel/Annuel + génération facture).
-- [ ] **5.2** **Affiliation Studio** :
+- [x] **5.2** **Affiliation Studio** :
   - `GET /api/admin/affiliates/overview` (code unique, clics, parrainages, conversions, commissions, virements).
   - Attribution automatique lors de `POST /api/auth/register` via `referralCode`.
-- [ ] **5.3** **Moteur de commissions** :
+- [x] **5.3** **Moteur de commissions** :
   - Création automatique d'une commission à **20 %** uniquement lors du **premier paiement d'abonnement Pro réussi** (`€1,98` sur `€9,90`, `€19,80` sur `€99`).
   - Aucune commission générée sur les renouvellements.
 

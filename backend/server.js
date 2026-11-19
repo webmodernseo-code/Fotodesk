@@ -896,6 +896,10 @@ app.use('/api/admin/photos', require('./src/routes/adminPhotos'));
 app.use('/api/admin/photo-export', require('./src/routes/adminPhotoExport'));
 app.use('/api/admin/css-templates', require('./src/routes/adminCssTemplates'));
 app.use('/api/admin/events', require('./src/routes/adminEventRename'));
+app.use('/api/admin/galleries', require('./src/routes/adminEvents'));
+app.use('/api/admin/video-galleries', require('./src/routes/adminVideoGalleries'));
+app.use('/api/admin/subscription', require('./src/routes/adminSubscription'));
+app.use('/api/admin/affiliates', require('./src/routes/adminAffiliates'));
 app.use('/api/admin/users', require('./src/routes/adminUsers'));
 app.use('/api/admin/team-members', require('./src/routes/adminTeamMembers'));
 app.use('/api/admin/roles', require('./src/routes/adminRoles'));
@@ -980,6 +984,7 @@ app.use('/api/admin/transfers',  require('./src/routes/adminTransfers'));
 // Newsletter campaigns (#1264). Flag-gated inside the router.
 app.use('/api/admin/newsletters', require('./src/routes/adminNewsletters'));
 app.use('/api/public/quotes',  require('./src/routes/publicQuotes'));
+app.use('/api/public/video-galleries', require('./src/routes/publicVideoGalleries'));
 app.use('/api/public/invoices', require('./src/routes/publicInvoices'));
 app.use('/api/public/contracts', require('./src/routes/publicContracts'));
 // Signing with a link per signer and an emailed code (#1446).
