@@ -3037,159 +3037,159 @@
       "markdownHelp": "Bold, italic, links, lists, and headings supported. HTML is stripped.",
       "preview": "Aperçu"
     },
-    "logoDark": "Dark-mode logo",
-    "logoDarkHelp": "Optional. Shown on dark themes / dark mode; falls back to the main logo when unset.",
-    "storyGridMode": "Photo Framing",
+    "logoDark": "Logo mode sombre",
+    "logoDarkHelp": "Optionnel. Affiché sur les thèmes sombres / en mode sombre ; utilise le logo principal par défaut si non défini.",
+    "storyGridMode": "Cadrage des photos",
     "storyGridModeOptions": {
-      "fixed": "Fixed tiles (crop to fill)",
-      "natural": "Natural (keep every aspect ratio)"
+      "fixed": "Tuiles fixes (recadrées pour remplir)",
+      "natural": "Naturel (conserver le ratio d'origine)"
     },
-    "storyGridModeHint": "Natural lays scenes out in rows from each photo's dimensions, so portrait photos are shown whole instead of cropped.",
-    "forcedModeBrandingHint": "Light/dark is locked site-wide by the Force control below — the per-theme mode picker is hidden because it would have no effect.",
-    "forcedModeGalleryNote": "A site-wide color lock is active, so this gallery follows the locked light/dark mode. Color and light/dark options are hidden here and can’t be overridden per gallery.",
+    "storyGridModeHint": "Le mode Naturel dispose les photos en lignes selon leurs proportions d'origine, afin que les portraits s'affichent en entier sans recadrage.",
+    "forcedModeBrandingHint": "Le mode clair/sombre est verrouillé globalement par le réglage « Forcer le mode » ci-dessous — le sélecteur par thème est masqué car il n'aurait aucun effet.",
+    "forcedModeGalleryNote": "Un verrouillage global du mode clair/sombre est actif : cette galerie suit le mode imposé. Les options de couleur et de mode clair/sombre sont masquées ici.",
     "infoBanner": {
-      "title": "Gallery Info Banner",
-      "description": "A short note shown at the top of every gallery, above the photos — useful for usage hints. Leave empty to hide it. Individual events can override or switch it off.",
-      "content": "Content (markdown)",
-      "placeholder": "Use the menu button in the top-left corner to filter the photos.",
-      "markdownHelp": "Bold, italic, links, lists, and headings supported. HTML is stripped.",
+      "title": "Bannière d'information",
+      "description": "Note courte affichée en haut de chaque galerie.",
+      "content": "Contenu (markdown)",
+      "placeholder": "Utilisez le menu en haut à gauche pour filtrer les photos.",
+      "markdownHelp": "Gras, italique, liens, listes et titres pris en charge.",
       "preview": "Aperçu"
     },
     "socialMedia": {
-      "title": "Social Media",
-      "help": "Add URLs to render social-media icons in the gallery footer. Leave a field empty to hide that icon.",
-      "whatsappHelp": "A wa.me URL or a phone number with country code (will be converted)."
+      "title": "Réseaux sociaux",
+      "help": "Ajoutez vos URL pour afficher les icônes de réseaux sociaux dans le pied de page des galeries. Laissez un champ vide pour masquer l'icône.",
+      "whatsappHelp": "Une URL wa.me ou un numéro de téléphone avec indicatif pays (sera converti automatiquement)."
     },
     "pdfTheme": {
-      "title": "PDF theme",
-      "description": "Colours, font, footer and page numbers for quotes, invoices and contracts. Empty fields inherit from \"All documents\", then your business profile.",
-      "scopeLabel": "Document type",
+      "title": "Thème PDF",
+      "description": "Couleurs, police, pied de page et numéros de page pour les devis, factures et contrats. Les champs vides héritent de « Tous les documents », puis du profil du studio.",
+      "scopeLabel": "Type de document",
       "scope": {
-        "default": "All documents",
+        "default": "Tous les documents",
         "quote": "Devis",
         "invoice": "Factures",
         "contract": "Contrats"
       },
-      "colors": "Colours",
+      "colors": "Couleurs",
       "color": {
-        "text": "Text",
-        "accent": "Title and headings",
-        "muted": "Secondary text",
-        "subtle": "Footer and page numbers",
-        "rule": "Lines"
+        "text": "Texte",
+        "accent": "Titres et en-têtes",
+        "muted": "Texte secondaire",
+        "subtle": "Pied de page et numéros de page",
+        "rule": "Lignes"
       },
-      "inherited": "Inherited",
-      "inherit": "Inherit ({{value}})",
-      "reset": "Reset",
-      "titleSize": "Title size",
-      "font": "Font",
-      "pageNumbers": "Page numbers",
+      "inherited": "Hérité",
+      "inherit": "Hériter ({{value}})",
+      "reset": "Réinitialiser",
+      "titleSize": "Taille des titres",
+      "font": "Police",
+      "pageNumbers": "Numéros de page",
       "pageNumbersOption": {
-        "bottom-right": "Bottom right",
-        "bottom-center": "Bottom centre",
+        "bottom-right": "En bas à droite",
+        "bottom-center": "En bas au centre",
         "none": "Aucun"
       },
-      "foldingMarks": "Folding marks",
+      "foldingMarks": "Repères de pliage",
       "foldingOption": {
         "none": "Aucun",
-        "half": "Half fold",
-        "third": "Thirds (DIN 5008)",
-        "both": "Half and thirds"
+        "half": "Pli en deux",
+        "third": "Pli en trois (DIN 5008)",
+        "both": "En deux et en trois"
       },
-      "footer": "Footer",
+      "footer": "Pied de page",
       "footerMode": {
-        "address": "Business address",
-        "custom": "Custom text",
-        "none": "No footer"
+        "address": "Adresse du studio",
+        "custom": "Texte personnalisé",
+        "none": "Aucun pied de page"
       },
-      "footerText": "Footer text",
-      "marginsNote": "The top margin is set by the address window and the letterhead. A contract's signature page keeps its fixed layout whatever the margins are, so signatures always land in their boxes.",
-      "preview": "Preview PDF",
-      "resetScope": "Reset to inherited",
-      "save": "Save theme",
-      "saved": "PDF theme saved",
-      "saveFailed": "Could not save the PDF theme",
-      "previewFailed": "Could not render the preview",
-      "presets": "Start from a preset",
-      "presetsHint": "A preset fills in the form; nothing is saved until you save the theme.",
+      "footerText": "Texte du pied de page",
+      "marginsNote": "La marge haute est définie par la fenêtre d'adresse et l'en-tête. La page de signature d'un contrat conserve sa mise en page fixe quelles que soient les marges.",
+      "preview": "Aperçu PDF",
+      "resetScope": "Réinitialiser sur l'héritage",
+      "save": "Enregistrer le thème",
+      "saved": "Thème PDF enregistré",
+      "saveFailed": "Impossible d'enregistrer le thème PDF",
+      "previewFailed": "Impossible de générer l'aperçu PDF",
+      "presets": "Partir d'un préréglage",
+      "presetsHint": "Un préréglage remplit le formulaire ; rien n'est enregistré tant que vous ne cliquez pas sur Enregistrer.",
       "preset": {
-        "classic": "Classic",
-        "modern": "Modern",
+        "classic": "Classique",
+        "modern": "Moderne",
         "compact": "Compact",
-        "largePrint": "Large print"
+        "largePrint": "Grands caractères"
       },
-      "layout": "Layout",
+      "layout": "Mise en page",
       "margin": {
-        "left": "Left margin",
-        "right": "Right margin",
-        "bottom": "Bottom margin"
+        "left": "Marge gauche",
+        "right": "Marge droite",
+        "bottom": "Marge basse"
       },
       "marginStandard": "standard",
-      "addressWindow": "Address window",
+      "addressWindow": "Fenêtre d'adresse",
       "addressWindowOption": {
-        "on": "For window envelopes (DIN 5008)",
-        "off": "Off — the address follows the letterhead"
+        "on": "Pour enveloppes à fenêtre (DIN 5008)",
+        "off": "Désactivée — l'adresse suit l'en-tête"
       },
-      "logoPosition": "Logo position",
+      "logoPosition": "Position du logo",
       "logoPositionOption": {
-        "right": "Right, in the letterhead",
-        "left": "Top left",
-        "center": "Top centre"
+        "right": "À droite, dans l'en-tête",
+        "left": "En haut à gauche",
+        "center": "En haut au centre"
       },
-      "logoStack": "Logo and company name",
+      "logoStack": "Logo et nom du studio",
       "logoStackOption": {
-        "above": "Logo above the name",
-        "inline": "Logo beside the name"
+        "above": "Logo au-dessus du nom",
+        "inline": "Logo à côté du nom"
       },
-      "bodySize": "Body text size",
-      "lineHeight": "Line height",
+      "bodySize": "Taille du texte",
+      "lineHeight": "Interligne",
       "lineHeightStandard": "standard",
-      "warningsTitle": "Readability",
+      "warningsTitle": "Lisibilité",
       "warnings": {
-        "CONTRAST_LOW": "{{color}}: contrast {{value}}:1 against white is below {{limit}}:1.",
-        "BODY_SIZE_SMALL": "Body text of {{value}} pt is hard to read; {{limit}} pt or more is recommended.",
-        "LINE_HEIGHT_TIGHT": "A line height of {{value}} is tight; {{limit}} or more reads better.",
-        "LINE_TOO_LONG": "Lines run to about {{value}} characters; above {{limit}} they get hard to follow. Wider margins or larger text help."
+        "CONTRAST_LOW": "{{color}} : le contraste {{value}}:1 sur fond blanc est inférieur à {{limit}}:1.",
+        "BODY_SIZE_SMALL": "Un texte de {{value}} pt est difficile à lire ; {{limit}} pt ou plus est recommandé.",
+        "LINE_HEIGHT_TIGHT": "Un interligne de {{value}} est serré ; {{limit}} ou plus offre une meilleure lecture.",
+        "LINE_TOO_LONG": "Les lignes font environ {{value}} caractères ; au-delà de {{limit}}, la lecture devient difficile."
       },
-      "uploadedFonts": "Your fonts",
-      "uploadedFont": "Uploaded font",
-      "fontUnavailable": "{{name}} (no longer available)"
+      "uploadedFonts": "Vos polices",
+      "uploadedFont": "Police importée",
+      "fontUnavailable": "{{name}} (plus disponible)"
     },
     "pdfFonts": {
-      "title": "Your fonts for PDFs",
-      "description": "Add your brand font as TTF or OTF files (up to 5 MB each). Once added, pick it in the PDF theme.",
-      "add": "Add a font",
+      "title": "Vos polices pour les PDF",
+      "description": "Ajoutez la police de votre marque au format TTF ou OTF (max 5 Mo chacune), puis sélectionnez-la dans le thème PDF.",
+      "add": "Ajouter une police",
       "face": {
-        "regular": "Regular",
-        "bold": "Bold",
-        "italic": "Italic"
+        "regular": "Normal",
+        "bold": "Gras",
+        "italic": "Italique"
       },
-      "name": "Name",
+      "name": "Nom",
       "licenceNote": "Licence",
-      "licencePlaceholder": "e.g. SIL Open Font License 1.1, or: desktop licence bought with the brand kit, allows embedding",
-      "confirm": "I have the right to embed this font in the documents I send.",
-      "upload": "Add font",
-      "uploaded": "Font added",
-      "uploadFailed": "The font could not be added.",
-      "archive": "Archive",
+      "licencePlaceholder": "ex. SIL Open Font License 1.1, ou licence desktop achetée avec la charte graphique",
+      "confirm": "Je dispose des droits nécessaires pour intégrer cette police dans mes documents.",
+      "upload": "Ajouter la police",
+      "uploaded": "Police ajoutée",
+      "uploadFailed": "Impossible d'ajouter la police.",
+      "archive": "Archiver",
       "archived": "Archivé",
-      "archiveConfirm": "Archive this font? Documents whose theme uses it fall back to Helvetica.",
-      "archiveFailed": "The font could not be archived.",
+      "archiveConfirm": "Archiver cette police ? Les documents utilisant ce thème reviendront à Helvetica.",
+      "archiveFailed": "Impossible d'archiver la police.",
       "errors": {
-        "FONT_FORMAT_UNSUPPORTED": "Upload the font as a TTF or OTF file; WOFF, WOFF2 and font collections aren't supported.",
-        "FONT_NOT_A_FONT": "This file isn't a TTF or OTF font.",
-        "FONT_MALFORMED": "The font file is damaged or incomplete.",
-        "FONT_TOO_LARGE": "A font file may be at most 5 MB.",
-        "FONT_TOO_COMPLEX": "This font is too complex to use.",
-        "FONT_LICENCE_RESTRICTED": "This font's licence doesn't allow embedding it in documents.",
-        "FONT_NAME_TAKEN": "A font with this name exists already.",
-        "FONT_LICENCE_NOTE_REQUIRED": "Describe the font's licence.",
-        "FONT_LICENCE_NOT_CONFIRMED": "Confirm that you may embed this font.",
-        "FONT_FILE_NOT_FOUND": "the file was not found.",
-        "FONT_NO_SUBSETTING": "This font's licence doesn't allow embedding a subset of it, which PDFs need.",
-        "FONT_BITMAP_ONLY": "This font's licence only allows embedding bitmaps, not the outlines PDFs need."
+        "FONT_FORMAT_UNSUPPORTED": "Importez la police en TTF ou OTF ; les formats WOFF, WOFF2 et collections ne sont pas pris en charge.",
+        "FONT_NOT_A_FONT": "Ce fichier n'est pas une police TTF ou OTF valide.",
+        "FONT_MALFORMED": "Le fichier de police est endommagé ou incomplet.",
+        "FONT_TOO_LARGE": "Un fichier de police ne peut pas dépasser 5 Mo.",
+        "FONT_TOO_COMPLEX": "Cette police est trop complexe pour être utilisée.",
+        "FONT_LICENCE_RESTRICTED": "La licence de cette police n'autorise pas son intégration dans des documents.",
+        "FONT_NAME_TAKEN": "Une police portant ce nom existe déjà.",
+        "FONT_LICENCE_NOTE_REQUIRED": "Décrivez la licence de la police.",
+        "FONT_LICENCE_NOT_CONFIRMED": "Confirmez que vous avez le droit d'intégrer cette police.",
+        "FONT_FILE_NOT_FOUND": "le fichier est introuvable.",
+        "FONT_NO_SUBSETTING": "La licence de cette police n'autorise pas l'intégration partielle nécessaire aux PDF.",
+        "FONT_BITMAP_ONLY": "La licence de cette police n'autorise que les bitmaps, pas les tracés vectoriels nécessaires aux PDF."
       },
-      "legacyFailed": "The font set before this update could not be moved: {{reason}}"
+      "legacyFailed": "La police définie avant cette mise à jour n'a pas pu être migrée : {{reason}}"
     }
   },
   "admin": {
