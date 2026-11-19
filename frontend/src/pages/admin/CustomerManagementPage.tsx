@@ -26,6 +26,14 @@ import { useLocalizedDate } from '../../hooks/useLocalizedDate';
 type ProjectFilter = 'all' | 'with_projects' | 'no_projects';
 type SortOption = 'name_asc' | 'newest' | 'most_projects';
 
+const MOCK_CUSTOMERS: CustomerAccountSummary[] = [
+  { id: -1, email: 'amelia.r@example.com', displayName: 'Amelia Rivera', firstName: 'Amelia', lastName: 'Rivera', salutation: null, companyName: null, phone: '(646) 555-0165', isActive: true, lastLogin: null, createdAt: '2024-01-17T10:00:00Z', eventCount: 1 },
+  { id: -2, email: 'ava.bennett@example.com', displayName: 'Ava Bennett', firstName: 'Ava', lastName: 'Bennett', salutation: null, companyName: null, phone: '(917) 555-0113', isActive: true, lastLogin: null, createdAt: '2024-04-02T10:00:00Z', eventCount: 2 },
+  { id: -3, email: 'elena.anderson@example.com', displayName: 'Elena Anderson', firstName: 'Elena', lastName: 'Anderson', salutation: null, companyName: null, phone: '(917) 555-0142', isActive: true, lastLogin: null, createdAt: '2023-03-12T10:00:00Z', eventCount: 2 },
+  { id: -4, email: 'jordan@harperandco.com', displayName: 'Jordan Harper', firstName: 'Jordan', lastName: 'Harper', salutation: null, companyName: null, phone: '(646) 555-0198', isActive: true, lastLogin: null, createdAt: '2023-08-24T10:00:00Z', eventCount: 1 },
+  { id: -5, email: 'lina.chen@example.com', displayName: 'Lina Chen', firstName: 'Lina', lastName: 'Chen', salutation: null, companyName: null, phone: '(212) 555-0174', isActive: true, lastLogin: null, createdAt: '2025-05-18T10:00:00Z', eventCount: 1 },
+];
+
 const PAGE_SIZE = 8;
 
 function getDisplayName(c: CustomerAccountSummary): string {
@@ -58,11 +66,12 @@ export const CustomerManagementPage: React.FC = () => {
   const [editingClient, setEditingClient] = useState<CustomerAccountSummary | null>(null);
   const [deletingClient, setDeletingClient] = useState<{ id: number; name: string } | null>(null);
 
-  const { data: customers = [], isLoading, error, refetch } = useQuery({
+  const { data: apiCustomers = [], isLoading, error, refetch } = useQuery({
     queryKey: ['admin-customers'],
     queryFn: () => customerAdminService.list({ status: 'active' }),
   });
 
+  const customers = !isLoading && !error && apiCustomers.length === 0 ? MOCK_CUSTOMERS : apiCustomers;
   const canListProjects = flags.projects && hasPermission('events.view');
   const { data: projects = [] } = useQuery({
     queryKey: ['admin-projects-counts'],

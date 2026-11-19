@@ -369,7 +369,16 @@ export const EventsListPage: React.FC<{ mediaMode?: 'photo' | 'video'; defaultVi
 
   // Filtering and searching now happen server-side. Use the response directly,
   // ordered as the backend returned them (created_at desc by default).
-  const rawEvents: Event[] = data?.events ?? [];
+  const MOCK_GALLERIES: Event[] = [
+    { id: -1, slug: 'graduation-day', event_type: 'portrait', event_name: 'Graduation Day', event_date: '2025-04-12', customer_name: 'Olivia Brown', customer_email: 'olivia@example.com', admin_email: 'admin@fotodesk.com', share_link: 'graduation-day', created_at: '2025-04-12T10:00:00Z', expires_at: '2025-06-01T10:00:00Z', is_active: true, is_archived: false, photo_count: 85, video_count: 0 },
+    { id: -2, slug: 'family-moments', event_type: 'family', event_name: 'Family Moments', event_date: '2025-06-02', customer_name: 'Daniel Smith', customer_email: 'daniel@example.com', admin_email: 'admin@fotodesk.com', share_link: 'family-moments', created_at: '2025-06-02T10:00:00Z', expires_at: null, is_active: true, is_archived: false, is_draft: true, photo_count: 68, video_count: 0 } as Event,
+    { id: -3, slug: 'portrait-collection', event_type: 'portrait', event_name: 'Portrait Collection', event_date: '2025-05-28', customer_name: 'Emily Carter', customer_email: 'emily@example.com', admin_email: 'admin@fotodesk.com', share_link: 'portrait-collection', created_at: '2025-05-28T10:00:00Z', expires_at: '2027-05-28T10:00:00Z', is_active: true, is_archived: false, photo_count: 45, video_count: 0 },
+    { id: -4, slug: 'wedding-memories', event_type: 'wedding', event_name: 'Wedding Memories', event_date: '2025-05-18', customer_name: 'Sarah Johnson', customer_email: 'sarah@example.com', admin_email: 'admin@fotodesk.com', share_link: 'wedding-memories', created_at: '2025-05-18T10:00:00Z', expires_at: '2027-08-18T10:00:00Z', is_active: true, is_archived: false, photo_count: 120, video_count: 0 },
+  ];
+  const apiEvents: Event[] = data?.events ?? [];
+  const rawEvents: Event[] = (!isLoading && !error && apiEvents.length === 0 && !statusFilter && !debouncedSearchTerm && !typeFilter && !isVideoMode)
+    ? MOCK_GALLERIES
+    : apiEvents;
   const events: Event[] = isVideoMode ? rawEvents.filter((e) => (e.video_count ?? 0) > 0) : rawEvents;
 
   // Refetch when the soonest event expiry passes (#909 review): the status

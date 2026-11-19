@@ -261,7 +261,27 @@ export const CalendarPage: React.FC = () => {
   });
 
   const filteredItems = useMemo(() => {
-    const raw = itemsResp?.items || [];
+    const today = todayIso();
+    const fallbackItems: CalendarItem[] = [
+      {
+        kind: 'appointment',
+        id: -1,
+        title: 'Studio Consultation',
+        clientName: 'Ava Bennett',
+        customerName: 'Ava Bennett',
+        customerAccountId: null,
+        projectId: null,
+        projectName: 'Bennett Engagement',
+        category: 'consultation',
+        date: today,
+        startTime: '10:00:00',
+        endTime: '11:00:00',
+        location: 'Studio FotoDesk',
+        notes: 'Préparation de la séance engagement et repérage.',
+        status: 'scheduled',
+      },
+    ];
+    const raw = (itemsResp?.items && itemsResp.items.length > 0) ? itemsResp.items : (!itemsLoading ? fallbackItems : []);
     const clientMatch = selectedClientId !== 'all' ? clients.find((c) => String(c.id) === selectedClientId) : null;
     const clientNames = clientMatch
       ? new Set(
