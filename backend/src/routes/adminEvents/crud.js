@@ -301,6 +301,12 @@ module.exports = (router) => {
       // Build query
       let query = db('events');
 
+      // Multi-tenant studio isolation
+      const studioId = req.studioId || req.admin?.studioId || 1;
+      if (!(req.admin?.roleName === 'super_admin' && req.query.allStudios === 'true')) {
+        query = query.where('studio_id', studioId);
+      }
+
       // Roles other than super_admin and admin see their own events plus
       // ownerless ones, the rule requireEventOwnership applies per event.
       query = scopeEventsListQuery(query, req.admin);

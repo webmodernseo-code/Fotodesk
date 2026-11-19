@@ -528,6 +528,7 @@ async function createEvent(data, { actor, source = 'admin', frontendUrl } = {}) 
     folder_structure: formatBoolean(folderStructure),
     // Hold team members' uploads for review (issue 743). Off unless asked.
     review_contributor_uploads: formatBoolean(parseBooleanInput(input.review_contributor_uploads, false)),
+    studio_id: actor?.studioId ? Number(actor.studioId) : 1,
   };
     
   // The gallery row and its feedback configuration commit together.

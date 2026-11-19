@@ -324,10 +324,12 @@ router.get(
         || null,
     }));
 
+    const studioId = req.studioId || req.admin?.studioId || 1;
     const hasAppointments = await db.schema.hasTable('calendar_appointments');
     const appointmentRows = !hasAppointments ? [] : await db('calendar_appointments as a')
       .leftJoin('customer_accounts as ca', 'ca.id', 'a.customer_account_id')
       .leftJoin('projects as p', 'p.id', 'a.project_id')
+      .where('a.studio_id', studioId)
       .whereBetween('a.appointment_date', [from, to])
       .whereNot('a.status', 'archived')
       .orderBy('a.appointment_date', 'asc')
@@ -431,8 +433,9 @@ router.patch(
   ],
   handleAsync(async (req, res) => {
     validateRequest(req);
+    const studioId = req.studioId || req.admin?.studioId || 1;
     const updated = await db('calendar_appointments')
-      .where({ id: Number(req.params.id) })
+      .where({ id: Number(req.params.id), studio_id: studioId })
       .update({ status: req.body.status, updated_at: db.fn.now() });
     if (!updated) return res.status(404).json({ error: 'Appointment not found' });
     return successResponse(res, { id: Number(req.params.id), status: req.body.status });
@@ -459,7 +462,8 @@ router.put(
   handleAsync(async (req, res) => {
     validateRequest(req);
     const id = Number(req.params.id);
-    if (!(await db('calendar_appointments').where({ id }).first('id'))) {
+    const studioId = req.studioId || req.admin?.studioId || 1;
+    if (!(await db('calendar_appointments').where({ id, studio_id: studioId }).first('id'))) {
       return res.status(404).json({ error: 'Appointment not found' });
     }
     if (req.body.endTime <= req.body.startTime) {
