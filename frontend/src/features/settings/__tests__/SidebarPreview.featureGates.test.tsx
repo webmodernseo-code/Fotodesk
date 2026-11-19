@@ -7,9 +7,11 @@ vi.mock('react-i18next', async () => {
   const actual = await vi.importActual<typeof import('react-i18next')>('react-i18next');
   return {
     ...actual,
-    useTranslation: () => ({ t: (key: string, fallback?: unknown) => (
-      typeof fallback === 'string' ? fallback : key
-    ) }),
+    useTranslation: () => ({
+      t: (key: string, fallback?: unknown) => (
+        typeof fallback === 'string' ? fallback : key
+      )
+    }),
   };
 });
 
@@ -37,8 +39,6 @@ describe('SidebarPreview feature gates (QA J.14)', () => {
     ['clients', 'navigation.clients'],
     ['projects', 'navigation.projects'],
     ['calendar', 'navigation.calendar'],
-    ['quotes', 'navigation.quotes'],
-    ['contracts', 'navigation.contracts'],
     ['bills', 'navigation.invoices'],
   ] as const)(
     'shows %s entry (%s) only when its feature flag is enabled',

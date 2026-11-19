@@ -135,8 +135,6 @@ describe('admin sidebar — what is top level', () => {
       'navigation.calendar',
       'navigation.photoGalleries',
       'navigation.videoGalleries',
-      'navigation.quotes',
-      'navigation.contracts',
       'navigation.invoices',
       'navigation.landingPageBuilder',
       'navigation.affiliate',
@@ -215,12 +213,10 @@ describe('the brand row is the home link', () => {
 });
 
 describe('admin sidebar — sections', () => {
-  it('separates Quotes, Contracts and Invoices and marks Invoices as current', () => {
+  it('marks Invoices as current on /admin/factures', () => {
     granted = new Set(ALL_PERMISSIONS);
-    flags = { clients: true, quotes: true, contracts: true, bills: true };
+    flags = { clients: true, bills: true };
     renderSidebar('/admin/factures');
-    expect(screen.getByText('navigation.quotes')).toBeInTheDocument();
-    expect(screen.getByText('navigation.contracts')).toBeInTheDocument();
     expect(screen.getByText('navigation.invoices').closest('a'))
       .toHaveAttribute('aria-current', 'page');
   });

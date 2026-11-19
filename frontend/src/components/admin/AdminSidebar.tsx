@@ -170,15 +170,7 @@ export const adminNavigation: NavItem[] = [
     permission: 'events.view', group: 'galleries',
   },
   // BUSINESS
-  {
-    nameKey: 'navigation.quotes', href: '/admin/clients/quotes', icon: FileText,
-    featureFlag: 'quotes', permission: 'quotes.view', group: 'business',
-  },
-  {
-    nameKey: 'navigation.contracts', href: '/admin/clients/contracts', icon: ScrollText,
-    featureFlag: 'contracts', permission: 'contracts.view', group: 'business',
-  },
-  {
+{
     nameKey: 'navigation.invoices', href: '/admin/factures', icon: Receipt,
     featureFlag: 'bills', permission: 'bills.view', group: 'business',
   },
