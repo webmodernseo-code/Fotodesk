@@ -527,4 +527,54 @@ router.get(
   }),
 );
 
+async function getOrCreateCalendarFeedToken(studioId, forceRotate = false) {
+  const crypto = require('crypto');
+  const key = `studio_${studioId}_calendar_feed_token`;
+  const existing = await db('app_settings').where({ setting_key: key }).first();
+  if (existing && existing.setting_value && !forceRotate) {
+    return existing.setting_value;
+  }
+  const token = crypto.randomBytes(24).toString('hex');
+  if (existing) {
+    await db('app_settings').where({ setting_key: key }).update({
+      setting_value: token,
+      updated_at: new Date(),
+    });
+  } else {
+    await db('app_settings').insert({
+      setting_key: key,
+      setting_value: token,
+      setting_type: 'calendar',
+      updated_at: new Date(),
+    });
+  }
+  return token;
+}
+
+router.get(
+  '/feed-url',
+  requirePermission('customers.view'),
+  handleAsync(async (req, res) => {
+    const studioId = req.studioId || req.admin?.studioId || 1;
+    const token = await getOrCreateCalendarFeedToken(studioId, false);
+    return successResponse(res, {
+      token,
+      feedPath: `/api/public/calendar/${token}/feed.ics`,
+    });
+  }),
+);
+
+router.post(
+  '/feed-url/regenerate',
+  requirePermission('customers.edit'),
+  handleAsync(async (req, res) => {
+    const studioId = req.studioId || req.admin?.studioId || 1;
+    const token = await getOrCreateCalendarFeedToken(studioId, true);
+    return successResponse(res, {
+      token,
+      feedPath: `/api/public/calendar/${token}/feed.ics`,
+    });
+  }),
+);
+
 module.exports = router;

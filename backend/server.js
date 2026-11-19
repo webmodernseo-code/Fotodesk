@@ -985,6 +985,7 @@ app.use('/api/admin/transfers',  require('./src/routes/adminTransfers'));
 // Newsletter campaigns (#1264). Flag-gated inside the router.
 app.use('/api/admin/newsletters', require('./src/routes/adminNewsletters'));
 app.use('/api/public/quotes',  require('./src/routes/publicQuotes'));
+app.use('/api/public/calendar', require('./src/routes/publicCalendarFeed'));
 app.use('/api/public/video-galleries', require('./src/routes/publicVideoGalleries'));
 app.use('/api/public/invoices', require('./src/routes/publicInvoices'));
 app.use('/api/public/contracts', require('./src/routes/publicContracts'));
