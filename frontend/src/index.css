@@ -114,20 +114,17 @@
    * legacy behaviour.
    */
   .btn {
-    @apply inline-flex items-center justify-center font-medium whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
-    border-radius: var(--border-radius);
+    @apply inline-flex items-center justify-center gap-2 rounded-lg font-semibold text-sm whitespace-nowrap transition-all duration-200 hover:-translate-y-0.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:hover:translate-y-0;
     --tw-ring-color: var(--color-accent);
     --tw-ring-offset-color: var(--color-background);
   }
 
   .btn-primary {
-    background-color: var(--color-accent-dark);
-    color: white;
-    @apply hover:opacity-90;
+    @apply bg-neutral-900 hover:bg-neutral-800 text-white shadow-md;
   }
 
-  .btn-primary:hover {
-    background-color: var(--color-primary-dark);
+  .dark .btn-primary {
+    @apply bg-neutral-200 hover:bg-white text-neutral-950 shadow-md;
   }
 
   .btn-alt {
@@ -148,18 +145,15 @@
   }
 
   .btn-outline {
-    border-color: var(--color-surface-border);
-    background-color: transparent;
-    color: var(--color-muted-text);
-    @apply border hover:opacity-80;
+    @apply border border-neutral-300 bg-white hover:bg-neutral-50 text-neutral-800 font-medium;
   }
 
   .btn-sm {
-    @apply h-9 px-3 text-sm;
+    @apply h-9 px-3.5 text-xs;
   }
 
   .btn-md {
-    @apply h-10 px-4 py-2;
+    @apply h-10 px-5 py-2.5 text-sm;
   }
 
   .btn-lg {
@@ -583,11 +577,11 @@
   }
 
   .dark .btn-outline {
-    @apply border-neutral-600 text-neutral-300;
+    @apply border-neutral-700 bg-neutral-900/60 text-neutral-200;
   }
 
   .dark .btn-outline:hover {
-    @apply bg-neutral-800;
+    @apply bg-neutral-800 text-white;
   }
 
   /* Table and select defaults for admin dark mode. `:where()` keeps them at
