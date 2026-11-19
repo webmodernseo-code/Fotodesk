@@ -29,7 +29,6 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { settingsService } from '../../services/settings.service';
-import { VersionInfo } from './VersionInfo';
 import { FotoDeskLogo } from '../common/FotoDeskLogo';
 import { LanguageToggle } from '../common/LanguageToggle';
 import { DashboardHomeLink } from './DashboardHomeLink';
@@ -761,15 +760,12 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose, col
         {!section && (permissionsLoading || hasPermission('settings.view')) && (
           <div className={`flex-shrink-0 ${collapsed ? 'lg:hidden' : ''}`}>
             {/* Language switcher with pure vector flags */}
-            <div className="px-4 py-2.5 flex items-center justify-between border-b border-line">
+            <div className="px-4 py-2 flex items-center justify-between border-t border-line">
               <span className="text-xs text-soft font-medium">{t('common.language', 'Langue')}</span>
               <LanguageToggle size="sm" />
             </div>
 
-            {/* Version Info */}
-            <VersionInfo />
-
-            {/* Storage Info */}
+            {/* Compact Storage Info */}
             <StorageInfo />
           </div>
         )}
@@ -794,41 +790,21 @@ const StorageInfo: React.FC = () => {
   const usedDisplay = settingsService.formatBytes(totalUsed);
 
   return (
-    <div className="p-3.5 border-t border-line">
-      <div className="bg-neutral-50/90 dark:bg-panel rounded-xl p-3.5 border border-neutral-200/90 dark:border-line shadow-xs transition-colors duration-300">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex items-center gap-2 min-w-0">
-            <div className="w-7 h-7 rounded-lg bg-[rgba(200,149,97,0.12)] flex items-center justify-center text-[#C89561] flex-shrink-0">
-              <Cloud className="w-4 h-4" />
-            </div>
-            <div className="min-w-0">
-              <span className="text-xs font-semibold text-neutral-900 dark:text-heading block truncate">FotoDesk Cloud</span>
-              <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
-                Synchronisé
-              </span>
-            </div>
-          </div>
-          <span className="text-[10px] text-neutral-500 dark:text-muted font-medium flex-shrink-0 mt-0.5">Tout est à jour</span>
-        </div>
-
-        <div className="mt-2.5 pt-2 border-t border-line/60">
-          <div className="flex items-center justify-between text-[11px] text-neutral-600 dark:text-muted mb-1 font-medium">
-            <span>Stockage utilisé</span>
-            <span className="font-semibold text-neutral-900 dark:text-heading">
-              {usedDisplay}{storageInfo?.storage_partial ? '+' : ''}
-            </span>
-          </div>
-          <div className="w-full bg-neutral-200/80 dark:bg-fill rounded-full h-1.5 overflow-hidden">
-            <div
-              className="bg-[#C89561] h-1.5 rounded-full transition-all duration-300"
-              style={{ width: `${Math.max(usagePercent, 0)}%` }}
-            />
-          </div>
-          <p className="text-[10px] text-neutral-500 dark:text-muted mt-1 font-medium">
-            {usagePercent}% de la limite {softLimitDisplay}
-          </p>
-        </div>
+    <div className="px-4 py-2.5 border-t border-line">
+      <div className="flex items-center justify-between gap-2 text-[11px] mb-1.5">
+        <span className="flex items-center gap-1.5 font-medium text-heading truncate">
+          <Cloud className="w-3.5 h-3.5 text-[#C89561] flex-shrink-0" />
+          FotoDesk Cloud
+        </span>
+        <span className="text-muted font-medium whitespace-nowrap">
+          {usedDisplay}{storageInfo?.storage_partial ? '+' : ''} / {softLimitDisplay}
+        </span>
+      </div>
+      <div className="w-full bg-neutral-200/80 dark:bg-fill rounded-full h-1 overflow-hidden">
+        <div
+          className="bg-[#C89561] h-1 rounded-full transition-all duration-300"
+          style={{ width: `${Math.max(usagePercent, 0)}%` }}
+        />
       </div>
     </div>
   );
