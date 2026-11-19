@@ -348,7 +348,7 @@ function SignInForm() {
           </div>
         )}
 
-        <Button type="submit" variant="default" className="mt-1 w-full h-11 text-sm font-semibold" disabled={isLoading}>
+        <Button type="submit" variant="primary" className="mt-1 w-full h-11 text-sm font-semibold" disabled={isLoading}>
           {isLoading ? "Connexion en cours..." : role === 'superadmin' ? "Accéder à la console Super-Admin" : "Accéder à mon Studio"}
         </Button>
       </div>
@@ -479,7 +479,7 @@ function SignUpForm() {
           <span>J'accepte les conditions d'utilisation FotoDesk</span>
         </label>
 
-        <Button type="submit" variant="default" className="mt-1 w-full h-11 text-sm font-semibold" disabled={isLoading}>
+        <Button type="submit" variant="primary" className="mt-1 w-full h-11 text-sm font-semibold" disabled={isLoading}>
           {isLoading ? "Création en cours..." : "Créer mon compte studio"}
         </Button>
       </div>
