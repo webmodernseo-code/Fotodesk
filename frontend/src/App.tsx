@@ -58,6 +58,7 @@ import { NewsletterDetailPage } from './pages/admin/newsletters/NewsletterDetail
 import { TaxReportPage } from './pages/admin/clients/TaxReportPage';
 import { HoursLoggingPage } from './pages/admin/clients/HoursLoggingPage';
 import { AdminAffiliatesPage } from './pages/admin/affiliates/AdminAffiliatesPage';
+import { SubscriptionPage } from './pages/admin/SubscriptionPage';
 // E.6 — Calendar page lazy-loaded so the ~200 KB FullCalendar bundle
 // (carved into its own chunk in vite.config.ts) doesn't ship with the
 // main app. Only pages that visit /admin/agenda fetch it.
@@ -266,6 +267,7 @@ function App() {
                       <Route path="events/archives" element={<ArchivesPage />} />
                       <Route path="billing" element={<BillingPage />} />
                       <Route path="affiliates" element={<AdminAffiliatesPage />} />
+                      <Route path="subscription" element={<SubscriptionPage />} />
 
                       {/* Agenda and invoices are first-class sections. */}
                       <Route element={<RequireFeature flag="calendar" />}>

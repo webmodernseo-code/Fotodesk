@@ -29,6 +29,7 @@ describe('SidebarPreview feature gates (QA J.14)', () => {
     expect(screen.getByText('navigation.payments')).toBeInTheDocument();
     expect(screen.getByText('navigation.landingPageBuilder')).toBeInTheDocument();
     expect(screen.getByText('navigation.affiliate')).toBeInTheDocument();
+    expect(screen.getByText('navigation.subscription')).toBeInTheDocument();
     expect(screen.getByText('navigation.teamMembers')).toBeInTheDocument();
     expect(screen.getByText('navigation.settings')).toBeInTheDocument();
   });

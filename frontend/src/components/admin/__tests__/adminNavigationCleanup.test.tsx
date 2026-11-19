@@ -141,6 +141,7 @@ describe('admin sidebar — what is top level', () => {
       'navigation.payments',
       'navigation.landingPageBuilder',
       'navigation.affiliate',
+      'navigation.subscription',
       'navigation.teamMembers',
       'navigation.settings',
     ]) {

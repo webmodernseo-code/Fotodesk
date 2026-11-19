@@ -195,6 +195,10 @@ export const adminNavigation: NavItem[] = [
     permission: false, group: 'business',
   },
   {
+    nameKey: 'navigation.subscription', href: '/admin/subscription', icon: CreditCard,
+    permission: false, group: 'business',
+  },
+  {
     nameKey: 'navigation.teamMembers', href: '/admin/settings?tab=users', icon: UserCog,
     permission: 'users.view', group: 'business',
   },
