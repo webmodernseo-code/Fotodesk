@@ -444,9 +444,8 @@ export const EventsListPage: React.FC<{ mediaMode?: 'photo' | 'video'; defaultVi
 
   if (isLoading) {
     return (
-      <div>
-        <SectionPageHeader icon={Calendar} title={t('events.title')} description={t('events.subtitle')} />
-        <SkeletonTable rows={5} />
+      <div className="space-y-6">
+        <SkeletonTable rows={6} cols={6} />
       </div>
     );
   }
@@ -454,7 +453,7 @@ export const EventsListPage: React.FC<{ mediaMode?: 'photo' | 'video'; defaultVi
   if (error) {
     return (
       <ErrorState
-        title={t('events.failedToLoadEvents')}
+        title={t('events.errorLoading')}
         actionLabel={t('events.tryAgain')}
         onAction={() => refetch()}
       />
@@ -464,77 +463,80 @@ export const EventsListPage: React.FC<{ mediaMode?: 'photo' | 'video'; defaultVi
   return (
     <ErrorBoundary>
       <div>
-        <SectionPageHeader
-          icon={isVideoMode ? Video : Calendar}
-          title={isVideoMode ? t('navigation.videoGalleries', 'Video Galleries') : t('navigation.photoGalleries', t('events.title'))}
-          description={isVideoMode ? t('events.videoSubtitle', 'Manage galleries containing video deliveries') : t('events.subtitle')}
-          actions={(
-            <PermissionGate permission="events.create">
-              <Button
-                variant="primary"
-                className="w-full sm:w-auto"
-                leftIcon={<Plus className="w-5 h-5" />}
-                onClick={() => setCreateModalOpen(true)}
-              >
-                {t('events.createEvent')}
-              </Button>
-            </PermissionGate>
-          )}
-        />
+      {/* Breadcrumb + Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+        <div>
+          <p className="text-xs font-medium text-muted">
+            {t('navigation.groups.workspace', 'Workspace')} <span className="mx-1.5">/</span>{' '}
+            <span className="text-soft">
+              {isVideoMode ? t('navigation.videoGalleries', 'Galeries vidéo') : t('navigation.photoGalleries', 'Galeries photo')}
+            </span>
+          </p>
+          <h1 className="mt-1 text-2xl sm:text-3xl font-bold tracking-tight text-heading">
+            {isVideoMode ? t('navigation.videoGalleries', 'Galeries vidéo') : t('navigation.photoGalleries', t('events.title'))}
+          </h1>
+          <p className="mt-1 text-sm text-soft">
+            {isVideoMode ? t('events.videoSubtitle', 'Gérer les galeries contenant des livrables vidéo') : t('events.subtitle')}
+          </p>
+        </div>
+        <PermissionGate permission="events.create">
+          <Button
+            variant="primary"
+            className="w-full sm:w-auto"
+            leftIcon={<Plus className="w-4 h-4" />}
+            onClick={() => setCreateModalOpen(true)}
+          >
+            {t('events.createEvent')}
+          </Button>
+        </PermissionGate>
+      </div>
 
-      {/* Statistics Cards — fed from /admin/dashboard/stats so the totals
-          stay accurate regardless of the visible page (#346). */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <Card padding="sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-soft">{t('events.stats.totalEvents')}</p>
-              <p className="text-2xl font-bold text-heading">{dashboardStats ? dashboardStats.totalEvents : '—'}</p>
-            </div>
-            <Calendar className="w-8 h-8 text-accent" />
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="rounded-2xl border border-line bg-panel p-4 shadow-2xs flex items-center gap-3.5">
+          <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl border border-line bg-subtle text-amber-600 dark:text-amber-400">
+            <Calendar className="w-5 h-5" />
           </div>
-        </Card>
+          <div className="min-w-0">
+            <p className="text-xs font-medium text-muted truncate">{t('events.stats.totalEvents')}</p>
+            <p className="text-2xl font-bold text-heading tabular-nums">{dashboardStats ? dashboardStats.totalEvents : '—'}</p>
+          </div>
+        </div>
 
-        <Card padding="sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-soft">{t('events.stats.activeEvents')}</p>
-              <p className="text-2xl font-bold text-heading">
-                {dashboardStats ? dashboardStats.activeEvents : '—'}
-              </p>
-            </div>
-            <Activity className="w-8 h-8 text-success" />
+        <div className="rounded-2xl border border-line bg-panel p-4 shadow-2xs flex items-center gap-3.5">
+          <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl border border-line bg-subtle text-emerald-600 dark:text-emerald-400">
+            <CheckCircle className="w-5 h-5" />
           </div>
-        </Card>
+          <div className="min-w-0">
+            <p className="text-xs font-medium text-muted truncate">{t('events.stats.activeEvents')}</p>
+            <p className="text-2xl font-bold text-heading tabular-nums">{dashboardStats ? dashboardStats.activeEvents : '—'}</p>
+          </div>
+        </div>
 
-        <Card padding="sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-soft">
-                {installMedia.hasVideos ? t('admin.totalMedia', 'Total Media') : t('events.stats.totalPhotos')}
-              </p>
-              <p className="text-2xl font-bold text-heading">
-                {dashboardStats ? dashboardStats.totalPhotos : '—'}
-              </p>
-              {installMedia.hasVideos && (
-                <p className="text-xs text-muted">{mediaSplitLabel(t, installMedia)}</p>
-              )}
-            </div>
-            <Image className="w-8 h-8 text-info" />
+        <div className="rounded-2xl border border-line bg-panel p-4 shadow-2xs flex items-center gap-3.5">
+          <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl border border-line bg-subtle text-sky-600 dark:text-sky-400">
+            <Image className="w-5 h-5" />
           </div>
-        </Card>
+          <div className="min-w-0">
+            <p className="text-xs font-medium text-muted truncate">
+              {installMedia.hasVideos ? t('admin.totalMedia', 'Total Media') : t('events.stats.totalPhotos')}
+            </p>
+            <p className="text-2xl font-bold text-heading tabular-nums">{dashboardStats ? dashboardStats.totalPhotos : '—'}</p>
+            {installMedia.hasVideos && (
+              <p className="text-[11px] text-muted truncate">{mediaSplitLabel(t, installMedia)}</p>
+            )}
+          </div>
+        </div>
 
-        <Card padding="sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-soft">{t('events.stats.expiringEvents')}</p>
-              <p className="text-2xl font-bold text-heading">
-                {dashboardStats ? dashboardStats.expiringEvents : '—'}
-              </p>
-            </div>
-            <AlertTriangle className="w-8 h-8 text-warning" />
+        <div className="rounded-2xl border border-line bg-panel p-4 shadow-2xs flex items-center gap-3.5">
+          <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl border border-line bg-subtle text-red-600 dark:text-red-400">
+            <AlertTriangle className="w-5 h-5" />
           </div>
-        </Card>
+          <div className="min-w-0">
+            <p className="text-xs font-medium text-muted truncate">{t('events.stats.expiringEvents')}</p>
+            <p className="text-2xl font-bold text-heading tabular-nums">{dashboardStats ? dashboardStats.expiringEvents : '—'}</p>
+          </div>
+        </div>
       </div>
 
       {/* Filters and Search */}
@@ -1134,12 +1136,12 @@ export const EventsListPage: React.FC<{ mediaMode?: 'photo' | 'video'; defaultVi
         selectedEvents={events.filter(e => selectedEvents.includes(e.id))}
         isLoading={bulkDeleteMutation.isPending}
       />
+        <CreateGalleryModal
+          isOpen={createModalOpen}
+          onClose={() => setCreateModalOpen(false)}
+          mediaMode={mediaMode}
+        />
       </div>
-          <CreateGalleryModal
-        isOpen={createModalOpen}
-        onClose={() => setCreateModalOpen(false)}
-        mediaMode={mediaMode}
-      />
     </ErrorBoundary>
   );
 };

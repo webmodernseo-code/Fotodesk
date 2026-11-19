@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useExpiryRefresh } from '../../hooks/useExpiryRefresh';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { ChevronRight, CheckCircle2, Image as ImageIcon, MessageSquare, HardDrive } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 
@@ -362,6 +363,15 @@ export const EventDetailsPage: React.FC = () => {
         // On Settings the page fills the window from lg (useFillViewport in
         // EventSettingsTab): the header and tabs stay, the panes scroll.
         <div className={activeTab === 'settings' ? 'lg:flex-1 lg:min-h-0 lg:flex lg:flex-col' : undefined}>
+          {/* Breadcrumb */}
+          <nav aria-label="Breadcrumb" className="mb-3 flex items-center gap-1.5 text-xs font-medium text-muted">
+            <Link to="/admin/events" className="text-sky-600 dark:text-sky-400 hover:underline">
+              {t('navigation.photoGalleries', 'Galeries photo')}
+            </Link>
+            <ChevronRight className="h-3.5 w-3.5" />
+            <span className="text-soft truncate">{event.event_name}</span>
+          </nav>
+
           <EventDetailsHeader
             event={event}
             setShowRenameDialog={setShowRenameDialog}
@@ -380,6 +390,55 @@ export const EventDetailsPage: React.FC = () => {
             isExpired={isExpired}
             isExpiring={isExpiring}
           />
+
+          {/* Gallery KPI Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+            <div className="rounded-2xl border border-line bg-panel p-4 shadow-2xs flex items-center gap-3.5">
+              <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl border border-line bg-subtle text-amber-600 dark:text-amber-400">
+                <ImageIcon className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-muted truncate">{t('events.stats.totalPhotos', 'Total photos')}</p>
+                <p className="text-2xl font-bold text-heading tabular-nums">{photos.length || event.photo_count || 0}</p>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-line bg-panel p-4 shadow-2xs flex items-center gap-3.5">
+              <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl border border-line bg-subtle text-emerald-600 dark:text-emerald-400">
+                <CheckCircle2 className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-muted truncate">{t('events.stats.selectedPhotos', 'Photos sélectionnées')}</p>
+                <p className="text-2xl font-bold text-heading tabular-nums">
+                  {photos.filter((ph) => (ph.favorite_count ?? 0) > 0 || (ph as any).is_selected).length}
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-line bg-panel p-4 shadow-2xs flex items-center gap-3.5">
+              <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl border border-line bg-subtle text-sky-600 dark:text-sky-400">
+                <MessageSquare className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-muted truncate">{t('events.stats.totalComments', 'Commentaires')}</p>
+                <p className="text-2xl font-bold text-heading tabular-nums">
+                  {photos.reduce((acc, ph) => acc + (ph.comment_count ?? 0), 0)}
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-line bg-panel p-4 shadow-2xs flex items-center gap-3.5">
+              <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl border border-line bg-subtle text-amber-600 dark:text-amber-400">
+                <HardDrive className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-muted truncate">{t('events.stats.storageStatus', 'Stockage galerie')}</p>
+                <p className="text-lg font-bold text-heading truncate">
+                  {event.is_archived ? t('events.archived', 'Archivée') : (event as any).is_draft ? t('events.draft', 'Brouillon') : t('events.active', 'Active')}
+                </p>
+              </div>
+            </div>
+          </div>
 
           <EventTabs
             event={event}
