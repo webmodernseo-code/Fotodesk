@@ -14,7 +14,7 @@ import {
   LayoutGrid,
   Pencil,
   Search,
-  Sparkles,
+  ArrowUpRight,
   X,
 } from 'lucide-react';
 
@@ -178,7 +178,7 @@ export const SubscriptionPage: React.FC = () => {
           <Button
             type="button"
             variant="primary"
-            leftIcon={<Sparkles className="w-4 h-4" />}
+            leftIcon={<ArrowUpRight className="w-4 h-4" />}
             onClick={() => {
               setActiveTab('plans');
               setShowUpgradeCheckout(true);
