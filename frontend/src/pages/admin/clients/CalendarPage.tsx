@@ -54,7 +54,6 @@ import interactionPlugin from '@fullcalendar/interaction';
 // pt/ru) fall back to English day/month names.
 import deLocale from '@fullcalendar/core/locales/de';
 import { Card, ErrorState, Loading } from '../../../components/common';
-import { SectionPageHeader } from '../../../components/admin/SectionPageHeader';
 import {
   calendarService,
   type CalendarItem,
@@ -661,7 +660,6 @@ export const CalendarPage: React.FC = () => {
   const todayStr = new Date().toISOString().slice(0, 10);
   const [selectedDay, setSelectedDay] = useState<string>(todayStr);
   const [clientFilter, setClientFilter] = useState<string>('all');
-  const [projectFilter, setProjectFilter] = useState<string>('all');
   const [activeFcView, setActiveFcView] = useState<'dayGridMonth' | 'timeGridWeek' | 'timeGridDay'>(
     (view as 'dayGridMonth' | 'timeGridWeek' | 'timeGridDay') || 'dayGridMonth',
   );
@@ -679,10 +677,9 @@ export const CalendarPage: React.FC = () => {
     return sortedInterventions.filter((item) => {
       if (item.date !== selectedDay) return false;
       if (clientFilter !== 'all' && String(item.customerAccountId ?? '') !== clientFilter) return false;
-      if (projectFilter !== 'all' && String(item.projectId ?? '') !== projectFilter) return false;
       return true;
     });
-  }, [sortedInterventions, selectedDay, clientFilter, projectFilter]);
+  }, [sortedInterventions, selectedDay, clientFilter]);
   const upcomingCount = sortedInterventions.filter(i => i.date >= todayStr).length;
   const allCount = sortedInterventions.length;
   const pastCount = sortedInterventions.filter(i => i.date < todayStr).length;
@@ -764,7 +761,7 @@ export const CalendarPage: React.FC = () => {
       {displayTab === 'calendar' && (
         <div className="rounded-2xl border border-line bg-panel p-4 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-info-bg text-info">
+            <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-info-bg text-info border border-info-line/70 shadow-2xs">
               <CalendarIcon className="w-4 h-4" />
             </span>
             <div>
@@ -959,7 +956,7 @@ export const CalendarPage: React.FC = () => {
 
               {selectedDayAppointments.length === 0 ? (
                 <div className="py-8 text-center space-y-3">
-                  <span className="mx-auto inline-flex h-10 w-10 items-center justify-center rounded-xl bg-info-bg text-info">
+                  <span className="mx-auto inline-flex h-10 w-10 items-center justify-center rounded-xl bg-info-bg text-info border border-info-line/70 shadow-2xs">
                     <CalendarIcon className="w-5 h-5" />
                   </span>
                   <div>

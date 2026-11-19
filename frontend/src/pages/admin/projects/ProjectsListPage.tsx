@@ -194,7 +194,7 @@ export const ProjectsListPage: React.FC = () => {
           variant="brand"
           size="md"
           onClick={() => setCreateModalOpen(true)}
-          leftIcon={<Plus className="w-4 h-4" />}
+          leftIcon={<Plus className="w-4 h-4" strokeWidth={1.75} />}
         >
           {t('projects.create.button', 'Create Project')}
         </Button>
@@ -204,7 +204,7 @@ export const ProjectsListPage: React.FC = () => {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="rounded-2xl border border-line bg-panel p-4 shadow-sm flex items-center gap-3.5">
           <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-subtle text-soft border border-line">
-            <Calendar className="w-4 h-4" />
+            <Calendar className="w-4 h-4" strokeWidth={1.75} />
           </span>
           <div>
             <p className="text-xs font-medium text-muted">{t('projects.kpi.active', 'Active')}</p>
@@ -215,8 +215,8 @@ export const ProjectsListPage: React.FC = () => {
         </div>
 
         <div className="rounded-2xl border border-line bg-panel p-4 shadow-sm flex items-center gap-3.5">
-          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-info-bg text-info">
-            <Clock className="w-4 h-4" />
+          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-info-bg text-info border border-info-line/70 shadow-2xs">
+            <Clock className="w-4 h-4" strokeWidth={1.75} />
           </span>
           <div>
             <p className="text-xs font-medium text-muted">{t('projects.kpi.inProgress', 'In Progress')}</p>
@@ -227,8 +227,8 @@ export const ProjectsListPage: React.FC = () => {
         </div>
 
         <div className="rounded-2xl border border-line bg-panel p-4 shadow-sm flex items-center gap-3.5">
-          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-bg text-purple">
-            <Sparkles className="w-4 h-4" />
+          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-bg text-purple border border-purple-line/70 shadow-2xs">
+            <Sparkles className="w-4 h-4" strokeWidth={1.75} />
           </span>
           <div>
             <p className="text-xs font-medium text-muted">{t('projects.kpi.valued', 'Billed / Quoted')}</p>
@@ -239,8 +239,8 @@ export const ProjectsListPage: React.FC = () => {
         </div>
 
         <div className="rounded-2xl border border-line bg-panel p-4 shadow-sm flex items-center gap-3.5">
-          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-success-bg text-success">
-            <CheckCircle2 className="w-4 h-4" />
+          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-success-bg text-success border border-success-line/70 shadow-2xs">
+            <CheckCircle2 className="w-4 h-4" strokeWidth={1.75} />
           </span>
           <div>
             <p className="text-xs font-medium text-muted">{t('projects.kpi.archived', 'Archived')}</p>
@@ -271,7 +271,7 @@ export const ProjectsListPage: React.FC = () => {
               )}
               aria-label={t('projects.viewList', 'List view')}
             >
-              <LayoutList className="w-4 h-4" />
+              <LayoutList className="w-4 h-4" strokeWidth={1.75} />
             </button>
             <button
               type="button"
@@ -282,7 +282,7 @@ export const ProjectsListPage: React.FC = () => {
               )}
               aria-label={t('projects.viewGrid', 'Grid view')}
             >
-              <LayoutGrid className="w-4 h-4" />
+              <LayoutGrid className="w-4 h-4" strokeWidth={1.75} />
             </button>
           </div>
         </div>
@@ -371,7 +371,7 @@ export const ProjectsListPage: React.FC = () => {
                     <TableCell>
                       <div className="flex items-center gap-2.5">
                         <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-subtle border border-line text-soft">
-                          <FolderKanban className="w-4 h-4" />
+                          <FolderKanban className="w-4 h-4" strokeWidth={1.75} />
                         </span>
                         <span className="font-semibold text-heading">{p.name}</span>
                       </div>
@@ -397,7 +397,7 @@ export const ProjectsListPage: React.FC = () => {
                           className="p-1.5 rounded-lg text-muted hover:text-heading hover:bg-hover cursor-pointer"
                           aria-label={t('common.actions', 'Actions')}
                         >
-                          <MoreHorizontal className="w-4 h-4" />
+                          <MoreHorizontal className="w-4 h-4" strokeWidth={1.75} />
                         </button>
                         {openMenuId === p.id && (
                           <div className="absolute right-0 mt-1 w-40 rounded-xl border border-line bg-panel shadow-lg py-1 z-30 text-left">
@@ -453,7 +453,7 @@ export const ProjectsListPage: React.FC = () => {
                 <div className="flex items-start justify-between gap-2">
                   <div className="space-y-2">
                     <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-subtle border border-line text-soft">
-                      <FolderKanban className="w-4 h-4" />
+                      <FolderKanban className="w-4 h-4" strokeWidth={1.75} />
                     </span>
                     <div>
                       <Badge tone={p.status === 'archived' ? 'neutral' : 'success'} dot>
@@ -474,7 +474,7 @@ export const ProjectsListPage: React.FC = () => {
                     className="p-1.5 rounded-lg text-muted hover:text-heading hover:bg-hover cursor-pointer"
                     aria-label={t('projects.action.edit', 'Edit project')}
                   >
-                    <MoreHorizontal className="w-4 h-4" />
+                    <MoreHorizontal className="w-4 h-4" strokeWidth={1.75} />
                   </button>
                 </div>
 
@@ -529,7 +529,7 @@ export const ProjectsListPage: React.FC = () => {
                 onClick={() => setCreateModalOpen(false)}
                 className="p-1.5 rounded-lg text-muted hover:bg-hover cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4" strokeWidth={1.75} />
               </button>
             </div>
             <form
@@ -581,7 +581,7 @@ export const ProjectsListPage: React.FC = () => {
                 onClick={() => setEditProject(null)}
                 className="p-1.5 rounded-lg text-muted hover:bg-hover cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4" strokeWidth={1.75} />
               </button>
             </div>
             <form
@@ -642,7 +642,7 @@ export const ProjectsListPage: React.FC = () => {
                 onClick={() => setDeleteProjectTarget(null)}
                 className="p-1.5 rounded-lg text-muted hover:bg-hover cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4" strokeWidth={1.75} />
               </button>
             </div>
             <span className="mx-auto inline-flex h-11 w-11 items-center justify-center rounded-full bg-danger-bg text-danger">

@@ -20,6 +20,7 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
+  Moon,
   PanelLeftClose,
   PanelLeftOpen,
   Percent,
@@ -29,6 +30,7 @@ import {
   ShieldCheck,
   SlidersHorizontal,
   Sparkles,
+  Sun,
   TrendingUp,
   Users,
   Wallet,
@@ -53,6 +55,7 @@ import { superAdminService, type SuperAdminOverview, type StudioItem } from '@/s
 import { affiliateService } from '@/services/affiliate.service';
 import { REGIONS, detectRegion, type Region } from '@/lib/fotodesk-pricing';
 import { useAdminAuth } from '@/contexts';
+import { useAdminDarkMode } from '@/contexts/AdminDarkModeContext';
 import { cn } from '@/lib/utils';
 
 type AdminSection =
@@ -119,6 +122,7 @@ function formatDateLabel(value?: string, isEn?: boolean): string {
 export function MasterFounderDashboardPage() {
   const navigate = useNavigate();
   const { user, logout } = useAdminAuth();
+  const { isDark, toggle: toggleDarkMode } = useAdminDarkMode();
   const { i18n } = useTranslation();
   const isEn = (i18n.language || '').toLowerCase().startsWith('en');
 
@@ -477,7 +481,7 @@ export function MasterFounderDashboardPage() {
             className="lg:hidden p-1.5 rounded-lg text-muted hover:bg-hover"
             aria-label="Fermer"
           >
-            <X size={18} />
+            <X size={18} strokeWidth={1.75} />
           </button>
         </div>
 
@@ -509,7 +513,7 @@ export function MasterFounderDashboardPage() {
                     )}
                   >
                     <span className={cn('flex items-center gap-2.5 min-w-0', sidebarCollapsed && 'lg:mx-auto')}>
-                      <Icon size={17} className={active ? 'text-brand shrink-0' : 'text-faint shrink-0'} />
+                      <Icon size={17} strokeWidth={1.75} className={active ? 'text-brand shrink-0' : 'text-faint shrink-0'} />
                       {!sidebarCollapsed && <span className="truncate">{item.label}</span>}
                     </span>
                     {!sidebarCollapsed && item.badge !== undefined && (
@@ -566,7 +570,7 @@ export function MasterFounderDashboardPage() {
               className="lg:hidden p-2 rounded-xl border border-line bg-subtle text-heading"
               aria-label="Ouvrir le menu"
             >
-              <Menu size={18} />
+              <Menu size={18} strokeWidth={1.75} />
             </button>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 text-xs text-muted">
@@ -596,6 +600,17 @@ export function MasterFounderDashboardPage() {
             </div>
 
             <LanguageToggle size="sm" />
+
+            {/* Dark / Light Mode Toggle (aligné sur FotoDesk Admin) */}
+            <button
+              type="button"
+              onClick={toggleDarkMode}
+              className="h-[38px] w-[38px] inline-flex items-center justify-center rounded-xl border border-line bg-panel text-soft hover:text-heading hover:bg-hover transition-colors cursor-pointer"
+              title={isDark ? (isEn ? 'Light mode' : 'Mode clair') : (isEn ? 'Dark mode' : 'Mode sombre')}
+              aria-label={isDark ? (isEn ? 'Light mode' : 'Mode clair') : (isEn ? 'Dark mode' : 'Mode sombre')}
+            >
+              {isDark ? <Sun size={16} strokeWidth={1.75} /> : <Moon size={16} strokeWidth={1.75} />}
+            </button>
 
             {/* Notification Bell + Popover (Figma screen 2) */}
             <div className="relative">
@@ -734,7 +749,7 @@ export function MasterFounderDashboardPage() {
               {/* 6 KPI Cards (3x2 grid) */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <KpiCard
-                  icon={<Building2 size={18} />}
+                  icon={<Building2 size={18} strokeWidth={1.75} />}
                   iconTone="brand"
                   trend="+8.2%"
                   label={isEn ? 'Total Studios' : 'Total Studios'}
@@ -743,7 +758,7 @@ export function MasterFounderDashboardPage() {
                   onClick={() => setActiveSection('studios')}
                 />
                 <KpiCard
-                  icon={<Users size={18} />}
+                  icon={<Users size={18} strokeWidth={1.75} />}
                   iconTone="info"
                   trend="+12.4%"
                   label={isEn ? 'Paying Studios' : 'Studios Payants'}
@@ -752,7 +767,7 @@ export function MasterFounderDashboardPage() {
                   onClick={() => setActiveSection('users')}
                 />
                 <KpiCard
-                  icon={<CreditCard size={18} />}
+                  icon={<CreditCard size={18} strokeWidth={1.75} />}
                   iconTone="purple"
                   trend="+5.1%"
                   label={isEn ? 'Active Subscriptions' : 'Abonnements Actifs'}
@@ -761,7 +776,7 @@ export function MasterFounderDashboardPage() {
                   onClick={() => setActiveSection('subscriptions')}
                 />
                 <KpiCard
-                  icon={<TrendingUp size={18} />}
+                  icon={<TrendingUp size={18} strokeWidth={1.75} />}
                   iconTone="success"
                   trend="+6.8%"
                   label={isEn ? 'Monthly Recurring Revenue' : 'Revenu Mensuel Récurrent'}
@@ -770,7 +785,7 @@ export function MasterFounderDashboardPage() {
                   onClick={() => setActiveSection('subscriptions')}
                 />
                 <KpiCard
-                  icon={<Sparkles size={18} />}
+                  icon={<Sparkles size={18} strokeWidth={1.75} />}
                   iconTone="success"
                   label={isEn ? 'Total Affiliates' : 'Total Affiliés'}
                   value={String(metrics.totalAffiliates)}
@@ -778,7 +793,7 @@ export function MasterFounderDashboardPage() {
                   onClick={() => setActiveSection('affiliates')}
                 />
                 <KpiCard
-                  icon={<Wallet size={18} />}
+                  icon={<Wallet size={18} strokeWidth={1.75} />}
                   iconTone="warning"
                   label={isEn ? 'Pending Payouts' : 'Virements en Attente'}
                   value={formatAmount(metrics.affiliatePendingEur, region)}
@@ -1554,7 +1569,7 @@ export function MasterFounderDashboardPage() {
                   <div className="rounded-2xl border border-line bg-panel p-6 shadow-sm space-y-4 flex flex-col justify-between">
                     <div className="space-y-2">
                       <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-brand-soft text-brand">
-                        <Building2 size={18} />
+                        <Building2 size={18} strokeWidth={1.75} />
                       </span>
                       <h3 className="text-sm font-bold text-heading">
                         {isEn ? 'Studio Workspace' : 'Espace Studio'}
@@ -1645,7 +1660,7 @@ export function MasterFounderDashboardPage() {
                 <div className="rounded-2xl border border-line bg-panel p-6 shadow-sm space-y-3 max-w-xl">
                   <div className="flex items-center gap-2.5">
                     <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-success-bg text-success">
-                      <ShieldCheck size={18} />
+                      <ShieldCheck size={18} strokeWidth={1.75} />
                     </span>
                     <div>
                       <h3 className="text-sm font-bold text-heading">
@@ -1772,7 +1787,7 @@ export function MasterFounderDashboardPage() {
           <div className="w-full max-w-md rounded-2xl border border-line bg-panel p-6 shadow-xl space-y-4">
             <div className="flex items-start gap-3">
               <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-danger-bg text-danger">
-                <AlertTriangle size={18} />
+                <AlertTriangle size={18} strokeWidth={1.75} />
               </span>
               <div>
                 <h3 className="text-base font-bold text-heading">
@@ -1896,11 +1911,11 @@ interface KpiCardProps {
 }
 
 const kpiToneClasses: Record<KpiCardProps['iconTone'], string> = {
-  brand: 'bg-brand-soft text-brand',
-  info: 'bg-info-bg text-info',
-  purple: 'bg-purple-bg text-purple',
-  success: 'bg-success-bg text-success',
-  warning: 'bg-warning-bg text-warning',
+  brand: 'bg-brand-soft text-brand border border-brand-line/70 shadow-2xs',
+  info: 'bg-info-bg text-info border border-info-line/70 shadow-2xs',
+  purple: 'bg-purple-bg text-purple border border-purple-line/70 shadow-2xs',
+  success: 'bg-success-bg text-success border border-success-line/70 shadow-2xs',
+  warning: 'bg-warning-bg text-warning border border-warning-line/70 shadow-2xs',
 };
 
 function KpiCard({ icon, iconTone, trend, label, value, helper, onClick }: KpiCardProps) {

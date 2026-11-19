@@ -32,8 +32,8 @@
 .fd-main,
 [data-theme="dark"] .fd-dashboard-view,
 [data-theme="dark"] .fd-main {
-  --accent: #C89561;
-  --accent-hover: #D8A975;
+  --accent: #FB923C;
+  --accent-hover: #F97316;
   --success: #28C77F;
   --bg: #0C0D0E;
   --sidebar: #090A0B;
@@ -137,9 +137,9 @@ html.dark .fd-nav-link--active,
 .dark .fd-nav-link--active,
 [data-theme="dark"] .fd-nav-link--active,
 .fd-dashboard:not([data-theme="light"]) .fd-nav-link--active {
-  background: linear-gradient(135deg, #3A2C21 0%, #291F18 100%) !important;
-  color: #FFFFFF !important;
-  border: 1px solid rgba(200, 149, 97, 0.32) !important;
+  background: rgba(249, 115, 22, 0.14) !important;
+  color: #FB923C !important;
+  border: 1px solid rgba(249, 115, 22, 0.32) !important;
   box-shadow: 0 3px 12px -2px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
 }
 
