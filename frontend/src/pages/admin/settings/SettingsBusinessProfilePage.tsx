@@ -8,7 +8,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Plus, Trash2, Star, Pencil, Save, Clock, Copy, Mail } from 'lucide-react';
+import { Building2, Clock, Copy, Landmark, Mail, Pencil, Plus, Save, Star, Trash2 } from 'lucide-react';
 import {
   businessProfileService,
   type BusinessProfile,
@@ -42,6 +42,7 @@ export const SettingsBusinessProfilePage: React.FC = () => {
   });
 
   const [profile, setProfile] = useState<BusinessProfile | null>(null);
+  const [activeTab, setActiveTab] = useState<'company' | 'billing' | 'hours'>('company');
   // What the server last sent, for the save bar's dirty state and Discard.
   const [loaded, setLoaded] = useState<BusinessProfile | null>(null);
   // Editable fields only. The server stamps updatedAt on every write, the
@@ -97,6 +98,38 @@ export const SettingsBusinessProfilePage: React.FC = () => {
         {t('businessProfile.subtitle', 'Issuer block shown on every quote and invoice PDF.')}
       </p>
 
+      {/* Horizontal sub-tabs */}
+      <nav
+        className="rounded-2xl border border-line bg-panel p-1.5 shadow-2xs flex flex-wrap gap-1"
+        aria-label="Navigation Profil du studio"
+      >
+        {[
+          { key: 'company' as const, label: 'Entreprise & Contact', icon: Building2 },
+          { key: 'billing' as const, label: 'Comptes bancaires', icon: Landmark },
+          { key: 'hours' as const, label: 'Horaires & Signature', icon: Clock },
+        ].map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.key;
+          return (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => setActiveTab(tab.key)}
+              className={`inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-semibold transition-all cursor-pointer ${
+                isActive
+                  ? 'bg-white text-neutral-950 border border-neutral-200/80 shadow-xs dark:bg-neutral-800 dark:text-white dark:border-white/10'
+                  : 'text-muted hover:text-heading hover:bg-hover/70 border border-transparent'
+              }`}
+            >
+              <Icon className={`w-[18px] h-[18px] shrink-0 ${isActive ? 'text-emerald-600 dark:text-emerald-400' : ''}`} />
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
+      </nav>
+
+      {activeTab === 'company' && (
+      <>
       <Card>
         <h3 className="font-semibold text-heading mb-3">{t('businessProfile.section.company', 'Company')}</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -147,19 +180,11 @@ export const SettingsBusinessProfilePage: React.FC = () => {
 
       <Card>
         <h3 className="font-semibold text-heading mb-3">{t('businessProfile.section.defaults', 'Defaults')}</h3>
-        {/* Pointer so admins who look for the old VAT/hourly-rate fields here
-            know where they went. */}
-        <p className="mb-3 rounded-md border border-blue-200 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-900/20 px-3 py-2 text-xs text-blue-800 dark:text-blue-300">
-          {t('businessProfile.movedToAccounting', 'The VAT rate, VAT label and default hourly rate now live under Settings → Accounting.')}
-        </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div>
             <label className="block text-sm font-medium text-body mb-1">
               {t('businessProfile.field.defaultCurrency', 'Default currency')}
             </label>
-            {/* Dropdown; the stored value is normalised (e.g. an old free-text
-                "chf" → "CHF") so it pre-selects, and an unknown code is kept as
-                an extra option so nothing is lost. */}
             <select
               value={normalizeCurrency(profile.defaultCurrency)}
               onChange={(e) => setProfile({ ...profile, defaultCurrency: e.target.value })}
@@ -172,9 +197,6 @@ export const SettingsBusinessProfilePage: React.FC = () => {
           </div>
           <Input label={t('businessProfile.field.defaultLocale', 'Default locale') as string} value={profile.defaultLocale}
             maxLength={8} onChange={(e) => setProfile({ ...profile, defaultLocale: e.target.value })} />
-          {/* Migration 137 — IANA timezone for the admin calendar + the
-              scheduled-email business-hours snapping. Dropdown of the full
-              IANA list; blank = fall back to the server/browser tz. */}
           <div>
             <label className="block text-sm font-medium text-body mb-1">
               {t('businessProfile.field.timezone', 'Timezone (IANA)')}
@@ -192,9 +214,6 @@ export const SettingsBusinessProfilePage: React.FC = () => {
               ))}
             </select>
           </div>
-          {/* VAT rate %, VAT label and the default hourly rate moved to
-              Settings → Accounting (so all financial/VAT config lives in one
-              place). See the callout above. */}
           <div>
             <label className="block text-sm font-medium text-body mb-1">{t('businessProfile.field.defaultQrFormat', 'Default invoice QR')}</label>
             <select value={profile.defaultQrFormat} onChange={(e) => setProfile({ ...profile, defaultQrFormat: e.target.value as QrFormat })}
@@ -204,91 +223,17 @@ export const SettingsBusinessProfilePage: React.FC = () => {
               <option value="epc">{t('businessProfile.qrFormat.epc', 'EPC QR (SEPA / EUR)')}</option>
             </select>
           </div>
-          <Input label={t('businessProfile.field.footerLine', 'PDF footer line') as string} value={profile.footerLine}
-            onChange={(e) => setProfile({ ...profile, footerLine: e.target.value })} />
-          {/* Dedicated PDF letterhead logo — separate from the global
-              Settings → Branding logo. SVG accepted (rasterised to PNG
-              on the fly). When unset the renderer falls back to the
-              branding logo. */}
           <div className="md:col-span-2">
-            <PdfLogoUploader profile={profile} setProfile={setProfile} />
+            <Input label={t('businessProfile.field.footerLine', 'PDF footer line') as string} value={profile.footerLine}
+              onChange={(e) => setProfile({ ...profile, footerLine: e.target.value })} />
           </div>
-          {/* Logo banner height (pt) — admin-adjustable per migration 108. */}
-          <Input type="number" min={24} max={200}
-            label={t('businessProfile.field.pdfLogoHeight', 'PDF logo height (pt, 24-200)') as string}
-            value={profile.pdfLogoHeight ?? 56}
-            onChange={(e) => setProfile({ ...profile, pdfLogoHeight: Number(e.target.value) })} />
-          {/* Folding marks dropdown. */}
-          <div>
-            <label className="block text-sm font-medium text-body mb-1">
-              {t('businessProfile.field.pdfFoldingMarks', 'Folding marks on PDF page edge')}
-            </label>
-            <select value={profile.pdfFoldingMarks || 'none'}
-              onChange={(e) => setProfile({ ...profile, pdfFoldingMarks: e.target.value as any })}
-              className="w-full px-3 py-2 rounded-md border border-line-strong bg-panel text-heading text-sm">
-              <option value="none">{t('businessProfile.foldingMarks.none', 'None')}</option>
-              <option value="half">{t('businessProfile.foldingMarks.half', 'Half (148.5mm) — for C5 envelopes')}</option>
-              <option value="third">{t('businessProfile.foldingMarks.third', 'Thirds (105 + 210mm) — for DL / DIN long envelopes')}</option>
-              <option value="both">{t('businessProfile.foldingMarks.both', 'All three marks')}</option>
-            </select>
-          </div>
-          {/* PDF font selection lives on Settings → Branding now
-              (migration 121, "PDF typography" card). The legacy
-              free-text TTF path input was retired in favour of the
-              bundled-fonts dropdown there. The column
-              `pdf_font_ttf_path` stays on the row as a power-user
-              override that the PDF renderer still honours when
-              populated directly in the DB. */}
-        </div>
-
-        {/* PDF letterhead visibility toggles — let the admin suppress
-            the logo or the company-name line independently. Useful
-            when the logo itself already contains the brand name
-            (very common with wordmark logos). Lifted out of the input
-            grid so the toggle switches don't fight the field sizing. */}
-        <div className="mt-4 pt-4 border-t border-line space-y-3">
-          <PdfToggleRow
-            label={t('businessProfile.field.pdfShowLogo', 'Show logo in PDF letterhead') as string}
-            description={t('businessProfile.field.pdfShowLogoHelp',
-              'When off, the logo image is suppressed on every PDF even if a logo is uploaded.') as string}
-            enabled={profile.pdfShowLogo}
-            onChange={(v) => setProfile({ ...profile, pdfShowLogo: v })}
-          />
-          <PdfToggleRow
-            label={t('businessProfile.field.pdfShowCompanyName', 'Show company name in PDF letterhead') as string}
-            description={t('businessProfile.field.pdfShowCompanyNameHelp',
-              'When off, the company-name line is suppressed (useful if the logo is a wordmark already containing the name).') as string}
-            enabled={profile.pdfShowCompanyName}
-            onChange={(v) => setProfile({ ...profile, pdfShowCompanyName: v })}
-          />
-          <PdfToggleRow
-            label={t('businessProfile.field.pdfCompanyNameInline', 'Render company name inline with address') as string}
-            description={t('businessProfile.field.pdfCompanyNameInlineHelp',
-              'When on, the company name appears as a plain line directly above the street address (same size + weight). When off, it renders as a bold title under the logo.') as string}
-            enabled={profile.pdfCompanyNameInline}
-            onChange={(v) => setProfile({ ...profile, pdfCompanyNameInline: v })}
-          />
-          {/* Quote payment-block toggles (migration 110). Both default
-              OFF — a quote is an offer, not a demand for payment, and
-              the IBAN block is always invoice-only. Admins opt in when
-              they want to set payment expectations on the quote. */}
-          <PdfToggleRow
-            label={t('businessProfile.field.pdfQuoteShowNetDays', 'Show net payment days on quote PDFs') as string}
-            description={t('businessProfile.field.pdfQuoteShowNetDaysHelp',
-              'When on, quote PDFs include the "X days from invoice date." line in the payment conditions block. Invoices always show this row regardless.') as string}
-            enabled={profile.pdfQuoteShowNetDays}
-            onChange={(v) => setProfile({ ...profile, pdfQuoteShowNetDays: v })}
-          />
-          <PdfToggleRow
-            label={t('businessProfile.field.pdfQuoteShowSkonto', 'Show Skonto / early-payment discount on quote PDFs') as string}
-            description={t('businessProfile.field.pdfQuoteShowSkontoHelp',
-              'When on, quote PDFs include the Skonto offer and the "Amount with discount" line. Invoices always show these regardless.') as string}
-            enabled={profile.pdfQuoteShowSkonto}
-            onChange={(v) => setProfile({ ...profile, pdfQuoteShowSkonto: v })}
-          />
         </div>
       </Card>
+      </>
+      )}
 
+      {activeTab === 'hours' && (
+      <>
       {/* Business hours (migration 114). Per-weekday opening blocks with
           lunch-break support, interpreted in the profile timezone above.
           Drives the scheduled-email floor: an email scheduled outside the
@@ -371,24 +316,12 @@ export const SettingsBusinessProfilePage: React.FC = () => {
           <EmailSignaturePreview profile={profile} />
         </div>
       </Card>
+      </>
+      )}
 
-      {/* Disclaimer banner for QR-bill / IBAN data. picpeak renders
-          what the operator types — it cannot validate IBAN/BIC, QR-IID
-          or scan-compatibility with any specific bank's e-banking app.
-          See https://docs.picpeak.app/features/crm/disclaimers. */}
-      <div className="mt-4 p-3 rounded-md border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 text-sm text-amber-900 dark:text-amber-200">
-        <p className="font-medium mb-1">
-          {t('businessProfile.qrDisclaimer.title', 'QR-bill / bank data — verify before going live')}
-        </p>
-        <p className="text-xs">
-          {t(
-            'businessProfile.qrDisclaimer.body',
-            "FotoDesk is open source. We render the QR code and IBAN block from the values you typed — we don't validate them. Print a test invoice and scan it with your bank's app before sending real invoices. We are not responsible for any mistakes that come from sending an invoice with bad data on it.",
-          )}
-        </p>
-      </div>
-
-      <BankAccountsSection accounts={data?.bankAccounts ?? []} />
+      {activeTab === 'billing' && (
+        <BankAccountsSection accounts={data?.bankAccounts ?? []} />
+      )}
 
       {/* Saves the profile fields above; bank accounts save on their own. */}
       <SettingsSaveBar
@@ -426,8 +359,7 @@ const PdfToggleRow: React.FC<PdfToggleRowProps> = ({ label, description, enabled
       role="switch"
       aria-checked={enabled}
       onClick={() => onChange(!enabled)}
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 shrink-0 ${enabled ? '' : 'bg-fill-strong'}`}
-      style={enabled ? { backgroundColor: 'var(--color-accent)' } : undefined}
+      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-500 shrink-0 ${enabled ? 'bg-emerald-600 dark:bg-emerald-500' : 'bg-fill-strong'}`}
     >
       <span
         className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${enabled ? 'translate-x-6' : 'translate-x-1'}`}
@@ -798,6 +730,7 @@ const BankAccountsSection: React.FC<BankAccountsSectionProps> = ({ accounts }) =
       <div className="flex justify-end gap-2 mt-3">
         <Button variant="outline" size="sm" onClick={closeForm}>{t('common.cancel', 'Cancel')}</Button>
         <Button
+          variant={mode === 'new' ? 'primary' : 'success'}
           size="sm"
           onClick={onSubmit}
           disabled={!draft.iban || submitting}
