@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Eye, Palette, Upload } from 'lucide-react';
+import { Building2, Eye, FileText, Image as ImageIcon, Palette, Upload } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { Button, Card, Input, ErrorBoundary, Loading, MarkdownContent } from '../../components/common';
+import { Button, Card, Input, ErrorBoundary, Loading } from '../../components/common';
 import { ThemeCustomizerEnhanced, GalleryPreview } from '../../components/admin';
 import { useTheme, type ThemeConfig, GALLERY_THEME_PRESETS } from '../../contexts/ThemeContext';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -74,6 +74,8 @@ export const BrandingPage: React.FC = () => {
   const [loadedThemeName, setLoadedThemeName] = useState('default');
   const [loadedPdfFontFamily, setLoadedPdfFontFamily] = useState<string | null>(null);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const [activeTab, setActiveTab] = useState<'identity' | 'logos' | 'theme' | 'pdf'>('identity');
+  const showPdfTab = Boolean(flags.quotes || flags.bills || flags.taxReport || flags.contracts);
   // PDF body font selection (migration 121). Lives on this page so the
   // top-level Save button can persist it together with branding +
   // theme — no card-local save button. Null = "no preference,
@@ -480,6 +482,39 @@ export const BrandingPage: React.FC = () => {
           )}
         />
 
+        {/* Horizontal sub-tabs for clean navigation */}
+        <nav
+          className="mb-6 rounded-2xl border border-line bg-panel p-1.5 shadow-2xs flex flex-wrap gap-1"
+          aria-label="Navigation Marque"
+        >
+          {[
+            { key: 'identity' as const, label: 'Identité & Réseaux', icon: Building2 },
+            { key: 'logos' as const, label: 'Logos & Filigrane', icon: ImageIcon },
+            { key: 'theme' as const, label: 'Thème des galeries', icon: Palette },
+            ...(showPdfTab ? [{ key: 'pdf' as const, label: 'Documents PDF', icon: FileText }] : []),
+          ].map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.key;
+            return (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => setActiveTab(tab.key)}
+                className={`inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-semibold transition-all cursor-pointer ${
+                  isActive
+                    ? 'bg-white text-neutral-950 border border-neutral-200/80 shadow-xs dark:bg-neutral-800 dark:text-white dark:border-white/10'
+                    : 'text-muted hover:text-heading hover:bg-hover/70 border border-transparent'
+                }`}
+              >
+                <Icon className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-emerald-600 dark:text-emerald-400' : ''}`} />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+
+        {activeTab === 'identity' && (
+        <>
         {/* Company Branding */}
         <Card padding="md" className="mb-6">
           <h2 className="text-lg font-semibold text-heading mb-4">{t('branding.companyInfo')}</h2>
@@ -568,130 +603,18 @@ export const BrandingPage: React.FC = () => {
               />
             </div>
           </div>
+        </Card>
 
-          {/* Promotional banner (#440) — markdown content rendered above
-              or below the gallery footer. Per-event override is set on
-              the Edit Event form; this is the global default. */}
-          <div className="mt-6 pt-6 border-t border-line">
-            <h3 className="text-sm font-semibold text-heading mb-3">
-              {t('branding.promo.title', 'Gallery Promotional Banner')}
-            </h3>
-            <p className="text-xs text-muted mb-4">
-              {t('branding.promo.help', 'Markdown shown above or below the gallery footer (e.g. seasonal offer, print discount). Per-event overrides take priority.')}
-            </p>
-            <div className="space-y-3">
-              <div className="flex flex-col sm:flex-row gap-3">
-                <div className="flex-1">
-                  <label className="block text-sm font-medium text-body mb-2">
-                    {t('branding.promo.position', 'Position')}
-                  </label>
-                  <select
-                    value={brandingSettings.promo_position || 'above_footer'}
-                    onChange={(e) => handleBrandingChange('promo_position', e.target.value as 'above_footer' | 'below_footer')}
-                    className="w-full px-3 py-2 border border-line-strong bg-panel text-heading rounded-lg focus:ring-2 focus:ring-primary-500"
-                  >
-                    <option value="above_footer">{t('branding.promo.aboveFooter', 'Above footer')}</option>
-                    <option value="below_footer">{t('branding.promo.belowFooter', 'Below footer')}</option>
-                  </select>
-                </div>
-                {/* Horizontal alignment (#482). Defaults to center
-                    so the banner aligns with the gallery footer. */}
-                <div className="flex-1">
-                  <label className="block text-sm font-medium text-body mb-2">
-                    {t('branding.promo.alignment', 'Alignment')}
-                  </label>
-                  <select
-                    value={brandingSettings.promo_alignment || 'center'}
-                    onChange={(e) => handleBrandingChange('promo_alignment', e.target.value as 'left' | 'center' | 'right')}
-                    className="w-full px-3 py-2 border border-line-strong bg-panel text-heading rounded-lg focus:ring-2 focus:ring-primary-500"
-                  >
-                    <option value="left">{t('branding.promo.alignLeft', 'Left')}</option>
-                    <option value="center">{t('branding.promo.alignCenter', 'Center (default — matches footer)')}</option>
-                    <option value="right">{t('branding.promo.alignRight', 'Right')}</option>
-                  </select>
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-body mb-2">
-                  {t('branding.promo.content', 'Content (markdown)')}
-                </label>
-                <textarea
-                  value={brandingSettings.promo_markdown || ''}
-                  onChange={(e) => handleBrandingChange('promo_markdown', e.target.value)}
-                  className="w-full px-3 py-2 border border-line-strong bg-panel text-heading rounded-lg focus:ring-2 focus:ring-primary-500 font-mono text-sm"
-                  rows={5}
-                  placeholder={t('branding.promo.placeholder', '**Spring offer**: 20% off prints with code SPRING — see the [print shop](https://example.com).')}
-                />
-                <p className="text-xs text-muted mt-1">
-                  {t('branding.promo.markdownHelp', 'Bold, italic, links, lists, and headings supported. HTML is stripped.')}
-                </p>
-              </div>
-              {brandingSettings.promo_markdown && brandingSettings.promo_markdown.trim() && (
-                <div className="rounded-lg border border-line p-4 bg-neutral-50 dark:bg-neutral-800/40">
-                  <div className="text-xs uppercase tracking-wider text-muted mb-2">
-                    {t('branding.promo.preview', 'Preview')}
-                  </div>
-                  {/* Preview mirrors the live gallery render — same
-                      alignment class so the admin sees what guests
-                      will see (#482). */}
-                  <MarkdownContent
-                    source={brandingSettings.promo_markdown}
-                    className={`text-sm text-body prose prose-sm dark:prose-invert max-w-none prose-a:text-primary-600 dark:prose-a:text-primary-400 ${
-                      brandingSettings.promo_alignment === 'left' ? 'text-left'
-                        : brandingSettings.promo_alignment === 'right' ? 'text-right'
-                        : 'text-center'
-                    }`}
-                  />
-                </div>
-              )}
-            </div>
-          </div>
+        {/* Customer dashboard branding (#354). Self-hides when customerPortal is off. */}
+        <div className="mb-6">
+          <CustomerDashboardBrandingSection />
+        </div>
+        </>
+        )}
 
-          {/* Gallery info banner (#932) — markdown rendered ABOVE the photo
-              grid, so guests see it on load. Distinct from the promotional
-              banner above, which stays by the footer for marketing copy.
-              Per-event override lives on the Edit Event form; this is the
-              global default that applies to every gallery. */}
-          <div className="mt-6 pt-6 border-t border-line">
-            <h3 className="text-sm font-semibold text-heading mb-3">
-              {t('branding.infoBanner.title', 'Gallery Info Banner')}
-            </h3>
-            <p className="text-xs text-muted mb-4">
-              {t('branding.infoBanner.description', 'A short note shown at the top of every gallery, above the photos — useful for usage hints. Leave empty to hide it. Individual events can override or switch it off.')}
-            </p>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-body mb-2">
-                  {t('branding.infoBanner.content', 'Content (markdown)')}
-                </label>
-                <textarea
-                  value={brandingSettings.info_markdown || ''}
-                  onChange={(e) => handleBrandingChange('info_markdown', e.target.value)}
-                  className="w-full px-3 py-2 border border-line-strong bg-panel text-heading rounded-lg focus:ring-2 focus:ring-primary-500 font-mono text-sm"
-                  rows={3}
-                  placeholder={t('branding.infoBanner.placeholder', 'Use the menu button in the top-left corner to filter the photos.')}
-                />
-                <p className="text-xs text-muted mt-1">
-                  {t('branding.infoBanner.markdownHelp', 'Bold, italic, links, lists, and headings supported. HTML is stripped.')}
-                </p>
-              </div>
-              {brandingSettings.info_markdown && brandingSettings.info_markdown.trim() && (
-                <div className="rounded-lg border border-line p-4 bg-neutral-50 dark:bg-neutral-800/40">
-                  <div className="text-xs uppercase tracking-wider text-muted mb-2">
-                    {t('branding.infoBanner.preview', 'Preview')}
-                  </div>
-                  {/* Mirrors the live gallery render — centred, same prose
-                      classes — so the admin sees what guests will see. */}
-                  <MarkdownContent
-                    source={brandingSettings.info_markdown}
-                    className="text-sm text-body prose prose-sm dark:prose-invert max-w-none prose-a:text-primary-600 dark:prose-a:text-primary-400 text-center"
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="mt-6 pt-6 border-t border-line">
+        {activeTab === 'logos' && (
+        <Card padding="md" className="mb-6">
+          <div>
             <div>
               <label className="block text-sm font-medium text-body mb-2">
                 {t('branding.favicon')}
@@ -871,7 +794,7 @@ export const BrandingPage: React.FC = () => {
                   - left / center / right: position inside the gallery header bar.
                   - sidepanel: moves the logo out of the gallery header
                     and into the admin sidebar's brand row (replaces the
-                    "PicPeak Admin" text; the favicon takes over when
+                    "FotoDesk Admin" text; the favicon takes over when
                     the sidebar is collapsed). The gallery falls back
                     to 'left' for its own rendering. */}
               <div>
@@ -1185,16 +1108,10 @@ export const BrandingPage: React.FC = () => {
             </div>
           )}
         </Card>
-
-        {/* Customer dashboard branding (#354). Sits between "Company
-            Information" and "Gallery Theme" so it stays adjacent to the
-            other brand-visibility controls. Self-hides when the
-            customerPortal feature flag is off. */}
-        <div className="mb-6">
-          <CustomerDashboardBrandingSection />
-        </div>
+        )}
 
         {/* Theme Customization */}
+        {activeTab === 'theme' && (
         <div className="mb-6">
           <h2 className="text-lg font-semibold text-heading mb-4 flex items-center gap-2">
             <Palette className="w-5 h-5" />
@@ -1258,22 +1175,14 @@ export const BrandingPage: React.FC = () => {
             </div>
           </div>
         </div>
+        )}
 
-        {(flags.quotes || flags.bills || flags.taxReport || flags.contracts) && <PdfThemeCard />}
-        {(flags.quotes || flags.bills || flags.taxReport || flags.contracts) && <PdfFontsCard />}
-
-        {/* Event-Specific Themes Info */}
-        <Card padding="md" className="bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800">
-          <div className="flex items-start gap-3">
-            <Palette className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-            <div>
-              <h3 className="text-sm font-medium text-blue-900 dark:text-blue-200">{t('branding.eventSpecificThemes')}</h3>
-              <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
-                {t('branding.eventThemesInfo')}
-              </p>
-            </div>
+        {activeTab === 'pdf' && showPdfTab && (
+          <div className="space-y-6 mb-6">
+            <PdfThemeCard />
+            <PdfFontsCard />
           </div>
-        </Card>
+        )}
 
         <SettingsSaveBar
           isDirty={isDirty}
