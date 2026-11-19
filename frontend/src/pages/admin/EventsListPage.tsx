@@ -20,7 +20,9 @@ import {
   ChevronRight,
   Eye,
   Clock,
-  Video
+  Video,
+  LayoutGrid,
+  List
 } from 'lucide-react';
 import { parseISO } from 'date-fns';
 import { toast } from 'react-toastify';
@@ -30,6 +32,7 @@ import { useLocalizedDate } from '../../hooks/useLocalizedDate';
 import { Badge, Button, Input, Card, ErrorState, SkeletonTable, ErrorBoundary, ColumnMenuHeader, Table, TableBody, TableFrame, TableHead, TableRow } from '../../components/common';
 import type { BadgeTone, ColumnMenuOption, ColumnMenuState } from '../../components/common';
 import { BulkArchiveModal, BulkDeleteModal } from '../../components/admin';
+import { CreateGalleryModal } from '../../components/admin/CreateGalleryModal';
 import { PermissionGate } from '../../components/admin/PermissionGate';
 import { SectionPageHeader } from '../../components/admin/SectionPageHeader';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -54,7 +57,7 @@ const MENU_SORT_KEYS: readonly EventSortBy[] = [
   'event_name', 'event_date', 'created_at', 'photo_count', 'status', 'expires_at',
 ];
 
-export const EventsListPage: React.FC<{ mediaMode?: 'photo' | 'video' }> = ({ mediaMode }) => {
+export const EventsListPage: React.FC<{ mediaMode?: 'photo' | 'video'; defaultViewMode?: 'grid' | 'table' }> = ({ mediaMode, defaultViewMode = 'grid' }) => {
   const isVideoMode = mediaMode === 'video';
   const { t } = useTranslation();
   const { format } = useLocalizedDate();
@@ -69,6 +72,8 @@ export const EventsListPage: React.FC<{ mediaMode?: 'photo' | 'video' }> = ({ me
   const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number } | null>(null);
   const bulkArchiveModal = useModal();
   const bulkDeleteModal = useModal();
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'table'>(defaultViewMode);
   const [copiedEventId, setCopiedEventId] = useState<number | null>(null);
 
   const copyShareLink = async (event: Event) => {
@@ -469,7 +474,7 @@ export const EventsListPage: React.FC<{ mediaMode?: 'photo' | 'video' }> = ({ me
                 variant="primary"
                 className="w-full sm:w-auto"
                 leftIcon={<Plus className="w-5 h-5" />}
-                onClick={() => navigate('/admin/events/new')}
+                onClick={() => setCreateModalOpen(true)}
               >
                 {t('events.createEvent')}
               </Button>
@@ -585,6 +590,30 @@ export const EventsListPage: React.FC<{ mediaMode?: 'photo' | 'video' }> = ({ me
             >
               {t('events.delivery.awaitingFilter', 'Awaiting full gallery')}
             </Button>
+            <div className="inline-flex items-center rounded-xl border border-line bg-subtle p-1 flex-shrink-0">
+              <button
+                type="button"
+                onClick={() => setViewMode('grid')}
+                className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all ${
+                  viewMode === 'grid' ? 'bg-panel text-heading shadow-2xs border border-line' : 'text-soft hover:text-heading border border-transparent'
+                }`}
+                aria-label={t('events.viewGrid', 'Grille')}
+              >
+                <LayoutGrid className="w-3.5 h-3.5" />
+                {t('events.viewGrid', 'Grille')}
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('table')}
+                className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all ${
+                  viewMode === 'table' ? 'bg-panel text-heading shadow-2xs border border-line' : 'text-soft hover:text-heading border border-transparent'
+                }`}
+                aria-label={t('events.viewTable', 'Tableau')}
+              >
+                <List className="w-3.5 h-3.5" />
+                {t('events.viewTable', 'Tableau')}
+              </button>
+            </div>
             <Button
               variant={statusFilter === 'archived' ? 'primary' : 'outline'}
               size="md"
@@ -629,7 +658,117 @@ export const EventsListPage: React.FC<{ mediaMode?: 'photo' | 'video' }> = ({ me
         )}
       </Card>
 
+      {/* Gallery Cards Grid */}
+      {viewMode === 'grid' && events.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+          {events.map((event) => {
+            const status = getEventStatus(event);
+            const split = splitMediaCount(event.photo_count, event.video_count);
+            const coverUrl = (event as any).cover_photo_url || (event as any).hero_photo_url || null;
+            const daysLeft = event.expires_at
+              ? Math.max(0, Math.ceil((parseISO(event.expires_at).getTime() - Date.now()) / 86400000))
+              : null;
+
+            return (
+              <div
+                key={event.id}
+                className="rounded-2xl border border-line bg-panel shadow-2xs overflow-hidden hover:border-line-strong transition-all group"
+              >
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => navigate(`/admin/events/${event.id}`)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      navigate(`/admin/events/${event.id}`);
+                    }
+                  }}
+                  className="relative aspect-[16/9] bg-subtle overflow-hidden cursor-pointer"
+                >
+                  {coverUrl ? (
+                    <img
+                      src={coverUrl}
+                      alt={event.event_name}
+                      className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-subtle to-panel text-muted">
+                      <Image className="w-10 h-10 opacity-40" />
+                    </div>
+                  )}
+                  <div className="absolute top-3 left-3">
+                    <Badge tone={status.tone}>{status.label}</Badge>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/admin/events/${event.id}`);
+                    }}
+                    className="absolute top-3 right-3 inline-flex h-8 w-8 items-center justify-center rounded-lg bg-black/50 text-white hover:bg-black/70 transition-colors"
+                    aria-label={t('events.openGallery', 'Ouvrir la galerie')}
+                  >
+                    <MoreVertical className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="p-5">
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/admin/events/${event.id}`)}
+                    className="text-left text-base font-bold text-heading hover:text-accent transition-colors truncate block w-full"
+                  >
+                    {event.event_name}
+                  </button>
+                  <p className="mt-0.5 text-xs text-soft truncate">
+                    {event.customer_name || event.customer_email || '—'} · {event.event_type}
+                  </p>
+                  <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-muted">
+                    <span className="inline-flex items-center gap-1.5">
+                      <Image className="w-3.5 h-3.5" />
+                      {mediaSplitLabel(t, split)}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5" />
+                      {event.event_date ? format(parseISO(event.event_date), 'PP') : '—'}
+                    </span>
+                  </div>
+
+                  <div className="mt-4 pt-3.5 border-t border-line grid grid-cols-2 gap-3 text-xs">
+                    <div>
+                      <p className="text-muted">{t('events.card.downloadLink', 'Lien de téléchargement')}</p>
+                      <p className="mt-0.5 font-semibold text-heading">
+                        {event.is_draft
+                          ? t('events.card.disabled', 'Désactivé')
+                          : status.tone === 'danger'
+                            ? t('events.expired', 'Expiré')
+                            : daysLeft !== null
+                              ? t('events.card.activeDays', 'Actif · {{days}} j', { days: daysLeft })
+                              : t('events.active', 'Actif')}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-muted">{t('events.card.storage', 'Stockage')}</p>
+                      <p className="mt-0.5 font-semibold text-heading">
+                        {event.is_archived
+                          ? t('events.archived', 'Archivé')
+                          : daysLeft !== null && daysLeft <= 7
+                            ? t('events.card.expiringSoon', 'Expire bientôt')
+                            : t('events.active', 'Actif')}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       {/* Events Table */}
+      {viewMode === 'table' && (
       <Card padding="none" className="overflow-visible">
         <TableFrame className="overflow-y-visible border-0">
           <Table>
@@ -930,6 +1069,7 @@ export const EventsListPage: React.FC<{ mediaMode?: 'photo' | 'video' }> = ({ me
           </Table>
         </TableFrame>
       </Card>
+      )}
 
       {/* Pagination — only when the current filter has more than one page */}
       {totalPages > 1 && (
@@ -995,6 +1135,11 @@ export const EventsListPage: React.FC<{ mediaMode?: 'photo' | 'video' }> = ({ me
         isLoading={bulkDeleteMutation.isPending}
       />
       </div>
+          <CreateGalleryModal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        mediaMode={mediaMode}
+      />
     </ErrorBoundary>
   );
 };

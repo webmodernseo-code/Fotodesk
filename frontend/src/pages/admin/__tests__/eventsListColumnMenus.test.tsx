@@ -96,7 +96,7 @@ function renderPage(entry = '/admin/events') {
   return render(
     <QueryClientProvider client={qc}>
       <MemoryRouter initialEntries={[entry]}>
-        <EventsListPage />
+        <EventsListPage defaultViewMode="table" />
       </MemoryRouter>
     </QueryClientProvider>
   );
