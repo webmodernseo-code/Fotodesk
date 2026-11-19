@@ -63,24 +63,27 @@ export const CustomerActivityCard: React.FC<{ customerId: number }> = ({ custome
         </p>
       ) : (
         <>
-          <ol className="divide-y divide-line">
+          <ol className="relative space-y-5 before:absolute before:left-4 before:top-2 before:bottom-2 before:w-px before:bg-line">
             {entries.map((e) => (
-              <li key={e.id} className="py-2 flex items-start justify-between gap-3 flex-wrap">
-                <span className="text-sm text-heading min-w-0 break-words">
-                  {label(e)}
-                  <span className="block text-xs text-muted">
-                    {e.actorType === 'customer'
-                      ? t('customers.activity.byCustomer', 'By the customer')
-                      : e.actorType === 'admin'
-                        ? t('customers.activity.byAdmin', 'By {{name}}', { name: e.actorName || t('customers.documents.anAdmin', 'an admin') })
-                        : t('customers.activity.bySystem', 'Automatic')}
-                  </span>
+              <li key={e.id} className="relative flex items-start gap-3.5 pl-0">
+                <span className="relative z-10 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-line bg-subtle text-soft">
+                  <History className="h-3.5 w-3.5" />
                 </span>
-                {e.at && (
-                  <time dateTime={e.at} className="text-xs text-muted whitespace-nowrap">
-                    {formatDateTime(e.at)}
-                  </time>
-                )}
+                <div className="min-w-0 flex-1 pt-0.5">
+                  <p className="text-sm font-semibold text-heading break-words">{label(e)}</p>
+                  <p className="mt-0.5 text-xs text-soft">
+                    {e.actorType === 'customer'
+                      ? t('customers.activity.byCustomer', 'Par le client')
+                      : e.actorType === 'admin'
+                        ? t('customers.activity.byAdmin', 'Par {{name}}', { name: e.actorName || t('customers.documents.anAdmin', 'un administrateur') })
+                        : t('customers.activity.bySystem', 'Automatique')}
+                  </p>
+                  {e.at && (
+                    <time dateTime={e.at} className="mt-1 block text-[11px] text-muted">
+                      {formatDateTime(e.at)}
+                    </time>
+                  )}
+                </div>
               </li>
             ))}
           </ol>

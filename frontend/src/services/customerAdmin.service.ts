@@ -85,6 +85,9 @@ export interface CustomerAccountSummary {
   lastName: string | null;
   salutation: string | null;
   companyName: string | null;
+  phone?: string | null;
+  addressLine1?: string | null;
+  notes?: string | null;
   isActive: boolean;
   /** Passive = admin-only customer with no portal access (password_hash IS NULL).
    *  The backend never returns the actual hash; this boolean is computed
