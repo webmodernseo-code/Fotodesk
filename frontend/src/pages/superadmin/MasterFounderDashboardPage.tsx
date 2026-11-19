@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -21,6 +21,8 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
+  PanelLeftClose,
+  PanelLeftOpen,
   Percent,
   RefreshCw,
   Search,
@@ -126,6 +128,23 @@ export function MasterFounderDashboardPage() {
   const [growthRange, setGrowthRange] = useState<'7d' | '30d' | '90d'>('30d');
   const [planFilter, setPlanFilter] = useState<string>('all');
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+      if (e.key === 'Escape') {
+        setNotificationsOpen(false);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPlanModal, setSelectedPlanModal] = useState<StudioItem | null>(null);
@@ -390,24 +409,35 @@ export function MasterFounderDashboardPage() {
         />
       )}
 
-      {/* SIDEBAR (Figma 63:199429 · 260px) */}
+      {/* SIDEBAR (Figma 63:199429 · 260px / collapsed 76px) */}
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-50 w-[260px] shrink-0 bg-subtle border-r border-line flex flex-col transition-transform duration-200 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0',
+          'fixed inset-y-0 left-0 z-50 shrink-0 bg-subtle border-r border-line flex flex-col transition-all duration-200 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0',
+          sidebarCollapsed ? 'lg:w-[76px] w-[260px]' : 'w-[260px]',
           mobileNavOpen ? 'translate-x-0' : '-translate-x-full',
         )}
       >
         {/* Brand Header */}
-        <div className="h-[74px] px-5 flex items-center justify-between border-b border-line bg-panel">
-          <Link to="/superadmin" className="flex items-center gap-2.5">
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-white shadow-sm">
+        <div className={cn('h-[74px] flex items-center border-b border-line bg-panel', sidebarCollapsed ? 'px-3 justify-center lg:justify-between' : 'px-5 justify-between')}>
+          <Link to="/superadmin" className="flex items-center gap-2.5 min-w-0">
+            <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand text-white shadow-sm">
               <FotoDeskLogo size={20} className="text-white" />
             </span>
-            <div className="leading-tight">
-              <p className="text-[15px] font-bold tracking-tight text-heading">FotoDesk</p>
-              <p className="text-[10px] font-bold tracking-[0.08em] text-muted uppercase">Super Admin</p>
-            </div>
+            {!sidebarCollapsed && (
+              <div className="leading-tight">
+                <p className="text-[15px] font-bold tracking-tight text-heading">FotoDesk</p>
+                <p className="text-[10px] font-bold tracking-[0.08em] text-muted uppercase">Super Admin</p>
+              </div>
+            )}
           </Link>
+          <button
+            type="button"
+            onClick={() => setSidebarCollapsed((v) => !v)}
+            className="hidden lg:inline-flex p-1.5 rounded-lg text-muted hover:text-heading hover:bg-hover cursor-pointer"
+            title={sidebarCollapsed ? (isEn ? 'Expand sidebar' : 'Déplier le menu') : (isEn ? 'Collapse sidebar' : 'Replier le menu')}
+          >
+            {sidebarCollapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
+          </button>
           <button
             type="button"
             onClick={() => setMobileNavOpen(false)}
@@ -422,9 +452,11 @@ export function MasterFounderDashboardPage() {
         <nav className="flex-1 overflow-y-auto px-3.5 py-5 space-y-6" aria-label="Super Admin navigation">
           {navGroups.map((group) => (
             <div key={group.label} className="space-y-1">
-              <p className="px-3 pb-1 text-[10px] font-bold tracking-[0.08em] text-faint uppercase">
-                {group.label}
-              </p>
+              {!sidebarCollapsed && (
+                <p className="px-3 pb-1 text-[10px] font-bold tracking-[0.08em] text-faint uppercase">
+                  {group.label}
+                </p>
+              )}
               {group.items.map((item) => {
                 const Icon = item.icon;
                 const active = activeSection === item.id;
@@ -443,11 +475,11 @@ export function MasterFounderDashboardPage() {
                         : 'border-transparent text-soft hover:bg-panel hover:text-heading font-medium',
                     )}
                   >
-                    <span className="flex items-center gap-2.5 min-w-0">
+                    <span className={cn('flex items-center gap-2.5 min-w-0', sidebarCollapsed && 'lg:mx-auto')}>
                       <Icon size={17} className={active ? 'text-brand shrink-0' : 'text-faint shrink-0'} />
-                      <span className="truncate">{item.label}</span>
+                      {!sidebarCollapsed && <span className="truncate">{item.label}</span>}
                     </span>
-                    {item.badge !== undefined && (
+                    {!sidebarCollapsed && item.badge !== undefined && (
                       <span
                         className={cn(
                           'px-2 py-0.5 rounded-full text-[11px] font-semibold',
@@ -471,10 +503,12 @@ export function MasterFounderDashboardPage() {
               <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-cta text-cta-fg text-xs font-bold">
                 {displayInitials}
               </span>
-              <div className="min-w-0">
-                <p className="text-xs font-semibold text-heading truncate">{displayName}</p>
-                <p className="text-[11px] text-muted truncate">Founder / Super Admin</p>
-              </div>
+              {!sidebarCollapsed && (
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-heading truncate">{displayName}</p>
+                  <p className="text-[11px] text-muted truncate">Founder / Super Admin</p>
+                </div>
+              )}
             </div>
             <button
               type="button"
@@ -516,6 +550,7 @@ export function MasterFounderDashboardPage() {
             <div className="hidden md:flex items-center gap-2 h-[38px] w-[280px] rounded-xl border border-line bg-subtle px-3 focus-within:border-brand transition-colors">
               <Search size={15} className="text-faint shrink-0" />
               <input
+                ref={searchInputRef}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -529,18 +564,85 @@ export function MasterFounderDashboardPage() {
 
             <LanguageToggle size="sm" />
 
-            {/* Notification Bell */}
-            <button
-              type="button"
-              onClick={() => setActiveSection('payouts')}
-              className="relative h-[38px] w-[38px] inline-flex items-center justify-center rounded-xl border border-line bg-panel text-soft hover:bg-hover transition-colors cursor-pointer"
-              title={isEn ? 'Pending payouts' : 'Demandes en attente'}
-            >
-              <Bell size={16} />
-              {metrics.pendingPayoutRequestsCount > 0 && (
-                <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-brand" />
+            {/* Notification Bell + Popover (Figma screen 2) */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setNotificationsOpen((v) => !v)}
+                className="relative h-[38px] w-[38px] inline-flex items-center justify-center rounded-xl border border-line bg-panel text-soft hover:bg-hover transition-colors cursor-pointer"
+                title={isEn ? 'Notifications' : 'Notifications'}
+                aria-expanded={notificationsOpen}
+              >
+                <Bell size={16} />
+                {(metrics.pendingPayoutRequestsCount > 0 || referrals.length > 0) && (
+                  <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-brand" />
+                )}
+              </button>
+
+              {notificationsOpen && (
+                <div className="absolute right-0 mt-2 w-80 rounded-2xl border border-line bg-panel shadow-xl z-50 overflow-hidden">
+                  <div className="px-4 py-3 border-b border-line flex items-center justify-between">
+                    <p className="text-xs font-bold text-heading">
+                      {isEn ? 'Notifications' : 'Notifications'}
+                    </p>
+                    <Badge tone="brand">
+                      {metrics.pendingPayoutRequestsCount + Math.min(3, referrals.length)}
+                    </Badge>
+                  </div>
+                  <div className="divide-y divide-line max-h-72 overflow-y-auto">
+                    {metrics.pendingPayoutRequestsCount > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveSection('payouts');
+                          setNotificationsOpen(false);
+                        }}
+                        className="w-full px-4 py-3 flex items-start gap-3 hover:bg-hover text-left cursor-pointer"
+                      >
+                        <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-warning-bg text-warning">
+                          <Wallet size={14} />
+                        </span>
+                        <div className="min-w-0">
+                          <p className="text-xs font-semibold text-heading">
+                            {isEn ? 'Pending payout requests' : 'Virements en attente'}
+                          </p>
+                          <p className="text-[11px] text-muted">
+                            {metrics.pendingPayoutRequestsCount}{' '}
+                            {isEn ? 'request(s) awaiting approval' : 'demande(s) à valider'}
+                          </p>
+                        </div>
+                      </button>
+                    )}
+                    {studios.slice(0, 3).map((s) => (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() => {
+                          setActiveSection('studios');
+                          setNotificationsOpen(false);
+                        }}
+                        className="w-full px-4 py-3 flex items-start gap-3 hover:bg-hover text-left cursor-pointer"
+                      >
+                        <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-brand">
+                          <Building2 size={14} />
+                        </span>
+                        <div className="min-w-0">
+                          <p className="text-xs font-semibold text-heading truncate">{s.name}</p>
+                          <p className="text-[11px] text-muted truncate">
+                            {isEn ? 'Plan:' : 'Formule :'} {s.planId.toUpperCase()}
+                          </p>
+                        </div>
+                      </button>
+                    ))}
+                    {metrics.pendingPayoutRequestsCount === 0 && studios.length === 0 && (
+                      <p className="px-4 py-6 text-center text-xs text-muted">
+                        {isEn ? 'No new notifications.' : 'Aucune nouvelle notification.'}
+                      </p>
+                    )}
+                  </div>
+                </div>
               )}
-            </button>
+            </div>
 
             {/* Studio Space Link */}
             <Link
@@ -804,6 +906,66 @@ export function MasterFounderDashboardPage() {
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
+
+              {/* Revenue Overview Bar Chart (Figma 63:199429) */}
+              <div className="rounded-2xl border border-line bg-panel p-5 shadow-sm space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                  <div>
+                    <h2 className="text-base font-bold text-heading">
+                      {isEn ? 'Revenue Overview' : 'Aperçu des Revenus'}
+                    </h2>
+                    <p className="text-xs text-muted">
+                      {isEn ? 'Estimated subscription revenue' : 'Revenus d’abonnements estimés'}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4 text-xs text-muted">
+                    <span className="inline-flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-brand" />
+                      {isEn ? 'Monthly' : 'Mensuel'}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-fill-strong" />
+                      {isEn ? 'Yearly' : 'Annuel'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-8">
+                  <div>
+                    <p className="text-xs text-muted">{isEn ? 'Monthly revenue' : 'Revenu mensuel'}</p>
+                    <p className="text-2xl font-bold text-heading mt-0.5">{formatAmount(metrics.mrrEur, region)}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted">{isEn ? 'Yearly run-rate' : 'Projection annuelle'}</p>
+                    <p className="text-2xl font-bold text-heading mt-0.5">{formatAmount(metrics.mrrEur * 12, region)}</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-12 items-end gap-2 sm:gap-3 h-36 pt-2">
+                  {[
+                    { m: 'Jun', a: 28, b: 42 },
+                    { m: 'Jul', a: 32, b: 48 },
+                    { m: 'Aug', a: 36, b: 54 },
+                    { m: 'Sep', a: 40, b: 60 },
+                    { m: 'Oct', a: 44, b: 64 },
+                    { m: 'Nov', a: 48, b: 68 },
+                    { m: 'Dec', a: 52, b: 74 },
+                    { m: 'Jan', a: 56, b: 78 },
+                    { m: 'Feb', a: 60, b: 84 },
+                    { m: 'Mar', a: 64, b: 88 },
+                    { m: 'Apr', a: 68, b: 92 },
+                    { m: 'May', a: 72, b: 98 },
+                  ].map((bar) => (
+                    <div key={bar.m} className="flex flex-col items-center gap-1.5 h-full justify-end">
+                      <div className="w-full flex items-end justify-center gap-1 h-full">
+                        <div className="w-2 sm:w-2.5 rounded-t-md bg-fill-strong" style={{ height: `${bar.a}%` }} />
+                        <div className="w-2 sm:w-2.5 rounded-t-md bg-brand" style={{ height: `${bar.b}%` }} />
+                      </div>
+                      <span className="text-[10px] text-faint">{bar.m}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
 
