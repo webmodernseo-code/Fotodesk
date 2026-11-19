@@ -51,7 +51,60 @@ function Sparkline({ tone }: { tone: MetricTone }) {
   );
 }
 
-function MetricCard({ item }: {
+function PhotoQuotaRing({ percent }: { percent: number }) {
+  const r = 20;
+  const c = 2 * Math.PI * r;
+  const clamped = Math.max(8, Math.min(100, percent));
+  const dash = (clamped / 100) * c;
+  return (
+    <svg width="56" height="56" viewBox="0 0 56 56" className="shrink-0" aria-hidden="true">
+      <circle cx="28" cy="28" r={r} fill="none" stroke="rgba(16, 185, 129, 0.16)" strokeWidth="5" />
+      <circle
+        cx="28"
+        cy="28"
+        r={r}
+        fill="none"
+        stroke="#10b981"
+        strokeWidth="5"
+        strokeLinecap="round"
+        strokeDasharray={`${dash} ${c}`}
+        transform="rotate(-90 28 28)"
+      />
+      <text
+        x="28"
+        y="32"
+        textAnchor="middle"
+        fill="currentColor"
+        fontSize="11"
+        fontWeight="600"
+      >
+        {Math.round(percent)}%
+      </text>
+    </svg>
+  );
+}
+
+function VideoWaveformBars() {
+  const bars = [14, 24, 34, 20, 28, 16];
+  return (
+    <svg width="64" height="44" viewBox="0 0 64 44" className="shrink-0" aria-hidden="true">
+      {bars.map((h, i) => (
+        <rect
+          key={i}
+          x={4 + i * 10}
+          y={40 - h}
+          width="5"
+          height={h}
+          rx="2.5"
+          fill="#3b82f6"
+          fillOpacity={0.35 + (i % 3) * 0.25}
+        />
+      ))}
+    </svg>
+  );
+}
+
+function MetricCard({ item, onClick }: {
   item: {
     label: string;
     value: string;
@@ -61,11 +114,16 @@ function MetricCard({ item }: {
     subLabel?: string;
     usedPercent?: number;
     iconTileStyle?: React.CSSProperties;
+    visual?: 'photoRing' | 'videoBars';
   };
+  onClick?: () => void;
 }) {
   const Icon = item.icon;
   return (
-    <article className={`fd-card fd-metric fd-metric--${item.tone}`}>
+    <article
+      className={`fd-card fd-metric fd-metric--${item.tone} ${onClick ? 'cursor-pointer' : ''}`}
+      onClick={onClick}
+    >
       <div className="fd-metric-head">
         <div className="fd-icon-tile" style={item.iconTileStyle}><Icon size={21} strokeWidth={1.8} /></div>
         <span className="fd-metric-label">{item.label}</span>
@@ -76,18 +134,19 @@ function MetricCard({ item }: {
           {item.tone === "storage" ? (
             <>
               <div className="fd-meter" aria-label={`${item.usedPercent || 0}% du stockage utilisé`}>
-                <i style={{ width: `${Math.min(100, item.usedPercent || 0)}%` }} />
+                <i style={{ width: `${Math.min(100, item.usedPercent || 0)}%`, background: '#f97316' }} />
               </div>
               <p className="fd-metric-description">{item.subLabel || "0% de la limite 118.57 GB"}</p>
             </>
           ) : (
             <>
-              <p className="fd-growth"><ArrowUpRight size={15} /> {item.change}</p>
-              <p className="fd-metric-description">vs. semaine précédente</p>
+              <p className="fd-growth">{item.change}</p>
+              <p className="fd-metric-description">{item.subLabel || "Studio actif"}</p>
             </>
           )}
         </div>
-        {item.tone !== "storage" && <Sparkline tone={item.tone} />}
+        {item.visual === 'photoRing' && <PhotoQuotaRing percent={item.usedPercent ?? 0} />}
+        {item.visual === 'videoBars' && <VideoWaveformBars />}
       </div>
     </article>
   );
@@ -254,10 +313,16 @@ export const FotoDeskDashboard: React.FC<DashboardProps> = ({
 
   const metrics = useMemo(() => {
     const unavailable = dashboardQuery.isLoading || dashboardQuery.isError;
-    const activeVal = unavailable ? "—" : formatNumber(dashboardStats?.activeEvents ?? 0);
-    const videoCount = Array.isArray(videoGalleriesQuery.data?.galleries)
-      ? videoGalleriesQuery.data.galleries.length
-      : 0;
+    const activeCount = dashboardStats?.activeEvents ?? 0;
+    const activeVal = unavailable ? "—" : formatNumber(activeCount);
+    const photoQuotaPct = Math.min(100, Math.round((activeCount / 3) * 100));
+    const videoList = Array.isArray(videoGalleriesQuery.data?.galleries)
+      ? videoGalleriesQuery.data.galleries
+      : [];
+    const videoCount = videoList.length;
+    const videoTotalMin = Math.ceil(
+      videoList.reduce((acc: number, g: any) => acc + Number(g.totalDurationSec || 0), 0) / 60
+    );
     const videoVal = videoGalleriesQuery.isLoading ? "—" : formatNumber(videoCount);
 
     const storageBytes = dashboardStats?.storageUsed;
@@ -269,16 +334,23 @@ export const FotoDeskDashboard: React.FC<DashboardProps> = ({
       {
         label: "Galerie photo",
         value: activeVal,
-        change: "—",
+        change: `${activeCount} active(s)`,
+        subLabel: "Ouvrir les galeries photo",
         icon: ImageIcon,
         tone: "green" as MetricTone,
+        usedPercent: photoQuotaPct,
+        visual: 'photoRing' as const,
+        to: '/admin/events',
       },
       {
         label: "Galerie vidéo",
         value: videoVal,
-        change: "—",
+        change: `${videoTotalMin} min stockées`,
+        subLabel: "Ouvrir les galeries vidéo",
         icon: Video,
         tone: "blue" as MetricTone,
+        visual: 'videoBars' as const,
+        to: '/admin/video-galleries',
       },
       {
         label: "Stockage",
@@ -289,6 +361,7 @@ export const FotoDeskDashboard: React.FC<DashboardProps> = ({
         iconTileStyle: { background: 'rgba(249, 115, 22, 0.14)', color: '#f97316' },
         subLabel: storageBytes == null ? "Mesure indisponible" : `${usedPercent}% de la limite 118.57 GB`,
         usedPercent,
+        to: '/admin/subscription',
       },
     ];
   }, [dashboardQuery.isError, dashboardQuery.isLoading, dashboardStats, videoGalleriesQuery.data, videoGalleriesQuery.isLoading]);
@@ -426,7 +499,13 @@ export const FotoDeskDashboard: React.FC<DashboardProps> = ({
           style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}
           aria-label="Indicateurs clés"
         >
-          {metrics.map(item => <MetricCard key={item.label} item={item} />)}
+          {metrics.map(item => (
+            <MetricCard
+              key={item.label}
+              item={item}
+              onClick={item.to ? () => navigate(item.to) : undefined}
+            />
+          ))}
         </section>
 
         {/* 2 Bottom Panels */}
