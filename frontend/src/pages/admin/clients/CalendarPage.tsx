@@ -245,6 +245,8 @@ export const CalendarPage: React.FC = () => {
     staleTime: 30_000,
   });
 
+  const [range, setRange] = useState<{ from: string; to: string } | null>(null);
+
   const { data: googleEventsResp, refetch: refetchGoogleEvents } = useQuery({
     queryKey: ['admin-google-calendar-events', range?.from, range?.to, googleStatus?.connected],
     queryFn: async () => {
@@ -340,8 +342,6 @@ export const CalendarPage: React.FC = () => {
   const [formModalOpen, setFormModalOpen] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState<CalendarAppointmentItem | null>(null);
   const [detailsAppointment, setDetailsAppointment] = useState<CalendarAppointmentItem | null>(null);
-
-  const [range, setRange] = useState<{ from: string; to: string } | null>(null);
 
   const { data: itemsResp, isLoading: itemsLoading } = useQuery({
     queryKey: ['calendar-items', range?.from, range?.to],
