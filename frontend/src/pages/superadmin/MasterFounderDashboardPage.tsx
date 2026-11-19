@@ -613,8 +613,8 @@ export function MasterFounderDashboardPage() {
                 placeholder={isEn ? 'Search studios, users, plans…' : 'Rechercher studios, plans…'}
                 className="w-full bg-transparent text-xs text-heading placeholder:text-faint focus:outline-none"
               />
-              <kbd className="rounded-md border border-line bg-panel px-1.5 py-0.5 text-[10px] font-medium text-muted">
-                ⌘ K
+              <kbd className="inline-flex items-center whitespace-nowrap shrink-0 rounded-md border border-line bg-panel px-1.5 py-0.5 text-[10px] font-medium text-muted">
+                ⌘K
               </kbd>
             </div>
 
