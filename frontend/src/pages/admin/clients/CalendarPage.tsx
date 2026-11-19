@@ -257,17 +257,41 @@ export const CalendarPage: React.FC = () => {
     staleTime: 60_000,
   });
 
+  useEffect(() => {
+    const onMsg = (ev: MessageEvent) => {
+      if (ev.data?.type === 'FOTODESK_GOOGLE_CALENDAR_CONNECTED') {
+        void refetchGoogleStatus();
+        void refetchGoogleEvents();
+        setSyncModalOpen(false);
+        toast.success('Compte Google Calendar connecté !');
+      }
+    };
+    window.addEventListener('message', onMsg);
+    return () => window.removeEventListener('message', onMsg);
+  }, [refetchGoogleStatus, refetchGoogleEvents]);
+
   const handleConnectGoogleOAuth = async () => {
     setGoogleBusy(true);
     try {
       const res = await api.get('/admin/calendar/google/auth-url');
       if (res.data?.url) {
-        window.location.href = res.data.url;
+        const w = 520;
+        const h = 640;
+        const left = Math.round(window.screenX + (window.outerWidth - w) / 2);
+        const top = Math.round(window.screenY + (window.outerHeight - h) / 2);
+        const popup = window.open(
+          res.data.url,
+          'fotodesk-google-calendar',
+          `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes`
+        );
+        if (!popup) {
+          window.location.href = res.data.url;
+        }
       }
     } catch (err: any) {
       toast.info(
         err?.response?.data?.error ||
-          "Renseignez GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET sur le serveur, ou collez votre lien secret iCal Google ci-dessous."
+          "Ajoutez GOOGLE_CLIENT_ID et GOOGLE_CLIENT_SECRET dans backend/.env pour activer la connexion OAuth Google."
       );
     } finally {
       setGoogleBusy(false);

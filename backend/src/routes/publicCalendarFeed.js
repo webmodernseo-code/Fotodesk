@@ -67,7 +67,21 @@ router.get('/google/callback', async (req, res) => {
       });
     }
 
-    return res.redirect(`${frontendUrl}/admin/agenda?google=connected`);
+    return res.type('text/html').send(`<!doctype html>
+<html>
+  <head><meta charset="utf-8"><title>Google Calendar connecté</title></head>
+  <body style="font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#0f1115;color:#fff;">
+    <p>Compte Google Calendar connecté. Fermeture…</p>
+    <script>
+      if (window.opener) {
+        window.opener.postMessage({ type: 'FOTODESK_GOOGLE_CALENDAR_CONNECTED' }, '*');
+        window.close();
+      } else {
+        window.location.replace(${JSON.stringify(`${frontendUrl}/admin/agenda?google=connected`)});
+      }
+    </script>
+  </body>
+</html>`);
   } catch (error) {
     logger.error('Google Calendar OAuth callback error:', error);
     return res.redirect(`${frontendUrl}/admin/agenda?google=error`);
