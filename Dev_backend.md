@@ -17,7 +17,7 @@ Ce document est la feuille de route vivante du développement backend de **FotoD
 | Phase | Intitulé | Statut |
 | --- | --- | --- |
 | Phase 1 | Socle Base de Données, Multi-Tenancy (`studios`) & Migrations | Terminée |
-| Phase 2 | Authentification, Sessions Actives & Permissions par Module | À faire |
+| Phase 2 | Authentification, Sessions Actives & Permissions par Module | Terminée |
 | Phase 3 | APIs Espace Studio (Dashboard, Clients, Projets, Calendrier, Factures) | À faire |
 | Phase 4 | Galeries Photo, Galeries Vidéo, Commentaires Horodatés & Quotas | À faire |
 | Phase 5 | Affiliation, Commissions (20 % 1er paiement) & Souscriptions | À faire |
@@ -36,14 +36,14 @@ Ce document est la feuille de route vivante du développement backend de **FotoD
 ---
 
 ## Phase 2 — Authentification, Sessions Actives & Permissions par Module
-- [ ] **2.1** Endpoints d'inscription & connexion :
+- [x] **2.1** Endpoints d'inscription & connexion :
   - `POST /api/auth/register` : création compte + studio `starter` + code affilié unique (`ref_code`).
   - `POST /api/auth/admin/login` : connexion unifiée pour Studio (`admin` / `team_member`) et Super Admin (`super_admin`).
   - `POST /api/auth/logout` & `GET /api/auth/me`.
-- [ ] **2.2** Gestion des sessions actives (`user_sessions`) :
+- [x] **2.2** Gestion des sessions actives (`user_sessions`) :
   - `GET /api/admin/settings/sessions` : lister les appareils connectés.
   - `DELETE /api/admin/settings/sessions/:id` : révoquer une session distante.
-- [ ] **2.3** Matrice de permissions des membres d'équipe (`member_module_permissions`) :
+- [x] **2.3** Matrice de permissions des membres d'équipe (`member_module_permissions`) :
   - Modules : `dashboard`, `clients`, `projects`, `calendar`, `photoGalleries`, `videoGalleries`, `invoices`, `landingBuilder`, `affiliate`, `settings`.
   - Droits par module : `can_view`, `can_create`, `can_edit`, `can_delete`.
   - Middleware `requireModulePermission(module, action)` renvoyant `403 Forbidden` côté serveur.

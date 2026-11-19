@@ -19,6 +19,9 @@ const {
   getGenericAuthError
 } = require('../utils/authSecurity');
 const { endSession } = require('../middleware/sessionTimeout');
+const { adminAuth } = require('../middleware/auth');
+const { getModulePermissionsForAdmin } = require('../middleware/modulePermissions');
+const adminSessionService = require('../services/adminSessionService');
 const { revokeToken } = require('../utils/tokenRevocation');
 const { timingSafeEqualStr } = require('../utils/timingSafe');
 // Well-formed bcrypt hash that matches nothing; compared against when there is
@@ -71,11 +74,13 @@ async function establishAdminSession(res, admin, ipAddress, userAgent, lockoutKe
     last_login_ip: ipAddress
   });
 
+  const jti = crypto.randomUUID();
   const token = jwt.sign({
     id: admin.id,
     username: admin.username,
     type: 'admin',
     role: admin.role_name,
+    jti,
     ip: ipAddress,
     loginTime: Date.now(),
     // In the payload, not just in the expiry, because the idle-timeout
@@ -89,6 +94,13 @@ async function establishAdminSession(res, admin, ipAddress, userAgent, lockoutKe
     // either dies early or outlives its token.
     expiresIn: rememberMe ? '30d' : '24h',
     issuer: 'picpeak-auth'
+  });
+
+  await adminSessionService.createSession({
+    adminId: admin.id,
+    jti,
+    ipAddress,
+    userAgent,
   });
 
   setAdminAuthCookie(res, token, { rememberMe });
@@ -409,6 +421,9 @@ router.post('/logout', async (req, res) => {
         });
 
         if (decoded.type === 'admin') {
+          if (decoded.jti) {
+            await adminSessionService.revokeSessionByJti(decoded.jti);
+          }
           clearAdminAuthCookie(res);
         } else if (decoded.type === 'gallery') {
           clearGalleryAuthCookies(res, decoded.eventSlug);
@@ -1075,6 +1090,164 @@ router.get('/admin/sso/callback', async (req, res) => {
     // (bad state/nonce, signature, issuer mismatch, IdP-side errors).
     logger.warn('OIDC callback failed', { error: error.message, key });
     return fail(key);
+  }
+});
+
+/**
+ * POST /api/auth/register
+ * Public studio signup: creates admin user (role_id = 2), starter studio,
+ * owner studio membership, and optional affiliate referral linkage.
+ */
+router.post('/register', [
+  body('email').isEmail().normalizeEmail(),
+  body('password').isString().isLength({ min: 8, max: MAX_PASSWORD_LENGTH }),
+  body('studioName').isString().trim().isLength({ min: 2, max: 120 }),
+  body('username').optional().isString().trim().isLength({ min: 2, max: 64 }),
+  body('refCode').optional().isString().trim().isLength({ max: 64 }),
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: safeValidationErrors(errors) });
+    }
+
+    const email = req.body.email.toLowerCase();
+    const studioName = req.body.studioName.trim();
+    const username = (req.body.username || email.split('@')[0]).trim();
+    const refCode = req.body.refCode ? req.body.refCode.trim().toUpperCase() : null;
+    const ipAddress = getClientIp(req);
+    const userAgent = req.headers['user-agent'] || '';
+
+    const existing = await db('admin_users')
+      .where('email', email)
+      .orWhere('username', username)
+      .first('id', 'email', 'username');
+    if (existing) {
+      return res.status(409).json({
+        error: existing.email === email
+          ? 'Un compte existe déjà avec cette adresse e-mail.'
+          : 'Ce nom d’utilisateur est déjà utilisé.',
+      });
+    }
+
+    const passwordHash = await bcrypt.hash(req.body.password, 10);
+    const baseSlug = studioName
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '') || 'studio';
+    const slugTaken = await db('studios').where({ slug: baseSlug }).first('id');
+    const slug = slugTaken
+      ? `${baseSlug}-${crypto.randomBytes(2).toString('hex')}`
+      : baseSlug;
+
+    const studioRole = await db('roles').where({ name: 'admin' }).first('id')
+      || await db('roles').where('id', 2).first('id');
+    const roleId = studioRole ? studioRole.id : 2;
+
+    const created = await db.transaction(async (trx) => {
+      const [adminIdRow] = await trx('admin_users').insert({
+        username,
+        email,
+        password_hash: passwordHash,
+        role_id: roleId,
+        is_active: true,
+        must_change_password: false,
+        created_at: new Date(),
+        updated_at: new Date(),
+      });
+      const adminId = typeof adminIdRow === 'object' ? adminIdRow.id : adminIdRow;
+
+      const [studioIdRow] = await trx('studios').insert({
+        name: studioName,
+        slug,
+        owner_admin_id: adminId,
+        plan_id: 'starter',
+        plan_status: 'active',
+        status: 'active',
+        billing_interval: 'monthly',
+        monthly_price: 0,
+        referred_by_code: refCode,
+        storage_limit_gb: 3,
+        video_storage_limit_min: 0,
+        video_playback_limit_min: 0,
+        video_playback_used_min: 0,
+        business_email: email,
+        created_at: new Date(),
+        updated_at: new Date(),
+      });
+      const studioId = typeof studioIdRow === 'object' ? studioIdRow.id : studioIdRow;
+
+      await trx('studio_memberships').insert({
+        studio_id: studioId,
+        admin_id: adminId,
+        role: 'owner',
+        created_at: new Date(),
+      });
+
+      return { adminId, studioId };
+    });
+
+    // Generate an affiliate referral code for this studio if affiliate_accounts exists
+    let affiliateCode = null;
+    try {
+      const hasAffiliateTable = await db.schema.hasTable('affiliate_accounts');
+      if (hasAffiliateTable) {
+        const existingAff = await db('affiliate_accounts').where({ email }).first('referral_code');
+        if (existingAff) {
+          affiliateCode = existingAff.referral_code;
+        } else {
+          affiliateCode = `FD-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
+          await db('affiliate_accounts').insert({
+            email,
+            password_hash: passwordHash,
+            display_name: studioName,
+            referral_code: affiliateCode,
+            is_active: true,
+            created_at: new Date(),
+          });
+        }
+      }
+    } catch (_) { /* best-effort */ }
+
+    const admin = await db('admin_users')
+      .leftJoin('roles', 'roles.id', 'admin_users.role_id')
+      .where('admin_users.id', created.adminId)
+      .select('admin_users.*', 'roles.name as role_name', 'roles.display_name as role_display_name')
+      .first();
+
+    const user = await establishAdminSession(res, admin, ipAddress, userAgent, email, { rememberMe: false });
+    const studio = await db('studios').where({ id: created.studioId }).first();
+
+    return res.status(201).json({
+      user,
+      studio,
+      affiliateCode,
+    });
+  } catch (error) {
+    logger.error('Studio registration error:', error);
+    return res.status(500).json({ error: 'Erreur lors de la création du studio.' });
+  }
+});
+
+/**
+ * GET /api/auth/me
+ * Returns the authenticated admin, active studio, and module permission matrix.
+ */
+router.get('/me', adminAuth, async (req, res) => {
+  try {
+    const modulePermissions = await getModulePermissionsForAdmin(
+      req.admin.id,
+      req.studioId,
+      req.admin
+    );
+    return res.json({
+      user: req.admin,
+      studio: req.studio || null,
+      modulePermissions,
+    });
+  } catch (error) {
+    logger.error('GET /api/auth/me error:', error);
+    return res.status(500).json({ error: 'Erreur lors de la récupération du profil.' });
   }
 });
 

@@ -6,6 +6,7 @@ const { roleEventScope } = require('./permissions');
 const { loadAssignedEventIds } = require('./ownership');
 const { loadCrmActor, withCrmActor } = require('../database/crmAccess');
 const { resolveStudioContext } = require('./studioContext');
+const { isSessionRevoked } = require('../services/adminSessionService');
 
 // GHSA-h4w8-57xq-53fx: must_change_password was written on reset (and on
 // invitation/OIDC-bypass paths) but nothing server-side ever checked it — a
@@ -48,6 +49,10 @@ async function adminAuth(req, res, next) {
     // includeProfile: true — need must_change_password for the enforcement
     // check below on every request, not just the profile/session-check routes.
     const admin = await sessionAccess.admin(decoded, { includeProfile: true });
+    if (decoded.jti && await isSessionRevoked(decoded.jti)) {
+      return res.status(401).json({ error: 'Session révoquée', code: 'SESSION_REVOKED' });
+    }
+    req.sessionJti = decoded.jti || null;
     const requestIp = req.ip || req.connection?.remoteAddress;
     if (decoded.ip && requestIp && decoded.ip !== requestIp) {
       logger.info('admin session IP changed', { accountId: admin.id, tokenIp: decoded.ip, requestIp });

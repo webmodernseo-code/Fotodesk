@@ -157,10 +157,10 @@ const cspDirectives = {
     'https://www.google.com',
     'https://www.gstatic.com'
   ],
-  styleSrc: ["'self'", "'unsafe-inline'", "https:"], // Required for styled components
+  styleSrc: ["'self'", "'unsafe-inline'"], // Inline styles remain for themed galleries; no remote stylesheets.
   imgSrc: ["'self'", "data:", "https:", "blob:"], // Allow data URLs and external images
   connectSrc: ["'self'", 'https://www.google.com', 'https://www.gstatic.com'], // API connections
-  fontSrc: ["'self'", "https:", "data:"], // Web fonts
+  fontSrc: ["'self'", "data:"], // Fonts are self-hosted.
   objectSrc: ["'none'"], // Disable plugins
   mediaSrc: ["'self'", "blob:"], // Audio/video, incl. page-created blobs (matches imgSrc)
   frameSrc: ["'self'", 'https://www.google.com'],
@@ -295,17 +295,13 @@ app.get(['/health', '/api/health'], async (req, res) => {
     await db.raw('SELECT 1');
     res.json({
       status: 'ok',
-      timestamp: new Date().toISOString(),
-      pid: process.pid,
-      uptime: process.uptime()
+      timestamp: new Date().toISOString()
     });
   } catch (error) {
     logger.error('Health check failed:', error);
     res.status(503).json({
       status: 'error',
-      timestamp: new Date().toISOString(),
-      pid: process.pid,
-      uptime: process.uptime()
+      timestamp: new Date().toISOString()
     });
   }
 });
@@ -515,7 +511,7 @@ async function handlePublicSiteRequest(req, res, next) {
     res.setHeader('Cache-Control', 'public, max-age=30, must-revalidate');
     res.setHeader('ETag', etag);
     res.setHeader('Vary', 'Accept-Encoding');
-    res.setHeader('Content-Security-Policy', "default-src 'self'; frame-ancestors 'none'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https:; font-src 'self' https: data:; object-src 'none'; script-src 'self'; form-action 'self'");
+    res.setHeader('Content-Security-Policy', "default-src 'self'; frame-ancestors 'none'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; object-src 'none'; script-src 'self'; form-action 'self'");
 
     res.status(200).send(document);
   } catch (error) {
@@ -870,6 +866,7 @@ app.use('/api/gallery', galleryRoutes);
 app.use('/api/gallery', require('./src/routes/galleryFeedback'));
 app.use('/api/gallery', require('./src/routes/galleryGuests'));
 app.use('/api/admin', adminRoutes);
+app.use('/api/admin/portfolio', require('./src/routes/portfolios').adminRouter);
 app.use('/api/admin/auth', adminAuthRoutes);
 app.use('/api/admin/system', require('./src/routes/adminSystem'));
 // Branded URL shortener admin CRUD (#699) — list/create/delete short URLs
@@ -900,6 +897,7 @@ app.use('/api/admin/photo-export', require('./src/routes/adminPhotoExport'));
 app.use('/api/admin/css-templates', require('./src/routes/adminCssTemplates'));
 app.use('/api/admin/events', require('./src/routes/adminEventRename'));
 app.use('/api/admin/users', require('./src/routes/adminUsers'));
+app.use('/api/admin/team-members', require('./src/routes/adminTeamMembers'));
 app.use('/api/admin/roles', require('./src/routes/adminRoles'));
 // Customer portal (#354). The customerPortal feature flag is a
 // VISIBILITY toggle for the admin surface, not a kill switch for
@@ -942,6 +940,8 @@ app.use('/api/admin/customers', noStoreCache, require('./src/routes/adminCustome
 // gate was reverted upstream and lives in the UI now.
 app.use('/api/customer/auth', noStoreCache, require('./src/routes/customerAuth'));
 app.use('/api/customer', noStoreCache, require('./src/routes/customer'));
+app.use('/api/affiliate', noStoreCache, require('./src/routes/affiliate'));
+app.use('/api/superadmin', noStoreCache, require('./src/routes/masterAdmin'));
 
 // --- CRM (#TBD) -------------------------------------------------------
 // Quotes / Invoices / Contracts / Calendar / Tax report / Deals lineage.
@@ -965,6 +965,7 @@ app.use('/api/admin/contract-templates', require('./src/routes/adminContractTemp
 app.use('/api/admin/document-attachments', require('./src/routes/adminDocumentAttachments'));
 app.use('/api/admin/projects',   require('./src/routes/adminProjects'));
 app.use('/api/admin/calendar',   require('./src/routes/adminCalendar'));
+app.use('/api/admin/studio-threads', require('./src/routes/adminStudioThreads'));
 app.use('/api/admin/deals',      require('./src/routes/adminDeals'));
 app.use('/api/admin/workflows',  require('./src/routes/adminWorkflows'));
 app.use('/api/admin/tax-report', require('./src/routes/adminTaxReport'));
@@ -1014,6 +1015,7 @@ app.use('/api/v1', require('./src/middleware/productUsage').productUsageApi, req
 
 app.use('/api/invite', require('./src/routes/acceptInvite'));
 app.use('/api/public/settings', require('./src/routes/publicSettings'));
+app.use('/api/public/portfolio', require('./src/routes/portfolios').publicRouter);
 app.use('/api/public/fonts', require('./src/routes/publicFonts'));
 app.use('/api/public', require('./src/routes/publicCMS'));
 

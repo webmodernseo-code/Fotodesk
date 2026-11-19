@@ -1113,6 +1113,38 @@ router.post('/sso/test', adminAuth, requirePermission('settings.security'), asyn
   }
 });
 
+router.get('/sessions', adminAuth, async (req, res) => {
+  try {
+    const adminSessionService = require('../services/adminSessionService');
+    const sessions = await adminSessionService.listSessionsForAdmin(
+      req.admin.id,
+      req.sessionJti || null
+    );
+    return res.json({ sessions });
+  } catch (error) {
+    logger.error('Failed to list active sessions:', error);
+    return res.status(500).json({ error: 'Erreur lors de la récupération des sessions.' });
+  }
+});
+
+router.delete('/sessions/:id', adminAuth, async (req, res) => {
+  try {
+    const sessionId = Number(req.params.id);
+    if (!Number.isInteger(sessionId) || sessionId <= 0) {
+      return res.status(400).json({ error: 'Identifiant de session invalide.' });
+    }
+    const adminSessionService = require('../services/adminSessionService');
+    const revoked = await adminSessionService.revokeSessionById(req.admin.id, sessionId);
+    if (!revoked) {
+      return res.status(404).json({ error: 'Session introuvable ou déjà révoquée.' });
+    }
+    return res.json({ success: true, id: sessionId });
+  } catch (error) {
+    logger.error('Failed to revoke session:', error);
+    return res.status(500).json({ error: 'Erreur lors de la révocation de la session.' });
+  }
+});
+
 router.get('/:type', adminAuth, requirePermission('settings.view'), async (req, res) => {
   try {
     const { type } = req.params;
@@ -1458,6 +1490,35 @@ router.put('/branding', adminAuth, requirePermission('settings.edit'), async (re
     });
   } catch (error) {
     errorResponse(res, error, 500, 'Failed to update branding settings');
+  }
+});
+
+// Upload logo
+router.post('/portfolio-photo', adminAuth, requirePermission('settings.edit'), upload.single('photo'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No profile photo uploaded' });
+    const oldPathSetting = await db('app_settings').where('setting_key', 'general_portfolio_profile_path').first();
+    if (oldPathSetting?.setting_value) {
+      try {
+        let oldPath = oldPathSetting.setting_value;
+        if (oldPath.startsWith('"')) oldPath = JSON.parse(oldPath);
+        await fs.unlink(oldPath);
+      } catch (error) {
+        logger.warn('Failed to remove old portfolio profile photo', { error: error.message });
+      }
+    }
+    const photoUrl = `/uploads/logos/${req.file.filename}`;
+    for (const [key, value] of Object.entries({
+      general_portfolio_profile_path: req.file.path,
+      general_portfolio_profile_url: photoUrl,
+    })) {
+      await db('app_settings').insert({ setting_key: key, setting_value: JSON.stringify(value), setting_type: 'general', updated_at: new Date() })
+        .onConflict('setting_key').merge({ setting_value: JSON.stringify(value), updated_at: new Date() });
+    }
+    clearPublicSiteCache();
+    res.json({ photoUrl });
+  } catch (error) {
+    errorResponse(res, error, 500, 'Failed to upload portfolio profile photo');
   }
 });
 
