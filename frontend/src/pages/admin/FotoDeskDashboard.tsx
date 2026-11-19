@@ -383,30 +383,31 @@ export const FotoDeskDashboard: React.FC<DashboardProps> = ({
             <div className="fd-hero-chips">
               <div className="fd-hero-chip">
                 <span className="fd-live-dot" />
-                <div className="text-[var(--accent)] font-semibold flex items-center gap-1.5">
-                  <Cloud size={16} />
-                  <strong>Données du studio</strong>
+                <Cloud size={17} className="text-neutral-300 shrink-0" />
+                <div className="flex flex-col leading-tight">
+                  <strong className="text-xs font-semibold text-white">Données du studio</strong>
+                  <span className="text-[11px] text-neutral-400">
+                    {dashboardQuery.isLoading ? "Actualisation…" : dashboardQuery.isError ? "Actualisation impossible" : "Indicateurs actualisés"}
+                  </span>
                 </div>
-                <span className="text-xs font-medium text-[var(--muted)] ml-1">
-                  {dashboardQuery.isLoading ? "Actualisation…" : dashboardQuery.isError ? "Actualisation impossible" : "Indicateurs actualisés"}
-                </span>
               </div>
               <a className="fd-hero-chip fd-hero-chip-link" href={portfolioUrl} target="_blank" rel="noopener noreferrer">
-                <Globe size={18} className="text-[var(--accent)]" />
-                <div>
-                  <strong>Portfolio public</strong>
-                  <span>Ouvrir le portfolio</span>
+                <Globe size={17} className="text-neutral-300 shrink-0" />
+                <div className="flex flex-col leading-tight">
+                  <strong className="text-xs font-semibold text-white">Portfolio public</strong>
+                  <span className="text-[11px] text-neutral-400">Ouvrir le portfolio</span>
                 </div>
-                <ExternalLink size={16} />
+                <ExternalLink size={15} className="text-neutral-400 shrink-0 ml-1" />
               </a>
             </div>
           </div>
           <button
-            className="fd-primary-button"
+            className="inline-flex items-center justify-center gap-2 h-10 px-4 rounded-xl bg-white text-neutral-950 hover:bg-neutral-100 active:scale-[0.99] text-[13px] font-semibold shadow-sm border border-white/20 transition-all cursor-pointer shrink-0"
             type="button"
             onClick={handleCreateGallery}
           >
-            <Plus size={19} /> Nouvelle galerie
+            <Plus size={16} strokeWidth={2.2} />
+            Nouvelle galerie
           </button>
         </section>
 
