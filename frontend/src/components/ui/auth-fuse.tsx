@@ -202,6 +202,7 @@ function SignInForm() {
   const [email, setEmail] = useState('user_b@fotodesk.com');
   const [password, setPassword] = useState('admin2026');
   const [isLoading, setIsLoading] = useState(false);
+  const [showReferralInput, setShowReferralInput] = useState(() => Boolean(referralCode.trim()));
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleSignIn = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -301,6 +302,7 @@ function SignUpForm() {
     return '';
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [showReferralInput, setShowReferralInput] = useState(() => Boolean(referralCode.trim()));
 
   const handleSignUp = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -349,10 +351,10 @@ function SignUpForm() {
   };
 
   return (
-    <form onSubmit={handleSignUp} autoComplete="on" className="flex flex-col gap-4">
-      <div className="grid gap-3.5">
-        <div className="grid gap-1.5">
-          <Label htmlFor="signup-studio">Nom du studio ou Photographe</Label>
+    <form onSubmit={handleSignUp} autoComplete="on" className="flex flex-col gap-3">
+      <div className="grid gap-2.5">
+        <div className="grid gap-1">
+          <Label htmlFor="signup-studio" className="text-xs">Nom du studio ou Photographe</Label>
           <Input
             id="signup-studio"
             name="studioName"
@@ -362,11 +364,12 @@ function SignUpForm() {
             placeholder="Ex : Studio Lumina ou Marc Dubois"
             required
             autoComplete="name"
+            className="h-9 text-sm"
           />
         </div>
 
-        <div className="grid gap-1.5">
-          <Label htmlFor="signup-email">Adresse e-mail</Label>
+        <div className="grid gap-1">
+          <Label htmlFor="signup-email" className="text-xs">Adresse e-mail</Label>
           <Input
             id="signup-email"
             name="email"
@@ -376,6 +379,7 @@ function SignUpForm() {
             placeholder="votre-email@exemple.com"
             required
             autoComplete="email"
+            className="h-9 text-sm"
           />
         </div>
 
@@ -388,37 +392,51 @@ function SignUpForm() {
           required
           autoComplete="new-password"
           placeholder="8 caractères minimum"
+          className="h-9 text-sm"
         />
 
-        {/* Code de parrainage optionnel (avec détection automatique) */}
-        <div className="grid gap-1.5">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="signup-referral">Code de parrainage</Label>
-            <span className="text-[11px] text-muted">Facultatif</span>
+        {showReferralInput ? (
+          <div className="grid gap-1">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="signup-referral" className="text-xs">Code de parrainage</Label>
+              <button
+                type="button"
+                onClick={() => {
+                  setReferralCode('');
+                  setShowReferralInput(false);
+                }}
+                className="text-[11px] text-muted hover:text-heading cursor-pointer"
+              >
+                Masquer
+              </button>
+            </div>
+            <Input
+              id="signup-referral"
+              name="referralCode"
+              type="text"
+              value={referralCode}
+              onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+              placeholder="Ex : FD-8E7DD5"
+              autoComplete="off"
+              className="h-9 text-sm"
+            />
           </div>
-          <Input
-            id="signup-referral"
-            name="referralCode"
-            type="text"
-            value={referralCode}
-            onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-            placeholder="Ex : AWA-FOTO"
-            autoComplete="off"
-          />
-          {referralCode.trim() && (
-            <p className="badge-success text-[11px] w-fit -mt-0.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-current inline-block" />
-              Code de parrainage appliqué
-            </p>
-          )}
-        </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setShowReferralInput(true)}
+            className="text-left text-[11px] font-medium text-muted hover:text-heading transition-colors w-fit cursor-pointer"
+          >
+            + Ajouter un code de parrainage (facultatif)
+          </button>
+        )}
 
-        <label className="flex cursor-pointer select-none items-center gap-2 pt-0.5 text-xs text-muted">
-          <input type="checkbox" defaultChecked required className="h-4 w-4 rounded border-line bg-panel accent-neutral-900 dark:accent-neutral-200 focus:ring-1 focus:ring-neutral-500" />
-          <span>J'accepte les conditions d'utilisation FotoDesk</span>
+        <label className="flex cursor-pointer select-none items-center gap-2 pt-0.5 text-[11px] text-muted">
+          <input type="checkbox" defaultChecked required className="h-3.5 w-3.5 rounded border-line bg-panel accent-neutral-900 dark:accent-neutral-200 focus:ring-1 focus:ring-neutral-500" />
+          <span>J&apos;accepte les conditions d&apos;utilisation FotoDesk</span>
         </label>
 
-        <Button type="submit" variant="primary" className="mt-1 w-full h-11 text-sm font-semibold" disabled={isLoading}>
+        <Button type="submit" variant="primary" className="mt-0.5 w-full h-10 text-sm font-semibold" disabled={isLoading}>
           {isLoading ? "Création en cours..." : "Créer mon compte studio"}
         </Button>
       </div>
@@ -431,20 +449,16 @@ function AuthFormContainer({ isSignIn, onToggle }: {
   onToggle: () => void;
 }) {
   return (
-    <div className="mx-auto w-full max-w-[440px] rounded-3xl border border-slate-200/90 dark:border-neutral-800 bg-white/95 dark:bg-neutral-900/95 p-6 sm:p-8 shadow-[0_20px_50px_-12px_rgba(15,23,42,0.12),0_4px_16px_-2px_rgba(15,23,42,0.04)] dark:shadow-[0_25px_65px_-12px_rgba(0,0,0,0.85)] backdrop-blur-2xl">
-      {/* En-tête partagé avec logo FotoDesk vectoriel */}
-      <div className="flex flex-col items-center gap-2 text-center mb-6">
-        <a href="/" className="mb-2 inline-flex items-center gap-2 transition-transform hover:scale-105" aria-label="Accueil FotoDesk">
-          <FotoDeskLogo size={52} className="text-neutral-900 dark:text-white" />
+    <div className="mx-auto w-full max-w-[420px] rounded-2xl border border-slate-200/90 dark:border-neutral-800 bg-white/95 dark:bg-neutral-900/95 p-5 sm:p-6 shadow-[0_20px_50px_-12px_rgba(15,23,42,0.12),0_4px_16px_-2px_rgba(15,23,42,0.04)] dark:shadow-[0_25px_65px_-12px_rgba(0,0,0,0.85)] backdrop-blur-2xl">
+      {/* En-tête compact avec logo FotoDesk vectoriel */}
+      <div className="flex flex-col items-center gap-1 text-center mb-4">
+        <a href="/" className="mb-1 inline-flex items-center gap-2 transition-transform hover:scale-105" aria-label="Accueil FotoDesk">
+          <FotoDeskLogo size={36} className="text-neutral-900 dark:text-white" />
         </a>
-        <div className="mb-1 badge-info px-3 py-1">
-          <span className="h-2 w-2 rounded-full bg-current inline-block" />
-          <span>{isSignIn ? "Espace Studio & Photographe" : "Nouveau Studio & Photographe"}</span>
-        </div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-900 dark:text-white">
+        <h1 className="text-xl font-bold tracking-tight text-neutral-900 dark:text-white">
           {isSignIn ? "Connexion à FotoDesk" : "Créer un compte FotoDesk"}
         </h1>
-        <p className="text-balance text-sm text-neutral-500 dark:text-neutral-400">
+        <p className="text-balance text-xs text-neutral-500 dark:text-neutral-400">
           {isSignIn
             ? "Accédez à votre tableau de bord, galeries et gestion client"
             : "Lancez votre studio photo professionnel en quelques instants"}
@@ -452,14 +466,14 @@ function AuthFormContainer({ isSignIn, onToggle }: {
       </div>
 
       {/* Switch segmented toggle moderne Apple/Stripe */}
-      <div className="grid grid-cols-2 rounded-2xl border border-slate-200/80 dark:border-neutral-800 bg-slate-100/90 dark:bg-neutral-800/80 p-1.5 shadow-inner mb-6">
+      <div className="grid grid-cols-2 rounded-xl border border-slate-200/80 dark:border-neutral-800 bg-slate-100/90 dark:bg-neutral-800/80 p-1 shadow-inner mb-4">
         <button
           type="button"
           onClick={() => !isSignIn && onToggle()}
           className={cn(
-            "h-10 text-xs font-semibold rounded-xl transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 select-none",
+            "h-9 text-xs font-semibold rounded-lg transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5 select-none",
             isSignIn
-              ? "bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white shadow-[0_2px_8px_rgba(0,0,0,0.08)] ring-1 ring-slate-900/5 dark:ring-white/10"
+              ? "bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white shadow-xs ring-1 ring-slate-900/5 dark:ring-white/10"
               : "text-neutral-500 hover:text-neutral-900 dark:hover:text-white"
           )}
         >
@@ -470,9 +484,9 @@ function AuthFormContainer({ isSignIn, onToggle }: {
           type="button"
           onClick={() => isSignIn && onToggle()}
           className={cn(
-            "h-10 text-xs font-semibold rounded-xl transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 select-none",
+            "h-9 text-xs font-semibold rounded-lg transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5 select-none",
             !isSignIn
-              ? "bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white shadow-[0_2px_8px_rgba(0,0,0,0.08)] ring-1 ring-slate-900/5 dark:ring-white/10"
+              ? "bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white shadow-xs ring-1 ring-slate-900/5 dark:ring-white/10"
               : "text-neutral-500 hover:text-neutral-900 dark:hover:text-white"
           )}
         >
@@ -483,13 +497,13 @@ function AuthFormContainer({ isSignIn, onToggle }: {
 
       {isSignIn ? <SignInForm /> : <SignUpForm />}
 
-      {/* Séparateur fluide et aéré */}
-      <div className="relative my-6 text-center text-xs">
+      {/* Séparateur compact */}
+      <div className="relative my-3.5 text-center text-xs">
         <div className="absolute inset-0 flex items-center" aria-hidden="true">
           <div className="w-full border-t border-slate-200/80 dark:border-white/10" />
         </div>
         <div className="relative flex justify-center">
-          <span className="bg-white dark:bg-neutral-900 px-3 text-xs text-neutral-500 dark:text-neutral-400 font-semibold">
+          <span className="bg-white dark:bg-neutral-900 px-2.5 text-[11px] text-neutral-500 dark:text-neutral-400 font-medium">
             Ou continuer avec
           </span>
         </div>
@@ -498,10 +512,10 @@ function AuthFormContainer({ isSignIn, onToggle }: {
       <Button
         variant="outline"
         type="button"
-        className="h-11 w-full border-slate-200/90 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/[0.04] text-neutral-800 dark:text-neutral-200 text-sm font-medium"
+        className="h-9 w-full border-slate-200/90 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/[0.04] text-neutral-800 dark:text-neutral-200 text-xs font-medium"
         onClick={() => toast.info("Authentification Google disponible prochainement")}
       >
-        <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
+        <svg className="mr-2 h-3.5 w-3.5" viewBox="0 0 24 24">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
           <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
           <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
@@ -510,21 +524,7 @@ function AuthFormContainer({ isSignIn, onToggle }: {
         Continuer avec Google
       </Button>
 
-      <div className="mt-6 mb-2 text-center text-xs">
-        <span className="font-semibold text-neutral-700 dark:text-neutral-300">
-          {isSignIn ? "Vous n'avez pas encore de compte ?" : "Vous avez déjà un compte ?"}
-        </span>{" "}
-        <button
-          type="button"
-          className="ml-1 cursor-pointer font-bold hover:underline"
-          style={{ color: 'var(--sem-info-fg)' }}
-          onClick={onToggle}
-        >
-          {isSignIn ? "Créer un compte" : "Se connecter"}
-        </button>
-      </div>
-
-      <div className="mt-6 flex items-center justify-between border-t border-slate-200/80 dark:border-white/10 pt-4 text-xs text-muted">
+      <div className="mt-4 flex items-center justify-between border-t border-slate-200/80 dark:border-white/10 pt-3 text-[11px] text-muted">
         <a href="/" className="inline-flex items-center gap-1.5 transition-colors hover:text-heading">
           <ArrowLeft className="w-3.5 h-3.5 text-muted" /> Accueil FotoDesk
         </a>
