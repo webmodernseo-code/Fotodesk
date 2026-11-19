@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Palette, RotateCcw } from 'lucide-react';
+import { Code2, LayoutGrid, Palette, RotateCcw } from 'lucide-react';
 import { Button } from '../common';
 import { ThemeConfig, GALLERY_THEME_PRESETS, GalleryLayoutType } from '../../types/theme.types';
 import type { EnabledTemplate } from '../../services/cssTemplates.service';
@@ -81,6 +81,7 @@ export const ThemeCustomizerEnhanced: React.FC<ThemeCustomizerEnhancedProps> = (
   const [localTheme, setLocalTheme] = useState<ThemeConfig>(value);
   const [selectedPreset, setSelectedPreset] = useState(presetName);
   const [customCss, setCustomCss] = useState(value.customCss || '');
+  const [sectionTab, setSectionTab] = useState<'layout' | 'style' | 'advanced'>('layout');
 
   const BETA_LAYOUTS: GalleryLayoutType[] = ['gallery-premium', 'gallery-story'];
   const MIN_RECOMMENDED_THUMBNAIL_SIZE = 500;
@@ -246,83 +247,125 @@ export const ThemeCustomizerEnhanced: React.FC<ThemeCustomizerEnhancedProps> = (
   };
 
   return (
-    <div className="space-y-6">
-      {/* Preset Themes */}
-      <ThemePresetsCard
-        selectedPreset={selectedPreset}
-        handlePresetSelect={handlePresetSelect}
-        showGalleryLayouts={showGalleryLayouts}
-        isBetaLayout={isBetaLayout}
-        isThumbnailTooSmall={isThumbnailTooSmall}
-        thumbnailWidth={thumbnailWidth}
-        thumbnailHeight={thumbnailHeight}
-        minRecommendedThumbnailSize={MIN_RECOMMENDED_THUMBNAIL_SIZE}
-      />
+    <div className="space-y-5">
+      <div
+        className="rounded-xl border border-line bg-panel p-1 flex flex-wrap gap-1"
+        role="tablist"
+        aria-label="Sections du thème"
+      >
+        {[
+          { key: 'layout' as const, label: 'Thèmes & Mise en page', icon: LayoutGrid },
+          { key: 'style' as const, label: 'Couleurs & Typo', icon: Palette },
+          { key: 'advanced' as const, label: 'Avancé (CSS)', icon: Code2 },
+        ].map((tab) => {
+          const Icon = tab.icon;
+          const isActive = sectionTab === tab.key;
+          return (
+            <button
+              key={tab.key}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              onClick={() => setSectionTab(tab.key)}
+              className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
+                isActive
+                  ? 'bg-white text-neutral-950 border border-neutral-200/80 shadow-2xs dark:bg-neutral-800 dark:text-white dark:border-white/10'
+                  : 'text-muted hover:text-heading hover:bg-hover/70 border border-transparent'
+              }`}
+            >
+              <Icon className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-emerald-600 dark:text-emerald-400' : ''}`} />
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
+      </div>
 
-      {/* Gallery Layout */}
-      {showGalleryLayouts && (
-        <GalleryLayoutCard
-          localTheme={localTheme}
-          handleChange={handleChange}
-          updateGallerySettings={updateGallerySettings}
-          isBetaLayout={isBetaLayout}
-          isThumbnailTooSmall={isThumbnailTooSmall}
-          thumbnailWidth={thumbnailWidth}
-          thumbnailHeight={thumbnailHeight}
-          minRecommendedThumbnailSize={MIN_RECOMMENDED_THUMBNAIL_SIZE}
-        />
+      {sectionTab === 'layout' && (
+        <>
+          {/* Preset Themes */}
+          <ThemePresetsCard
+            selectedPreset={selectedPreset}
+            handlePresetSelect={handlePresetSelect}
+            showGalleryLayouts={showGalleryLayouts}
+            isBetaLayout={isBetaLayout}
+            isThumbnailTooSmall={isThumbnailTooSmall}
+            thumbnailWidth={thumbnailWidth}
+            thumbnailHeight={thumbnailHeight}
+            minRecommendedThumbnailSize={MIN_RECOMMENDED_THUMBNAIL_SIZE}
+          />
+
+          {/* Gallery Layout */}
+          {showGalleryLayouts && (
+            <GalleryLayoutCard
+              localTheme={localTheme}
+              handleChange={handleChange}
+              updateGallerySettings={updateGallerySettings}
+              isBetaLayout={isBetaLayout}
+              isThumbnailTooSmall={isThumbnailTooSmall}
+              thumbnailWidth={thumbnailWidth}
+              thumbnailHeight={thumbnailHeight}
+              minRecommendedThumbnailSize={MIN_RECOMMENDED_THUMBNAIL_SIZE}
+            />
+          )}
+
+          {/* Header Style - Decoupled from Layout */}
+          {showGalleryLayouts && (
+            <HeaderStyleCard localTheme={localTheme} handleChange={handleChange} />
+          )}
+
+          {/* Controls Style */}
+          {showGalleryLayouts && (
+            <ControlsStyleCard localTheme={localTheme} handleChange={handleChange} />
+          )}
+        </>
       )}
 
-      {/* Header Style - Decoupled from Layout */}
-      {showGalleryLayouts && (
-        <HeaderStyleCard localTheme={localTheme} handleChange={handleChange} />
+      {sectionTab === 'style' && (
+        <>
+          {/* Color Customization */}
+          <ColorCustomizationCard
+            localTheme={localTheme}
+            handleChange={handleChange}
+            handleColorModeSelect={handleColorModeSelect}
+            forcedColorActive={forcedColorActive}
+            isBrandingContext={isBrandingContext}
+            hideGalleryColors={hideGalleryColors}
+            forceColorMode={forceColorMode}
+            onForceColorModeChange={onForceColorModeChange}
+            onSyncFromBranding={onSyncFromBranding}
+          />
+
+          {/* Typography & Style */}
+          <TypographyStyleCard
+            localTheme={localTheme}
+            handleChange={handleChange}
+            availableFonts={availableFonts}
+          />
+
+          {/* Caller-provided slot — PDF typography */}
+          {slotBeforeCustomCss}
+        </>
       )}
 
-      {/* Controls Style */}
-      {showGalleryLayouts && (
-        <ControlsStyleCard localTheme={localTheme} handleChange={handleChange} />
+      {sectionTab === 'advanced' && (
+        <>
+          {/* CSS Template Selector - only show if templates are provided */}
+          {cssTemplates && cssTemplates.length > 0 && onCssTemplateChange && (
+            <CssTemplateCard
+              cssTemplates={cssTemplates}
+              cssTemplateId={cssTemplateId}
+              onCssTemplateChange={onCssTemplateChange}
+            />
+          )}
+
+          {/* Event-specific Custom CSS */}
+          <CustomCssCard
+            localTheme={localTheme}
+            customCss={customCss}
+            onCustomCssChange={handleCustomCssChange}
+          />
+        </>
       )}
-
-      {/* Color Customization */}
-      <ColorCustomizationCard
-        localTheme={localTheme}
-        handleChange={handleChange}
-        handleColorModeSelect={handleColorModeSelect}
-        forcedColorActive={forcedColorActive}
-        isBrandingContext={isBrandingContext}
-        hideGalleryColors={hideGalleryColors}
-        forceColorMode={forceColorMode}
-        onForceColorModeChange={onForceColorModeChange}
-        onSyncFromBranding={onSyncFromBranding}
-      />
-
-      {/* Typography & Style */}
-      <TypographyStyleCard
-        localTheme={localTheme}
-        handleChange={handleChange}
-        availableFonts={availableFonts}
-      />
-
-      {/* CSS Template Selector - only show if templates are provided */}
-      {cssTemplates && cssTemplates.length > 0 && onCssTemplateChange && (
-        <CssTemplateCard
-          cssTemplates={cssTemplates}
-          cssTemplateId={cssTemplateId}
-          onCssTemplateChange={onCssTemplateChange}
-        />
-      )}
-
-      {/* Caller-provided slot — used by BrandingPage to keep the
-          PDF typography card adjacent to the web typography section
-          instead of trailing the (often-collapsed) Custom CSS block. */}
-      {slotBeforeCustomCss}
-
-      {/* Event-specific Custom CSS */}
-      <CustomCssCard
-        localTheme={localTheme}
-        customCss={customCss}
-        onCustomCssChange={handleCustomCssChange}
-      />
 
       {/* Actions */}
       {!hideActions && (
