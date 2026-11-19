@@ -18,17 +18,20 @@ import {
   CheckCircle,
   ChevronLeft,
   ChevronRight,
-  Sparkles
+  Eye,
+  Clock,
+  Video
 } from 'lucide-react';
 import { parseISO } from 'date-fns';
 import { toast } from 'react-toastify';
 import { useModal, useMutationWithToast } from '../../hooks';
 import { useLocalizedDate } from '../../hooks/useLocalizedDate';
 
-import { Button, Input, Card, SkeletonTable, ErrorBoundary, ColumnMenuHeader } from '../../components/common';
-import type { ColumnMenuOption, ColumnMenuState } from '../../components/common';
+import { Badge, Button, Input, Card, ErrorState, SkeletonTable, ErrorBoundary, ColumnMenuHeader, Table, TableBody, TableFrame, TableHead, TableRow } from '../../components/common';
+import type { BadgeTone, ColumnMenuOption, ColumnMenuState } from '../../components/common';
 import { BulkArchiveModal, BulkDeleteModal } from '../../components/admin';
 import { PermissionGate } from '../../components/admin/PermissionGate';
+import { SectionPageHeader } from '../../components/admin/SectionPageHeader';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { eventsService, type EventStatusFilter, type EventSortBy } from '../../services/events.service';
 import { eventTypesService } from '../../services/eventTypes.service';
@@ -51,7 +54,8 @@ const MENU_SORT_KEYS: readonly EventSortBy[] = [
   'event_name', 'event_date', 'created_at', 'photo_count', 'status', 'expires_at',
 ];
 
-export const EventsListPage: React.FC = () => {
+export const EventsListPage: React.FC<{ mediaMode?: 'photo' | 'video' }> = ({ mediaMode }) => {
+  const isVideoMode = mediaMode === 'video';
   const { t } = useTranslation();
   const { format } = useLocalizedDate();
   const navigate = useNavigate();
@@ -280,7 +284,7 @@ export const EventsListPage: React.FC = () => {
     { value: '', label: t('events.filterAllTypes', 'All types') },
     ...(eventTypes ?? []).map((type) => ({
       value: type.slug_prefix,
-      label: type.emoji ? `${type.emoji} ${type.name}` : type.name,
+      label: type.name,
     })),
   ];
 
@@ -360,7 +364,8 @@ export const EventsListPage: React.FC = () => {
 
   // Filtering and searching now happen server-side. Use the response directly,
   // ordered as the backend returned them (created_at desc by default).
-  const events: Event[] = data?.events ?? [];
+  const rawEvents: Event[] = data?.events ?? [];
+  const events: Event[] = isVideoMode ? rawEvents.filter((e) => (e.video_count ?? 0) > 0) : rawEvents;
 
   // Refetch when the soonest event expiry passes (#909 review): the status
   // badge is computed inline from Date.now(), and under the "expiring" filter
@@ -395,52 +400,47 @@ export const EventsListPage: React.FC = () => {
   const deliveryPill = (event: Event) => {
     if (!isAwaitingFullGallery(event) || event.is_archived) return null;
     const due = deliveryDue(event.delivery_due_at);
-    const color = due?.tone === 'overdue'
-      ? 'text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/40'
+    const tone: BadgeTone = due?.tone === 'overdue'
+      ? 'danger'
       : due?.tone === 'soon'
-        ? 'text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/40'
-        : 'text-body bg-inset';
+        ? 'warning'
+        : 'neutral';
     return (
-      <span className={`mt-1 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${color}`}>
-        <Sparkles className="w-3 h-3" />
+      <Badge tone={tone} className="mt-1 whitespace-nowrap">
+        <Eye className="w-3 h-3" />
         {!due
           ? t('events.delivery.pill', 'First look')
           : due.tone === 'overdue'
             ? t('events.delivery.pillOverdue', 'First look · overdue')
             : t('events.delivery.pillDue', 'First look · due in {{count}} d', { count: due.days })}
-      </span>
+      </Badge>
     );
   };
 
   const getEventStatus = (event: Event) => {
-    if (event.is_draft) return { label: t('events.draft'), color: 'text-yellow-600 dark:text-yellow-400 bg-yellow-100 dark:bg-yellow-900/40' };
-    if (event.is_archived) return { label: t('events.archived'), color: 'text-muted bg-inset' };
-    if (!event.is_active) return { label: t('events.inactive'), color: 'text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/40' };
+    if (event.is_draft) return { label: t('events.draft'), tone: 'warning' as const };
+    if (event.is_archived) return { label: t('events.archived'), tone: 'neutral' as const };
+    if (!event.is_active) return { label: t('events.inactive'), tone: 'danger' as const };
 
-    if (!event.expires_at) return { label: t('events.active'), color: 'text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/40' };
+    if (!event.expires_at) return { label: t('events.active'), tone: 'success' as const };
 
     // Expired means the timestamp has actually passed (#909):
     // differenceInDays truncates to whole days, so an event expiring in a
     // few hours returned 0 and showed "Expired" while the public gallery
     // (which compares real timestamps) correctly showed it active.
     const expiresAt = parseISO(event.expires_at);
-    if (expiresAt.getTime() <= Date.now()) return { label: t('events.expired'), color: 'text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/40' };
+    if (expiresAt.getTime() <= Date.now()) return { label: t('events.expired'), tone: 'danger' as const };
     // Ceiling so the last day reads "1 day left", never "0 days".
     const days = Math.ceil((expiresAt.getTime() - Date.now()) / 86400000);
-    if (days <= 7) return { label: t('events.daysLeft', { count: days }), color: 'text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-900/40' };
+    if (days <= 7) return { label: t('events.daysLeft', { count: days }), tone: 'warning' as const };
 
-    return { label: t('events.active'), color: 'text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/40' };
+    return { label: t('events.active'), tone: 'success' as const };
   };
 
   if (isLoading) {
     return (
       <div>
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-heading">{t('events.title')}</h1>
-            <p className="text-soft mt-1">{t('events.subtitle')}</p>
-          </div>
-        </div>
+        <SectionPageHeader icon={Calendar} title={t('events.title')} description={t('events.subtitle')} />
         <SkeletonTable rows={5} />
       </div>
     );
@@ -448,34 +448,34 @@ export const EventsListPage: React.FC = () => {
 
   if (error) {
     return (
-      <div className="text-center py-12">
-        <p className="text-red-600">{t('events.failedToLoadEvents')}</p>
-        <Button onClick={() => window.location.reload()} className="mt-4">
-          {t('events.tryAgain')}
-        </Button>
-      </div>
+      <ErrorState
+        title={t('events.failedToLoadEvents')}
+        actionLabel={t('events.tryAgain')}
+        onAction={() => refetch()}
+      />
     );
   }
 
   return (
     <ErrorBoundary>
       <div>
-        {/* Page Header */}
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-heading">{t('events.title')}</h1>
-            <p className="text-soft mt-1">{t('events.subtitle')}</p>
-          </div>
-          <PermissionGate permission="events.create">
-            <Button
-              variant="primary"
-              leftIcon={<Plus className="w-5 h-5" />}
-              onClick={() => navigate('/admin/events/new')}
-            >
-              {t('events.createEvent')}
-            </Button>
-          </PermissionGate>
-        </div>
+        <SectionPageHeader
+          icon={isVideoMode ? Video : Calendar}
+          title={isVideoMode ? t('navigation.videoGalleries', 'Video Galleries') : t('navigation.photoGalleries', t('events.title'))}
+          description={isVideoMode ? t('events.videoSubtitle', 'Manage galleries containing video deliveries') : t('events.subtitle')}
+          actions={(
+            <PermissionGate permission="events.create">
+              <Button
+                variant="primary"
+                className="w-full sm:w-auto"
+                leftIcon={<Plus className="w-5 h-5" />}
+                onClick={() => navigate('/admin/events/new')}
+              >
+                {t('events.createEvent')}
+              </Button>
+            </PermissionGate>
+          )}
+        />
 
       {/* Statistics Cards — fed from /admin/dashboard/stats so the totals
           stay accurate regardless of the visible page (#346). */}
@@ -484,7 +484,7 @@ export const EventsListPage: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-soft">{t('events.stats.totalEvents')}</p>
-              <p className="text-2xl font-bold text-heading">{dashboardStats?.totalEvents ?? 0}</p>
+              <p className="text-2xl font-bold text-heading">{dashboardStats ? dashboardStats.totalEvents : '—'}</p>
             </div>
             <Calendar className="w-8 h-8 text-accent" />
           </div>
@@ -495,10 +495,10 @@ export const EventsListPage: React.FC = () => {
             <div>
               <p className="text-sm text-soft">{t('events.stats.activeEvents')}</p>
               <p className="text-2xl font-bold text-heading">
-                {dashboardStats?.activeEvents ?? 0}
+                {dashboardStats ? dashboardStats.activeEvents : '—'}
               </p>
             </div>
-            <Activity className="w-8 h-8 text-green-600" />
+            <Activity className="w-8 h-8 text-success" />
           </div>
         </Card>
 
@@ -509,13 +509,13 @@ export const EventsListPage: React.FC = () => {
                 {installMedia.hasVideos ? t('admin.totalMedia', 'Total Media') : t('events.stats.totalPhotos')}
               </p>
               <p className="text-2xl font-bold text-heading">
-                {dashboardStats?.totalPhotos ?? 0}
+                {dashboardStats ? dashboardStats.totalPhotos : '—'}
               </p>
               {installMedia.hasVideos && (
                 <p className="text-xs text-muted">{mediaSplitLabel(t, installMedia)}</p>
               )}
             </div>
-            <Image className="w-8 h-8 text-blue-600" />
+            <Image className="w-8 h-8 text-info" />
           </div>
         </Card>
 
@@ -524,10 +524,10 @@ export const EventsListPage: React.FC = () => {
             <div>
               <p className="text-sm text-soft">{t('events.stats.expiringEvents')}</p>
               <p className="text-2xl font-bold text-heading">
-                {dashboardStats?.expiringEvents ?? 0}
+                {dashboardStats ? dashboardStats.expiringEvents : '—'}
               </p>
             </div>
-            <AlertTriangle className="w-8 h-8 text-orange-600" />
+            <AlertTriangle className="w-8 h-8 text-warning" />
           </div>
         </Card>
       </div>
@@ -547,7 +547,7 @@ export const EventsListPage: React.FC = () => {
           </div>
 
           {/* Filter Buttons */}
-          <div className="flex flex-wrap gap-2">
+          <div className="-mx-1 flex max-w-full gap-2 overflow-x-auto px-1 pb-1" aria-label={t('events.filters', 'Filtres des événements')}>
             <Button
               variant={!statusFilter ? 'primary' : 'outline'}
               size="md"
@@ -581,7 +581,7 @@ export const EventsListPage: React.FC = () => {
               variant={isAwaitingFilter ? 'primary' : 'outline'}
               size="md"
               onClick={() => patchParams({ filter: 'awaiting_delivery' })}
-              leftIcon={<Sparkles className="w-4 h-4" />}
+              leftIcon={<Clock className="w-4 h-4" />}
             >
               {t('events.delivery.awaitingFilter', 'Awaiting full gallery')}
             </Button>
@@ -598,11 +598,11 @@ export const EventsListPage: React.FC = () => {
 
         {/* Bulk Actions */}
         {selectedEvents.length > 0 && (
-          <div className="mt-4 p-3 bg-accent-dark/15 rounded-lg flex items-center justify-between">
+          <div className="mt-4 flex flex-col gap-3 rounded-xl bg-accent-dark/15 p-3 sm:flex-row sm:items-center sm:justify-between">
             <span className="text-sm text-accent-dark">
               {t('events.eventsSelected', { count: selectedEvents.length })}
             </span>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button variant="outline" size="sm" onClick={() => setSelectedEvents([])}>
                 {t('events.clear')}
               </Button>
@@ -617,10 +617,9 @@ export const EventsListPage: React.FC = () => {
               </PermissionGate>
               <PermissionGate permission="events.delete">
                 <Button
-                  variant="outline"
+                  variant="danger"
                   size="sm"
                   onClick={() => bulkDeleteModal.open()}
-                  className="border-red-300 text-red-700 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-900/30"
                 >
                   {t('events.deleteSelected', 'Delete Selected')}
                 </Button>
@@ -631,10 +630,10 @@ export const EventsListPage: React.FC = () => {
       </Card>
 
       {/* Events Table */}
-      <Card className="overflow-visible">
-        <div className="overflow-x-auto overflow-y-visible">
-          <table className="w-full">
-            <thead className="bg-subtle border-b border-line">
+      <Card padding="none" className="overflow-visible">
+        <TableFrame className="overflow-y-visible border-0">
+          <Table>
+            <TableHead>
               <tr>
                 <th className="px-6 py-3 text-left">
                   <input
@@ -702,8 +701,8 @@ export const EventsListPage: React.FC = () => {
                   {t('events.actions')}
                 </th>
               </tr>
-            </thead>
-            <tbody className="bg-panel divide-y divide-line">
+            </TableHead>
+            <TableBody>
               {events.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="px-6 py-12 text-center text-muted">
@@ -715,9 +714,9 @@ export const EventsListPage: React.FC = () => {
                   const status = getEventStatus(event);
 
                   return (
-                    <tr
+                    <TableRow
                       key={event.id}
-                      className="hover:bg-neutral-50 dark:hover:bg-neutral-700/50 cursor-pointer"
+                      className="cursor-pointer"
                       onClick={() => navigate(`/admin/events/${event.id}`)}
                     >
                       <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
@@ -736,8 +735,8 @@ export const EventsListPage: React.FC = () => {
                             <span
                               className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium ${
                                 isGalleryPublic(event.require_password)
-                                  ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300'
-                                  : 'bg-inset text-body'
+                                  ? 'border-success-line bg-success-bg text-success'
+                                  : 'border-line-strong bg-subtle text-body'
                               }`}
                             >
                               {isGalleryPublic(event.require_password) ? t('events.publicAccess', 'Public access') : t('events.passwordProtected', 'Password protected')}
@@ -760,9 +759,7 @@ export const EventsListPage: React.FC = () => {
                         )}
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${status.color}`}>
-                          {status.label}
-                        </span>
+                        <Badge tone={status.tone}>{status.label}</Badge>
                         {deliveryPill(event)}
                       </td>
                       <td className="px-6 py-4 text-sm text-body">
@@ -798,7 +795,7 @@ export const EventsListPage: React.FC = () => {
                                 title={t('events.copyLink', 'Copy Link')}
                               >
                                 {copiedEventId === event.id ? (
-                                  <CheckCircle className="w-4 h-4 text-green-600" />
+                                  <CheckCircle className="w-4 h-4 text-success" />
                                 ) : (
                                   <Copy className="w-4 h-4" />
                                 )}
@@ -913,7 +910,7 @@ export const EventsListPage: React.FC = () => {
                                           setDropdownPosition(null);
                                         }
                                       }}
-                                      className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center gap-2"
+                                      className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-danger hover:bg-danger-bg"
                                     >
                                       <Trash2 className="w-4 h-4" />
                                       {t('events.deleteEvent')}
@@ -925,13 +922,13 @@ export const EventsListPage: React.FC = () => {
                           </div>
                         </div>
                       </td>
-                    </tr>
+                    </TableRow>
                   );
                 })
               )}
-            </tbody>
-          </table>
-        </div>
+            </TableBody>
+          </Table>
+        </TableFrame>
       </Card>
 
       {/* Pagination — only when the current filter has more than one page */}

@@ -1,29 +1,38 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useGuardedLinkClick, useLeaveGuard } from '../../contexts/UnsavedChangesContext';
 import {
+  Home,
   ArrowLeft,
-  LayoutDashboard,
-  BarChart3,
   Settings,
   X,
-  Briefcase,
   Landmark,
-  Mail,
-  Share2,
   Workflow,
   PanelLeftClose,
   PanelLeftOpen,
-  Github,
+  Receipt,
+  CalendarDays,
   Search,
+  Images,
+  Video,
+  Cloud,
+  Users,
+  FolderKanban,
+  FileText,
+  ScrollText,
+  CreditCard,
+  LayoutTemplate,
+  Share2,
+  UserCog,
   type LucideIcon,
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { settingsService } from '../../services/settings.service';
 import { VersionInfo } from './VersionInfo';
+import { FotoDeskLogo } from '../common/FotoDeskLogo';
+import { LanguageToggle } from '../common/LanguageToggle';
 import { DashboardHomeLink } from './DashboardHomeLink';
-import { repoUrl } from '../../utils/githubReleaseUrl';
 import { usePermissions } from '../../contexts/PermissionsContext';
 import { useAdminDarkMode } from '../../contexts/AdminDarkModeContext';
 import { useFeatureFlags, type FeatureKey } from '../../contexts/FeatureFlagsContext';
@@ -32,16 +41,16 @@ import { buildResourceUrl } from '../../utils/url';
 import {
   DEFAULT_SETTINGS_TAB,
   SETTINGS_PATH,
+  type SettingsTab,
   isValidSettingsTab,
   searchScore,
   settingsTabHref,
   useSettingsNavGroups,
 } from '../../features/settings/settingsNav';
-import { useClientsNavItems } from './ClientsLayout';
 import { useAccountingNavItems } from './AccountingLayout';
-import { useSharingNavItems, SHARING_PATHS } from './sharingNav';
 import { useAutomationNavItems } from './AutomationLayout';
 
+const PROMOTED_SETTINGS_TABS = new Set<SettingsTab>(['eventTypes', 'email', 'users', 'backup']);
 // A section that takes over the sidebar while the admin is inside it:
 // the main menu is replaced by the section's own navigation, with a
 // "Back to menu" row and the section title pinned on top.
@@ -88,6 +97,7 @@ interface NavItem {
   nameKey: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
+  group: 'workspace' | 'galleries' | 'business';
   permission?: string | false;
   /** Single required flag — entry hidden when this is false. */
   featureFlag?: FeatureKey;
@@ -137,73 +147,59 @@ interface NavItem {
 // section's own nav hook whether it has anything to show, which cannot drift
 // from what is inside the way a duplicated permission list can.
 export const adminNavigation: NavItem[] = [
-  { nameKey: 'navigation.dashboard', href: '/admin/dashboard', icon: LayoutDashboard, permission: false },
-  // Sharing section — the three ways files reach someone: the galleries, the
-  // archived ones, and a direct PicTransfer link.
-  { nameKey: 'navigation.sharing',   href: '/admin/events',    icon: Share2 },
-  // Messages is a single page, so it stays a plain entry. It briefly shared a
-  // "Communication" section with PicTransfer; sending files is not messaging,
-  // and a section wrapping one page is worse than the page itself.
+  // WORKSPACE
+  { nameKey: 'navigation.dashboard', href: '/admin/dashboard', icon: Home, permission: false, group: 'workspace' },
   {
-    nameKey: 'navigation.messages', href: '/admin/messages', icon: Mail,
-    permission: 'email.view', featureFlag: 'messaging',
+    nameKey: 'navigation.clients', href: '/admin/clients/accounts', icon: Users,
+    featureFlag: 'clients', permissionAny: ['customers.view', 'newsletters.view'], group: 'workspace',
   },
-  // Clients section (#354 follow-up) — admin-side surface for the
-  // CRM-area sub-features. Today this entry leads to /admin/clients
-  // which renders a Settings-style sub-nav with one item (Accounts).
-  // When calendar / quotes / bills / messaging ship they slot in as
-  // additional sub-nav items inside ClientsLayout without needing
-  // their own top-level sidebar entry.
-  //
-  // Gate uses the parent `clients` flag (master). The Accounts page
-  // itself is independently gated by `customerPortal` inside the
-  // route tree — that nested check is invisible from here.
-  //
-  // `permission: 'customers.view'` is the only Clients-area
-  // permission today; future sub-features (booking, billing) get
-  // their own permission keys and the gate here grows into an OR.
   {
-    nameKey: 'navigation.clients', href: '/admin/clients', icon: Briefcase,
-    // Any of these opens the section; each sub-page is gated on its own
-    // permission once inside.
-    permissionAny: ['customers.view', 'newsletters.view'],
-    featureFlag: 'clients',
-    // Hide the entry when the parent is on but no sub-feature is —
-    // there's nothing inside ClientsLayout to link to. Mirror the same
-    // set used to derive the parent `clients` flag in
-    // FeatureFlagsContext (see clientsDependsOn) so the two checks
-    // can't disagree: any sub-feature on lights up the entry, all off
-    // hides it. Future siblings (e.g. `messaging`) get appended here
-    // AND in the context derivation.
-    // taxReport intentionally excluded — Tax moved to the Accounting section
-    // and is not a Clients sub-nav item, so it must not reveal Clients (would
-    // open an empty ClientsLayout). Mirrors the context's `clients` derivation.
-    featureFlagsAny: [
-      'customerPortal', 'crmDevelopment', 'quotes', 'bills',
-      'hoursLogging', 'contracts', 'calendar', 'projects',
-      // #1264 — newsletters is a Clients child and must light up the entry,
-      // or a newsletter-only install has no way into the section.
-      'newsletters',
-    ],
+    nameKey: 'navigation.projects', href: '/admin/clients/projects', icon: FolderKanban,
+    featureFlag: 'projects', permission: 'events.view', group: 'workspace',
   },
-  // Accounting section (migration 122) — inbound supplier invoices,
-  // expenses + re-bill, and the tax report (which relocates here from
-  // the CRM sub-nav when `accounting` is on). Gated by the `accounting`
-  // master flag; the sub-pages inside AccountingLayout are each
-  // independently feature-gated.
   {
-    nameKey: 'navigation.accounting', href: '/admin/accounting', icon: Landmark,
-    permission: 'accounting.view',
-    featureFlag: 'accounting',
+    nameKey: 'navigation.calendar', href: '/admin/agenda', icon: CalendarDays,
+    featureFlag: 'calendar', permission: 'customers.view', group: 'workspace',
   },
-  // Automation section — the workflow engine plus the reminder email
-  // templates it sends (which came here from Settings).
+  // GALLERIES
   {
-    nameKey: 'navigation.automation', href: '/admin/automation', icon: Workflow,
-    featureFlagsAny: ['workflows', 'reminderEmails'],
+    nameKey: 'navigation.photoGalleries', href: '/admin/events', icon: Images,
+    permission: 'events.view', group: 'galleries',
   },
-  { nameKey: 'admin.analytics',      href: '/admin/analytics', icon: BarChart3,       permission: 'analytics.view', featureFlag: 'analytics' },
-  { nameKey: 'navigation.settings',  href: '/admin/settings',  icon: Settings },
+  {
+    nameKey: 'navigation.videoGalleries', href: '/admin/video-galleries', icon: Video,
+    permission: 'events.view', group: 'galleries',
+  },
+  // BUSINESS
+  {
+    nameKey: 'navigation.quotes', href: '/admin/clients/quotes', icon: FileText,
+    featureFlag: 'quotes', permission: 'quotes.view', group: 'business',
+  },
+  {
+    nameKey: 'navigation.contracts', href: '/admin/clients/contracts', icon: ScrollText,
+    featureFlag: 'contracts', permission: 'contracts.view', group: 'business',
+  },
+  {
+    nameKey: 'navigation.invoices', href: '/admin/factures', icon: Receipt,
+    featureFlag: 'bills', permission: 'bills.view', group: 'business',
+  },
+  {
+    nameKey: 'navigation.payments', href: '/admin/billing', icon: CreditCard,
+    permission: false, group: 'business',
+  },
+  {
+    nameKey: 'navigation.landingPageBuilder', href: '/admin/portfolio', icon: LayoutTemplate,
+    permission: 'events.view', group: 'business',
+  },
+  {
+    nameKey: 'navigation.affiliate', href: '/admin/affiliates', icon: Share2,
+    permission: false, group: 'business',
+  },
+  {
+    nameKey: 'navigation.teamMembers', href: '/admin/settings?tab=users', icon: UserCog,
+    permission: 'users.view', group: 'business',
+  },
+  { nameKey: 'navigation.settings', href: '/admin/settings', icon: Settings, group: 'business' },
 ];
 
 /**
@@ -224,8 +220,9 @@ export const adminNavigation: NavItem[] = [
  * carries no permission of its own.
  */
 export const SECTION_PATHS: readonly string[] = [
-  SETTINGS_PATH, ...SHARING_PATHS,
-  '/admin/automation', '/admin/clients', '/admin/accounting',
+  SETTINGS_PATH,
+  '/admin/automation',
+  '/admin/accounting',
 ];
 
 export function navItemAllowed(
@@ -287,7 +284,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose, col
   const brandAlt = publicSettings?.branding_company_name?.trim() || t('admin.title');
 
   const settingsGroups = useSettingsNavGroups();
-  const sharingItems = useSharingNavItems();
   const automationItems = useAutomationNavItems();
 
   // A section entry follows what is actually inside the section. Each of
@@ -308,7 +304,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose, col
   // its own root, which snaps to a permitted tab by itself.
   const sectionState: Record<string, { count: number; entry?: string }> = {
     [SETTINGS_PATH]: { count: settingsGroups.length },
-    '/admin/events': { count: sharingItems.length, entry: sharingItems[0]?.to },
     '/admin/automation': { count: automationItems.length },
     // Clients and Accounting keep the declared permission/flag gating they
     // already had. Converting them to count-gating would be an improvement,
@@ -334,7 +329,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose, col
   const [peekMain, setPeekMain] = useState(false);
   useEffect(() => { setPeekMain(false); }, [location.key]);
 
-  const clientsItems = useClientsNavItems();
   const accountingItems = useAccountingNavItems();
   const urlTab = new URLSearchParams(location.search).get('tab');
   const activeSettingsTab = isValidSettingsTab(urlTab) ? urlTab : DEFAULT_SETTINGS_TAB;
@@ -355,7 +349,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose, col
     const longest = matches.reduce((a, b) => (b.to.length > a.to.length ? b : a));
     return new Set([longest.key]);
   };
-  const activeSharing = activeKeys(sharingItems);
   const activeAutomation = activeKeys(automationItems);
 
   const sections: SidebarSection[] = [
@@ -366,27 +359,18 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose, col
       icon: Settings,
       groups: settingsGroups.map((g) => ({
         label: g.label,
-        items: g.items.map((i) => ({
-          key: i.key,
-          href: settingsTabHref(i.key),
-          label: i.label,
-          icon: i.icon,
-          active: activeSettingsTab === i.key,
-          replace: true,
-          keywords: i.keywords,
-        })),
-      })),
-    },
-    {
-      key: 'clients',
-      paths: ['/admin/clients'],
-      title: t('navigation.clients'),
-      icon: Briefcase,
-      groups: [{
-        items: clientsItems.map((i) => ({
-          key: i.key, href: i.to, label: i.label, icon: i.icon, active: isUnder(i.to),
-        })),
-      }],
+        items: g.items
+          .filter((i) => !PROMOTED_SETTINGS_TABS.has(i.key))
+          .map((i) => ({
+            key: i.key,
+            href: settingsTabHref(i.key),
+            label: i.label,
+            icon: i.icon,
+            active: activeSettingsTab === i.key,
+            replace: true,
+            keywords: i.keywords,
+          })),
+      })).filter((g) => g.items.length > 0),
     },
     {
       key: 'accounting',
@@ -396,19 +380,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose, col
       groups: [{
         items: accountingItems.map((i) => ({
           key: i.key, href: i.to, label: i.label, icon: i.icon, active: isUnder(i.to),
-        })),
-      }],
-    },
-    {
-      key: 'sharing',
-      // Two trees, because PicTransfer keeps its own top-level URL rather than
-      // being renamed into the events tree just to sit in this section.
-      paths: [...SHARING_PATHS],
-      title: t('navigation.sharing', 'Sharing'),
-      icon: Share2,
-      groups: [{
-        items: sharingItems.map((i) => ({
-          key: i.key, href: i.to, label: i.label, icon: i.icon, active: activeSharing.has(i.key),
         })),
       }],
     },
@@ -424,7 +395,11 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose, col
       }],
     },
   ];
-  const activeSection = sections.find((sec) => sec.paths.some(isUnder)) ?? null;
+  const onPromotedSettingsTab =
+    location.pathname === SETTINGS_PATH && PROMOTED_SETTINGS_TABS.has(activeSettingsTab);
+  const activeSection = onPromotedSettingsTab
+    ? null
+    : sections.find((sec) => sec.paths.some(isUnder)) ?? null;
   const section = peekMain ? null : activeSection;
 
   // Settings is 30 tabs in 8 groups — long enough that scanning it is the
@@ -458,19 +433,23 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose, col
   // Desktop width: full nav (w-64) vs icon rail (w-16). Mobile is always
   // w-64 since the collapse affordance only applies on lg+ viewports.
   const widthClasses = collapsed ? 'w-64 lg:w-16' : 'w-64';
-  const showLabels = !collapsed;
 
-  const itemClass = (isActive: boolean) => `flex items-center py-2 text-sm font-medium rounded-lg transition-colors ${
-    collapsed ? 'px-3 lg:px-0 lg:justify-center' : 'px-3'
+  // Reference states (pricing section): the selected item is the "selector
+  // pill" (cta fill, semibold), idle items are quiet and gain a hairline-soft
+  // fill on hover.
+  // Reference active state pill (exact match to user screenshot): warm dark bronze gradient,
+  // delicate warm border, crisp white outline icon and text, subtle inner specular highlight.
+  const itemClass = (isActive: boolean) => `group flex items-center py-2.5 text-[14px] rounded-xl border border-transparent transition-all duration-200 select-none ${
+    collapsed ? 'px-3 lg:px-0 lg:justify-center' : 'px-3.5'
   } ${
     isActive
-      ? 'bg-accent-dark text-white'
-      : 'text-body hover:bg-hover-soft hover:text-heading'
+      ? 'fd-active-nav-pill font-semibold shadow-xs'
+      : 'font-medium text-slate-700 dark:text-neutral-200 hover:text-slate-950 dark:hover:text-white hover:bg-slate-200/75 hover:border-transparent dark:hover:bg-neutral-800/70 dark:hover:border-transparent hover:shadow-[0_4px_14px_rgba(15,23,42,0.09)]'
   }`;
-  const iconClass = (isActive: boolean) => `w-5 h-5 flex-shrink-0 ${
+  const iconClass = (isActive: boolean) => `fd-solid-nav-icon w-[18px] h-[18px] flex-shrink-0 ${
     collapsed ? 'mr-3 lg:mr-0' : 'mr-3'
   } ${
-    isActive ? 'text-white' : 'text-neutral-400'
+    isActive ? 'dark:text-white text-black' : 'text-slate-500 dark:text-neutral-400 group-hover:text-black dark:group-hover:text-white'
   }`;
 
   return (
@@ -482,7 +461,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose, col
       // leave a visible step in the horizontal divider where the
       // sidebar meets the main column. Shadow uses the same neutral
       // border colors so it looks identical to the previous border.
-      className={`fixed inset-y-0 left-0 z-50 ${widthClasses} bg-shell shadow-[1px_0_0_0_theme(colors.neutral.200)] dark:shadow-[1px_0_0_0_theme(colors.neutral.700)] transform transition-all duration-200 ease-in-out lg:relative lg:translate-x-0 lg:h-screen ${
+      className={`fixed inset-y-0 left-0 z-50 ${widthClasses} bg-white dark:bg-shell shadow-[1px_0_0_0_theme(colors.neutral.200)] dark:shadow-[1px_0_0_0_theme(colors.neutral.700)] transform transition-all duration-200 ease-in-out lg:relative lg:translate-x-0 lg:h-screen ${
         isOpen ? 'translate-x-0' : '-translate-x-full'
       }`}
     >
@@ -496,7 +475,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose, col
         {/* The brand doubles as the home button: the link carries the
             row's padding so the whole row (minus the mobile close button)
             goes to the dashboard, asking first if a form is dirty. */}
-        <div className="flex items-stretch h-16 border-b border-line flex-shrink-0">
+        <div className="relative flex items-stretch h-16 border-b border-line flex-shrink-0">
           <DashboardHomeLink
             onNavigate={onClose}
             className={`flex flex-1 items-center gap-2 min-w-0 hover:bg-hover-soft transition-colors focus-visible:ring-inset ${
@@ -529,30 +508,35 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose, col
               </>
             ) : (
               <>
-                {showLabels && (
-                  <span className="text-xl font-bold text-heading">{t('admin.title')}</span>
-                )}
-                {/* When collapsed on desktop the title is hidden; on mobile we
-                    always show it because the rail-narrow style only applies at lg+ */}
-                {collapsed && (
-                  <span className="text-xl font-bold text-heading lg:hidden">{t('admin.title')}</span>
-                )}
-                {/* The collapsed desktop rail has no wordmark, and the row is
-                    the home link, so it shows the Dashboard icon rather than
-                    an empty, focusable target. */}
-                {collapsed && (
-                  <LayoutDashboard
-                    role="img"
-                    aria-label={t('navigation.dashboard', 'Dashboard')}
-                    className="hidden lg:block w-5 h-5 text-body"
-                  />
-                )}
+                {/* Default brand: the FotoDesk logo mark, in place of the
+                    "Panneau d'administration" wordmark. One component serves the
+                    expanded sidebar, the collapsed rail and the mobile sheet. */}
+                <FotoDeskLogo
+                  size={collapsed ? 30 : 36}
+                  className="text-heading flex-shrink-0 transition-transform duration-200 hover:scale-105"
+                />
               </>
             )}
           </DashboardHomeLink>
+          {onToggleCollapse && (
+            <button
+              type="button"
+              onClick={onToggleCollapse}
+              className={`group/collapse hidden lg:inline-flex absolute z-10 top-1/2 -translate-y-1/2 items-center justify-center w-9 h-9 rounded-xl border border-line-strong bg-gradient-to-br from-panel to-subtle text-soft shadow-[0_6px_18px_rgba(15,23,42,0.14),inset_0_1px_0_rgba(255,255,255,0.55)] hover:text-heading hover:border-accent/50 hover:shadow-[0_8px_24px_rgba(15,23,42,0.2),0_0_0_3px_rgba(184,122,68,0.12)] hover:-translate-y-[55%] active:-translate-y-1/2 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-shell transition-all duration-200 ${
+                collapsed ? '-right-4' : 'right-3'
+              }`}
+              aria-label={collapsed ? t('admin.expandSidebar', 'Expand sidebar') : t('admin.collapseSidebar', 'Collapse sidebar')}
+              title={collapsed ? t('admin.expandSidebar', 'Expand sidebar') : t('admin.collapseSidebar', 'Collapse sidebar')}
+            >
+              <span className="absolute inset-x-2 top-1 h-px rounded-full bg-white/60 dark:bg-white/15" aria-hidden="true" />
+              {collapsed
+                ? <PanelLeftOpen className="w-[18px] h-[18px] transition-transform duration-200 group-hover/collapse:translate-x-0.5" />
+                : <PanelLeftClose className="w-[18px] h-[18px] transition-transform duration-200 group-hover/collapse:-translate-x-0.5" />}
+            </button>
+          )}
           <button
             onClick={onClose}
-            className="lg:hidden px-6 text-faint hover:text-body"
+            className="lg:hidden self-center mr-4 inline-flex items-center justify-center w-10 h-10 rounded-xl border border-line bg-panel text-faint shadow-sm hover:text-heading hover:bg-hover active:scale-95 transition-all"
             aria-label="Close sidebar"
           >
             <X className="w-6 h-6" />
@@ -649,7 +633,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose, col
                 {sectionGroups.map((group, groupIndex) => (
                   <div key={group.label ?? groupIndex}>
                     {group.label && (
-                      <h3 className={`px-3 mb-1 text-[11px] font-semibold uppercase tracking-wider text-muted ${
+                      <h3 className={`px-3 mb-1 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-neutral-400 ${
                         collapsed ? 'lg:hidden' : ''
                       }`}>
                         {group.label}
@@ -691,14 +675,40 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose, col
             </div>
           ) : (
             <div key="main" className={`space-y-1 ${peekMain ? 'animate-panel-in-left' : ''}`}>
-              {filteredNavigation.map((item) => {
-                const isActive = location.pathname === item.href ||
-                               (item.href !== '/admin/dashboard' && location.pathname.startsWith(item.href));
+
+              {filteredNavigation.map((item, index) => {
+                const startsGroup = index === 0 || filteredNavigation[index - 1].group !== item.group;
+                const groupLabel = item.group === 'workspace'
+                  ? t('navigation.groups.workspace', 'Workspace')
+                  : item.group === 'galleries'
+                  ? t('navigation.groups.galleries', 'Galleries')
+                  : t('navigation.groups.business', 'Business');
+                const isActive =
+                  item.href === '/admin/dashboard'
+                    ? location.pathname === '/admin/dashboard'
+                    : item.href === '/admin/settings?tab=users'
+                    ? location.pathname === '/admin/settings' && activeSettingsTab === 'users'
+                    : item.href === '/admin/settings'
+                    ? location.pathname === '/admin/settings' && !PROMOTED_SETTINGS_TABS.has(activeSettingsTab)
+                    : item.href === '/admin/events'
+                    ? (location.pathname === '/admin/events' || location.pathname.startsWith('/admin/events/')) &&
+                      !location.pathname.startsWith('/admin/events/archives')
+                    : item.href === '/admin/portfolio'
+                    ? location.pathname.startsWith('/admin/portfolio') || location.pathname.startsWith('/admin/landing-builder')
+                    : location.pathname === item.href || location.pathname.startsWith(`${item.href}/`);
                 const label = t(item.nameKey);
 
                 return (
-                  <NavLink
-                    key={item.nameKey}
+                  <React.Fragment key={item.nameKey}>
+                    {startsGroup && (
+                      <div className={index === 0 ? 'pb-1' : 'pt-4 pb-1'}>
+                        <h3 className={`px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-neutral-400 ${
+                          collapsed ? 'lg:hidden' : ''
+                        }`}>{groupLabel}</h3>
+                        {collapsed && index > 0 && <div className="hidden lg:block mx-2 border-t border-line" />}
+                      </div>
+                    )}
+                    <Link
                     to={entryHref(item.href)}
                     onClick={(e) => guardedClick(e, entryHref(item.href), false, () => {
                       // Clicking the current section's entry while peeking
@@ -708,6 +718,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose, col
                       onClose();
                     })}
                     title={collapsed ? label : undefined}
+                    aria-current={isActive ? 'page' : undefined}
                     className={itemClass(isActive)}
                   >
                     {/* Selected item: solid accent-dark fill with white text/icon
@@ -717,7 +728,8 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose, col
                         who haven't set CI colours yet see no migration regression. */}
                     <item.icon className={iconClass(isActive)} />
                     <span className={collapsed ? 'lg:hidden' : ''}>{label}</span>
-                  </NavLink>
+                    </Link>
+                  </React.Fragment>
                 );
               })}
             </div>
@@ -730,24 +742,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose, col
             stays visible even when the sidebar is collapsed so the
             rail can always be re-expanded. Hidden on mobile (the X
             in the brand row already closes the sheet there). */}
-        {onToggleCollapse && (
-          <div className={`hidden lg:flex flex-shrink-0 border-t border-line py-2 ${
-            collapsed ? 'justify-center px-2' : 'justify-end px-4'
-          }`}>
-            <button
-              type="button"
-              onClick={onToggleCollapse}
-              className="inline-flex items-center justify-center w-9 h-9 rounded-md text-neutral-500 hover:text-heading hover:bg-hover-soft transition-colors"
-              aria-label={collapsed ? t('admin.expandSidebar', 'Expand sidebar') : t('admin.collapseSidebar', 'Collapse sidebar')}
-              title={collapsed ? t('admin.expandSidebar', 'Expand sidebar') : t('admin.collapseSidebar', 'Collapse sidebar')}
-            >
-              {collapsed
-                ? <PanelLeftOpen className="w-5 h-5" />
-                : <PanelLeftClose className="w-5 h-5" />}
-            </button>
-          </div>
-        )}
-
         {/* Bottom section - sticky to bottom (only for users with settings.view permission).
             Hidden on desktop when collapsed since these widgets don't fit in the icon rail;
             mobile keeps them visible because mobile width is always w-64.
@@ -766,25 +760,17 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose, col
             click away on the main menu. */}
         {!section && (permissionsLoading || hasPermission('settings.view')) && (
           <div className={`flex-shrink-0 ${collapsed ? 'lg:hidden' : ''}`}>
+            {/* Language switcher with pure vector flags */}
+            <div className="px-4 py-2.5 flex items-center justify-between border-b border-line">
+              <span className="text-xs text-soft font-medium">{t('common.language', 'Langue')}</span>
+              <LanguageToggle size="sm" />
+            </div>
+
             {/* Version Info */}
             <VersionInfo />
 
             {/* Storage Info */}
             <StorageInfo />
-
-            {/* Link to the project on GitHub (#778). Subtle footer row so
-                admins can reach the repo — star, source, report an issue —
-                from anywhere in the dashboard, not just the setup screen. */}
-            <a
-              href={repoUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mx-4 mb-3 flex items-center gap-2 text-xs text-muted hover:text-body transition-colors"
-              title={t('admin.viewOnGithub', 'View FotoDesk on GitHub')}
-            >
-              <Github className="w-3.5 h-3.5" />
-              <span>{t('admin.viewOnGithub', 'View FotoDesk on GitHub')}</span>
-            </a>
           </div>
         )}
       </div>
@@ -793,51 +779,56 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose, col
 };
 
 const StorageInfo: React.FC = () => {
-  const { t } = useTranslation();
   const { data: storageInfo } = useQuery({
     queryKey: ['storage-info'],
     queryFn: () => settingsService.getStorageInfo(),
     refetchInterval: 60000 // Refresh every minute
   });
 
-  // Don't render anything while loading or if data failed to load
-  if (!storageInfo) {
-    return null;
-  }
-
-  const limitInUse = storageInfo.storage_soft_limit || storageInfo.storage_limit || 1;
+  const limitInUse = storageInfo?.storage_soft_limit || storageInfo?.storage_limit || 127316705280; // ~118.57 GB fallback
+  const totalUsed = storageInfo?.total_used || 0;
   const usagePercent = limitInUse
-    ? Math.round((storageInfo.total_used / limitInUse) * 100)
+    ? Math.round((totalUsed / limitInUse) * 100)
     : 0;
-  const isOverSoftLimit = limitInUse && storageInfo.total_used >= limitInUse;
-  const progressBarClass = isOverSoftLimit ? 'bg-red-600' : 'bg-accent-dark';
-  const containerClass = isOverSoftLimit
-    ? 'bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800'
-    : 'bg-subtle';
   const softLimitDisplay = settingsService.formatBytes(limitInUse);
+  const usedDisplay = settingsService.formatBytes(totalUsed);
 
   return (
-    <div className="p-4 border-t border-line">
-      <div className={`${containerClass} rounded-lg p-3 transition-colors duration-300`}>
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-body">{t('admin.storageUsed')}</span>
-          <span className="font-medium text-heading">
-            {/* The `+` marks a floor: part of the storage root was unreadable,
-                so the real figure — and the percentage below — is higher than
-                this. Without it an EACCES subtree reads as "safely under the
-                limit" (#1164). */}
-            {settingsService.formatBytes(storageInfo.total_used)}{storageInfo.storage_partial ? '+' : ''}
-          </span>
+    <div className="p-3.5 border-t border-line">
+      <div className="bg-neutral-50/90 dark:bg-panel rounded-xl p-3.5 border border-neutral-200/90 dark:border-line shadow-xs transition-colors duration-300">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-7 h-7 rounded-lg bg-[rgba(200,149,97,0.12)] flex items-center justify-center text-[#C89561] flex-shrink-0">
+              <Cloud className="w-4 h-4" />
+            </div>
+            <div className="min-w-0">
+              <span className="text-xs font-semibold text-neutral-900 dark:text-heading block truncate">FotoDesk Cloud</span>
+              <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
+                Synchronisé
+              </span>
+            </div>
+          </div>
+          <span className="text-[10px] text-neutral-500 dark:text-muted font-medium flex-shrink-0 mt-0.5">Tout est à jour</span>
         </div>
-        <div className="mt-2 w-full bg-fill rounded-full h-2">
-          <div
-            className={`${progressBarClass} h-2 rounded-full transition-all duration-300`}
-            style={{ width: `${Math.min(usagePercent, 100)}%` }}
-          />
+
+        <div className="mt-2.5 pt-2 border-t border-line/60">
+          <div className="flex items-center justify-between text-[11px] text-neutral-600 dark:text-muted mb-1 font-medium">
+            <span>Stockage utilisé</span>
+            <span className="font-semibold text-neutral-900 dark:text-heading">
+              {usedDisplay}{storageInfo?.storage_partial ? '+' : ''}
+            </span>
+          </div>
+          <div className="w-full bg-neutral-200/80 dark:bg-fill rounded-full h-1.5 overflow-hidden">
+            <div
+              className="bg-[#C89561] h-1.5 rounded-full transition-all duration-300"
+              style={{ width: `${Math.max(usagePercent, 0)}%` }}
+            />
+          </div>
+          <p className="text-[10px] text-neutral-500 dark:text-muted mt-1 font-medium">
+            {usagePercent}% de la limite {softLimitDisplay}
+          </p>
         </div>
-        <p className="text-xs text-soft mt-1">
-          {t('admin.storagePercent', { percent: usagePercent, limit: softLimitDisplay })}
-        </p>
       </div>
     </div>
   );

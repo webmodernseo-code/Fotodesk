@@ -25,11 +25,13 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 // separately below — otherwise this file would pass with en.json emptied.
 const KEYWORD_FIXTURE: Record<string, string[]> = {
   'settings.keywords.email': ['smtp', 'imap', 'mail server'],
+  'settings.keywords.branding': ['logo', 'identity', 'brand'],
 };
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string, opts?: { returnObjects?: boolean }) =>
       (opts?.returnObjects ? (KEYWORD_FIXTURE[key] ?? []) : key),
+    i18n: { language: 'fr', changeLanguage: vi.fn() },
   }),
   initReactI18next: { type: '3rdParty', init: () => {} },
 }));
@@ -71,7 +73,7 @@ vi.mock('../../../hooks/usePublicSettings', () => ({
   usePublicSettings: () => ({ data: undefined }),
 }));
 vi.mock('../../../services/settings.service', () => ({
-  settingsService: { getStorageInfo: vi.fn().mockResolvedValue(undefined), formatBytes: () => '0 B' },
+  settingsService: { getStorageInfo: vi.fn().mockResolvedValue({ total_used: 0, storage_limit: 100 }), formatBytes: () => '0 B' },
 }));
 vi.mock('../VersionInfo', () => ({ VersionInfo: () => null }));
 
@@ -83,6 +85,7 @@ import { useAdminSearchIndex } from '../adminSearchIndex';
 const ALL_PERMISSIONS = [
   'events.view', 'archives.view', 'email.view', 'workflows.view', 'analytics.view',
   'settings.view', 'users.view', 'customers.view', 'newsletters.view', 'accounting.view',
+  'quotes.view', 'contracts.view', 'bills.view', 'backup.view',
 ];
 
 function renderSidebar(path: string, { collapsed = false } = {}) {
@@ -99,66 +102,70 @@ function renderSidebar(path: string, { collapsed = false } = {}) {
 afterEach(() => { cleanup(); granted = new Set(); flags = {}; isAnyDirty = false; confirmLeave.mockClear(); });
 
 describe('admin sidebar — what is top level', () => {
-  it('does not offer the six relocated surfaces as main-menu entries', () => {
+  it('uses the validated FotoDesk navigation and keeps technical pages out of the main menu', () => {
     granted = new Set(ALL_PERMISSIONS);
     // Everything on, so nothing can be absent merely for being switched off.
     flags = {
       messaging: true, transfers: true, workflows: true, reminderEmails: true,
-      analytics: true, userManagement: true, accounting: true,
+      analytics: true, userManagement: true, accounting: true, clients: true,
+      projects: true, customerPortal: true, calendar: true, quotes: true,
+      contracts: true, bills: true,
     };
     renderSidebar('/admin/dashboard');
 
     for (const key of [
-      'navigation.archives', 'navigation.transfers', 'navigation.events',
+      'navigation.transfers',
       'navigation.workflows', 'navigation.users', 'navigation.systemHealth',
     ]) {
       expect(screen.queryByText(key)).not.toBeInTheDocument();
     }
 
-    // …and the entries that replaced them are there. Messages keeps a plain
-    // entry of its own: it is one page, and sending files is not messaging,
-    // so it does not share a section with PicTransfer (review of #1718).
-    expect(screen.getByText('navigation.sharing')).toBeInTheDocument();
-    expect(screen.getByText('navigation.messages')).toBeInTheDocument();
-    expect(screen.getByText('navigation.automation')).toBeInTheDocument();
-    expect(screen.getByText('navigation.settings')).toBeInTheDocument();
+    for (const groupKey of [
+      'navigation.groups.workspace',
+      'navigation.groups.galleries',
+      'navigation.groups.business',
+    ]) {
+      expect(screen.getByText(groupKey)).toBeInTheDocument();
+    }
+
+    for (const key of [
+      'navigation.dashboard',
+      'navigation.clients',
+      'navigation.projects',
+      'navigation.calendar',
+      'navigation.photoGalleries',
+      'navigation.videoGalleries',
+      'navigation.quotes',
+      'navigation.contracts',
+      'navigation.invoices',
+      'navigation.payments',
+      'navigation.landingPageBuilder',
+      'navigation.affiliate',
+      'navigation.teamMembers',
+      'navigation.settings',
+    ]) {
+      expect(screen.getByText(key)).toBeInTheDocument();
+    }
   });
 
-  it('hides Sharing when the role can reach nothing inside it', () => {
-    granted = new Set(['settings.view']); // neither events.view nor archives.view
+  it('hides Galleries when the role cannot view events', () => {
+    granted = new Set(['settings.view']);
     renderSidebar('/admin/dashboard');
 
-    expect(screen.queryByText('navigation.sharing')).not.toBeInTheDocument();
-  });
-
-  it('keeps Sharing for a role that holds only archives.view', () => {
-    granted = new Set(['archives.view']);
-    renderSidebar('/admin/dashboard');
-
-    expect(screen.getByText('navigation.sharing')).toBeInTheDocument();
+    expect(screen.queryByText('navigation.photoGalleries')).not.toBeInTheDocument();
+    expect(screen.queryByText('navigation.videoGalleries')).not.toBeInTheDocument();
   });
 });
 
-describe('a section entry has to lead somewhere the role can open', () => {
-  it('aims Sharing at Archives for a role that only holds archives.view', () => {
-    // Before the cleanup this role saw a top-level Archives entry pointing
-    // straight at /admin/archives. Archives now lives inside Sharing, so the
-    // entry appears — but the section's first path is /admin/events, the
-    // events list, which 403s without events.view. The entry must aim at the
-    // first item this role can actually open.
-    granted = new Set(['archives.view']);
-    renderSidebar('/admin/dashboard');
+describe('promoted team members navigation', () => {
+  it('marks Team Members active without also marking Settings active', () => {
+    granted = new Set(['users.view', 'settings.view']);
+    renderSidebar('/admin/settings?tab=users');
 
-    const entry = screen.getByText('navigation.sharing').closest('a');
-    expect(entry).toHaveAttribute('href', '/admin/events/archives');
-  });
-
-  it('still aims Sharing at the events list for a role that can see it', () => {
-    granted = new Set(['events.view', 'archives.view']);
-    renderSidebar('/admin/dashboard');
-
-    const entry = screen.getByText('navigation.sharing').closest('a');
-    expect(entry).toHaveAttribute('href', '/admin/events');
+    expect(screen.getByText('navigation.teamMembers').closest('a'))
+      .toHaveAttribute('aria-current', 'page');
+    expect(screen.getByText('navigation.settings').closest('a'))
+      .not.toHaveAttribute('aria-current', 'page');
   });
 });
 
@@ -193,47 +200,29 @@ describe('an empty section says which kind of empty it is', () => {
 describe('the brand row is the home link', () => {
   const brandLink = () => screen.getAllByRole('link').find((a) => a.getAttribute('title') === 'navigation.dashboard')!;
 
-  it('links the wordmark to the dashboard', () => {
+  it('links the brand mark to the dashboard', () => {
     renderSidebar('/admin/analytics');
     expect(brandLink()).toHaveAttribute('href', '/admin/dashboard');
-    expect(within(brandLink()).getAllByText('admin.title').length).toBeGreaterThan(0);
+    expect(within(brandLink()).getByRole('img', { name: 'FotoDesk Logo' })).toBeInTheDocument();
   });
 
   it('shows a named icon on the collapsed rail instead of an empty link', () => {
     // Without a sidebar logo the collapsed desktop rail hides the wordmark,
     // so the link needs something to show and to be announced by.
     renderSidebar('/admin/analytics', { collapsed: true });
-    expect(within(brandLink()).getByRole('img', { name: 'navigation.dashboard' })).toBeInTheDocument();
+    expect(within(brandLink()).getByRole('img', { name: 'FotoDesk Logo' })).toBeInTheDocument();
   });
 });
 
 describe('admin sidebar — sections', () => {
-  it('takes the menu over on a Sharing sub-page and marks only the deepest match', () => {
+  it('separates Quotes, Contracts and Invoices and marks Invoices as current', () => {
     granted = new Set(ALL_PERMISSIONS);
-    renderSidebar('/admin/events/archives');
-
-    const archives = screen.getByText('navigation.archives').closest('a');
-    expect(archives).toHaveAttribute('aria-current', 'page');
-
-    // /admin/events is a prefix of /admin/events/archives, so a naive prefix
-    // test would light up Events here too.
-    const eventsLinks = screen.getAllByText('navigation.events')
-      .map((n) => n.closest('a')).filter(Boolean);
-    for (const link of eventsLinks) {
-      expect(link).not.toHaveAttribute('aria-current', 'page');
-    }
-  });
-
-  it('stays in the Sharing section on PicTransfer, which is a different URL tree', () => {
-    granted = new Set(ALL_PERMISSIONS);
-    flags = { transfers: true };
-    renderSidebar('/admin/transfers');
-
-    // A section spanning two trees is the whole point of `paths`: without it
-    // PicTransfer would drop the admin back to the main menu.
-    const transfers = screen.getByText('navigation.transfers').closest('a');
-    expect(transfers).toHaveAttribute('aria-current', 'page');
-    expect(screen.getByText('navigation.archives')).toBeInTheDocument();
+    flags = { clients: true, quotes: true, contracts: true, bills: true };
+    renderSidebar('/admin/factures');
+    expect(screen.getByText('navigation.quotes')).toBeInTheDocument();
+    expect(screen.getByText('navigation.contracts')).toBeInTheDocument();
+    expect(screen.getByText('navigation.invoices').closest('a'))
+      .toHaveAttribute('aria-current', 'page');
   });
 });
 
@@ -243,12 +232,12 @@ describe('settings search', () => {
     renderSidebar('/admin/settings?tab=features');
 
     const box = screen.getByLabelText('settings.search.label');
-    expect(screen.getByText('settings.email.title')).toBeInTheDocument();
+    expect(screen.getByText('settings.branding.title')).toBeInTheDocument();
 
-    // "smtp" appears in no tab label — only in the Email tab's keywords.
-    fireEvent.change(box, { target: { value: 'smtp' } });
-    expect(screen.getByText('settings.email.title')).toBeInTheDocument();
-    expect(screen.queryByText('settings.branding.title')).not.toBeInTheDocument();
+    // "identity" appears in no tab label — only in Branding's keywords.
+    fireEvent.change(box, { target: { value: 'identity' } });
+    expect(screen.getByText('settings.branding.title')).toBeInTheDocument();
+    expect(screen.queryByText('settings.general.title')).not.toBeInTheDocument();
 
     fireEvent.change(box, { target: { value: 'zzzznope' } });
     expect(screen.getByText('settings.search.noResults')).toBeInTheDocument();
@@ -264,7 +253,7 @@ describe('settings search', () => {
     renderSidebar('/admin/settings?tab=features');
 
     const box = screen.getByLabelText('settings.search.label');
-    fireEvent.change(box, { target: { value: 'smtp' } });
+    fireEvent.change(box, { target: { value: 'identity' } });
     fireEvent.keyDown(box, { key: 'Enter' });
 
     expect(confirmLeave).toHaveBeenCalled();
@@ -276,7 +265,7 @@ describe('settings search', () => {
     renderSidebar('/admin/settings?tab=features');
 
     const box = screen.getByLabelText('settings.search.label');
-    fireEvent.change(box, { target: { value: 'smtp' } });
+    fireEvent.change(box, { target: { value: 'identity' } });
     fireEvent.keyDown(box, { key: 'Enter' });
 
     expect(confirmLeave).not.toHaveBeenCalled();
@@ -358,10 +347,10 @@ describe('the command palette cannot offer what the sidebar hides', () => {
     expect(indexAt().some((h) => h.startsWith('/admin/accounting'))).toBe(true);
   });
 
-  it('leaves out CRM pages for a role holding none of the section permissions', () => {
+  it('leaves out Gestion pages for a role holding none of their permissions', () => {
     // Same shape: projects/calendar/quotes/contracts/bills declare no
     // permission of their own in useClientsNavItems.
-    granted = new Set(['events.view', 'settings.view']);
+    granted = new Set(['settings.view']);
     flags = { clients: true, quotes: true, contracts: true, projects: true };
     expect(indexAt().some((h) => h.startsWith('/admin/clients'))).toBe(false);
   });

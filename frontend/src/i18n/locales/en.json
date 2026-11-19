@@ -977,10 +977,19 @@
   },
   "navigation": {
     "dashboard": "Dashboard",
-    "events": "Events",
+    "groups": {
+      "management": "Management",
+      "galleries": "Galleries",
+      "administration": "Administration",
+      "workspace": "Workspace",
+      "business": "Business"
+    },
+    "events": "Galleries",
     "archives": "Archives",
-    "transfers": "PicTransfer",
+    "billing": "Billing",
+    "transfers": "Transfers",
     "messages": "Messages",
+    "studioMessages": "FotoDesk messages",
     "settings": "Settings",
     "eventTypes": "Event Types",
     "branding": "Branding",
@@ -989,12 +998,23 @@
     "cmsPages": "CMS Pages",
     "users": "Users",
     "calendar": "Calendar",
-    "clients": "CRM",
+    "clients": "Clients",
     "accounting": "Accounting",
     "workflows": "Workflows",
     "betaTag": "Beta",
     "automation": "Automation",
-    "sharing": "Sharing"
+    "sharing": "Sharing",
+    "analytics": "Analytics",
+    "projects": "Projects",
+    "photoGalleries": "Photo Galleries",
+    "videoGalleries": "Video Galleries",
+    "quotes": "Quotes",
+    "contracts": "Contracts",
+    "invoices": "Invoices",
+    "payments": "Payments",
+    "landingPageBuilder": "Landing Page Builder",
+    "affiliate": "Affiliate",
+    "teamMembers": "Team Members"
   },
   "transfers": {
     "title": "PicTransfer",
@@ -2287,7 +2307,8 @@
       "reviewUploadsHelp": "Holds uploads from team members whose role lacks the “Review Team Uploads” permission: they stay hidden from guests and clients until you or a reviewer approve them on the Photos tab. The Admin, Editor and Solo Photographer roles hold that permission by default, so their uploads are never held.",
       "reviewUploadsHelpMember": "Your uploads to this gallery stay hidden from guests and clients until the owner or a reviewer approves them.",
       "reviewUploadsHelpReviewer": "Uploads from team members without the “Review Team Uploads” permission wait for approval on the Photos tab. Yours are published right away."
-    }
+    },
+    "videoSubtitle": "Manage galleries containing video deliveries"
   },
   "settings": {
     "title": "System Settings",
@@ -2749,13 +2770,16 @@
       "umamiApiKeyHelp": "Optional. Required only for the device-breakdown chart on the Analytics dashboard. Generate in Umami → Settings → Profile → API Keys. Stored masked as •••••••• once saved — leave the masked value to keep the existing key."
     },
     "groups": {
+      "studio": "Studio & Billing",
+      "galleries": "Galleries & Branding",
+      "communication": "Communication & Sending",
+      "privacySecurity": "Team & Security",
+      "advanced": "Advanced Options (System)",
       "general": "General",
       "display": "Display",
-      "privacySecurity": "Privacy & Security",
       "integrations": "Integrations",
       "system": "System",
       "appearance": "Content & Appearance",
-      "communication": "Communication",
       "crm": "CRM-Settings",
       "people": "People & access"
     },
@@ -4837,7 +4861,10 @@
     "expandSidebar": "Expand sidebar",
     "collapseSidebar": "Collapse sidebar",
     "backToMenu": "Back to menu",
-    "viewOnGithub": "View FotoDesk on GitHub"
+    "viewOnGithub": "View FotoDesk on GitHub",
+    "daysLeft": "{{count}} day left",
+    "viewAllExpiringEvents": "View all {{count}} expiring events",
+    "logout": "Log out"
   },
   "acceptInvitation": {
     "title": "Accept Invitation",
@@ -8100,8 +8127,8 @@
     },
     "pagination": "Page {{page}} of {{total}} · {{count}} quotes",
     "status": {
-      "draft": "Draft",
-      "sent": "Sent",
+      "draft": "Drafts",
+      "sent": "Sent / open",
       "accepted": "Accepted",
       "declined": "Declined",
       "expired": "Expired",
@@ -10003,7 +10030,8 @@
     "viewAll": "View all",
     "invoices": {
       "title": "Invoices"
-    }
+    },
+    "outstandingSub": "{{count}} invoice(s) unpaid"
   },
   "users": {
     "roles": {
@@ -10322,6 +10350,35 @@
     },
     "subnav": {
       "approvals": "Approvals"
+    }
+  },
+  "studioThread": {
+    "ariaLabel": "Discussion thread",
+    "title": "Photo thread",
+    "mediaContext": "Media #{{mediaId}} · version #{{versionId}}",
+    "internalNote": "Internal note",
+    "messageType": "Message type",
+    "clientReply": "Client reply",
+    "replyLabel": "Reply to the client",
+    "noteLabel": "Add a note visible only to the studio",
+    "saving": "Saving…",
+    "sendReply": "Send reply",
+    "saveNote": "Save note",
+    "status": {
+      "label": "Thread status",
+      "open": "Open",
+      "inProgress": "In progress",
+      "resolved": "Resolved"
+    }
+  },
+  "invoices": {
+    "status": {
+      "draft": "Draft",
+      "issued": "Issued",
+      "partially_paid": "Partially paid",
+      "paid": "Paid",
+      "void": "Void",
+      "overdue": "Overdue"
     }
   }
 }

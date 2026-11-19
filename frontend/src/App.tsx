@@ -12,12 +12,17 @@ import { ClientAccessPage } from './pages/ClientAccessPage';
 import { PreviewPage } from './pages/gallery/PreviewPage';
 const SlideshowPage = lazy(() => import('./pages/gallery/SlideshowPage').then((m) => ({ default: m.SlideshowPage })));
 import { LegalPage } from './pages/public/LegalPage';
+import { FotoDeskPolicyPage } from './pages/public/FotoDeskPolicyPage';
+import { NotFoundPage } from './pages/public/NotFoundPage';
 import { FotoDeskLandingPage } from './pages/public/FotoDeskLandingPage';
 import { ForgotPasswordPage } from './pages/public/ForgotPasswordPage';
+import { PortfolioPage } from './pages/public/PortfolioPage';
 import { RegisterPage } from './pages/public/RegisterPage';
+import { AffiliatePortalPage } from './pages/affiliate/AffiliatePortalPage';
+import { MasterFounderDashboardPage } from './pages/superadmin/MasterFounderDashboardPage';
 import {
   AdminLoginPage,
-  AdminDashboard,
+  FotoDeskDashboard,
   EventsListPage,
   CreateEventPage,
   EventDetailsPage,
@@ -25,6 +30,8 @@ import {
   ArchivesPage,
   AnalyticsPage,
   SettingsPage,
+  PortfolioPage as AdminPortfolioPage,
+  BillingPage,
   // SystemHealthPage and UserManagementPage are no longer routed from here:
   // they render as the Settings > Health and Settings > Users tabs, and
   // SettingsPage imports them itself. /admin/system-health and /admin/users
@@ -50,13 +57,16 @@ import { NewsletterComposerPage } from './pages/admin/newsletters/NewsletterComp
 import { NewsletterDetailPage } from './pages/admin/newsletters/NewsletterDetailPage';
 import { TaxReportPage } from './pages/admin/clients/TaxReportPage';
 import { HoursLoggingPage } from './pages/admin/clients/HoursLoggingPage';
+import { AdminAffiliatesPage } from './pages/admin/affiliates/AdminAffiliatesPage';
 // E.6 — Calendar page lazy-loaded so the ~200 KB FullCalendar bundle
 // (carved into its own chunk in vite.config.ts) doesn't ship with the
-// main app. Only pages that visit /admin/clients/calendar fetch it.
+// main app. Only pages that visit /admin/agenda fetch it.
 const CalendarPage = lazy(() => import('./pages/admin/clients/CalendarPage').then((m) => ({ default: m.CalendarPage })));
 // Its own chunk: the template editor carries the drag-and-drop library (#1445).
 const ContractTemplateEditorPage = lazy(() => import('./pages/admin/contracts/ContractTemplateEditorPage').then((m) => ({ default: m.ContractTemplateEditorPage })));
 const MessagesPage = lazy(() => import('./pages/admin/messages/MessagesPage').then((m) => ({ default: m.MessagesPage })));
+const StudioMessagesPage = lazy(() => import('./pages/admin/StudioMessagesPage'));
+import { ClientFashionGalleryPage } from './pages/ClientFashionGalleryPage';
 import { QuoteResponsePage } from './pages/public/QuoteResponsePage';
 import { ContractResponsePage, ContractSigningSessionPage } from './pages/public/ContractResponsePage';
 import { ProjectsListPage } from './pages/admin/projects/ProjectsListPage';
@@ -102,7 +112,7 @@ import { AccountingLayout, AccountingIndex } from './components/admin/Accounting
 import { AccountingInboxPage } from './pages/admin/accounting/AccountingInboxPage';
 import { ExpensesLedgerPage } from './pages/admin/accounting/ExpensesLedgerPage';
 import { RequireFeature } from './components/admin/RequireFeature';
-import { PageErrorBoundary, OfflineIndicator, SkipLink, DynamicFavicon, RobotsMetaTags, CMSContentBlock, Loading } from './components/common';
+import { PageErrorBoundary, OfflineIndicator, DynamicFavicon, RobotsMetaTags, Loading, SkipLink } from './components/common';
 import { MaintenanceWrapper } from './components/MaintenanceWrapper';
 import { GlobalThemeProvider } from './components/GlobalThemeProvider';
 import { ConfirmDialogProvider } from './components/common';
@@ -195,6 +205,17 @@ function App() {
                   <SkipLink />
                   <Routes>
                   {/* Public gallery routes */}
+                  <Route path="/dashboard" element={<Navigate to="/admin/dashboard" replace />} />
+                  <Route path="/affiliate/register" element={<AffiliatePortalPage />} />
+                  <Route path="/affiliate/login" element={<AffiliatePortalPage />} />
+                  <Route path="/affiliate/dashboard" element={<AffiliatePortalPage />} />
+                  <Route path="/affiliate/demo" element={<AffiliatePortalPage />} />
+                  <Route path="/affiliate" element={<Navigate to="/affiliate/login" replace />} />
+                  <Route path="/affiliation" element={<Navigate to="/affiliate/login" replace />} />
+                  <Route path="/superadmin" element={<AdminAuthWrapper><MasterFounderDashboardPage /></AdminAuthWrapper>} />
+                  <Route path="/master" element={<Navigate to="/superadmin" replace />} />
+                  <Route path="/portfolio/:slug" element={<PortfolioPage />} />
+                  <Route path="/portfolio" element={<PortfolioPage />} />
                   <Route path="/gallery/preview" element={<PreviewPage />} />
                   {/* Live Slideshow ("Diashow") — token-only fullscreen kiosk.
                       Self-manages its session token; no GalleryAuthProvider. */}
@@ -208,6 +229,9 @@ function App() {
                       <ClientAccessPage />
                     </GalleryAuthProvider>
                   } />
+                  <Route path="/gallery/studio-fashion-shoot-lea" element={<ClientFashionGalleryPage />} />
+                  <Route path="/gallery/fashion-shoot" element={<ClientFashionGalleryPage />} />
+                  <Route path="/gallery/g-portrait-02" element={<ClientFashionGalleryPage />} />
                   <Route path="/gallery/:slug/:token?" element={
                     <GalleryAuthProvider>
                       <GalleryPage />
@@ -224,9 +248,15 @@ function App() {
                   {/* Admin routes - wrap with AdminAuthProvider */}
                   <Route path="/admin" element={<AdminAuthWrapper />}>
                     <Route path="login" element={<AdminLoginPage />} />
+                    <Route path="register" element={<RegisterPage />} />
                     <Route element={<AdminLayout />}>
-                      <Route path="dashboard" element={<AdminDashboard />} />
-                      <Route path="events" element={<EventsListPage />} />
+                      <Route path="dashboard" element={<FotoDeskDashboard />} />
+                      <Route element={<RequirePermission permission="events.view" />}>
+                        <Route path="portfolio" element={<AdminPortfolioPage />} />
+                        <Route path="landing-builder" element={<Navigate to="/admin/portfolio" replace />} />
+                        <Route path="video-galleries" element={<EventsListPage mediaMode="video" />} />
+                      </Route>
+                      <Route path="events" element={<EventsListPage mediaMode="photo" />} />
                       <Route path="events/new" element={<CreateEventPage />} />
                       <Route path="events/:id" element={<EventDetailsPage />} />
                       <Route path="events/:id/feedback" element={<EventFeedbackPage />} />
@@ -234,6 +264,21 @@ function App() {
                           an archived event is still an event. Static segment,
                           so it outranks events/:id. */}
                       <Route path="events/archives" element={<ArchivesPage />} />
+                      <Route path="billing" element={<BillingPage />} />
+                      <Route path="affiliates" element={<AdminAffiliatesPage />} />
+
+                      {/* Agenda and invoices are first-class sections. */}
+                      <Route element={<RequireFeature flag="calendar" />}>
+                        <Route path="agenda" element={<Suspense fallback={<Loading />}><CalendarPage /></Suspense>} />
+                      </Route>
+                      <Route element={<RequireFeature flag="bills" />}>
+                        <Route path="factures" element={<BillsListPage />} />
+                        <Route path="factures/new" element={<BillEditorPage />} />
+                        <Route path="factures/:id" element={<BillDetailPage />} />
+                        <Route path="factures/:id/edit" element={<BillEditorPage />} />
+                      </Route>
+                      <Route path="bills/*" element={<Navigate to="/admin/factures" replace />} />
+                      <Route path="calendar" element={<Navigate to="/admin/agenda" replace />} />
 
                       {/* PicTransfer (#997) — cross-event file transfers.
                           Gated by the `transfers` flag (strictly opt-in). It
@@ -241,6 +286,13 @@ function App() {
                           Sharing section, which activates on both trees. */}
                       <Route element={<RequireFeature flag="transfers" />}>
                         <Route path="transfers" element={<TransfersPage />} />
+                      </Route>
+                      <Route element={<RequirePermission permission="events.view" />}>
+                        <Route path="studio-messages" element={
+                          <Suspense fallback={<Loading />}>
+                            <StudioMessagesPage />
+                          </Suspense>
+                        } />
                       </Route>
                       <Route element={<RequireFeature flag="messaging" />}>
                         <Route path="messages" element={
@@ -290,12 +342,7 @@ function App() {
                             <Route path="projects/:id" element={<ProjectCockpitPage />} />
                           </Route>
                           {/* Bills / invoices (CRM) — gated by `bills`. */}
-                          <Route element={<RequireFeature flag="bills" />}>
-                            <Route path="bills" element={<BillsListPage />} />
-                            <Route path="bills/new" element={<BillEditorPage />} />
-                            <Route path="bills/:id" element={<BillDetailPage />} />
-                            <Route path="bills/:id/edit" element={<BillEditorPage />} />
-                          </Route>
+                          <Route path="bills/*" element={<Navigate to="/admin/factures" replace />} />
 
                           {/* Contracts (CRM) — gated by `contracts`. Independent
                               of quotes/bills; a free-standing legal document
@@ -322,16 +369,7 @@ function App() {
                           {/* Admin calendar (migration 137) — gated by
                               `calendar`. Lazy-loaded so the FullCalendar
                               bundle stays out of the main chunk. */}
-                          <Route element={<RequireFeature flag="calendar" />}>
-                            <Route
-                              path="calendar"
-                              element={
-                                <Suspense fallback={<Loading />}>
-                                  <CalendarPage />
-                                </Suspense>
-                              }
-                            />
-                          </Route>
+                          <Route path="calendar" element={<Navigate to="/admin/agenda" replace />} />
 
                           {/* Tax export moved permanently to the Accounting
                               section. Keep this path as a redirect so old
@@ -454,7 +492,9 @@ function App() {
                       <Route path="cms"          element={<Navigate to="/admin/settings?tab=cms"        replace />} />
 
                       <Route index element={<Navigate to="/admin/dashboard" replace />} />
+                      <Route path="*" element={<NotFoundPage />} />
                     </Route>
+                    <Route path="*" element={<NotFoundPage />} />
                   </Route>
 
                   {/* Public invitation acceptance page */}
@@ -521,28 +561,36 @@ function App() {
                         </Route>
 
                         <Route index element={<Navigate to="/customer/dashboard" replace />} />
+                        <Route path="*" element={<NotFoundPage />} />
                       </Routes>
                     </CustomerAuthProvider>
                   } />
 
-                  {/* Public legal pages */}
-                  <Route path="/impressum" element={<LegalPage />} />
-                  <Route path="/datenschutz" element={<LegalPage />} />
-                  <Route path="/:slug" element={<LegalPage />} />
+                  {/* Public legal & policy pages */}
+                  <Route path="/terms" element={<FotoDeskPolicyPage defaultDoc="terms" />} />
+                  <Route path="/cgu" element={<Navigate to="/terms" replace />} />
+                  <Route path="/cgv" element={<Navigate to="/terms" replace />} />
+                  <Route path="/privacy" element={<FotoDeskPolicyPage defaultDoc="privacy" />} />
+                  <Route path="/confidentialite" element={<Navigate to="/privacy" replace />} />
+                  <Route path="/datenschutz" element={<FotoDeskPolicyPage defaultDoc="privacy" />} />
+                  <Route path="/legal" element={<FotoDeskPolicyPage defaultDoc="legal" />} />
+                  <Route path="/mentions-legales" element={<Navigate to="/legal" replace />} />
+                  <Route path="/impressum" element={<FotoDeskPolicyPage defaultDoc="legal" />} />
 
                   {/* FotoDesk convenience routes & redirects */}
                   <Route path="/login" element={<Navigate to="/admin/login" replace />} />
                   <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                   <Route path="/register" element={<AdminAuthWrapper><RegisterPage /></AdminAuthWrapper>} />
+                  <Route path="/signup" element={<Navigate to="/register" replace />} />
                   <Route path="/dashboard" element={<Navigate to="/admin/dashboard" replace />} />
 
                   {/* FotoDesk Landing Page */}
                   <Route path="/" element={<FotoDeskLandingPage />} />
+                  <Route path="/404" element={<NotFoundPage />} />
+                  <Route path="/:slug" element={<LegalPage />} />
 
-                  {/* Customisable 404 (#324) — caught here for any path that
-                      didn't match. Top-level `/:slug` is consumed above by
-                      LegalPage; this picks up deeper unknown paths. */}
-                  <Route path="*" element={<CMSContentBlock slug="not-found" />} />
+                  {/* 404 Not Found */}
+                  <Route path="*" element={<NotFoundPage />} />
                 </Routes>
               </MaintenanceWrapper>
             </Router>

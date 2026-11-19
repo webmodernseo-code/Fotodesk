@@ -8,7 +8,7 @@
  */
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { LucideIcon } from 'lucide-react';
+import { type LucideIcon } from 'lucide-react';
 import { usePermissions } from '../../contexts/PermissionsContext';
 import { useFeatureFlags } from '../../contexts/FeatureFlagsContext';
 import {
@@ -16,7 +16,6 @@ import {
   useSettingsNavGroups,
 } from '../../features/settings/settingsNav';
 import { adminNavigation, navItemAllowed, SECTION_PATHS } from './AdminSidebar';
-import { useSharingNavItems } from './sharingNav';
 import { useAutomationNavItems } from './AutomationLayout';
 import { useClientsNavItems } from './ClientsLayout';
 import { useAccountingNavItems } from './AccountingLayout';
@@ -39,7 +38,6 @@ export function useAdminSearchIndex(): AdminSearchEntry[] {
   const { flags } = useFeatureFlags();
 
   const settingsGroups = useSettingsNavGroups();
-  const sharingItems = useSharingNavItems();
   const automationItems = useAutomationNavItems();
   const clientsItems = useClientsNavItems();
   const accountingItems = useAccountingNavItems();
@@ -78,32 +76,39 @@ export function useAdminSearchIndex(): AdminSearchEntry[] {
      * the palette came to offer Inbox and Tax report to a role that gets a
      * 403 on both. Asking the entry keeps one gate, not two.
      */
-    const pushSection = (
-      sectionHref: string,
-      context: string,
-      items: { key: string; to: string; label: string; icon: LucideIcon }[],
-    ) => {
-      // Fail closed. If a section's href is ever renamed and this lookup
-      // misses, skipping the section costs a few palette rows; carrying on
-      // would silently drop the permission gate and hand those rows to
-      // everyone — which is the bug this check exists to prevent.
-      const entry = adminNavigation.find((i) => i.href === sectionHref);
-      if (!entry || !navItemAllowed(entry, hasPermission, flags)) return;
-      for (const i of items) {
+    // Remaining CRM sub-pages not promoted to top-level sidebar entries
+    if (flags.clients) {
+      for (const item of clientsItems) {
+        if (['accounts', 'overview', 'quotes', 'contracts'].includes(item.key)) continue;
         entries.push({
-          key: `${context}:${i.key}`,
-          label: i.label,
-          href: i.to,
-          icon: i.icon,
+          key: `crm:${item.key}`,
+          label: item.label,
+          href: item.to,
+          icon: item.icon,
           group: pages,
-          context,
+          context: t('navigation.clients', 'Clients'),
         });
       }
-    };
-    pushSection('/admin/events', t('navigation.sharing', 'Sharing'), sharingItems);
-    pushSection('/admin/clients', t('navigation.clients', 'CRM'), clientsItems);
-    pushSection('/admin/accounting', t('navigation.accounting', 'Accounting'), accountingItems);
-    pushSection('/admin/automation', t('navigation.automation', 'Automation'), automationItems);
+    }
+
+    // These legacy operational routes no longer occupy the primary menu but
+    // remain searchable for authorised studios until their later migration.
+    if (hasPermission('accounting.view')) {
+      for (const item of accountingItems) {
+        entries.push({
+          key: `accounting:${item.key}`, label: item.label, href: item.to,
+          icon: item.icon, group: pages,
+          context: t('navigation.accounting', 'Comptabilite'),
+        });
+      }
+    }
+    for (const item of automationItems) {
+      entries.push({
+        key: `automation:${item.key}`, label: item.label, href: item.to,
+        icon: item.icon, group: pages,
+        context: t('navigation.automation', 'Automatisation'),
+      });
+    }
 
     const settingsLabel = t('navigation.settings', 'Settings');
     for (const group of settingsGroups) {
@@ -121,6 +126,6 @@ export function useAdminSearchIndex(): AdminSearchEntry[] {
     }
 
     return entries;
-  }, [t, hasPermission, flags, settingsGroups, sharingItems,
+  }, [t, hasPermission, flags, settingsGroups,
       automationItems, clientsItems, accountingItems]);
 }
