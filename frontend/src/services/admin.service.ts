@@ -406,6 +406,37 @@ export interface WhatsNewResponse {
 }
 
 export const adminService = {
+  // Studio-scoped overview (FotoDesk Phase 3)
+  async getDashboardOverview(): Promise<{
+    studio: { id: number; name: string; slug: string; planId: string; status: string };
+    kpis: {
+      customersCount: number;
+      projectsCount: number;
+      projectsByStatus: Record<string, number>;
+      galleriesCount: number;
+      invoicesSummary: {
+        totalCount: number;
+        paidCount: number;
+        pendingCount: number;
+        overdueCount: number;
+        totalAmountMinor: number;
+        paidAmountMinor: number;
+      };
+    };
+    storage: {
+      photoUsedBytes: number;
+      photoLimitGb: number;
+      videoStorageLimitMin: number;
+      videoPlaybackUsedMin: number;
+      videoPlaybackLimitMin: number;
+    };
+    recentProjects: Array<{ id: number; name: string; status: string; event_date?: string | null; created_at?: string }>;
+    upcomingAppointments: Array<{ id: number; title: string; appointment_date: string; start_time?: string; end_time?: string; status?: string }>;
+  }> {
+    const response = await api.get('/admin/dashboard/overview');
+    return response.data;
+  },
+
   // Dashboard statistics
   async getDashboardStats(): Promise<DashboardStats> {
     const response = await api.get<DashboardStats>('/admin/dashboard/stats');
