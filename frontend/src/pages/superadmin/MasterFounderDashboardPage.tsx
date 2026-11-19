@@ -26,6 +26,7 @@ import {
   RefreshCw,
   Search,
   Settings,
+  ShieldCheck,
   SlidersHorizontal,
   Sparkles,
   TrendingUp,
@@ -148,6 +149,10 @@ export function MasterFounderDashboardPage() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPlanModal, setSelectedPlanModal] = useState<StudioItem | null>(null);
+  const [selectedStudioDetail, setSelectedStudioDetail] = useState<StudioItem | null>(null);
+  const [studioToSuspend, setStudioToSuspend] = useState<StudioItem | null>(null);
+  const [isSuspendingStudio, setIsSuspendingStudio] = useState(false);
+  const [settingsTab, setSettingsTab] = useState<'general' | 'plans' | 'affiliates' | 'localization' | 'security'>('general');
   const [targetPlan, setTargetPlan] = useState<'starter' | 'pro' | 'studio' | 'free'>('pro');
   const [isUpdatingPlan, setIsUpdatingPlan] = useState(false);
   const [processingId, setProcessingId] = useState<number | null>(null);
@@ -207,6 +212,34 @@ export function MasterFounderDashboardPage() {
       toast.error(isEn ? 'Error updating subscription plan' : 'Erreur lors de la mise à jour de l’abonnement');
     } finally {
       setIsUpdatingPlan(false);
+    }
+  };
+
+  const handleToggleStudioStatus = async () => {
+    if (!studioToSuspend) return;
+    setIsSuspendingStudio(true);
+    const nextStatus = studioToSuspend.planStatus === 'canceled' ? 'active' : 'canceled';
+    try {
+      await superAdminService.updateStudioPlan(studioToSuspend.id, {
+        planId: studioToSuspend.planId,
+        planStatus: nextStatus,
+      });
+      toast.success(
+        nextStatus === 'canceled'
+          ? isEn
+            ? `Studio ${studioToSuspend.name} suspended.`
+            : `Studio ${studioToSuspend.name} suspendu.`
+          : isEn
+            ? `Studio ${studioToSuspend.name} reactivated.`
+            : `Studio ${studioToSuspend.name} réactivé.`,
+      );
+      setStudioToSuspend(null);
+      setSelectedStudioDetail(null);
+      await fetchOverview();
+    } catch {
+      toast.error(isEn ? 'Unable to update studio status' : 'Impossible de modifier le statut du studio');
+    } finally {
+      setIsSuspendingStudio(false);
     }
   };
 
@@ -1054,6 +1087,7 @@ export function MasterFounderDashboardPage() {
                   onSearchChange={setSearchQuery}
                   planFilter={planFilter}
                   onPlanFilterChange={setPlanFilter}
+                  onViewStudio={(studio) => setSelectedStudioDetail(studio)}
                   onManagePlan={(studio) => {
                     setSelectedPlanModal(studio);
                     setTargetPlan((studio.planId as any) || 'pro');
@@ -1252,6 +1286,7 @@ export function MasterFounderDashboardPage() {
               onSearchChange={setSearchQuery}
               planFilter={planFilter}
               onPlanFilterChange={setPlanFilter}
+              onViewStudio={(studio) => setSelectedStudioDetail(studio)}
               onManagePlan={(studio) => {
                 setSelectedPlanModal(studio);
                 setTargetPlan((studio.planId as any) || 'pro');
@@ -1464,67 +1499,325 @@ export function MasterFounderDashboardPage() {
             </TableFrame>
           )}
 
-          {/* SETTINGS SECTION */}
+          {/* SETTINGS SECTION (Figma 63:199426 · 5 tabs) */}
           {activeSection === 'settings' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="rounded-2xl border border-line bg-panel p-5 shadow-sm space-y-4">
-                <div className="flex items-center gap-2.5">
-                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-brand-soft text-brand">
-                    <Globe size={18} />
-                  </span>
-                  <div>
-                    <h3 className="text-sm font-bold text-heading">
-                      {isEn ? 'Localization & Currency' : 'Langue & Devise'}
-                    </h3>
-                    <p className="text-xs text-muted">
-                      {isEn ? 'Configure how metrics are displayed.' : 'Configurez l’affichage des montants et de la langue.'}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex flex-wrap items-center gap-3">
-                  <LanguageToggle size="sm" />
-                  <div className="inline-flex items-center rounded-xl border border-line bg-subtle p-1">
-                    {REGIONS.map((r) => (
-                      <button
-                        key={r.id}
-                        type="button"
-                        onClick={() => setRegion(r.id)}
-                        className={cn(
-                          'h-7 rounded-lg px-3 text-xs font-medium cursor-pointer',
-                          region === r.id ? 'bg-cta text-cta-fg font-semibold' : 'text-muted',
-                        )}
-                      >
-                        {r.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+            <div className="space-y-5">
+              <div className="flex flex-wrap items-center gap-1.5 rounded-2xl border border-line bg-panel p-1.5 w-fit">
+                {[
+                  { id: 'general' as const, label: isEn ? 'General' : 'Général', icon: SlidersHorizontal },
+                  { id: 'plans' as const, label: isEn ? 'Subscription Plans' : 'Formules', icon: CreditCard },
+                  { id: 'affiliates' as const, label: isEn ? 'Affiliate & Commission' : 'Affiliation', icon: Percent },
+                  { id: 'localization' as const, label: isEn ? 'Localization' : 'Localisation', icon: Globe },
+                  { id: 'security' as const, label: isEn ? 'Security & Privacy' : 'Sécurité', icon: ShieldCheck },
+                ].map((tab) => {
+                  const Icon = tab.icon;
+                  const active = settingsTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setSettingsTab(tab.id)}
+                      className={cn(
+                        'inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-colors cursor-pointer',
+                        active ? 'bg-brand-soft text-brand' : 'text-muted hover:text-heading hover:bg-hover',
+                      )}
+                    >
+                      <Icon size={14} />
+                      <span>{tab.label}</span>
+                    </button>
+                  );
+                })}
               </div>
 
-              <div className="rounded-2xl border border-line bg-panel p-5 shadow-sm space-y-4">
-                <div className="flex items-center gap-2.5">
-                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-info-bg text-info">
-                    <SlidersHorizontal size={18} />
-                  </span>
-                  <div>
+              {settingsTab === 'general' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="rounded-2xl border border-line bg-panel p-6 shadow-sm space-y-4">
                     <h3 className="text-sm font-bold text-heading">
-                      {isEn ? 'Studio Workspace' : 'Espace Studio'}
+                      {isEn ? 'Platform Identity' : 'Identité de la plateforme'}
                     </h3>
-                    <p className="text-xs text-muted">
-                      {isEn ? 'Switch to your photography studio dashboard.' : 'Basculer vers votre interface studio.'}
-                    </p>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-xs font-medium text-muted mb-1">
+                          {isEn ? 'Platform Name' : 'Nom de la plateforme'}
+                        </label>
+                        <input type="text" readOnly value="FotoDesk" className="input h-10 text-sm bg-subtle" />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-muted mb-1">
+                          {isEn ? 'Active Studios' : 'Studios actifs'}
+                        </label>
+                        <input type="text" readOnly value={`${metrics.totalStudios} studios`} className="input h-10 text-sm bg-subtle" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-line bg-panel p-6 shadow-sm space-y-4 flex flex-col justify-between">
+                    <div className="space-y-2">
+                      <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-brand-soft text-brand">
+                        <Building2 size={18} />
+                      </span>
+                      <h3 className="text-sm font-bold text-heading">
+                        {isEn ? 'Studio Workspace' : 'Espace Studio'}
+                      </h3>
+                      <p className="text-xs text-muted">
+                        {isEn
+                          ? 'Switch directly to the Photography Studio dashboard.'
+                          : 'Accédez directement à votre interface studio photo.'}
+                      </p>
+                    </div>
+                    <Link to="/admin/dashboard">
+                      <Button variant="brand" size="sm" rightIcon={<ArrowRight size={14} />}>
+                        {isEn ? 'Open Studio Dashboard' : 'Ouvrir le Tableau de bord Studio'}
+                      </Button>
+                    </Link>
                   </div>
                 </div>
-                <Link to="/admin/dashboard">
-                  <Button variant="brand" size="sm" rightIcon={<ArrowRight size={14} />}>
-                    {isEn ? 'Open Studio Dashboard' : 'Ouvrir le Tableau de bord Studio'}
-                  </Button>
-                </Link>
-              </div>
+              )}
+
+              {settingsTab === 'plans' && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {[
+                    { name: 'Starter', price: 9, storage: '50 GB', count: planCounts.starter, badge: 'neutral' as const },
+                    { name: 'Pro', price: 19, storage: '250 GB', count: planCounts.pro, badge: 'brand' as const },
+                    { name: 'Studio', price: 39, storage: '1 TB', count: planCounts.studio, badge: 'purple' as const },
+                  ].map((p) => (
+                    <div key={p.name} className="rounded-2xl border border-line bg-panel p-5 shadow-sm space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Badge tone={p.badge}>{p.name}</Badge>
+                        <span className="text-xs font-semibold text-muted">{p.count} studios</span>
+                      </div>
+                      <p className="text-2xl font-bold text-heading">
+                        {formatAmount(p.price, region)}
+                        <span className="text-xs font-normal text-muted"> / {isEn ? 'month' : 'mois'}</span>
+                      </p>
+                      <p className="text-xs text-muted">
+                        {isEn ? 'Included storage:' : 'Stockage inclus :'} <strong className="text-heading">{p.storage}</strong>
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {settingsTab === 'affiliates' && (
+                <div className="rounded-2xl border border-line bg-panel p-6 shadow-sm grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="rounded-xl border border-line bg-subtle p-4">
+                    <p className="text-xs text-muted">{isEn ? 'Active Affiliates' : 'Affiliés actifs'}</p>
+                    <p className="text-2xl font-bold text-heading mt-1">{metrics.totalAffiliates}</p>
+                  </div>
+                  <div className="rounded-xl border border-line bg-subtle p-4">
+                    <p className="text-xs text-muted">{isEn ? 'Pending Commissions' : 'Commissions en attente'}</p>
+                    <p className="text-2xl font-bold text-heading mt-1">{formatAmount(metrics.affiliatePendingEur, region)}</p>
+                  </div>
+                  <div className="rounded-xl border border-line bg-subtle p-4">
+                    <p className="text-xs text-muted">{isEn ? 'Harvested Total' : 'Total récolté'}</p>
+                    <p className="text-2xl font-bold text-heading mt-1">{formatAmount(metrics.affiliateHarvestedEur, region)}</p>
+                  </div>
+                </div>
+              )}
+
+              {settingsTab === 'localization' && (
+                <div className="rounded-2xl border border-line bg-panel p-6 shadow-sm space-y-4 max-w-xl">
+                  <h3 className="text-sm font-bold text-heading">
+                    {isEn ? 'Localization & Display Currency' : 'Langue & Devise d’affichage'}
+                  </h3>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <LanguageToggle size="sm" />
+                    <div className="inline-flex items-center rounded-xl border border-line bg-subtle p-1">
+                      {REGIONS.map((r) => (
+                        <button
+                          key={r.id}
+                          type="button"
+                          onClick={() => setRegion(r.id)}
+                          className={cn(
+                            'h-7 rounded-lg px-3 text-xs font-medium cursor-pointer',
+                            region === r.id ? 'bg-cta text-cta-fg font-semibold' : 'text-muted',
+                          )}
+                        >
+                          {r.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {settingsTab === 'security' && (
+                <div className="rounded-2xl border border-line bg-panel p-6 shadow-sm space-y-3 max-w-xl">
+                  <div className="flex items-center gap-2.5">
+                    <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-success-bg text-success">
+                      <ShieldCheck size={18} />
+                    </span>
+                    <div>
+                      <h3 className="text-sm font-bold text-heading">
+                        {isEn ? 'Super Admin Access & Security' : 'Accès Super Admin & Sécurité'}
+                      </h3>
+                      <p className="text-xs text-muted">
+                        {isEn
+                          ? 'Authenticated session protected by role-based access control.'
+                          : 'Session authentifiée protégée par contrôle d’accès fondateur.'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </main>
       </div>
+
+      {/* STUDIO DETAILS MODAL (Figma Studio Details page) */}
+      {selectedStudioDetail && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4 backdrop-blur-[1px]"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="w-full max-w-lg rounded-2xl border border-line bg-panel p-6 shadow-xl space-y-5">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-brand-soft text-brand font-bold text-sm">
+                  {getInitials(selectedStudioDetail.name)}
+                </span>
+                <div>
+                  <h3 className="text-lg font-bold text-heading">{selectedStudioDetail.name}</h3>
+                  <p className="text-xs text-muted">{selectedStudioDetail.ownerEmail || '—'}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedStudioDetail(null)}
+                className="p-1.5 rounded-lg text-muted hover:bg-hover cursor-pointer"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-xl border border-line bg-subtle p-3.5">
+                <p className="text-[11px] text-muted">{isEn ? 'Current Plan' : 'Formule actuelle'}</p>
+                <p className="text-sm font-bold text-heading mt-0.5 uppercase">
+                  {selectedStudioDetail.planId} · {formatAmount(selectedStudioDetail.monthlyPrice || 0, region)}
+                </p>
+              </div>
+              <div className="rounded-xl border border-line bg-subtle p-3.5">
+                <p className="text-[11px] text-muted">{isEn ? 'Status' : 'Statut'}</p>
+                <div className="mt-1">
+                  <Badge
+                    tone={
+                      selectedStudioDetail.planStatus === 'active'
+                        ? 'success'
+                        : selectedStudioDetail.planStatus === 'trial'
+                          ? 'warning'
+                          : 'danger'
+                    }
+                    dot
+                  >
+                    {selectedStudioDetail.planStatus}
+                  </Badge>
+                </div>
+              </div>
+              <div className="rounded-xl border border-line bg-subtle p-3.5">
+                <p className="text-[11px] text-muted">{isEn ? 'Storage Quota' : 'Quota stockage'}</p>
+                <p className="text-sm font-bold text-heading mt-0.5">{selectedStudioDetail.storageLimitGb} GB</p>
+              </div>
+              <div className="rounded-xl border border-line bg-subtle p-3.5">
+                <p className="text-[11px] text-muted">{isEn ? 'Registered' : 'Inscrit le'}</p>
+                <p className="text-sm font-bold text-heading mt-0.5">
+                  {formatDateLabel(selectedStudioDetail.createdAt, isEn)}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-line">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setStudioToSuspend(selectedStudioDetail)}
+                className="border-danger-line text-danger hover:bg-danger-bg"
+              >
+                {selectedStudioDetail.planStatus === 'canceled'
+                  ? isEn
+                    ? 'Reactivate Studio'
+                    : 'Réactiver le studio'
+                  : isEn
+                    ? 'Suspend Studio'
+                    : 'Suspendre le studio'}
+              </Button>
+              <Button
+                type="button"
+                variant="brand"
+                size="sm"
+                onClick={() => {
+                  const s = selectedStudioDetail;
+                  setSelectedStudioDetail(null);
+                  setSelectedPlanModal(s);
+                  setTargetPlan((s.planId as any) || 'pro');
+                }}
+              >
+                {isEn ? 'Manage Plan' : 'Modifier la formule'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SUSPEND STUDIO CONFIRMATION MODAL (Figma Suspend Studio pop up) */}
+      {studioToSuspend && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 backdrop-blur-[1px]"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="w-full max-w-md rounded-2xl border border-line bg-panel p-6 shadow-xl space-y-4">
+            <div className="flex items-start gap-3">
+              <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-danger-bg text-danger">
+                <AlertTriangle size={18} />
+              </span>
+              <div>
+                <h3 className="text-base font-bold text-heading">
+                  {studioToSuspend.planStatus === 'canceled'
+                    ? isEn
+                      ? 'Reactivate This Studio'
+                      : 'Réactiver ce studio'
+                    : isEn
+                      ? 'Suspend This Studio'
+                      : 'Suspendre ce studio'}
+                </h3>
+                <p className="text-xs text-muted mt-1">
+                  {studioToSuspend.planStatus === 'canceled'
+                    ? isEn
+                      ? `Restore active status for ${studioToSuspend.name}.`
+                      : `Rétablir le statut actif pour ${studioToSuspend.name}.`
+                    : isEn
+                      ? `Are you sure you want to suspend ${studioToSuspend.name}? Its subscription status will be set to canceled.`
+                      : `Voulez-vous vraiment suspendre ${studioToSuspend.name} ? Son statut passera en annulé.`}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <Button type="button" variant="outline" size="sm" onClick={() => setStudioToSuspend(null)}>
+                {isEn ? 'Cancel' : 'Annuler'}
+              </Button>
+              <Button
+                type="button"
+                variant={studioToSuspend.planStatus === 'canceled' ? 'success' : 'danger'}
+                size="sm"
+                isLoading={isSuspendingStudio}
+                onClick={handleToggleStudioStatus}
+              >
+                {studioToSuspend.planStatus === 'canceled'
+                  ? isEn
+                    ? 'Confirm Reactivation'
+                    : 'Confirmer la réactivation'
+                  : isEn
+                    ? 'Suspend Studio'
+                    : 'Suspendre'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* PLAN UPDATE MODAL */}
       {selectedPlanModal && (
@@ -1643,6 +1936,7 @@ interface StudioTableProps {
   onSearchChange: (val: string) => void;
   planFilter: string;
   onPlanFilterChange: (val: string) => void;
+  onViewStudio: (studio: StudioItem) => void;
   onManagePlan: (studio: StudioItem) => void;
 }
 
@@ -1654,6 +1948,7 @@ function StudioTable({
   onSearchChange,
   planFilter,
   onPlanFilterChange,
+  onViewStudio,
   onManagePlan,
 }: StudioTableProps) {
   return (
@@ -1747,14 +2042,23 @@ function StudioTable({
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <button
-                        type="button"
-                        onClick={() => onManagePlan(studio)}
-                        className="inline-flex items-center gap-1 text-xs font-semibold text-heading hover:text-brand transition-colors cursor-pointer"
-                      >
-                        <span>{isEn ? 'Manage Plan' : 'Gérer le plan'}</span>
-                        <ArrowRight size={13} />
-                      </button>
+                      <div className="inline-flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => onManagePlan(studio)}
+                          className="text-xs font-medium text-muted hover:text-heading transition-colors cursor-pointer"
+                        >
+                          {isEn ? 'Plan' : 'Formule'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => onViewStudio(studio)}
+                          className="inline-flex items-center gap-1 text-xs font-semibold text-heading hover:text-brand transition-colors cursor-pointer"
+                        >
+                          <span>{isEn ? 'View Studio' : 'Voir Studio'}</span>
+                          <ArrowRight size={13} />
+                        </button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
