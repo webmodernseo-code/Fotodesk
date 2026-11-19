@@ -182,11 +182,7 @@ export const adminNavigation: NavItem[] = [
     nameKey: 'navigation.invoices', href: '/admin/factures', icon: Receipt,
     featureFlag: 'bills', permission: 'bills.view', group: 'business',
   },
-  {
-    nameKey: 'navigation.payments', href: '/admin/billing', icon: CreditCard,
-    permission: false, group: 'business',
-  },
-  {
+{
     nameKey: 'navigation.landingPageBuilder', href: '/admin/portfolio', icon: LayoutTemplate,
     permission: 'events.view', group: 'business',
   },

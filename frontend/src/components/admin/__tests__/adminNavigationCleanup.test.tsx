@@ -138,7 +138,6 @@ describe('admin sidebar — what is top level', () => {
       'navigation.quotes',
       'navigation.contracts',
       'navigation.invoices',
-      'navigation.payments',
       'navigation.landingPageBuilder',
       'navigation.affiliate',
       'navigation.subscription',
