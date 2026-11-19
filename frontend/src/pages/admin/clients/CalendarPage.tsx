@@ -1,5 +1,5 @@
 /**
- * /admin/clients/calendar — admin calendar (read-only skeleton for E.6).
+ * /admin/agenda — admin calendar (read-only skeleton for E.6).
  *
  * Renders four layers fetched in one shot from /api/admin/calendar/items
  * (backend route adminCalendar.js, E.3):
@@ -35,6 +35,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useLocalizedDate } from '../../../hooks/useLocalizedDate';
 import { useFeatureFlags } from '../../../contexts/FeatureFlagsContext';
+import { usePermission } from '../../../hooks/usePermission';
 import FullCalendar from '@fullcalendar/react';
 import type {
   EventInput,
@@ -52,19 +53,33 @@ import interactionPlugin from '@fullcalendar/interaction';
 // `locale` prop then resolves to it by code. Other locales (fr/nl/
 // pt/ru) fall back to English day/month names.
 import deLocale from '@fullcalendar/core/locales/de';
-import { Card, Button, Loading } from '../../../components/common';
+import { Card, ErrorState, Loading } from '../../../components/common';
+import { SectionPageHeader } from '../../../components/admin/SectionPageHeader';
 import {
   calendarService,
   type CalendarItem,
+  type CalendarAppointmentItem,
   type CalendarHoursItem,
 } from '../../../services/calendar.service';
 import { businessProfileService } from '../../../services/businessProfile.service';
 import { customerAdminService } from '../../../services/customerAdmin.service';
+import { projectsService } from '../../../services/projects.service';
 import { getCalendarView, setCalendarView, type CalendarView } from '../../../utils/calendarPrefs';
 import { HourEntryDragCreateModal } from './HourEntryDragCreateModal';
 import { HourEntryInlinePopover } from './HourEntryInlinePopover';
-import { Calendar as CalendarIcon } from 'lucide-react';
-import { SectionPageHeader } from '../../../components/admin/SectionPageHeader';
+import {
+  Calendar as CalendarIcon,
+  Plus,
+  LayoutGrid,
+  Download,
+  Trash2,
+  X,
+  MapPin,
+  Clock,
+  ArrowRight,
+  MoreHorizontal,
+  Check,
+} from 'lucide-react';
 
 // Color tokens. Hex literals (rather than tailwind utility classes)
 // because FullCalendar applies these as inline `background-color` /
@@ -75,6 +90,8 @@ const COLOR_HOURS = '#10B981';      // emerald-500
 const COLOR_HOURS_LOCKED = '#9CA3AF'; // gray-400 (greyed)
 const COLOR_QUOTE_BORDER = '#F59E0B'; // amber-500
 const COLOR_CONTRACT_BORDER = '#A855F7'; // purple-500
+const COLOR_APPOINTMENT = '#6366F1'; // data-series colour used by FullCalendar
+const COLOR_APPOINTMENT_BORDER = '#4F46E5'; // data-series colour used by FullCalendar
 
 /**
  * Column-header text for the calendar's day headers.
@@ -113,7 +130,7 @@ export function formatDayHeader(date: Date, viewType: string, language: string):
  * the original item in `extendedProps` so the event-click handler can
  * read the `kind` discriminator without re-fetching.
  */
-function mapItemToFcEvent(item: CalendarItem): EventInput {
+export function mapItemToFcEvent(item: CalendarItem): EventInput {
   // Only unlocked hour entries are draggable/resizable. Everything
   // else stays inert — click-to-deep-link is the only interaction.
   const editable = item.kind === 'hours' && !item.locked;
@@ -193,6 +210,14 @@ function mapItemToFcEvent(item: CalendarItem): EventInput {
       base.start = dateStr;
       base.allDay = true;
     }
+  } else if (item.kind === 'appointment') {
+    base.title = item.clientName ? `${item.title} (${item.clientName})` : item.title;
+    base.start = `${item.date.slice(0, 10)}T${item.startTime}`;
+    base.end = `${item.date.slice(0, 10)}T${item.endTime}`;
+    base.backgroundColor = item.status === 'cancelled' ? COLOR_HOURS_LOCKED : COLOR_APPOINTMENT;
+    base.borderColor = item.status === 'cancelled' ? COLOR_HOURS_LOCKED : COLOR_APPOINTMENT_BORDER;
+    base.textColor = 'var(--ui-cta-fg)';
+    base.editable = false;
   }
   return base;
 }
@@ -225,6 +250,7 @@ export const CalendarPage: React.FC = () => {
   // global Settings → Features master switch.
   const { flags } = useFeatureFlags();
   const hoursLoggingEnabled = !!flags.hoursLogging;
+  const canEditAppointments = usePermission('customers.edit');
   // F.4 — admin's general_time_format drives FC's time labels.
   // dateFormat is consumed only for the (deferred) custom title
   // formatter; FC's built-in title/header formatting follows the
@@ -244,7 +270,7 @@ export const CalendarPage: React.FC = () => {
   } as Intl.DateTimeFormatOptions), [fcHour12]);
 
   // View persisted in localStorage (E.5 / E.6 — utils/calendarPrefs.ts).
-  const [view, setView] = useState<CalendarView>(() => getCalendarView());
+  const [view] = useState<CalendarView>(() => getCalendarView());
 
   // Interaction state (E.7): drag-create payload + the hour entry the
   // inline popover is open against. Each is mutually exclusive; opening
@@ -259,7 +285,7 @@ export const CalendarPage: React.FC = () => {
   // disabled so we don't fire a request for a guessed range.
   const [range, setRange] = useState<{ from: string; to: string } | null>(null);
 
-  const { data: itemsResp, isLoading: itemsLoading } = useQuery({
+  const { data: itemsResp, isLoading: itemsLoading, isError: itemsError, refetch: refetchItems } = useQuery({
     queryKey: ['calendar-items', range?.from, range?.to],
     queryFn: () => calendarService.list(range as { from: string; to: string }),
     enabled: !!range,
@@ -289,12 +315,176 @@ export const CalendarPage: React.FC = () => {
     || Intl.DateTimeFormat().resolvedOptions().timeZone
     || 'UTC';
 
+  const [displayTab, setDisplayTab] = useState<'calendar' | 'cards'>('calendar');
+  const [appointmentModalOpen, setAppointmentModalOpen] = useState(false);
+  const [editingAppointmentId, setEditingAppointmentId] = useState<number | null>(null);
+  const [cardsFilter, setCardsFilter] = useState<'upcoming' | 'all' | 'past'>('upcoming');
+  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+
+  const [newApt, setNewApt] = useState({
+    title: '',
+    clientName: '',
+    customerAccountId: '',
+    projectId: '',
+    category: 'portrait',
+    date: new Date().toISOString().slice(0, 10),
+    startTime: '10:00',
+    endTime: '11:30',
+    location: 'Studio FotoDesk',
+    notes: '',
+    imageUrl: '',
+    status: 'scheduled' as CalendarAppointmentItem['status'],
+  });
+
+  const { data: appointmentCustomers = [] } = useQuery({
+    queryKey: ['calendar-appointment-customers'],
+    queryFn: () => customerAdminService.list({ status: 'active' }),
+    staleTime: 5 * 60_000,
+    enabled: appointmentModalOpen,
+  });
+  const { data: appointmentProjects = [] } = useQuery({
+    queryKey: ['calendar-appointment-projects'],
+    queryFn: () => projectsService.list({ status: 'active' }),
+    staleTime: 5 * 60_000,
+    enabled: appointmentModalOpen && !!flags.projects,
+    retry: false,
+  });
+  const compatibleProjects = appointmentProjects.filter((project) => (
+    !newApt.customerAccountId
+    || !project.customerAccountId
+    || project.customerAccountId === Number(newApt.customerAccountId)
+  ));
+
+  const handleCreateAppointment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newApt.title.trim()) {
+      toast.error('Veuillez renseigner un titre pour cet événement.');
+      return;
+    }
+    try {
+      const payload = {
+        title: newApt.title.trim(),
+        clientName: newApt.clientName.trim() || undefined,
+        category: newApt.category,
+        date: newApt.date,
+        startTime: newApt.startTime,
+        endTime: newApt.endTime,
+        location: newApt.location.trim() || undefined,
+        notes: newApt.notes.trim() || undefined,
+        customerAccountId: newApt.customerAccountId ? Number(newApt.customerAccountId) : null,
+        projectId: newApt.projectId ? Number(newApt.projectId) : null,
+        status: newApt.status,
+      };
+      if (editingAppointmentId) await calendarService.updateAppointment(editingAppointmentId, payload);
+      else await calendarService.createAppointment(payload);
+      await queryClient.invalidateQueries({ queryKey: ['calendar-items'] });
+      toast.success(editingAppointmentId ? 'Rendez-vous mis à jour.' : 'Rendez-vous ajouté avec succès à l’agenda !');
+      setAppointmentModalOpen(false);
+      setEditingAppointmentId(null);
+      setNewApt({
+        title: '', clientName: '', customerAccountId: '', projectId: '', category: 'portrait',
+        date: new Date().toISOString().slice(0, 10),
+        startTime: '10:00', endTime: '11:30',
+        location: 'Studio FotoDesk', notes: '', imageUrl: '', status: 'scheduled',
+      });
+    } catch {
+      toast.error('Impossible d’ajouter ce rendez-vous. Réessayez.');
+    }
+  };
+
+  const openAppointmentEditor = (item: CalendarAppointmentItem) => {
+    setEditingAppointmentId(item.id);
+    setNewApt({
+      title: item.title,
+      clientName: item.clientName || '',
+      customerAccountId: item.customerAccountId ? String(item.customerAccountId) : '',
+      projectId: item.projectId ? String(item.projectId) : '',
+      category: item.category,
+      date: item.date.slice(0, 10),
+      startTime: item.startTime.slice(0, 5),
+      endTime: item.endTime.slice(0, 5),
+      location: item.location || '',
+      notes: item.notes || '',
+      imageUrl: '',
+      status: item.status,
+    });
+    setAppointmentModalOpen(true);
+  };
+
+  const openAppointmentCreator = () => {
+    setEditingAppointmentId(null);
+    setNewApt({
+      title: '', clientName: '', customerAccountId: '', projectId: '', category: 'portrait',
+      date: new Date().toISOString().slice(0, 10), startTime: '10:00', endTime: '11:30',
+      location: 'Studio FotoDesk', notes: '', imageUrl: '', status: 'scheduled',
+    });
+    setAppointmentModalOpen(true);
+  };
+
+  const handleDeleteIntervention = async (id: number) => {
+    if (window.confirm('Supprimer ce rendez-vous ?')) {
+      try {
+        await calendarService.deleteAppointment(id);
+        await queryClient.invalidateQueries({ queryKey: ['calendar-items'] });
+        toast.success('Rendez-vous supprimé de l’agenda.');
+      } catch {
+        toast.error('Impossible de supprimer ce rendez-vous. Réessayez.');
+      }
+    }
+  };
+
+  const handleExportIcs = (item: CalendarAppointmentItem) => {
+    const [year, month, day] = item.date.split('-').map(Number);
+    const [hours, minutes] = (item.startTime || '10:00').split(':').map(Number);
+    const startDate = new Date(year, month - 1, day, hours, minutes);
+    const endDate = new Date(startDate.getTime() + 90 * 60 * 1000);
+
+    const formatIcs = (d: Date) => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+
+    const icsContent = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//FotoDesk//Agenda RDV//FR',
+      'CALSCALE:GREGORIAN',
+      'BEGIN:VEVENT',
+      `UID:${item.id}@fotodesk`,
+      `DTSTAMP:${formatIcs(new Date())}`,
+      `DTSTART:${formatIcs(startDate)}`,
+      `DTEND:${formatIcs(endDate)}`,
+      `SUMMARY:${item.title} - ${item.clientName}`,
+      `DESCRIPTION:${item.notes || ''}`,
+      `LOCATION:${item.location || ''}`,
+      'STATUS:CONFIRMED',
+      'END:VEVENT',
+      'END:VCALENDAR',
+    ].join('\r\n');
+
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    link.setAttribute('download', `rdv-${item.date}-${item.title.toLowerCase().replace(/[^a-z0-9]/g, '_')}.ics`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success('Fichier calendrier (.ics) téléchargé.');
+  };
+
   // Map backend → FC event shape. Recomputed on every items change;
   // the cost is tiny relative to FC's render path.
-  const fcEvents = useMemo(
-    () => (itemsResp?.items || []).map(mapItemToFcEvent),
-    [itemsResp],
-  );
+  const fcEvents = useMemo(() => {
+    return (itemsResp?.items || []).map(mapItemToFcEvent);
+  }, [itemsResp]);
+
+  const sortedInterventions = useMemo(() => {
+    const appointments = (itemsResp?.items || []).filter(
+      (item): item is CalendarAppointmentItem => item.kind === 'appointment',
+    );
+    return [...appointments].sort((a, b) => {
+      const timeA = `${a.date}T${a.startTime || '00:00'}`;
+      const timeB = `${b.date}T${b.startTime || '00:00'}`;
+      return new Date(timeA).getTime() - new Date(timeB).getTime();
+    });
+  }, [itemsResp]);
 
   // Persist view changes. We don't use FC's viewClassNames or similar
   // — the explicit toggle buttons drive both the FC instance + the
@@ -324,6 +514,10 @@ export const CalendarPage: React.FC = () => {
     else if (item.kind === 'quote') navigate(`/admin/clients/quotes/${item.id}`);
     else if (item.kind === 'contract') navigate(`/admin/clients/contracts/${item.id}`);
     else if (item.kind === 'hours') setActiveHoursItem(item);
+    else if (item.kind === 'appointment') {
+      if (canEditAppointments) openAppointmentEditor(item);
+      else toast.info('Agenda en lecture seule pour votre rôle.');
+    }
   };
 
   /**
@@ -398,7 +592,6 @@ export const CalendarPage: React.FC = () => {
     } catch (err) {
       // I.2 — friendly toast when the hour-logging flag is off
       // server-side; raw axios message otherwise.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const e = err as any;
       const code = e?.response?.data?.code;
       const serverMsg = e?.response?.data?.error;
@@ -451,7 +644,6 @@ export const CalendarPage: React.FC = () => {
     } catch (err) {
       // I.2 — friendly toast on FEATURE_OFF (per-customer hour
       // logging disabled server-side); raw message otherwise.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const e = err as any;
       const code = e?.response?.data?.code;
       const serverMsg = e?.response?.data?.error;
@@ -466,94 +658,736 @@ export const CalendarPage: React.FC = () => {
     }
   };
 
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const [selectedDay, setSelectedDay] = useState<string>(todayStr);
+  const [clientFilter, setClientFilter] = useState<string>('all');
+  const [projectFilter, setProjectFilter] = useState<string>('all');
+  const [activeFcView, setActiveFcView] = useState<'dayGridMonth' | 'timeGridWeek' | 'timeGridDay'>(
+    (view as 'dayGridMonth' | 'timeGridWeek' | 'timeGridDay') || 'dayGridMonth',
+  );
+
+  const switchCalendarView = (nextView: 'dayGridMonth' | 'timeGridWeek' | 'timeGridDay') => {
+    setActiveFcView(nextView);
+    try {
+      calendarRef.current?.getApi()?.changeView(nextView);
+    } catch {
+      // Safe no-op in mocked test environments
+    }
+  };
+
+  const selectedDayAppointments = useMemo(() => {
+    return sortedInterventions.filter((item) => {
+      if (item.date !== selectedDay) return false;
+      if (clientFilter !== 'all' && String(item.customerAccountId ?? '') !== clientFilter) return false;
+      if (projectFilter !== 'all' && String(item.projectId ?? '') !== projectFilter) return false;
+      return true;
+    });
+  }, [sortedInterventions, selectedDay, clientFilter, projectFilter]);
+  const upcomingCount = sortedInterventions.filter(i => i.date >= todayStr).length;
+  const allCount = sortedInterventions.length;
+  const pastCount = sortedInterventions.filter(i => i.date < todayStr).length;
+
+  const filteredInterventions = sortedInterventions.filter(int => {
+    if (cardsFilter === 'upcoming') return int.date >= todayStr;
+    if (cardsFilter === 'past') return int.date < todayStr;
+    return true;
+  });
+
+  const renderStatusBadge = (int: CalendarAppointmentItem) => {
+    if (int.status === 'cancelled') return <span className="rounded-full bg-danger-bg px-2.5 py-1 text-[11px] font-semibold text-danger">Annulé</span>;
+    if (int.status === 'completed') return <span className="rounded-full bg-success-bg px-2.5 py-1 text-[11px] font-semibold text-success">Terminé</span>;
+    if (int.status === 'archived') return <span className="rounded-full border border-line bg-inset px-2.5 py-1 text-[11px] font-semibold text-muted">Archivé</span>;
+    return (
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-info-line bg-info-bg px-2.5 py-1 text-[11px] font-semibold text-info">
+        <Check className="h-3 w-3 stroke-[2.5]" />
+        <span>Planifié</span>
+      </span>
+    );
+  };
+
   return (
-    <div className="space-y-4">
-      <SectionPageHeader
-        icon={CalendarIcon}
-        title={t('calendar.pageTitle', 'Calendar')}
-        description={t('calendar.subtitle', 'Events, logged hours, and pending quotes/contracts in one view.')}
-        className=""
-        actions={(
-          <>
-            <Button
-              variant={view === 'dayGridMonth' ? 'primary' : 'outline'}
-              size="sm"
-              onClick={() => setView('dayGridMonth')}
-            >
-              {t('calendar.viewMonth', 'Month')}
-            </Button>
-            <Button
-              variant={view === 'timeGridWeek' ? 'primary' : 'outline'}
-              size="sm"
-              onClick={() => setView('timeGridWeek')}
-            >
-              {t('calendar.viewWeek', 'Week')}
-            </Button>
-          </>
-        )}
-      />
+    <div className="space-y-5">
+      {/* Figma Calendar Flow Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <p className="text-xs text-muted mb-1">
+            Workspace / <span className="font-semibold text-heading">Calendar</span>
+          </p>
+          <h1 className="text-2xl sm:text-[28px] font-bold tracking-tight text-heading">Agenda</h1>
+          <p className="text-sm text-muted mt-1">
+            Retrouvez vos shootings, rendez-vous et échéances dans un planning partagé.
+          </p>
+        </div>
 
-      <Legend />
-
-      <Card padding="md">
-        {itemsLoading && !itemsResp && (
-          <div className="mb-3 flex items-center gap-2 text-sm text-muted">
-            <Loading />
-            <span>{t('calendar.loading', 'Loading items…')}</span>
+        <div className="flex flex-wrap items-center gap-2.5">
+          <div className="inline-flex rounded-xl border border-line bg-panel p-1">
+            <button
+              type="button"
+              onClick={() => setDisplayTab('calendar')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                displayTab === 'calendar'
+                  ? 'bg-brand-soft text-brand'
+                  : 'text-muted hover:text-heading'
+              }`}
+            >
+              <CalendarIcon className="w-3.5 h-3.5" />
+              Grille calendrier
+            </button>
+            <button
+              type="button"
+              onClick={() => setDisplayTab('cards')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                displayTab === 'cards'
+                  ? 'bg-brand-soft text-brand'
+                  : 'text-muted hover:text-heading'
+              }`}
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+              Prochains RDV ({sortedInterventions.length})
+            </button>
           </div>
-        )}
-        <FullCalendar
-          ref={calendarRef}
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          initialView={view}
-          timeZone={resolvedTz}
-          // F.4 — language + time format come from picpeak settings.
-          // `locales` registers the locales we ship; `locale` picks the
-          // active one by i18next language code. Unknown languages
-          // fall back to FC's default English. Times are gated on the
-          // admin's general_time_format via the shared fcTimeFormat
-          // object below.
-          locales={[deLocale]}
-          locale={i18n.language || 'en'}
-          slotLabelFormat={fcTimeFormat}
-          eventTimeFormat={fcTimeFormat}
-          // Column headers — see formatDayHeader above for the per-view
-          // semantics (month headers carry no date).
-          dayHeaderContent={(arg) => formatDayHeader(arg.date, arg.view.type, i18n.language)}
-          headerToolbar={{
-            left: 'prev,next today',
-            center: 'title',
-            right: '',
-          }}
-          // Week starts on Monday for the operator's EU market.
-          firstDay={1}
-          // Per user spec: full 24h in week view (was 06:00-22:00).
-          slotMinTime="00:00:00"
-          slotMaxTime="24:00:00"
-          slotDuration="00:30:00"
-          height="auto"
-          expandRows
-          events={fcEvents}
-          eventClick={handleEventClick}
-          datesSet={handleDatesSet}
-          // E.7 — interactions enabled. Per-event `editable` already
-          // filters the draggable surface to unlocked hour entries
-          // (mapItemToFcEvent above). `selectable` enables the
-          // drag-to-create gesture on empty slots in week view.
-          // I.3 — master hoursLogging gates all drag interactions
-          // (drag-to-create, drag-move, drag-resize). When off, the
-          // calendar is read-only; existing entries still render so
-          // history stays visible.
-          selectable={hoursLoggingEnabled}
-          selectMirror
-          editable={hoursLoggingEnabled}
-          // FullCalendar quirk: selecting on the all-day row fires
-          // with allDay=true; the drag-create handler ignores those.
-          eventDrop={handleEventDrop}
-          eventResize={handleEventResize}
-          select={handleDateSelect}
-        />
-      </Card>
+
+          <button
+            type="button"
+            onClick={openAppointmentCreator}
+            disabled={!canEditAppointments}
+            title={canEditAppointments ? undefined : 'Agenda en lecture seule'}
+            className="flex items-center gap-2 rounded-xl bg-brand px-4 py-2 text-xs font-semibold text-white shadow-sm transition-all hover:bg-brand-hover cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            Ajouter un événement
+          </button>
+        </div>
+      </div>
+
+      {/* Calendar View Switcher & Filters Card (Figma Calendar Flow) */}
+      {displayTab === 'calendar' && (
+        <div className="rounded-2xl border border-line bg-panel p-4 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-info-bg text-info">
+              <CalendarIcon className="w-4 h-4" />
+            </span>
+            <div>
+              <p className="text-xs font-bold text-heading">Filtres du calendrier</p>
+              <p className="text-[11px] text-muted">Affichage des événements planifiés</p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2.5">
+            <select
+              value={clientFilter}
+              onChange={(e) => setClientFilter(e.target.value)}
+              className="input h-9 w-40 text-xs font-medium cursor-pointer"
+              aria-label="Filtrer par client"
+            >
+              <option value="all">Tous les clients</option>
+              {appointmentCustomers.map((c) => (
+                <option key={c.id} value={String(c.id)}>
+                  {c.companyName || c.displayName || c.email}
+                </option>
+              ))}
+            </select>
+
+            <div className="inline-flex rounded-xl border border-line bg-subtle p-1">
+              {([
+                { id: 'dayGridMonth', label: 'Month' },
+                { id: 'timeGridWeek', label: 'Week' },
+                { id: 'timeGridDay', label: 'Day' },
+              ] as const).map((v) => (
+                <button
+                  key={v.id}
+                  type="button"
+                  onClick={() => switchCalendarView(v.id)}
+                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                    activeFcView === v.id
+                      ? 'bg-panel text-heading shadow-2xs'
+                      : 'text-muted hover:text-heading'
+                  }`}
+                >
+                  {v.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Keep legacy toolbar for Cards view */}
+      <div className={displayTab === 'cards' ? 'relative overflow-hidden rounded-2xl border border-line bg-panel p-4 shadow-sm sm:p-5' : 'hidden'}>
+
+        {/* Toolbar row with status filters */}
+        <div className="relative z-10 mt-4 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-4">
+          <div className="inline-flex rounded-xl border border-line bg-inset p-1">
+            <button
+              type="button"
+              onClick={() => setCardsFilter('upcoming')}
+              className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                cardsFilter === 'upcoming'
+                  ? 'border border-gold bg-gold-soft text-gold shadow-xs'
+                  : 'text-muted hover:text-heading'
+              }`}
+            >
+              À venir ({upcomingCount})
+            </button>
+            <button
+              type="button"
+              onClick={() => setCardsFilter('all')}
+              className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                cardsFilter === 'all'
+                  ? 'border border-gold bg-gold-soft text-gold shadow-xs'
+                  : 'text-muted hover:text-heading'
+              }`}
+            >
+              Tous ({allCount})
+            </button>
+            <button
+              type="button"
+              onClick={() => setCardsFilter('past')}
+              className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                cardsFilter === 'past'
+                  ? 'border border-gold bg-gold-soft text-gold shadow-xs'
+                  : 'text-muted hover:text-heading'
+              }`}
+            >
+              Passés ({pastCount})
+            </button>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 text-xs text-muted">
+              <CalendarIcon className="w-3.5 h-3.5 text-gold" />
+              <span>{upcomingCount} événements à venir</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setDisplayTab('calendar')}
+              className="flex items-center gap-1.5 rounded-lg border border-line bg-panel px-3 py-1.5 text-xs font-medium text-body transition-all hover:bg-hover hover:text-heading"
+            >
+              <CalendarIcon className="w-3.5 h-3.5 text-gold" />
+              <span>Vue calendrier →</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ═══════════════════════════════════════
+          DISPLAY TAB : CALENDAR (FullCalendar)
+          ═══════════════════════════════════════ */}
+      {displayTab === 'calendar' ? (
+        <>
+          <Legend />
+
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_290px] gap-4 items-start">
+            <Card padding="md" className="shadow-sm">
+              {itemsLoading && !itemsResp && (
+                <div className="mb-3 flex items-center gap-2 text-sm text-muted">
+                  <Loading />
+                  <span>{t('calendar.loading', 'Loading items…')}</span>
+                </div>
+              )}
+              {itemsError && !itemsResp && (
+                <ErrorState
+                  className="mb-4 min-h-40"
+                  title={t('calendar.loadError', 'Impossible de charger l’agenda')}
+                  description={t('calendar.loadErrorHelp', 'Vérifiez votre connexion puis réessayez.')}
+                  actionLabel={t('common.retry', 'Réessayer')}
+                  onAction={() => refetchItems()}
+                />
+              )}
+              <FullCalendar
+                ref={calendarRef}
+                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                initialView={view}
+                timeZone={resolvedTz}
+                locales={[deLocale]}
+                locale={i18n.language || 'en'}
+                slotLabelFormat={fcTimeFormat}
+                eventTimeFormat={fcTimeFormat}
+                dayHeaderContent={(arg) => formatDayHeader(arg.date, arg.view.type, i18n.language)}
+                headerToolbar={{
+                  left: 'prev,next today',
+                  center: 'title',
+                  right: '',
+                }}
+                firstDay={1}
+                slotMinTime="00:00:00"
+                slotMaxTime="24:00:00"
+                slotDuration="00:30:00"
+                height="auto"
+                expandRows
+                events={fcEvents}
+                eventClick={handleEventClick}
+                dateClick={(arg: any) => {
+                  if (arg?.dateStr) setSelectedDay(arg.dateStr.slice(0, 10));
+                }}
+                datesSet={handleDatesSet}
+                selectable={hoursLoggingEnabled}
+                selectMirror
+                editable={hoursLoggingEnabled}
+                eventDrop={handleEventDrop}
+                eventResize={handleEventResize}
+                select={handleDateSelect}
+              />
+            </Card>
+
+            {/* Selected Day Sidebar Panel (Figma Calendar Flow) */}
+            <aside className="rounded-2xl border border-line bg-panel p-4 shadow-sm space-y-4">
+              <div className="flex items-center justify-between gap-2 pb-3 border-b border-line">
+                <div>
+                  <p className="text-sm font-bold text-heading">
+                    {new Date(`${selectedDay}T12:00:00`).toLocaleDateString(i18n.language || 'fr-FR', {
+                      month: 'long',
+                      day: 'numeric',
+                    })}
+                  </p>
+                  <p className="text-[11px] text-muted">
+                    {new Date(`${selectedDay}T12:00:00`).toLocaleDateString(i18n.language || 'fr-FR', {
+                      year: 'numeric',
+                      weekday: 'long',
+                    })}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={openAppointmentCreator}
+                  disabled={!canEditAppointments}
+                  className="inline-flex items-center gap-1 rounded-lg bg-info-bg px-2.5 py-1.5 text-xs font-semibold text-info hover:opacity-90 cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Add
+                </button>
+              </div>
+
+              {selectedDayAppointments.length === 0 ? (
+                <div className="py-8 text-center space-y-3">
+                  <span className="mx-auto inline-flex h-10 w-10 items-center justify-center rounded-xl bg-info-bg text-info">
+                    <CalendarIcon className="w-5 h-5" />
+                  </span>
+                  <div>
+                    <p className="text-xs font-bold text-heading">
+                      Aucun événement prévu ce jour
+                    </p>
+                    <p className="text-[11px] text-muted mt-1">
+                      Ajoutez un rendez-vous ou un shooting pour organiser votre journée.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={openAppointmentCreator}
+                    disabled={!canEditAppointments}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-brand px-3.5 py-2 text-xs font-semibold text-white hover:bg-brand-hover cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" /> Planifier un créneau
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-2.5">
+                  {selectedDayAppointments.map((apt) => (
+                    <button
+                      key={apt.id}
+                      type="button"
+                      onClick={() => openAppointmentEditor(apt)}
+                      disabled={!canEditAppointments}
+                      className="w-full rounded-xl border border-line bg-subtle p-3 text-left hover:bg-hover transition-colors flex items-center justify-between gap-2 cursor-pointer border-l-4 border-l-info"
+                    >
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-heading truncate">{apt.title}</p>
+                        <p className="text-[11px] text-muted mt-0.5">
+                          {apt.startTime || '09:00'}{apt.endTime ? ` – ${apt.endTime}` : ''}
+                        </p>
+                        {apt.location && (
+                          <p className="text-[11px] text-faint truncate mt-0.5">{apt.location}</p>
+                        )}
+                      </div>
+                      <ArrowRight className="w-3.5 h-3.5 text-faint shrink-0" />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </aside>
+          </div>
+        </>
+      ) : (
+        /* ═══════════════════════════════════════
+           DISPLAY TAB : CARDS (Grille de Shootings)
+           ═══════════════════════════════════════ */
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch">
+          {filteredInterventions.map((int: any, idx: number) => {
+            const [, monthNum, dayNum] = (int.date || '2026-10-23').split('-').map(Number);
+            const monthsFr = ['JAN.', 'FÉV.', 'MARS', 'AVR.', 'MAI', 'JUIN', 'JUIL.', 'AOÛT', 'SEPT.', 'OCT.', 'NOV.', 'DÉC.'];
+            const monthName = monthsFr[(monthNum || 10) - 1] || 'OCT.';
+            const dayStr = String(dayNum || 23);
+            const isWideCard = idx === 3 && filteredInterventions.length === 4;
+
+            const timeDisplay = int.endTime
+              ? `${int.startTime} - ${int.endTime}`
+              : (int.startTime?.includes('Début') ? int.startTime : `Début : ${int.startTime || '19:00'}`);
+
+            return (
+              <div
+                key={int.id}
+                className={`group relative flex flex-col justify-between rounded-2xl border border-line bg-panel p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${
+                  isWideCard ? 'lg:col-span-2' : ''
+                }`}
+              >
+                <div>
+                  {/* Photo Banner with Badges */}
+                  <div className={`relative w-full overflow-hidden rounded-xl bg-inset ${
+                    isWideCard ? 'h-48 sm:h-56' : 'h-44 sm:h-48'
+                  }`}>
+                    <img
+                      src={int.imageUrl || '/assets/images/camera-hero.jpg'}
+                      alt={int.title}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
+                    />
+
+                    {/* Status badge on top-left of image */}
+                    <div className="absolute left-3 top-3 z-10 flex items-center gap-1.5 rounded-full border border-success-line bg-success-bg px-2.5 py-1 text-[11px] font-semibold text-success backdrop-blur-md">
+                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-success" />
+                      <span>{int.date >= todayStr ? 'À venir' : 'Terminé'}</span>
+                    </div>
+
+                    {/* Date badge on top-right of image */}
+                    <div className="absolute top-3 right-3 z-10 flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-black/60 border border-white/15 backdrop-blur-md text-white">
+                      <div className="text-right leading-none">
+                        <span className="text-base sm:text-lg font-bold text-white block">
+                          {dayStr}
+                        </span>
+                        <span className="text-[9px] uppercase tracking-wider text-gray-300 font-semibold">
+                          {monthName}
+                        </span>
+                      </div>
+                      <CalendarIcon className="w-4 h-4 text-gray-300 shrink-0" />
+                    </div>
+                  </div>
+
+                  {/* Title & Details */}
+                  <h3 className="text-base font-bold text-heading mt-3.5 truncate" title={int.title}>
+                    {int.title}
+                  </h3>
+
+                  <div className="flex items-center gap-1.5 text-xs text-muted mt-2 truncate">
+                    <MapPin className="w-3.5 h-3.5 text-muted shrink-0" />
+                    <span className="truncate">{int.location || 'Studio FotoDesk'}</span>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 text-xs text-muted mt-1.5">
+                    <Clock className="w-3.5 h-3.5 text-muted shrink-0" />
+                    <span>{timeDisplay}</span>
+                  </div>
+                </div>
+
+                {/* Footer with status pill & actions */}
+                <div className="mt-4 pt-3 border-t border-line/60 flex items-center justify-between gap-2">
+                  <div>{renderStatusBadge(int)}</div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => openAppointmentEditor(int)}
+                      disabled={!canEditAppointments}
+                      className="px-2.5 py-1 rounded-lg text-xs font-medium text-body hover:text-heading bg-hover hover:bg-hover/80 transition-all flex items-center gap-1"
+                    >
+                      <span>Modifier</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </button>
+
+                    {/* Client Avatars */}
+                    {int.avatars && int.avatars.length > 0 ? (
+                      <div className="flex items-center -space-x-1.5 ml-1">
+                        {int.avatars.map((av: string, avIdx: number) => (
+                          <img
+                            key={avIdx}
+                            src={av}
+                            alt="Client"
+                            className="h-5 w-5 rounded-full border-2 border-panel object-cover"
+                          />
+                        ))}
+                        {int.extraAvatars && (
+                          <span className="text-[10px] text-muted ml-1.5 font-medium">
+                            +{int.extraAvatars}
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      /* Context menu for ics download and delete */
+                      <div className="relative">
+                        <button
+                          type="button"
+                          onClick={() => setActiveMenuId(activeMenuId === int.id ? null : int.id)}
+                          className="p-1 rounded-md text-muted hover:text-heading hover:bg-hover transition-colors"
+                          title="Options"
+                        >
+                          <MoreHorizontal className="w-4 h-4" />
+                        </button>
+
+                        {activeMenuId === int.id && (
+                          <div className="absolute right-0 bottom-full mb-1 w-44 bg-panel border border-line rounded-xl shadow-lg p-1 z-30">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                handleExportIcs(int);
+                                setActiveMenuId(null);
+                              }}
+                              className="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs text-body hover:text-heading hover:bg-hover rounded-lg transition-colors text-left"
+                            >
+                              <Download className="w-3.5 h-3.5" />
+                              <span>Exporter (.ics)</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                handleDeleteIntervention(int.id);
+                                setActiveMenuId(null);
+                              }}
+                              disabled={!canEditAppointments}
+                              className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-xs text-danger transition-colors hover:bg-danger-bg"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              <span>Supprimer</span>
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+
+          {/* ═══════════════════════════════════════
+              CARD 5 : "VOUS AVEZ D'AUTRES ÉVÉNEMENTS ?"
+              ═══════════════════════════════════════ */}
+          <div className="relative flex min-h-[300px] flex-col items-center justify-center overflow-hidden rounded-2xl border border-line bg-panel p-6 text-center shadow-sm">
+            {/* Subtle decorative gold curves */}
+            <svg
+              className="pointer-events-none absolute bottom-0 right-0 h-36 w-64 text-gold opacity-40"
+              viewBox="0 0 250 140"
+              fill="none"
+            >
+              <path d="M0 140 C80 140 120 70 250 30" stroke="currentColor" strokeWidth="1.2" fill="none" opacity="0.6" />
+              <path d="M40 140 C110 140 160 85 250 55" stroke="currentColor" strokeWidth="1" fill="none" opacity="0.35" />
+              <path d="M90 140 C150 140 180 100 250 85" stroke="currentColor" strokeWidth="0.8" fill="none" opacity="0.2" />
+            </svg>
+
+            <div className="relative z-10 mb-3.5 flex h-14 w-14 items-center justify-center rounded-full border border-gold bg-gold-soft text-gold">
+              <CalendarIcon className="h-6 w-6" />
+            </div>
+
+            <h3 className="relative z-10 text-base font-bold text-heading">
+              Vous avez d'autres événements ?
+            </h3>
+
+            <p className="relative z-10 text-xs text-muted max-w-xs mt-1.5 mb-5 leading-relaxed">
+              Ajoutez vos prochains shootings, rendez-vous ou événements pour un planning toujours à jour.
+            </p>
+
+            <button
+              type="button"
+              onClick={openAppointmentCreator}
+              disabled={!canEditAppointments}
+              title={canEditAppointments ? undefined : 'Agenda en lecture seule'}
+              className="relative z-10 inline-flex items-center justify-center gap-2 rounded-xl bg-cta px-5 py-2.5 text-xs font-semibold text-cta-fg shadow-md transition-all hover:bg-cta-hover"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Ajouter un événement</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal to add an appointment */}
+      {appointmentModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
+          <div className="w-full max-w-lg rounded-2xl bg-white border border-gray-200 p-6 shadow-xl dark:bg-gray-900 dark:border-gray-800 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-800">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                {editingAppointmentId ? 'Modifier le rendez-vous' : 'Ajouter un rendez-vous à l’agenda'}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setAppointmentModalOpen(false)}
+                className="rounded-lg p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateAppointment} className="mt-5 space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                  Titre du rendez-vous *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ex: Shooting portrait famille, Mariage Sophie & Marc..."
+                  value={newApt.title}
+                  onChange={(e) => setNewApt({ ...newApt, title: e.target.value })}
+                  className="w-full h-10 px-3.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                    Client lié
+                  </label>
+                  <select
+                    value={newApt.customerAccountId}
+                    onChange={(e) => setNewApt({ ...newApt, customerAccountId: e.target.value, projectId: '' })}
+                    className="w-full h-10 px-3.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                  >
+                    <option value="">Aucun client</option>
+                    {appointmentCustomers.map((customer) => (
+                      <option key={customer.id} value={customer.id}>
+                        {customer.companyName
+                          || customer.displayName
+                          || [customer.firstName, customer.lastName].filter(Boolean).join(' ')
+                          || customer.email}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                    Catégorie
+                  </label>
+                  <select
+                    value={newApt.category}
+                    onChange={(e) => setNewApt({ ...newApt, category: e.target.value })}
+                    className="w-full h-10 px-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                  >
+                    <option value="portrait">Portrait</option>
+                    <option value="mariage">Mariage</option>
+                    <option value="grossesse">Grossesse</option>
+                    <option value="evenement">Événement</option>
+                    <option value="mode">Mode & Book</option>
+                    <option value="produit">Produit & Packshot</option>
+                  </select>
+                </div>
+              </div>
+
+              {flags.projects && (
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                    Projet lié
+                  </label>
+                  <select
+                    value={newApt.projectId}
+                    onChange={(e) => setNewApt({ ...newApt, projectId: e.target.value })}
+                    className="w-full h-10 px-3.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                  >
+                    <option value="">Aucun projet</option>
+                    {compatibleProjects.map((project) => (
+                      <option key={project.id} value={project.id}>{project.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {editingAppointmentId && (
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                    État
+                  </label>
+                  <select
+                    value={newApt.status}
+                    onChange={(e) => setNewApt({ ...newApt, status: e.target.value as CalendarAppointmentItem['status'] })}
+                    className="w-full h-10 px-3.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                  >
+                    <option value="scheduled">Planifié</option>
+                    <option value="completed">Terminé</option>
+                    <option value="cancelled">Annulé</option>
+                    <option value="archived">Archivé</option>
+                  </select>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                    Date *
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={newApt.date}
+                    onChange={(e) => setNewApt({ ...newApt, date: e.target.value })}
+                    className="w-full h-10 px-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                    Heure début *
+                  </label>
+                  <input
+                    type="time"
+                    required
+                    value={newApt.startTime}
+                    onChange={(e) => setNewApt({ ...newApt, startTime: e.target.value })}
+                    className="w-full h-10 px-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                    Heure fin
+                  </label>
+                  <input
+                    type="time"
+                    value={newApt.endTime}
+                    onChange={(e) => setNewApt({ ...newApt, endTime: e.target.value })}
+                    className="w-full h-10 px-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                  Lieu
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ex: Studio FotoDesk, 14 rue de la Roquette..."
+                  value={newApt.location}
+                  onChange={(e) => setNewApt({ ...newApt, location: e.target.value })}
+                  className="w-full h-10 px-3.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                  Notes & consignes
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="Détails du shooting, matériel à prévoir..."
+                  value={newApt.notes}
+                  onChange={(e) => setNewApt({ ...newApt, notes: e.target.value })}
+                  className="w-full p-3 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-white resize-none"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100 dark:border-gray-800">
+                <button
+                  type="button"
+                  onClick={() => setAppointmentModalOpen(false)}
+                  className="rounded-xl px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors dark:text-gray-400"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="inline-flex items-center gap-2 rounded-xl bg-gray-900 px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-gray-800 transition-colors dark:bg-white dark:text-gray-900"
+                >
+                  {editingAppointmentId ? 'Enregistrer les modifications' : 'Enregistrer'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {dragCreateState && (
         <HourEntryDragCreateModal
@@ -577,8 +1411,8 @@ export const CalendarPage: React.FC = () => {
                 : created.description || 'Hours',
               start: `${created.entryDate}T${created.startTime}`,
               end: `${created.entryDate}T${created.endTime}`,
-              backgroundColor: '#10B981',
-              borderColor: '#10B981',
+              backgroundColor: COLOR_HOURS,
+              borderColor: COLOR_HOURS,
               editable: true,
               durationEditable: true,
               startEditable: true,
@@ -628,8 +1462,7 @@ export const CalendarPage: React.FC = () => {
         /* Admin-toggle-aware chrome vars — gallery theme writes inline
            --color-* on :root which would otherwise override .dark; scope
            local vars so the calendar follows the admin light/dark toggle. */
-        .fc { --cal-border: #e5e5e5; --cal-muted: #737373; --cal-text: #171717; }
-        .dark .fc { --cal-border: #262626; --cal-muted: #a3a3a3; --cal-text: #f5f5f5; }
+        .fc { --cal-border: var(--ui-line); --cal-muted: var(--ui-muted); --cal-text: var(--ui-body); }
         .cal-dashed {
           border-style: dashed !important;
           background-color: transparent !important;
