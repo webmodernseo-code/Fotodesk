@@ -1520,7 +1520,6 @@ export const SettingsWorkspace: React.FC = () => {
               </div>
             </>
           )}
-        </div>
       </div>
 
       {/* Sign Out Session Modal */}
