@@ -17,7 +17,6 @@ import {
   CreditCard,
   Globe,
   HelpCircle,
-  Layers,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -33,6 +32,7 @@ import {
   Users,
   Wallet,
   X,
+  type LucideIcon,
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { FotoDeskLogo } from '@/components/common/FotoDeskLogo';
@@ -287,7 +287,7 @@ export function MasterFounderDashboardPage() {
 
   const navGroups: {
     label: string;
-    items: { id: AdminSection; label: string; icon: React.FC<{ size?: number; className?: string }>; badge?: number }[];
+    items: { id: AdminSection; label: string; icon: LucideIcon; badge?: number }[];
   }[] = [
     {
       label: isEn ? 'OVERVIEW' : 'VUE D’ENSEMBLE',
@@ -1316,11 +1316,11 @@ export function MasterFounderDashboardPage() {
                             </div>
                           </TableCell>
                           <TableCell>
-                            <span className="font-semibold text-heading">{aff.clicksCount || 0}</span>
-                            <span className="text-muted"> / {aff.signupsCount || 0}</span>
+                            <span className="font-semibold text-heading">{(aff as any).clicks ?? (aff as any).clicksCount ?? 0}</span>
+                            <span className="text-muted"> / {(aff as any).signups ?? (aff as any).signupsCount ?? 0}</span>
                           </TableCell>
                           <TableCell className="font-semibold text-heading">
-                            {formatAmount(Number(aff.totalEarnedEur) || 0, region)}
+                            {formatAmount(Number((aff as any).harvestedAmount ?? (aff as any).totalEarnedEur) || 0, region)}
                           </TableCell>
                           <TableCell>
                             <Badge tone={aff.isActive ? 'success' : 'danger'} dot>
@@ -1403,21 +1403,21 @@ export function MasterFounderDashboardPage() {
                     </TableRow>
                   ) : (
                     payoutRequests.map((req) => {
-                      const isPending = req.status === 'en_attente';
+                      const isPending = req.status === 'en attente';
                       const isPaid = req.status === 'payé';
                       return (
                         <TableRow key={req.id}>
                           <TableCell>
                             <p className="font-semibold text-heading">
-                              {req.affiliateName || `#${req.affiliate_id}`}
+                              {(req as any).affiliateName || `Affilié #${req.affiliate_id}`}
                             </p>
-                            <p className="text-xs text-muted">{req.affiliateEmail || '—'}</p>
+                            <p className="text-xs text-muted">{(req as any).affiliateEmail || req.details || '—'}</p>
                           </TableCell>
                           <TableCell className="font-semibold text-heading">
                             {formatAmount(Number(req.amount) || 0, region)}
                           </TableCell>
                           <TableCell className="text-xs text-soft">
-                            {req.payoutMethod || '—'}
+                            {req.method || '—'}
                           </TableCell>
                           <TableCell className="text-xs text-muted">
                             {formatDateLabel(req.requested_at, isEn)}
