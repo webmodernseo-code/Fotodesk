@@ -130,7 +130,12 @@ function MetricCard({ item, onClick }: {
       </div>
       <div className="fd-metric-bottom">
         <div>
-          <strong className="fd-metric-value">{item.value}</strong>
+          <strong
+            className="fd-metric-value"
+            style={{ fontSize: '2.25rem', lineHeight: 1.05, fontWeight: 700, letterSpacing: '-0.03em' }}
+          >
+            {item.value}
+          </strong>
           {item.tone === "storage" ? (
             <>
               <div className="fd-meter" aria-label={`${item.usedPercent || 0}% du stockage utilisé`}>
