@@ -209,13 +209,13 @@ export const SubscriptionPage: React.FC = () => {
                 setActiveTab(id);
                 if (id !== 'plans') setShowUpgradeCheckout(false);
               }}
-              className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold transition-all ${
+              className={`inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-semibold transition-all cursor-pointer ${
                 active
-                  ? 'bg-subtle text-heading border border-line shadow-2xs'
-                  : 'text-soft hover:text-heading border border-transparent'
+                  ? 'bg-white text-neutral-950 border border-neutral-200/80 shadow-xs dark:bg-neutral-800 dark:text-white dark:border-white/10'
+                  : 'text-muted hover:text-heading hover:bg-hover/70 border border-transparent'
               }`}
             >
-              <Icon className="w-3.5 h-3.5" />
+              <Icon className={`w-3.5 h-3.5 ${active ? 'text-emerald-600 dark:text-emerald-400' : ''}`} />
               {label}
             </button>
           );
@@ -325,12 +325,12 @@ export const SubscriptionPage: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="rounded-xl border border-line bg-subtle p-4 space-y-2">
                 <div className="flex justify-between text-xs"><span className="font-semibold text-heading">Stockage photo</span><span className="text-muted">1.8 GB / {isPro ? '100 GB' : '3 GB'}</span></div>
-                <div className="h-1.5 rounded-full bg-panel overflow-hidden"><div className="h-full bg-[#C89561]" style={{ width: isPro ? '2%' : '60%' }} /></div>
+                <div className="h-1.5 rounded-full bg-panel overflow-hidden"><div className="h-full rounded-full bg-emerald-500 transition-all" style={{ width: isPro ? '2%' : '60%' }} /></div>
                 <p className="text-[11px] text-muted">{isPro ? '98.2 GB restants' : '1.2 GB restants'}</p>
               </div>
               <div className="rounded-xl border border-line bg-subtle p-4 space-y-2">
                 <div className="flex justify-between text-xs"><span className="font-semibold text-heading">Galeries photo</span><span className="text-muted">{isPro ? '2 / Illimitées' : '2 sur 3'}</span></div>
-                <div className="h-1.5 rounded-full bg-panel overflow-hidden"><div className="h-full bg-[#C89561]" style={{ width: isPro ? '5%' : '66%' }} /></div>
+                <div className="h-1.5 rounded-full bg-panel overflow-hidden"><div className="h-full rounded-full bg-emerald-500 transition-all" style={{ width: isPro ? '5%' : '66%' }} /></div>
                 <p className="text-[11px] text-muted">{isPro ? 'Création illimitée incluse' : '1 galerie restante'}</p>
               </div>
               <div className="rounded-xl border border-line bg-subtle p-4 flex items-center justify-between text-xs">
@@ -597,7 +597,7 @@ export const SubscriptionPage: React.FC = () => {
             ].map((q) => (
               <div key={q.name} className="rounded-xl border border-line bg-subtle p-4 space-y-2">
                 <div className="flex justify-between text-sm"><span className="font-semibold text-heading">{q.name}</span><span className="text-muted">{q.used} / {q.limit}</span></div>
-                <div className="h-2 rounded-full bg-panel overflow-hidden"><div className="h-full bg-[#C89561]" style={{ width: `${q.pct}%` }} /></div>
+                <div className="h-2 rounded-full bg-panel overflow-hidden"><div className="h-full rounded-full bg-emerald-500 transition-all" style={{ width: `${q.pct}%` }} /></div>
               </div>
             ))}
           </div>
