@@ -228,38 +228,18 @@ const computeTotal = (items: InvoiceLineItem[]) =>
   items.reduce((sum, item) => sum + Number(item.quantity || 0) * Number(item.unitPrice || 0), 0);
 
 const StatusBadge: React.FC<{ status: InvoiceStatus }> = ({ status }) => {
-  const styles: Record<InvoiceStatus, { bg: string; dot: string; label: string }> = {
-    draft: {
-      bg: 'bg-subtle text-soft border border-line',
-      dot: 'bg-muted',
-      label: 'Brouillon',
-    },
-    sent: {
-      bg: 'bg-blue-500/12 text-blue-700 dark:text-blue-300',
-      dot: 'bg-blue-500',
-      label: 'Envoyée',
-    },
-    paid: {
-      bg: 'bg-emerald-500/12 text-emerald-700 dark:text-emerald-300',
-      dot: 'bg-emerald-500',
-      label: 'Payée',
-    },
-    overdue: {
-      bg: 'bg-red-500/12 text-red-600 dark:text-red-300',
-      dot: 'bg-red-500',
-      label: 'En retard',
-    },
-    cancelled: {
-      bg: 'bg-subtle text-muted border border-line',
-      dot: 'bg-muted',
-      label: 'Annulée',
-    },
+  const styles: Record<InvoiceStatus, { cls: string; label: string }> = {
+    draft: { cls: 'badge-neutral', label: 'Brouillon' },
+    sent: { cls: 'badge-info', label: 'Envoyée' },
+    paid: { cls: 'badge-success', label: 'Payée' },
+    overdue: { cls: 'badge-danger', label: 'En retard' },
+    cancelled: { cls: 'badge-neutral', label: 'Annulée' },
   };
 
   const cfg = styles[status];
   return (
-    <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-0.5 rounded-full ${cfg.bg}`}>
-      <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
+    <span className={cfg.cls}>
+      <span className="w-1.5 h-1.5 rounded-full bg-current" />
       {cfg.label}
     </span>
   );
@@ -1593,7 +1573,7 @@ export const InvoicesWorkspace: React.FC = () => {
                 </select>
               </div>
 
-              <div className="bg-blue-500/8 border border-blue-500/20 rounded-xl px-3.5 py-2.5 text-xs text-soft">
+              <div className="banner-info">
                 Suivi manuel du statut uniquement. Aucun paiement n&apos;est encaissé ou traité par FotoDesk.
               </div>
 
@@ -1754,7 +1734,7 @@ export const InvoicesWorkspace: React.FC = () => {
                 <button
                   type="button"
                   onClick={confirmDeleteInvoice}
-                  className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors"
+                  className="btn-danger"
                 >
                   Supprimer la facture
                 </button>

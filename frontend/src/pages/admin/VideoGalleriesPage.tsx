@@ -1167,11 +1167,9 @@ export const VideoGalleriesPage: React.FC = () => {
 
               {queuedUploads.length > 0 && (
                 <div
-                  className={`rounded-xl px-3.5 py-2.5 text-xs ${
-                    exceedsStorage
-                      ? 'bg-red-500/10 border border-red-500/20 text-red-600'
-                      : 'bg-blue-500/10 border border-blue-500/20 text-blue-700 dark:text-blue-300'
-                  }`}
+                  className={
+                    exceedsStorage ? 'banner-danger flex-col items-stretch' : 'banner-info flex-col items-stretch'
+                  }
                 >
                   <div className="flex justify-between font-semibold">
                     <span>Stockage projeté après téléversement</span>
@@ -1451,7 +1449,7 @@ export const VideoGalleriesPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleConfirmDeleteGallery}
-                  className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-medium"
+                  className="btn-danger"
                 >
                   Supprimer la galerie
                 </button>

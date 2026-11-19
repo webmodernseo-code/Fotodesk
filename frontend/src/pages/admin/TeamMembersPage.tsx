@@ -217,23 +217,23 @@ const countViewedModules = (permissions: ModulePermission[]) =>
 const StatusPill: React.FC<{ status: MemberStatus }> = ({ status }) => {
   if (status === 'active') {
     return (
-      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-500/12 px-2.5 py-0.5 rounded-full">
-        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+      <span className="badge-success">
+        <span className="w-1.5 h-1.5 rounded-full bg-current" />
         Actif
       </span>
     );
   }
   if (status === 'pending') {
     return (
-      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-700 dark:text-amber-300 bg-amber-500/12 px-2.5 py-0.5 rounded-full">
-        <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+      <span className="badge-warning">
+        <span className="w-1.5 h-1.5 rounded-full bg-current" />
         En attente
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1.5 text-xs font-medium text-red-600 dark:text-red-300 bg-red-500/12 px-2.5 py-0.5 rounded-full">
-      <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+    <span className="badge-danger">
+      <span className="w-1.5 h-1.5 rounded-full bg-current" />
       Inactif
     </span>
   );
@@ -821,7 +821,7 @@ export const TeamMembersPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleConfirmRemove}
-                  className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors"
+                  className="btn-danger"
                 >
                   Retirer le membre
                 </button>
@@ -1209,8 +1209,10 @@ export const TeamMembersPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-blue-500/8 border border-blue-500/20 rounded-xl px-4 py-3 text-xs text-soft">
-          <span className="font-semibold text-heading">Aperçu des permissions :</span> en production, les autorisations doivent être vérifiées côté serveur sur chaque action et requête protégée. Masquer les contrôles d&apos;interface seul ne constitue pas une sécurité.
+        <div className="banner-info">
+          <span>
+            <strong className="font-semibold">Aperçu des permissions :</strong> en production, les autorisations doivent être vérifiées côté serveur sur chaque action et requête protégée. Masquer les contrôles d&apos;interface seul ne constitue pas une sécurité.
+          </span>
         </div>
       </div>
 

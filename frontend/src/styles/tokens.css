@@ -48,6 +48,19 @@
   --ui-line-strong: #d4d4d4;   /* input borders              (neutral-300) */
   --ui-line-faint: #f5f5f5;    /* hairlines inside a panel   (neutral-100) */
 
+  /* Semantic status & message tokens (FotoDesk guide) */
+  --sem-neutral-fg: #211E1A;
+  --sem-neutral-muted: #625B53;
+  --sem-neutral-bg: #F6F3EF;
+  --sem-success-fg: #1F623F;
+  --sem-success-bg: #EAF5EE;
+  --sem-info-fg: #24558B;
+  --sem-info-bg: #EAF2FB;
+  --sem-warning-fg: #9A5B13;
+  --sem-warning-bg: #FFF2D8;
+  --sem-danger-fg: #A12C32;
+  --sem-danger-bg: #FCEDEE;
+
   /* ---- 2. Theme tokens: defaults ("Classic Grid") --------------------- */
   /* Names match ThemeConfig in src/types/theme.types.ts. */
   --color-background: #fafafa;        /* page base */
@@ -127,4 +140,17 @@
   --color-muted-text: #a3a3a3;
   --color-accent: #C89561;
   --color-accent-dark: #C89561;
+
+  /* Semantic status & message tokens (dark mode) */
+  --sem-neutral-fg: #F5F2EE;
+  --sem-neutral-muted: #B8B0A7;
+  --sem-neutral-bg: #262320;
+  --sem-success-fg: #6EE7A8;
+  --sem-success-bg: rgba(31, 98, 63, 0.24);
+  --sem-info-fg: #7CB8F8;
+  --sem-info-bg: rgba(36, 85, 139, 0.24);
+  --sem-warning-fg: #F5C26B;
+  --sem-warning-bg: rgba(154, 91, 19, 0.24);
+  --sem-danger-fg: #F5898E;
+  --sem-danger-bg: rgba(161, 44, 50, 0.24);
 }

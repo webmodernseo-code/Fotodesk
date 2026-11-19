@@ -210,29 +210,29 @@ const getInitials = (name: string) =>
 const StatusPill: React.FC<{ status: ProjectStatus }> = ({ status }) => {
   const cfg: Record<ProjectStatus, { cls: string; dot: string; label: string }> = {
     planning: {
-      cls: 'bg-subtle text-soft border border-line',
-      dot: 'bg-muted',
+      cls: 'badge-neutral',
+      dot: 'bg-current opacity-70',
       label: 'Planification',
     },
     in_progress: {
-      cls: 'bg-blue-500/12 text-blue-700 dark:text-blue-300',
-      dot: 'bg-blue-500',
+      cls: 'badge-info',
+      dot: 'bg-current',
       label: 'En cours',
     },
     editing: {
-      cls: 'bg-amber-500/12 text-amber-700 dark:text-amber-300',
-      dot: 'bg-amber-500',
+      cls: 'badge-warning',
+      dot: 'bg-current',
       label: 'Retouche',
     },
     review: {
-      cls: 'bg-emerald-500/12 text-emerald-700 dark:text-emerald-300',
-      dot: 'bg-emerald-500',
+      cls: 'badge-success',
+      dot: 'bg-current',
       label: 'Révision',
     },
   };
   const item = cfg[status];
   return (
-    <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-0.5 rounded-full ${item.cls}`}>
+    <span className={item.cls}>
       <span className={`w-1.5 h-1.5 rounded-full ${item.dot}`} />
       {item.label}
     </span>
@@ -584,7 +584,7 @@ export const ProjectsListPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleConfirmDelete}
-                  className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-medium"
+                  className="btn-danger"
                 >
                   Supprimer le projet
                 </button>

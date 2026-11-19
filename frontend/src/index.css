@@ -138,6 +138,70 @@
     color: var(--color-background);
   }
 
+  .btn-danger {
+    background-color: #A12C32;
+    color: #ffffff;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 font-medium text-sm transition-colors cursor-pointer disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .btn-danger:hover {
+    background-color: #882227;
+  }
+
+  .badge-neutral {
+    background-color: var(--sem-neutral-bg);
+    color: var(--sem-neutral-muted);
+    @apply inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-0.5 rounded-full;
+  }
+
+  .badge-success {
+    background-color: var(--sem-success-bg);
+    color: var(--sem-success-fg);
+    @apply inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-0.5 rounded-full;
+  }
+
+  .badge-info {
+    background-color: var(--sem-info-bg);
+    color: var(--sem-info-fg);
+    @apply inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-0.5 rounded-full;
+  }
+
+  .badge-warning {
+    background-color: var(--sem-warning-bg);
+    color: var(--sem-warning-fg);
+    @apply inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-0.5 rounded-full;
+  }
+
+  .badge-danger {
+    background-color: var(--sem-danger-bg);
+    color: var(--sem-danger-fg);
+    @apply inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-0.5 rounded-full;
+  }
+
+  .banner-info {
+    background-color: var(--sem-info-bg);
+    color: var(--sem-info-fg);
+    @apply rounded-xl px-4 py-3 text-xs flex items-start gap-2.5;
+  }
+
+  .banner-warning {
+    background-color: var(--sem-warning-bg);
+    color: var(--sem-warning-fg);
+    @apply rounded-xl px-4 py-3 text-xs flex items-start gap-2.5;
+  }
+
+  .banner-danger {
+    background-color: var(--sem-danger-bg);
+    color: var(--sem-danger-fg);
+    @apply rounded-xl px-4 py-3 text-xs flex items-start gap-2.5;
+  }
+
+  .banner-success {
+    background-color: var(--sem-success-bg);
+    color: var(--sem-success-fg);
+    @apply rounded-xl px-4 py-3 text-xs flex items-start gap-2.5;
+  }
+
   .btn-secondary {
     background-color: var(--color-surface-border);
     color: var(--color-text);
