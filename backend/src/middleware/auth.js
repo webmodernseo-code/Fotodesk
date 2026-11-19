@@ -5,6 +5,7 @@ const { getAdminTokenFromRequest } = require('../utils/tokenUtils');
 const { roleEventScope } = require('./permissions');
 const { loadAssignedEventIds } = require('./ownership');
 const { loadCrmActor, withCrmActor } = require('../database/crmAccess');
+const { resolveStudioContext } = require('./studioContext');
 
 // GHSA-h4w8-57xq-53fx: must_change_password was written on reset (and on
 // invitation/OIDC-bypass paths) but nothing server-side ever checked it — a
@@ -60,13 +61,47 @@ async function adminAuth(req, res, next) {
       });
     }
 
-    // Add user info to request (enhanced with role)
+    // Resolve studio membership for strict multi-tenant isolation
+    const { db } = require('../database/db');
+    let membership = await db('studio_memberships')
+      .where({ admin_id: admin.id })
+      .first();
+
+    if (!membership) {
+      let ownedStudio = await db('studios').where({ owner_admin_id: admin.id }).first();
+      if (ownedStudio) {
+        await db('studio_memberships').insert({
+          studio_id: ownedStudio.id,
+          admin_id: admin.id,
+          role: 'owner'
+        }).onConflict(['studio_id', 'admin_id']).ignore();
+        membership = { studio_id: ownedStudio.id, role: 'owner' };
+      } else {
+        const firstStudio = await db('studios').first('id');
+        if (firstStudio) {
+          const defaultRole = (admin.role_name === 'super_admin' || admin.role_id === 1) ? 'owner' : 'member';
+          await db('studio_memberships').insert({
+            studio_id: firstStudio.id,
+            admin_id: admin.id,
+            role: defaultRole
+          }).onConflict(['studio_id', 'admin_id']).ignore();
+          membership = { studio_id: firstStudio.id, role: defaultRole };
+        }
+      }
+    }
+
+    const studioId = membership?.studio_id ? Number(membership.studio_id) : 1;
+    const studioRole = membership?.role || 'owner';
+
+    // Add user info to request (enhanced with role & studio context)
     req.admin = {
       id: admin.id,
       username: admin.username,
       email: admin.email,
       roleId: admin.role_id,
       roleName: admin.role_name,
+      studioId,
+      studioRole,
       // Which galleries beyond its own this role reaches (ownership.js).
       eventScope: await roleEventScope(admin.role_name),
       // Galleries the admin is assigned to (ownership.canAccessEvent).
@@ -78,10 +113,19 @@ async function adminAuth(req, res, next) {
       // silently dropping the session back to 24h.
       rememberMe: decoded.rememberMe === true
     };
+    req.studioId = studioId;
     req.token = token; // Store token for potential revocation
 
+    const studioResolution = await resolveStudioContext(req);
+    if (studioResolution.blocked && studioResolution.statusCode === 403) {
+      return res.status(403).json(studioResolution.body);
+    }
+    if (studioResolution.studio) {
+      req.studio = studioResolution.studio;
+    }
+
     const crmActor = await loadCrmActor(req.admin);
-    withCrmActor({ ...crmActor, originAdminId: Number(req.admin.id) }, next);
+    withCrmActor({ ...crmActor, originAdminId: Number(req.admin.id), studioId }, next);
   } catch (error) {
     logger.error('Auth middleware error:', error);
     res.status(error.statusCode || 401).json({

@@ -16,7 +16,7 @@ Ce document est la feuille de route vivante du développement backend de **FotoD
 
 | Phase | Intitulé | Statut |
 | --- | --- | --- |
-| Phase 1 | Socle Base de Données, Multi-Tenancy (`studios`) & Migrations | À faire |
+| Phase 1 | Socle Base de Données, Multi-Tenancy (`studios`) & Migrations | Terminée |
 | Phase 2 | Authentification, Sessions Actives & Permissions par Module | À faire |
 | Phase 3 | APIs Espace Studio (Dashboard, Clients, Projets, Calendrier, Factures) | À faire |
 | Phase 4 | Galeries Photo, Galeries Vidéo, Commentaires Horodatés & Quotas | À faire |
@@ -27,11 +27,11 @@ Ce document est la feuille de route vivante du développement backend de **FotoD
 ---
 
 ## Phase 1 — Socle Base de Données, Multi-Tenancy & Migrations
-- [ ] **1.1** Auditer les migrations Knex existantes dans `backend/migrations/`.
-- [ ] **1.2** Créer/compléter la table `studios` (`id`, `slug`, `name`, `owner_user_id`, `plan`, `status`, `city`, `country`, `business_email`, `phone`, `website`, `description`, `logo_url`, `social_links`, `created_at`, `updated_at`).
-- [ ] **1.3** Ajouter `studio_id` et les index associés sur les tables métier (`customers`, `projects`, `calendar_events`, `galleries`, `videos`, `invoices`, `team_members`).
-- [ ] **1.4** Créer le middleware d'isolation multi-tenant `attachStudioContext` (garantit qu'un studio n'accède jamais aux données d'un autre studio).
-- [ ] **1.5** Mettre à jour le seed de démonstration (`founder@fotodesk.com` Super Admin + `user_b@fotodesk.com` Studio Northlight).
+- [x] **1.1** Auditer les migrations Knex existantes dans `backend/migrations/`.
+- [x] **1.2** Créer/compléter la table `studios` (`id`, `slug`, `name`, `owner_user_id`, `plan`, `status`, `city`, `country`, `business_email`, `phone`, `website`, `description`, `logo_url`, `social_links`, `created_at`, `updated_at`).
+- [x] **1.3** Ajouter `studio_id` et les index associés sur les tables métier (`customers`, `projects`, `calendar_events`, `galleries`, `videos`, `invoices`, `team_members`).
+- [x] **1.4** Créer le middleware d'isolation multi-tenant `attachStudioContext` (garantit qu'un studio n'accède jamais aux données d'un autre studio).
+- [x] **1.5** Mettre à jour le seed de démonstration (`founder@fotodesk.com` Super Admin + `user_b@fotodesk.com` Studio Northlight).
 
 ---
 
