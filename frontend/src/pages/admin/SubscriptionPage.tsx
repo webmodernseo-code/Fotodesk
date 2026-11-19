@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { fotodeskService } from '../../services/fotodesk.service';
 import { toast } from 'react-toastify';
 import {
   Calendar,
@@ -82,25 +83,79 @@ export const SubscriptionPage: React.FC = () => {
   });
   const [draftBilling, setDraftBilling] = useState(billingInfo);
 
+  const [liveInvoices, setLiveInvoices] = useState<MockSubInvoice[] | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    fotodeskService.subscription
+      .get()
+      .then((res) => {
+        if (!active) return;
+        const planId = String(res?.subscription?.planId || 'starter');
+        setCurrentPlan(planId.startsWith('pro') ? 'pro' : 'starter');
+        if (planId === 'pro_yearly') setCycle('yearly');
+        if (Array.isArray(res?.invoices) && res.invoices.length > 0) {
+          setLiveInvoices(
+            res.invoices.map((inv: any) => ({
+              id: inv.invoice_number || `INV-${inv.id}`,
+              date: inv.created_at ? new Date(inv.created_at).toLocaleDateString('fr-FR') : "Aujourd'hui",
+              dateFilter: '2025',
+              plan: inv.plan_id === 'pro_yearly' ? 'Pro Yearly' : 'Pro Monthly',
+              amount: `${((inv.amount_minor || 0) / 100).toFixed(2)} €`,
+              status: inv.status === 'paid' ? 'Paid' : 'Pending',
+              method: 'Carte bancaire',
+              period: inv.billing_interval === 'yearly' ? '1 an' : '1 mois',
+            }))
+          );
+        }
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const filteredInvoices = useMemo(() => {
     const q = invSearch.trim().toLowerCase();
-    return MOCK_INVOICES.filter((inv) => {
+    const source = liveInvoices ?? MOCK_INVOICES;
+    return source.filter((inv) => {
       if (q && !inv.id.toLowerCase().includes(q) && !inv.plan.toLowerCase().includes(q)) return false;
       if (invStatus !== 'all' && inv.status !== invStatus) return false;
       if (invDate !== 'all' && inv.dateFilter !== invDate) return false;
       return true;
     });
-  }, [invSearch, invStatus, invDate]);
+  }, [invSearch, invStatus, invDate, liveInvoices]);
 
   const isPro = currentPlan === 'pro';
   const proPrice = cycle === 'monthly' ? '€9.90' : '€99';
 
-  const handleConfirmUpgrade = () => {
-    setCurrentPlan('pro');
-    setConfirmUpgradeOpen(false);
-    setShowUpgradeCheckout(false);
-    setActiveTab('overview');
-    toast.success('Votre offre a été mise à niveau vers Pro.');
+  const handleConfirmUpgrade = async () => {
+    try {
+      const targetPlanId = cycle === 'monthly' ? 'pro_monthly' : 'pro_yearly';
+      const res = await fotodeskService.subscription.upgrade(targetPlanId);
+      setCurrentPlan('pro');
+      if (res?.invoice) {
+        setLiveInvoices((prev) => [
+          {
+            id: res.invoice.invoice_number || `INV-${res.invoice.id}`,
+            date: "Aujourd'hui",
+            dateFilter: '2025',
+            plan: targetPlanId === 'pro_yearly' ? 'Pro Yearly' : 'Pro Monthly',
+            amount: `${((res.invoice.amount_minor || 0) / 100).toFixed(2)} €`,
+            status: 'Paid',
+            method: 'Carte bancaire',
+            period: targetPlanId === 'pro_yearly' ? '1 an' : '1 mois',
+          },
+          ...(prev ?? []),
+        ]);
+      }
+      setConfirmUpgradeOpen(false);
+      setShowUpgradeCheckout(false);
+      setActiveTab('overview');
+      toast.success('Votre offre a été mise à niveau vers Pro.');
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error || 'Erreur lors de la mise à niveau.');
+    }
   };
 
   return (

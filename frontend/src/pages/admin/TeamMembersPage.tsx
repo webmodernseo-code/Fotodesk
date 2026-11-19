@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { fotodeskService } from '../../services/fotodesk.service';
 import {
   Calendar,
   Check,
@@ -243,6 +244,35 @@ export const TeamMembersPage: React.FC = () => {
   const [members, setMembers] = useState<TeamMember[]>(INITIAL_MEMBERS);
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
 
+  useEffect(() => {
+    let active = true;
+    fotodeskService.teamMembers
+      .list()
+      .then((res) => {
+        if (!active || !Array.isArray(res?.members) || res.members.length === 0) return;
+        const mapped: TeamMember[] = res.members.map((m: any, idx: number) => ({
+          id: String(m.id),
+          fullName: m.username || m.email,
+          email: m.email,
+          accessLevel: m.studioRole === 'owner' ? 'Propriétaire' : 'Accès personnalisé',
+          status: m.mustChangePassword ? 'pending' : m.isActive ? 'active' : 'inactive',
+          dateAdded: m.createdAt ? new Date(m.createdAt).toLocaleDateString('fr-FR') : "Aujourd'hui",
+          sortOrder: idx + 1,
+          permissions: formPermissions.map((tpl) => {
+            const p = m.modulePermissions?.[tpl.moduleId];
+            return p
+              ? { ...tpl, view: Boolean(p.view), create: Boolean(p.create), edit: Boolean(p.edit), delete: Boolean(p.delete) }
+              : { ...tpl };
+          }),
+        }));
+        setMembers(mapped);
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, []);
+
   // Filters & pagination
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | MemberStatus>('all');
@@ -366,7 +396,21 @@ export const TeamMembersPage: React.FC = () => {
       return;
     }
 
+    const matrixPayload: Record<string, any> = {};
+    for (const row of formPermissions) {
+      matrixPayload[row.moduleId] = {
+        view: row.view,
+        create: row.create,
+        edit: row.edit,
+        delete: row.delete,
+      };
+    }
+
     if (editingMember) {
+      const numericId = Number(editingMember.id);
+      if (Number.isInteger(numericId) && numericId > 0) {
+        fotodeskService.teamMembers.updatePermissions(numericId, matrixPayload).catch(() => undefined);
+      }
       setMembers((prev) =>
         prev.map((m) =>
           m.id === editingMember.id
@@ -382,26 +426,42 @@ export const TeamMembersPage: React.FC = () => {
       setEditorOpen(false);
       showToast('Membre mis à jour avec succès.');
     } else {
-      const nextMember: TeamMember = {
-        id: `m-${Date.now()}`,
-        fullName: formName.trim(),
-        email: formEmail.trim(),
-        accessLevel: 'Accès personnalisé',
-        status: 'pending',
-        dateAdded: "Aujourd'hui",
-        sortOrder: Math.max(0, ...members.map((m) => m.sortOrder)) + 1,
-        permissions: formPermissions,
-      };
-      setMembers((prev) => [nextMember, ...prev]);
-      setPage(1);
-      setEditorOpen(false);
-      showToast('Invitation envoyée avec succès.');
+      fotodeskService.teamMembers
+        .invite({
+          email: formEmail.trim(),
+          username: formName.trim(),
+          modulePermissions: matrixPayload,
+        })
+        .then((res) => {
+          const m = res?.member;
+          const nextMember: TeamMember = {
+            id: m?.id ? String(m.id) : `m-${Date.now()}`,
+            fullName: m?.username || formName.trim(),
+            email: m?.email || formEmail.trim(),
+            accessLevel: 'Accès personnalisé',
+            status: 'pending',
+            dateAdded: "Aujourd'hui",
+            sortOrder: Math.max(0, ...members.map((item) => item.sortOrder)) + 1,
+            permissions: formPermissions,
+          };
+          setMembers((prev) => [nextMember, ...prev]);
+          setPage(1);
+          setEditorOpen(false);
+          showToast('Invitation envoyée avec succès.');
+        })
+        .catch((err) => {
+          setFormError(err?.response?.data?.error || "Erreur lors de l'envoi de l'invitation.");
+        });
     }
   };
 
   const handleConfirmRemove = () => {
     if (!memberToRemove) return;
     const removedId = memberToRemove.id;
+    const numericId = Number(removedId);
+    if (Number.isInteger(numericId) && numericId > 0) {
+      fotodeskService.teamMembers.remove(numericId).catch(() => undefined);
+    }
     setMembers((prev) => prev.filter((m) => m.id !== removedId));
     setMemberToRemove(null);
     if (selectedMemberId === removedId) {

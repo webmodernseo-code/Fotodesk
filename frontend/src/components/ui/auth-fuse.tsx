@@ -13,6 +13,7 @@ import { toast } from "react-toastify";
 import { useAdminAuth } from "../../contexts";
 import { authService } from "../../services/auth.service";
 import { affiliateService } from "../../services/affiliate.service";
+import { fotodeskService } from "../../services/fotodesk.service";
 import { isMfaChallenge } from "../../types";
 import { FotoDeskLogo } from "../common/FotoDeskLogo";
 
@@ -318,21 +319,30 @@ function SignUpForm() {
 
     setIsLoading(true);
     try {
-      if (referralCode.trim()) {
-        localStorage.setItem('fotodesk_referral_code', referralCode.trim());
-        affiliateService.track(referralCode.trim(), '/register').catch(() => undefined);
-        affiliateService.recordReferral(referralCode.trim(), email, studioName).catch(() => undefined);
+      const refCode = referralCode.trim() || undefined;
+      if (refCode) {
+        localStorage.setItem('fotodesk_referral_code', refCode);
+        affiliateService.track(refCode, '/register').catch(() => undefined);
       }
-      login('token', {
+
+      const data = await fotodeskService.registerStudio({
+        email: email.trim(),
+        password,
+        studioName: studioName.trim(),
+        refCode,
+      });
+
+      login('cookie-session', data.user || {
         id: 1,
-        username: email,
-        email,
+        username: email.trim(),
+        email: email.trim(),
         role: { name: 'admin', displayName: 'Administrateur' },
       });
       toast.success(`Bienvenue sur FotoDesk, ${studioName} ! Votre espace studio est prêt.`);
       navigate("/admin/dashboard");
     } catch (err: any) {
-      toast.error(err?.message || "Erreur lors de la création du compte.");
+      const msg = err?.response?.data?.error || err?.message || "Erreur lors de la création du compte.";
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }

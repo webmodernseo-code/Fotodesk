@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { fotodeskService } from '../../../services/fotodesk.service';
 import { toast } from 'react-toastify';
 import {
   ArrowRight,
@@ -218,6 +219,26 @@ export const AdminAffiliatesPage: React.FC = () => {
   const [refPlan, setRefPlan] = useState<'all' | 'Pro Monthly' | 'Pro Yearly' | 'No Subscription'>('all');
   const [refSort, setRefSort] = useState<'newest' | 'oldest'>('newest');
   const [refPage, setRefPage] = useState(1);
+
+  const [liveReferralCode, setLiveReferralCode] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    fotodeskService.affiliates
+      .getOverview()
+      .then((res) => {
+        if (active && res?.referralCode) {
+          setLiveReferralCode(res.referralCode);
+        }
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const activeReferralCode = liveReferralCode || REFERRAL_CODE;
+  const activeReferralUrl = `https://fotodesk.com/register?ref=${activeReferralCode}`;
 
   const copyText = (text: string, msg: string) => {
     navigator.clipboard?.writeText(text);
@@ -452,7 +473,7 @@ export const AdminAffiliatesPage: React.FC = () => {
           type="button"
           variant="primary"
           leftIcon={<Copy className="w-4 h-4" />}
-          onClick={() => copyText(REFERRAL_URL, 'Lien de parrainage copié')}
+          onClick={() => copyText(activeReferralUrl, 'Lien de parrainage copié')}
           className="w-full sm:w-auto"
         >
           Copier le lien de parrainage
@@ -547,10 +568,10 @@ export const AdminAffiliatesPage: React.FC = () => {
               <input
                 type="text"
                 readOnly
-                value={REFERRAL_URL}
+                value={activeReferralUrl}
                 className="h-10 flex-1 rounded-xl border border-line bg-subtle px-3.5 text-sm font-mono text-heading focus:outline-none"
               />
-              <Button type="button" variant="outline" leftIcon={<Copy className="w-4 h-4" />} onClick={() => copyText(REFERRAL_URL, 'Lien de parrainage copié')}>
+              <Button type="button" variant="outline" leftIcon={<Copy className="w-4 h-4" />} onClick={() => copyText(activeReferralUrl, 'Lien de parrainage copié')}>
                 Copier le lien
               </Button>
               <Button type="button" variant="primary" leftIcon={<Share2 className="w-4 h-4" />} onClick={() => setShareModalOpen(true)}>
@@ -559,10 +580,10 @@ export const AdminAffiliatesPage: React.FC = () => {
             </div>
             <div className="flex items-center gap-3 pt-1">
               <span className="text-xs text-muted">Code de parrainage :</span>
-              <span className="text-xs font-bold tracking-wider text-heading">{REFERRAL_CODE}</span>
+              <span className="text-xs font-bold tracking-wider text-heading">{activeReferralCode}</span>
               <button
                 type="button"
-                onClick={() => copyText(REFERRAL_CODE, 'Code copié')}
+                onClick={() => copyText(activeReferralCode, 'Code copié')}
                 className="inline-flex items-center gap-1 rounded-lg border border-line bg-subtle px-2.5 py-1 text-xs font-semibold text-sky-600 dark:text-sky-400 hover:bg-hover"
               >
                 <Copy className="w-3 h-3" /> Copier le code
@@ -931,8 +952,8 @@ export const AdminAffiliatesPage: React.FC = () => {
                 <p className="mt-1 text-xs text-soft">Partagez votre URL unique de parrainage avec vos contacts.</p>
               </div>
               <div className="flex gap-2">
-                <input type="text" readOnly value={REFERRAL_URL} className="h-10 flex-1 rounded-xl border border-line bg-subtle px-3 text-xs font-mono text-heading" />
-                <Button type="button" variant="outline" size="sm" leftIcon={<Copy className="w-3.5 h-3.5" />} onClick={() => copyText(REFERRAL_URL, 'Lien copié')}>
+                <input type="text" readOnly value={activeReferralUrl} className="h-10 flex-1 rounded-xl border border-line bg-subtle px-3 text-xs font-mono text-heading" />
+                <Button type="button" variant="outline" size="sm" leftIcon={<Copy className="w-3.5 h-3.5" />} onClick={() => copyText(activeReferralUrl, 'Lien copié')}>
                   Copier
                 </Button>
               </div>

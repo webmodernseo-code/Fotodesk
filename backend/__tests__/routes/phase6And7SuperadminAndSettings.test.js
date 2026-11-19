@@ -28,7 +28,7 @@ let mockRoleName = 'admin';
 
 function makeChain(tableName) {
   const selectResult = () => {
-    if (tableName === 'studios') return studiosSelectResult;
+    if (String(tableName).startsWith('studios')) return studiosSelectResult;
     return [];
   };
   let pending;

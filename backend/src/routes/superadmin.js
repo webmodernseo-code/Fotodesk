@@ -18,11 +18,27 @@ router.use(adminAuth, requireSuperAdmin());
  */
 router.get('/overview', async (_req, res) => {
   try {
-    const [studios, usersCountRow, commissionsRows, payoutsRows] = await Promise.all([
-      db('studios').select('id', 'name', 'plan_id', 'status', 'monthly_price', 'created_at'),
+    const [studios, usersCountRow, commissionsRows, payoutsRows, affiliatesRows] = await Promise.all([
+      db('studios as s')
+        .leftJoin('admin_users as au', 'au.id', 's.owner_admin_id')
+        .select(
+          's.id',
+          's.name',
+          's.slug',
+          's.plan_id',
+          's.plan_status',
+          's.status',
+          's.billing_interval',
+          's.monthly_price',
+          's.referred_by_code',
+          's.storage_limit_gb',
+          's.created_at',
+          'au.email as owner_email'
+        ),
       db('admin_users').count('* as count').first(),
-      db('affiliate_commissions').select('status', 'commission_minor').catch(() => []),
-      db('affiliate_payout_requests').select('status', 'amount').catch(() => []),
+      db('affiliate_commissions').select('id', 'affiliate_account_id', 'referred_studio_id', 'status', 'commission_minor', 'created_at').catch(() => []),
+      db('affiliate_payout_requests').orderBy('requested_at', 'desc').select('*').catch(() => []),
+      db('affiliate_accounts').select('id', 'display_name', 'email', 'referral_code', 'is_active', 'created_at').catch(() => []),
     ]);
 
     const now = Date.now();
@@ -56,6 +72,9 @@ router.get('/overview', async (_req, res) => {
     const pendingCommissionsMinor = commissionsRows
       .filter((c) => c.status === 'pending')
       .reduce((acc, c) => acc + Number(c.commission_minor || 0), 0);
+    const harvestedCommissionsMinor = commissionsRows
+      .filter((c) => c.status === 'approved' || c.status === 'paid')
+      .reduce((acc, c) => acc + Number(c.commission_minor || 0), 0);
 
     const pendingPayoutsCount = payoutsRows.filter((p) => p.status === 'pending').length;
 
@@ -72,6 +91,45 @@ router.get('/overview', async (_req, res) => {
         pendingCommissionsMinor,
         pendingPayoutsCount,
       },
+      metrics: {
+        totalStudios: studios.length,
+        payingStudios: proStudios,
+        mrrEur: Number(mrrEur.toFixed(2)),
+        totalAffiliates: affiliatesRows.length,
+        totalClicks: 0,
+        affiliatePendingEur: Number((pendingCommissionsMinor / 100).toFixed(2)),
+        affiliateHarvestedEur: Number((harvestedCommissionsMinor / 100).toFixed(2)),
+        pendingPayoutRequestsCount: pendingPayoutsCount,
+      },
+      studios: studios.map((s) => ({
+        id: s.id,
+        name: s.name,
+        planId: s.plan_id || 'starter',
+        planStatus: s.status === 'suspended' ? 'suspended' : (s.plan_status || 'active'),
+        billingInterval: s.billing_interval || 'monthly',
+        monthlyPrice: Number(s.monthly_price || 0),
+        referredByCode: s.referred_by_code || undefined,
+        storageLimitGb: Number(s.storage_limit_gb ?? 3),
+        createdAt: s.created_at,
+        ownerEmail: s.owner_email || undefined,
+      })),
+      affiliates: affiliatesRows.map((a) => ({
+        id: a.id,
+        displayName: a.display_name,
+        email: a.email,
+        referralCode: a.referral_code,
+        isActive: Boolean(a.is_active),
+        createdAt: a.created_at,
+      })),
+      referrals: commissionsRows.map((c) => ({
+        id: c.id,
+        affiliateId: c.affiliate_account_id,
+        status: c.status,
+        commissionAmount: Number((Number(c.commission_minor || 0) / 100).toFixed(2)),
+        currency: 'EUR',
+        createdAt: c.created_at,
+      })),
+      payoutRequests: payoutsRows,
       growth: {
         last7DaysStudios: new7d,
         last30DaysStudios: new30d,
@@ -191,6 +249,50 @@ router.patch(
     } catch (error) {
       logger.error('PATCH /api/superadmin/studios/:id/status error:', error);
       return res.status(500).json({ error: 'Erreur lors de la mise à jour du statut du studio.' });
+    }
+  }
+);
+
+router.post(
+  '/studios/:id/plan',
+  [
+    param('id').isInt({ min: 1 }),
+    body('planId').isString().trim().notEmpty(),
+    body('planStatus').optional().isString().trim(),
+    body('monthlyPrice').optional().isNumeric(),
+  ],
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) return res.status(400).json({ errors: safeValidationErrors(errors) });
+
+      const studioId = Number(req.params.id);
+      const studio = await db('studios').where({ id: studioId }).first();
+      if (!studio) return res.status(404).json({ error: 'Studio introuvable.' });
+
+      const planId = req.body.planId;
+      const planStatus = req.body.planStatus || studio.plan_status || 'active';
+      const monthlyPrice =
+        req.body.monthlyPrice !== undefined
+          ? Number(req.body.monthlyPrice)
+          : (planId.startsWith('pro') ? 9.9 : 0);
+
+      const isPro = planId.startsWith('pro') || planId === 'studio';
+      await db('studios').where({ id: studioId }).update({
+        plan_id: planId,
+        plan_status: planStatus,
+        status: planStatus === 'canceled' || planStatus === 'suspended' ? 'suspended' : 'active',
+        monthly_price: monthlyPrice,
+        storage_limit_gb: isPro ? 100 : 3,
+        video_storage_limit_min: isPro ? 500 : 0,
+        video_playback_limit_min: isPro ? 1000 : 0,
+        updated_at: new Date(),
+      });
+
+      return res.json({ ok: true, planId, planStatus, monthlyPrice });
+    } catch (error) {
+      logger.error('POST /api/superadmin/studios/:id/plan error:', error);
+      return res.status(500).json({ error: 'Erreur lors de la mise à jour du plan du studio.' });
     }
   }
 );

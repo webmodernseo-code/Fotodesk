@@ -1,4 +1,5 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { fotodeskService } from '../../services/fotodesk.service';
 import {
   CheckCircle2,
   ChevronLeft,
@@ -290,6 +291,37 @@ export const VideoGalleriesPage: React.FC = () => {
   const [selectedGalleryId, setSelectedGalleryId] = useState<string | null>(null);
   const [starterPreview, setStarterPreview] = useState(false);
 
+  useEffect(() => {
+    let active = true;
+    fotodeskService.videoGalleries
+      .list()
+      .then((res) => {
+        if (!active || !Array.isArray(res?.galleries) || res.galleries.length === 0) return;
+        const mapped: VideoGallery[] = res.galleries.map((g: any, idx: number) => ({
+          id: String(g.id),
+          name: g.title,
+          client: g.clientName || 'Client studio',
+          clientEmail: '',
+          project: 'Projet vidéo',
+          description: '',
+          coverImage: COVER_IMAGES[idx % COVER_IMAGES.length],
+          status: (g.status as GalleryStatus) || 'active',
+          createdAt: g.createdAt ? new Date(g.createdAt).toLocaleDateString('fr-FR') : "Aujourd'hui",
+          sortOrder: idx + 1,
+          allowDownloads: true,
+          downloadValidityDays: 14,
+          requireAccessCode: Boolean(g.isProtected),
+          accessCode: 'PROTÉGÉ',
+          videos: [],
+        }));
+        setGalleries(mapped);
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, []);
+
   // List filters
   const [search, setSearch] = useState('');
   const [clientFilter, setClientFilter] = useState('all');
@@ -443,26 +475,41 @@ export const VideoGalleriesPage: React.FC = () => {
       setCreateOpen(false);
       showToast('Galerie vidéo mise à jour.');
     } else {
-      const next: VideoGallery = {
-        id: `vg-${Date.now()}`,
-        name: formName.trim(),
-        client: formClient.trim() || 'Jordan Harper',
-        clientEmail: 'client@example.com',
-        project: formProject.trim() || 'Anderson Wedding',
-        description: formDesc.trim(),
-        coverImage: formCover,
-        status: 'draft',
-        createdAt: "Aujourd'hui",
-        sortOrder: Math.max(0, ...galleries.map((g) => g.sortOrder)) + 1,
-        allowDownloads: true,
-        downloadValidityDays: 14,
-        requireAccessCode: true,
-        accessCode: 'STUDIO25',
-        videos: [],
-      };
-      setGalleries((prev) => [next, ...prev]);
-      setCreateOpen(false);
-      showToast('Galerie vidéo créée.');
+      fotodeskService.videoGalleries
+        .create({
+          title: formName.trim(),
+          clientName: formClient.trim() || undefined,
+        })
+        .then((res) => {
+          const g = res?.gallery;
+          const next: VideoGallery = {
+            id: g?.id ? String(g.id) : `vg-${Date.now()}`,
+            name: g?.title || formName.trim(),
+            client: g?.client_name || formClient.trim() || 'Jordan Harper',
+            clientEmail: 'client@example.com',
+            project: formProject.trim() || 'Anderson Wedding',
+            description: formDesc.trim(),
+            coverImage: formCover,
+            status: 'active',
+            createdAt: "Aujourd'hui",
+            sortOrder: Math.max(0, ...galleries.map((item) => item.sortOrder)) + 1,
+            allowDownloads: true,
+            downloadValidityDays: 14,
+            requireAccessCode: Boolean(g?.is_protected),
+            accessCode: 'STUDIO25',
+            videos: [],
+          };
+          setGalleries((prev) => [next, ...prev]);
+          setCreateOpen(false);
+          showToast('Galerie vidéo créée.');
+        })
+        .catch((err) => {
+          const msg = err?.response?.data?.error || 'Impossible de créer la galerie vidéo.';
+          setFormError(msg);
+          if (err?.response?.status === 403) {
+            setStarterPreview(true);
+          }
+        });
     }
   };
 
@@ -535,6 +582,10 @@ export const VideoGalleriesPage: React.FC = () => {
   const handleConfirmDeleteGallery = () => {
     if (!deleteTarget) return;
     const id = deleteTarget.id;
+    const numericId = Number(id);
+    if (Number.isInteger(numericId) && numericId > 0) {
+      fotodeskService.videoGalleries.remove(numericId).catch(() => undefined);
+    }
     setGalleries((prev) => prev.filter((g) => g.id !== id));
     setDeleteTarget(null);
     if (selectedGalleryId === id) {

@@ -23,6 +23,7 @@ Ce document est la feuille de route vivante du développement backend de **FotoD
 | Phase 5 | Affiliation, Commissions (20 % 1er paiement) & Souscriptions | Terminée |
 | Phase 6 | APIs Super Admin (`/api/superadmin/*`) | Terminée |
 | Phase 7 | Paramètres, Sécurité, Tests d'Intégration & Déploiement VPS | Terminée |
+| Phase 8 | Intégration Frontend ↔ Backend (Branchement complet des APIs) | Terminée |
 
 ---
 
@@ -126,4 +127,13 @@ Protection stricte par middleware `requireSuperAdmin` (`role.name === 'super_adm
   - `backend/scripts/verifyPhases4to7.js` : **PASSÉ** (quotas Starter 403, upgrade Pro, commission 20 % = 198 centimes sur 1er paiement, galeries vidéo + verify-code, garde SuperAdmin 403, suspension/réactivation studio + blocage `STUDIO_SUSPENDED`, approbation commission, paramètres studio & mot de passe).
 - [x] **Tests Unitaires & Intégration Jest** : **7 suites, 30 tests passés** (`0` échec).
 - [x] **Compilation Frontend TypeScript** : `npx tsc --noEmit` terminé avec **0 erreur**.
+
+---
+
+## Phase 8 — Intégration Frontend ↔ Backend (Branchement complet des APIs)
+- [x] **8.1** **Inscription Studio (`auth-fuse.tsx`)** : brancher la création de compte sur `POST /api/auth/register` (avec `studioName`, `email`, `password`, `refCode` optionnel).
+- [x] **8.2** **Console Super Admin (`MasterFounderDashboardPage.tsx`)** : brancher sur `/api/superadmin/*` (KPIs, studios, suspension/réactivation, utilisateurs, souscriptions, affiliés, approbation commissions, virements, paramètres).
+- [x] **8.3** **Galeries Vidéo (`VideoGalleriesPage.tsx`)** : brancher sur `/api/admin/video-galleries` (listing, création, upload vidéo, suppression, gestion quota Starter `403`).
+- [x] **8.4** **Souscription & Affiliation (`SubscriptionPage.tsx` & `AdminAffiliatesPage.tsx`)** : brancher sur `/api/admin/subscription`, `/api/admin/subscription/upgrade` et `/api/admin/affiliates/overview`.
+- [x] **8.5** **Équipe & Paramètres (`TeamMembersPage.tsx` & `SettingsPage.tsx`)** : brancher sur `/api/admin/team-members`, `/api/admin/settings/sessions`, `/studio-profile`, `/account-preferences`, `/notifications`, `/workspace-preferences`, `/password`.
 
