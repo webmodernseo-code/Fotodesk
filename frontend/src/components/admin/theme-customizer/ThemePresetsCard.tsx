@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, Check, AlertTriangle } from 'lucide-react';
+import { Palette, Check, AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Card } from '../../common';
 import { GALLERY_THEME_PRESETS } from '../../../types/theme.types';
@@ -16,6 +16,8 @@ interface ThemePresetsCardProps {
   minRecommendedThumbnailSize: number;
 }
 
+const CURATED_PRESET_KEYS = ['default', 'elegantWedding', 'darkModern'] as const;
+
 export const ThemePresetsCard: React.FC<ThemePresetsCardProps> = ({
   selectedPreset,
   handlePresetSelect,
@@ -28,14 +30,25 @@ export const ThemePresetsCard: React.FC<ThemePresetsCardProps> = ({
 }) => {
   const { t } = useTranslation();
 
+  const visiblePresetKeys = React.useMemo(() => {
+    const keys: string[] = [...CURATED_PRESET_KEYS];
+    if (selectedPreset && GALLERY_THEME_PRESETS[selectedPreset] && !keys.includes(selectedPreset)) {
+      return [selectedPreset, 'default', 'darkModern'].slice(0, 3);
+    }
+    return keys;
+  }, [selectedPreset]);
+
   return (
     <Card className="p-6">
       <h3 className="text-lg font-semibold text-heading mb-4 flex items-center gap-2">
-        <Sparkles className="w-5 h-5" />
+        <Palette className="w-5 h-5" />
         {t('branding.themePresets')}
       </h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {Object.entries(GALLERY_THEME_PRESETS).map(([key, theme]) => (
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        {visiblePresetKeys.map((key) => {
+          const theme = GALLERY_THEME_PRESETS[key];
+          if (!theme) return null;
+          return (
           <button
             type="button"
             key={key}
@@ -85,7 +98,8 @@ export const ThemePresetsCard: React.FC<ThemePresetsCardProps> = ({
               )}
             </div>
           </button>
-        ))}
+          );
+        })}
       </div>
 
       {/* Warning: Beta preset with low thumbnail resolution */}
