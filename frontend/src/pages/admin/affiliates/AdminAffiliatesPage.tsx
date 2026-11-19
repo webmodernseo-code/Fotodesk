@@ -193,9 +193,10 @@ const MOCK_PAYOUTS: MockPayout[] = [
 
 const PAGE_SIZE = 5;
 
-function statusBadgeTone(status: string): 'success' | 'info' | 'neutral' {
+function statusBadgeTone(status: string): 'success' | 'info' | 'warning' | 'neutral' {
   if (status === 'Converted' || status === 'Paid') return 'success';
   if (status === 'Approved') return 'info';
+  if (status === 'Pending') return 'warning';
   return 'neutral';
 }
 
