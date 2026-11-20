@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
-import { FileText, Globe, Clock, Sparkles, ShieldCheck, Image as ImageIcon, Trash2 } from 'lucide-react';
+import { FileText, Globe, Clock, Code2, ShieldCheck, Image as ImageIcon, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { debounce } from 'lodash';
 import DOMPurify from 'dompurify';
@@ -397,7 +397,7 @@ export const CMSPage: React.FC = () => {
         <Card className="space-y-6">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <div className="flex items-center gap-2 text-accent mb-1">
+              <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 mb-1">
                 <Globe className="w-5 h-5" />
                 <span className="text-sm font-semibold uppercase tracking-wide">{t('settings.publicSite.badge')}</span>
               </div>
@@ -414,7 +414,7 @@ export const CMSPage: React.FC = () => {
               <span
                 aria-hidden="true"
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  publicSiteEnabled ? 'bg-accent-dark' : 'bg-neutral-300'
+                  publicSiteEnabled ? 'bg-emerald-600 dark:bg-emerald-500' : 'bg-fill-strong'
                 }`}
               >
                 <span
@@ -438,7 +438,7 @@ export const CMSPage: React.FC = () => {
               <div className="space-y-4">
                 <div>
                   <label className="flex items-center gap-2 text-sm font-medium text-body mb-2">
-                    <Sparkles className="w-4 h-4 text-accent" />
+                    <Code2 className="w-4 h-4 text-accent" />
                     {t('settings.publicSite.htmlLabel')}
                   </label>
                   <textarea
@@ -563,7 +563,7 @@ export const CMSPage: React.FC = () => {
                 href={`${window.location.origin}/${selectedPage}?lang=en`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-accent hover:opacity-80"
+                className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 hover:opacity-80"
               >
                 <Globe className="w-4 h-4" />
                 {t('cms.englishVersion')}
@@ -572,7 +572,7 @@ export const CMSPage: React.FC = () => {
                 href={`${window.location.origin}/${selectedPage}?lang=de`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-accent hover:opacity-80"
+                className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 hover:opacity-80"
               >
                 <Globe className="w-4 h-4" />
                 {t('cms.germanVersion')}
@@ -621,7 +621,7 @@ export const CMSPage: React.FC = () => {
                   onClick={() => setEditingLang('en')}
                   className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                     editingLang === 'en'
-                      ? 'bg-accent-dark/15 text-accent-dark'
+                      ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300'
                       : 'bg-inset text-body hover:bg-neutral-200 dark:hover:bg-neutral-600'
                   }`}
                 >
@@ -631,7 +631,7 @@ export const CMSPage: React.FC = () => {
                   onClick={() => setEditingLang('de')}
                   className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                     editingLang === 'de'
-                      ? 'bg-accent-dark/15 text-accent-dark'
+                      ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300'
                       : 'bg-inset text-body hover:bg-neutral-200 dark:hover:bg-neutral-600'
                   }`}
                 >
@@ -646,7 +646,7 @@ export const CMSPage: React.FC = () => {
                 <label className="flex items-start gap-3 cursor-pointer">
                   <input
                     type="checkbox"
-                    className="mt-1 h-4 w-4 rounded border-line-strong text-accent focus:ring-primary-500"
+                    className="mt-1 h-4 w-4 rounded border-line-strong text-emerald-600 focus:ring-emerald-500"
                     checked={!!editForm.use_external_url}
                     onChange={(e) => handleUseExternalUrlChange(e.target.checked)}
                   />
@@ -683,7 +683,7 @@ export const CMSPage: React.FC = () => {
                 <label className="flex items-start gap-3 cursor-pointer">
                   <input
                     type="checkbox"
-                    className="mt-1 h-4 w-4 rounded border-line-strong text-accent focus:ring-primary-500"
+                    className="mt-1 h-4 w-4 rounded border-line-strong text-emerald-600 focus:ring-emerald-500"
                     checked={editForm.show_in_footer !== false}
                     onChange={(e) => setEditForm(prev => ({ ...prev, show_in_footer: e.target.checked }))}
                   />
