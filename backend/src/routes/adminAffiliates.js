@@ -29,7 +29,7 @@ router.get('/overview', requireModulePermission('affiliate', 'view'), async (req
         referral_code: code,
         is_active: true,
         created_at: new Date(),
-      });
+      }).returning('id');
       const id = typeof inserted === 'object' ? inserted.id : inserted;
       account = await db('affiliate_accounts').where({ id }).first();
     }
