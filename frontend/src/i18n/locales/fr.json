@@ -2442,12 +2442,12 @@
     "saved": "Settings saved",
     "saveError": "Failed to save settings",
     "saveBar": {
-      "unsaved": "You have unsaved changes",
-      "leaveTitle": "Discard unsaved changes?",
-      "leaveMessage": "You have unsaved changes on this page. Leaving now discards them.",
-      "leaveConfirm": "Discard and leave",
-      "leaveCancel": "Stay",
-      "region": "Save or discard changes"
+      "unsaved": "Modifications non enregistrées",
+      "leaveTitle": "Ignorer les modifications ?",
+      "leaveMessage": "Vous avez des modifications non enregistrées sur cette page. Quitter maintenant les annulera.",
+      "leaveConfirm": "Ignorer et quitter",
+      "leaveCancel": "Rester",
+      "region": "Enregistrer ou annuler les modifications"
     },
     "keywords": {
       "accounting": [
@@ -4263,32 +4263,32 @@
       }
     },
     "sentEmails": {
-      "tab": "Sent emails",
-      "title": "Sent emails",
-      "subtitle": "Delivery status of every queued and sent notification.",
-      "searchPlaceholder": "Search by recipient or type…",
-      "from": "From",
-      "to": "To",
-      "empty": "No emails match these filters.",
-      "retries": "{{count}} retries",
-      "pagination": "Page {{page}} of {{total}} · {{count}} emails",
+      "tab": "E-mails envoyés",
+      "title": "E-mails envoyés",
+      "subtitle": "Statut d'envoi de chaque notification mise en file ou envoyée.",
+      "searchPlaceholder": "Rechercher par destinataire ou type…",
+      "from": "Du",
+      "to": "Au",
+      "empty": "Aucun e-mail ne correspond à ces filtres.",
+      "retries": "{{count}} tentatives",
+      "pagination": "Page {{page}} sur {{total}} · {{count}} e-mails",
       "status": {
         "pending": "En attente",
         "sent": "Envoyé",
-        "failed": "Failed"
+        "failed": "Échoué"
       },
       "col": {
-        "recipient": "Recipient",
+        "recipient": "Destinataire",
         "type": "Type",
         "status": "Statut",
-        "created": "Queued",
+        "created": "Créé",
         "sent": "Envoyé",
         "event": "Événement"
       },
-      "retries_one": "{{count}} retries",
-      "retries_other": "{{count}} retries",
-      "pagination_one": "Page {{page}} of {{total}} · {{count}} emails",
-      "pagination_other": "Page {{page}} of {{total}} · {{count}} emails"
+      "retries_one": "{{count}} tentative",
+      "retries_other": "{{count}} tentatives",
+      "pagination_one": "Page {{page}} sur {{total}} · {{count}} e-mail",
+      "pagination_other": "Page {{page}} sur {{total}} · {{count}} e-mails"
     },
     "customerMailbox": {
       "title": "Customer mailbox (hello@)",
@@ -4308,9 +4308,9 @@
       "testOk": "Connected to {{folder}} — {{messages}} messages, {{unseen}} unread.",
       "testFailed": "Connection failed."
     },
-    "signatureOn": "Footer signature is on — your business address is appended to automatic emails. Replies you write in Messages are sent as typed.",
-    "signatureOff": "Footer signature is off — emails show the logo and company name only.",
-    "signatureEdit": "Edit in Business profile"
+    "signatureOn": "La signature e-mail est activée — les coordonnées du studio sont ajoutées en bas des e-mails automatiques. Les réponses rédigées dans Messages sont envoyées telles quelles.",
+    "signatureOff": "La signature e-mail est désactivée — seuls le logo et le nom du studio apparaissent.",
+    "signatureEdit": "Modifier dans le profil du studio"
   },
   "cms": {
     "title": "Pages CMS",
