@@ -118,7 +118,7 @@ function decodePrefill(raw) {
  *
  * @returns {Promise<{ id, email, token, expiresAt }>}
  */
-async function createInvitation({ email, invitedById, prefill }) {
+async function createInvitation({ email, invitedById, prefill, studioId }) {
   const normalisedEmail = String(email || '').trim().toLowerCase();
   if (!normalisedEmail) {
     throw new ValidationError('Email is required');
@@ -127,6 +127,9 @@ async function createInvitation({ email, invitedById, prefill }) {
   const existingCustomer = await db('customer_accounts')
     .where('email', normalisedEmail)
     .first();
+  if (studioId && existingCustomer?.studio_id != null && Number(existingCustomer.studio_id) !== Number(studioId)) {
+    throw new ConflictError('Email unavailable', 'email');
+  }
   if (existingCustomer && existingCustomer.password_hash) {
     // Already-active customer with this email — duplicate, reject.
     //
@@ -148,7 +151,7 @@ async function createInvitation({ email, invitedById, prefill }) {
   const pendingInvite = await db('customer_invitations')
     .where('email', normalisedEmail)
     .whereNull('accepted_at')
-    .where('expires_at', '>', new Date())
+    .modify(whereTimestamp, 'expires_at', '>', new Date())
     .first();
   if (pendingInvite) {
     const err = new ConflictError('A pending invitation already exists for this email', 'email');
@@ -165,8 +168,9 @@ async function createInvitation({ email, invitedById, prefill }) {
     email: normalisedEmail,
     ...capabilityTokenColumns(token),
     invited_by: invitedById,
-    expires_at: expiresAt,
-    created_at: new Date(),
+    ...(studioId ? { studio_id: studioId } : {}),
+    expires_at: expiresAt.toISOString(),
+    created_at: new Date().toISOString(),
     // Stringify so SQLite (TEXT-typed json column) and Postgres (JSONB)
     // both store the same shape. Skip the column entirely on null so
     // databases predating migration 088 don't reject the insert.
@@ -227,10 +231,13 @@ async function createInvitation({ email, invitedById, prefill }) {
  * throws, the customer is not created either. It must use `trx` only: on
  * SQLite the global connection is held by the transaction.
  *
- * @param {{ email, prefill, createdByAdminId, withinTransaction? }} args
+/**
+ * Create a customer directly (admin entry path).
+ *
+ * @param {{ email, prefill, createdByAdminId, studioId?, withinTransaction? }} args
  * @returns {Promise<{ id }>} The new customer's id.
  */
-async function createDirect({ email, prefill, createdByAdminId, withinTransaction = null }) {
+async function createDirect({ email, prefill, createdByAdminId, studioId = 1, withinTransaction = null }) {
   const normalisedEmail = String(email || '').trim().toLowerCase();
   if (!normalisedEmail) throw new ValidationError('Email is required');
 
@@ -257,6 +264,7 @@ async function createDirect({ email, prefill, createdByAdminId, withinTransactio
   let id;
   await db.transaction(async (trx) => {
     const [inserted] = await auditedInsert(trx, 'customer_accounts', {
+      studio_id: Number(studioId) || 1,
       email: normalisedEmail,
       salutation: sanitised.salutation || null,
       first_name: sanitised.first_name || null,
@@ -305,7 +313,7 @@ async function acceptInvitation({ token, name, password, profile }) {
   const invitation = await db('customer_invitations')
     .where('token_digest', digestCapabilityToken(token))
     .whereNull('accepted_at')
-    .where('expires_at', '>', new Date())
+    .modify(whereTimestamp, 'expires_at', '>', new Date())
     .first();
 
   if (!invitation) {
@@ -325,6 +333,9 @@ async function acceptInvitation({ token, name, password, profile }) {
   const existing = await db('customer_accounts')
     .where('email', invitation.email)
     .first();
+  if (invitation.studio_id && existing?.studio_id != null && Number(existing.studio_id) !== Number(invitation.studio_id)) {
+    throw new ConflictError('Email unavailable', 'email');
+  }
   if (existing && existing.password_hash) {
     throw new ConflictError('Email already registered', 'email');
   }
@@ -373,7 +384,7 @@ async function acceptInvitation({ token, name, password, profile }) {
     const claimed = await trx('customer_invitations')
       .where('id', invitation.id)
       .whereNull('accepted_at')
-      .where('expires_at', '>', new Date())
+      .modify(whereTimestamp, 'expires_at', '>', new Date())
       .update({ accepted_at: new Date().toISOString() });
     if (claimed !== 1) {
       throw new ValidationError('Invalid or expired invitation');
@@ -389,6 +400,7 @@ async function acceptInvitation({ token, name, password, profile }) {
       // didn't touch leave the existing row untouched.
       id = existing.id;
       const updates = {
+        ...(invitation.studio_id ? { studio_id: invitation.studio_id } : {}),
         password_hash: passwordHash,
         password_changed_at: null,
         is_active: formatBoolean(true),
@@ -418,7 +430,9 @@ async function acceptInvitation({ token, name, password, profile }) {
       if (merged.preferred_language) updates.preferred_language = merged.preferred_language;
       // Still passive: a concurrent acceptance or an admin-set password
       // since the read above must not be overwritten.
-      const promoted = await auditedUpdate(trx, 'customer_accounts', { id, password_hash: null }, updates, {
+      const promoted = await auditedUpdate(trx, 'customer_accounts', {
+        id, password_hash: null, ...(invitation.studio_id ? { studio_id: existing.studio_id ?? null } : {}),
+      }, updates, {
         actor: { type: 'customer', id }, source: 'customer.invitation.accept',
       });
       if (promoted !== 1) {
@@ -427,6 +441,7 @@ async function acceptInvitation({ token, name, password, profile }) {
     } else {
       const [inserted] = await auditedInsert(trx, 'customer_accounts', {
         email: invitation.email,
+        ...(invitation.studio_id ? { studio_id: invitation.studio_id } : {}),
         // Profile fields land directly on the customer row. Anything the user
         // didn't set stays null.
         salutation: merged.salutation || null,
@@ -495,7 +510,7 @@ async function validateInvitationToken(token) {
     .leftJoin('admin_users', 'admin_users.id', 'customer_invitations.invited_by')
     .where('customer_invitations.token_digest', digestCapabilityToken(token))
     .whereNull('customer_invitations.accepted_at')
-    .where('customer_invitations.expires_at', '>', new Date())
+    .modify(whereTimestamp, 'customer_invitations.expires_at', '>', new Date())
     .select(
       'customer_invitations.email',
       'customer_invitations.expires_at',
@@ -516,11 +531,16 @@ async function validateInvitationToken(token) {
  * accounts at a glance.
  */
 async function listCustomers({
-  search, groupIds, groupMatch = 'any', ungrouped = false, status = 'all',
+  search, groupIds, groupMatch = 'any', ungrouped = false, status = 'all', studioId = null,
 } = {}) {
   let q = db('customer_accounts')
-    .leftJoin('event_customer_assignments', 'event_customer_assignments.customer_account_id', 'customer_accounts.id')
-    .groupBy('customer_accounts.id')
+    .leftJoin('event_customer_assignments', 'event_customer_assignments.customer_account_id', 'customer_accounts.id');
+
+  if (studioId) {
+    q = q.where('customer_accounts.studio_id', Number(studioId));
+  }
+
+  q = q.groupBy('customer_accounts.id')
     .select(
       'customer_accounts.id',
       'customer_accounts.email',
@@ -608,8 +628,8 @@ async function listCustomers({
  * Single customer record + their event assignments. Used by the admin
  * detail view; the customer's own dashboard uses listEventsForCustomer.
  */
-async function getCustomerById(id) {
-  const customer = await db('customer_accounts').where('id', id).first();
+async function getCustomerById(id, studioId) {
+  const customer = await db('customer_accounts').where({ id, ...(studioId ? { studio_id: studioId } : {}) }).first();
   if (!customer) {
     throw new NotFoundError('Customer', id);
   }
@@ -1517,11 +1537,11 @@ async function customerHasAccessToEvent(customerId, eventId) {
 
 // ---- pending invitations -----------------------------------------------
 
-async function getPendingInvitations() {
-  return db('customer_invitations')
+async function getPendingInvitations(studioId) {
+  const query = db('customer_invitations')
     .leftJoin('admin_users', 'admin_users.id', 'customer_invitations.invited_by')
     .whereNull('customer_invitations.accepted_at')
-    .where('customer_invitations.expires_at', '>', new Date())
+    .modify(whereTimestamp, 'customer_invitations.expires_at', '>', new Date())
     .select(
       'customer_invitations.id',
       'customer_invitations.email',
@@ -1530,17 +1550,20 @@ async function getPendingInvitations() {
       'admin_users.username as invited_by'
     )
     .orderBy('customer_invitations.created_at', 'desc');
+  if (studioId) query.where('customer_invitations.studio_id', studioId);
+  return query;
 }
 
-async function cancelInvitation(id, cancelledByAdminId) {
-  const invitation = await db('customer_invitations').where('id', id).first();
+async function cancelInvitation(id, cancelledByAdminId, studioId) {
+  const match = { id, ...(studioId ? { studio_id: studioId } : {}) };
+  const invitation = await db('customer_invitations').where(match).first();
   if (!invitation) {
     throw new NotFoundError('Invitation', id);
   }
   // Complement of the claim in acceptInvitation: only a still-pending
   // invitation can be cancelled. An acceptance that committed in between
   // keeps its record instead of being deleted underneath the new account.
-  const cancelled = await db('customer_invitations').where('id', id).whereNull('accepted_at').del();
+  const cancelled = await db('customer_invitations').where(match).whereNull('accepted_at').del();
   if (cancelled !== 1) {
     throw new ConflictError('Invitation has already been accepted');
   }
@@ -1625,7 +1648,7 @@ async function getCustomerSurfaceGlobals() {
   };
   return {
     calendarEnabled: readBool('customer_feature_calendar_enabled', false),
-    quotesEnabled:   readBool('customer_feature_quotes_enabled',   true),
+    quotesEnabled:   false,
     billsEnabled:    readBool('customer_feature_bills_enabled',    true),
     showLogo:        map.customer_show_logo !== false, // default true
     showCompanyName: map.customer_show_company_name !== false, // default true
@@ -1665,8 +1688,6 @@ async function getEffectiveFeaturesForCustomer(customerOrId) {
   // Contracts: global feature_flags row AND the per-customer override
   // (migration 131). feature_contracts defaults TRUE, so existing customers
   // keep their Contracts tab; an admin can hide it per customer.
-  const contractsMaster = await db('feature_flags').where({ key: 'contracts' }).first();
-  const contractsEnabled = contractsMaster ? Boolean(contractsMaster.value) : false;
   // Documents (migration 225): global `documents` flag AND the per-customer
   // override, which defaults TRUE like feature_contracts. A missing flag row
   // reads as off.
@@ -1677,7 +1698,7 @@ async function getEffectiveFeaturesForCustomer(customerOrId) {
     quotes:   globals.quotesEnabled   && truthy(customer.feature_quotes),
     bills:    globals.billsEnabled    && truthy(customer.feature_bills),
     hoursLogging: hoursLoggingMaster && truthy(customer.feature_hours_logging),
-    contracts: contractsEnabled && truthy(customer.feature_contracts),
+    contracts: false,
     documents: documentsEnabled && truthy(customer.feature_documents),
   };
 }
@@ -1697,8 +1718,8 @@ async function getEffectiveFeaturesForCustomer(customerOrId) {
  * we delete it before creating the new one — admins re-clicking the
  * "Send reset" button shouldn't fan out two valid links.
  */
-async function createPasswordReset({ customerId, requestedByAdminId }) {
-  const customer = await db('customer_accounts').where('id', customerId).first();
+async function createPasswordReset({ customerId, requestedByAdminId, studioId }) {
+  const customer = await db('customer_accounts').where({ id: customerId, ...(studioId ? { studio_id: studioId } : {}) }).first();
   if (!customer) {
     throw new NotFoundError('Customer', customerId);
   }
@@ -1719,8 +1740,8 @@ async function createPasswordReset({ customerId, requestedByAdminId }) {
     ...capabilityTokenColumns(token),
     customer_account_id: customerId,
     requested_by_admin_id: requestedByAdminId || null,
-    expires_at: expiresAt,
-    created_at: new Date(),
+    expires_at: expiresAt.toISOString(),
+    created_at: new Date().toISOString(),
   });
 
   const frontendUrl = (await getFrontendBaseUrl()) || 'http://localhost:3000';
@@ -1749,7 +1770,7 @@ async function validatePasswordResetToken(token) {
     .join('customer_accounts', 'customer_accounts.id', 'customer_password_resets.customer_account_id')
     .where('customer_password_resets.token_digest', digestCapabilityToken(token))
     .whereNull('customer_password_resets.used_at')
-    .where('customer_password_resets.expires_at', '>', new Date())
+    .modify(whereTimestamp, 'customer_password_resets.expires_at', '>', new Date())
     .where('customer_accounts.is_active', formatBoolean(true))
     .select(
       'customer_password_resets.id',
@@ -1774,7 +1795,7 @@ async function applyPasswordReset({ token, password }) {
   const row = await db('customer_password_resets')
     .where('token_digest', digestCapabilityToken(token))
     .whereNull('used_at')
-    .where('expires_at', '>', new Date())
+    .modify(whereTimestamp, 'expires_at', '>', new Date())
     .first();
   if (!row) {
     throw new ValidationError('Invalid or expired reset link');
@@ -1794,7 +1815,7 @@ async function applyPasswordReset({ token, password }) {
     const claimed = await trx('customer_password_resets')
       .where('id', row.id)
       .whereNull('used_at')
-      .where('expires_at', '>', new Date())
+      .modify(whereTimestamp, 'expires_at', '>', new Date())
       .update({ used_at: new Date().toISOString() });
     if (claimed !== 1) {
       throw new ValidationError('Invalid or expired reset link');
