@@ -256,17 +256,9 @@ export function useSettingsNavGroups(): SettingsNavGroup[] {
       ],
     },
     {
-      label: t('settings.groups.siteLegal', 'Visibilité & Pages légales'),
+      label: t('settings.groups.siteLegal', 'Pages légales'),
       items: [
-        { key: 'seo', label: t('settings.seo.title', 'SEO & Robots'), icon: Search },
         { key: 'cms', label: t('settings.cms.title', 'Pages légales & CGV'), icon: FileText },
-      ],
-    },
-    {
-      label: t('settings.groups.system', 'Sauvegardes'),
-      items: [
-        { key: 'backup', label: t('settings.backup.title', 'Sauvegardes & Exports'), icon: HardDrive },
-        { key: 'webhooks', label: t('settings.webhooks.title', 'Webhooks'), icon: Webhook },
       ],
     },
   ];
