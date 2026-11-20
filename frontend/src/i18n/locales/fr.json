@@ -2255,7 +2255,7 @@
       "title": "Business profile"
     },
     "crm": {
-      "title": "CRM behaviour"
+      "title": "Facturation & Documents"
     },
     "accounting": {
       "title": "Comptabilité",
@@ -8747,127 +8747,127 @@
     }
   },
   "crmSettings": {
-    "savedToast": "CRM settings saved.",
-    "title": "CRM settings",
-    "subtitle": "Fine-tune quote and invoice behaviour.",
-    "subtitleFor": "Settings for {{areas}}.",
+    "savedToast": "Paramètres de facturation enregistrés.",
+    "title": "Facturation & Documents",
+    "subtitle": "Configurez le comportement de vos factures et documents.",
+    "subtitleFor": "Paramètres pour : {{areas}}.",
     "areas": {
-      "quotes": "quotes",
-      "invoices": "invoices",
-      "contracts": "contracts",
-      "documents": "customer documents",
-      "and": "and"
+      "quotes": "devis",
+      "invoices": "factures",
+      "contracts": "contrats",
+      "documents": "documents clients",
+      "and": "et"
     },
-    "emptyState": "No CRM features are currently enabled. Turn on Quotes, Invoices, or Contracts in Settings → Features to see the matching configuration here.",
+    "emptyState": "Aucun module de facturation ou de documents n'est activé pour le moment.",
     "section": {
       "quotes": "Devis",
       "invoices": "Factures",
-      "paymentDefaults": "Default payment conditions",
-      "installmentDefaults": "Default installment triggers",
+      "paymentDefaults": "Conditions de paiement par défaut",
+      "installmentDefaults": "Échéances de paiement par défaut",
       "contracts": "Contrats",
-      "quotesTos": "Terms of Service / AGB step",
-      "dashboardOverview": "Dashboard CRM overview",
-      "dashboardOverviewHint": "Hide CRM overview tiles on the admin dashboard. All tiles render by default; uncheck to hide.",
-      "documents": "Customer documents",
-      "documentsHint": "Documents exchanged with customers in their portal. Customer uploads stay unavailable to them until reviewed."
+      "quotesTos": "Conditions générales",
+      "dashboardOverview": "Tuiles du tableau de bord",
+      "dashboardOverviewHint": "Masquez certaines tuiles sur le tableau de bord administrateur. Toutes sont affichées par défaut ; décochez pour masquer.",
+      "documents": "Documents clients",
+      "documentsHint": "Documents échangés avec vos clients dans leur portail."
     },
     "paymentDefaults": {
-      "help": "Pre-filled on every new quote and invoice. The editor still lets you pick a different combination per document.",
-      "none": "— No default —"
+      "help": "Pré-rempli sur chaque nouvelle facture (modifiable au cas par cas).",
+      "none": "— Aucun par défaut —"
     },
     "installmentDefaults": {
-      "help": "Pre-fill the trigger for fresh rows in the Installments panel. Per-document edits override; existing documents keep their snapshotted plan.",
+      "help": "Pré-remplit le déclencheur des nouvelles lignes d'échéancier.",
       "trigger": {
-        "quote_accepted": "At signing / creation",
-        "before_event": "Before event",
-        "after_event": "After event",
-        "after_delivery": "On delivery (manual release)",
-        "fixed_date": "Fixed date"
+        "quote_accepted": "À la création",
+        "before_event": "Avant l'événement",
+        "after_event": "Après l'événement",
+        "after_delivery": "À la livraison (manuel)",
+        "fixed_date": "Date fixe"
       }
     },
     "crm_invoices_default_payment_net_days_template_id": {
-      "label": "Default net days"
+      "label": "Délai de paiement par défaut"
     },
     "crm_invoices_default_payment_timing_template_id": {
-      "label": "Default payment schedule"
+      "label": "Échéancier par défaut"
     },
     "crm_quotes_accept_window_minutes": {
-      "label": "Accept window (minutes)"
+      "label": "Fenêtre d'acceptation (minutes)"
     },
     "crm_quotes_default_valid_days": {
-      "label": "Default validity (days)"
+      "label": "Validité par défaut (jours)"
     },
     "crm_quotes_number_format": {
-      "label": "Quote number format"
+      "label": "Format du numéro de devis"
     },
     "crm_invoices_reminder_first_days": {
-      "label": "First reminder after (days past due)"
+      "label": "Première relance après (jours de retard)"
     },
     "crm_invoices_reminder_second_days": {
-      "label": "Second reminder after (days past due)"
+      "label": "Deuxième relance après (jours de retard)"
     },
     "crm_invoices_late_fee_minor": {
-      "label": "Late fee (minor units / Rappen)"
+      "label": "Frais de retard (centimes)"
     },
     "crm_invoices_late_fee_type": {
-      "label": "Late fee type"
+      "label": "Type de frais de retard"
     },
     "crm_invoices_late_fee_percent": {
-      "label": "Late fee (% of invoice)"
+      "label": "Frais de retard (% de la facture)"
     },
     "lateFeeType": {
-      "flat": "Flat amount (Rappen)",
-      "percent": "Percentage of invoice"
+      "flat": "Montant fixe (centimes)",
+      "percent": "Pourcentage de la facture"
     },
     "lateFeeAgb": {
-      "title": "Late fees must be itemised in your terms (AGB)",
-      "body": "A contractual duty: phrases like “late fees apply” aren't enough. Your terms must state the concrete fee (e.g. “CHF 20 from the 2nd reminder”). Verify with your Treuhänder."
+      "title": "Mention des frais de retard",
+      "body": "Les frais de retard doivent figurer dans vos conditions générales de vente."
     },
     "dunningMoved": {
-      "title": "Reminder schedule is now in Workflows",
-      "body": "When and how often overdue reminders go out is configured in the “Invoice dunning” workflow. The late-fee amounts below still apply.",
-      "link": "Open Workflows"
+      "title": "Calendrier des relances",
+      "body": "Les relances automatiques sont gérées par le workflow dédié.",
+      "link": "Ouvrir les workflows"
     },
     "crm_invoices_late_fee_label": {
-      "label": "Late fee label"
+      "label": "Libellé des frais de retard"
     },
     "crm_invoices_vat_note_text": {
-      "label": "VAT / free-text note on invoices",
-      "placeholder": "e.g. Gemäß § 6 Abs. 1 Z 27 UStG 1994 wird keine Umsatzsteuer berechnet (Kleinunternehmer).",
-      "help": "Printed directly under the MwSt. line on every invoice PDF. If the business isn't VAT-registered (Settings → Accounting), it replaces that line on invoices without VAT. Quotes never carry it — an offer is not the tax document. Leave empty to hide. Please confirm the exact wording with your tax advisor."
+      "label": "Mention TVA / texte libre sur les factures",
+      "placeholder": "ex. TVA non applicable, art. 293 B du CGI.",
+      "help": "Imprimé sous la ligne de TVA sur chaque facture PDF. Laissez vide pour masquer."
     },
     "crm_invoices_skonto_percent_default": {
-      "label": "Skonto rate (default %)"
+      "label": "Escompte par défaut (%)"
     },
     "crm_invoices_skonto_business_days": {
-      "label": "Skonto window (business days)"
+      "label": "Délai d'escompte (jours ouvrés)"
     },
     "crm_invoices_installment_trigger_first": {
-      "label": "First installment trigger"
+      "label": "Déclencheur du 1er versement"
     },
     "crm_invoices_installment_days_before_event": {
-      "label": "Days before event (middle installment)"
+      "label": "Jours avant l'événement (versement intermédiaire)"
     },
     "crm_invoices_installment_days_after_event": {
-      "label": "Days after event (final installment)"
+      "label": "Jours après l'événement (solde)"
     },
     "crm_invoices_number_format": {
-      "label": "Invoice number format"
+      "label": "Format du numéro de facture"
     },
     "crm_quotes_pdf_attachment_enabled": {
-      "label": "Attach quote PDF to email"
+      "label": "Joindre le PDF du devis à l'e-mail"
     },
     "crm_quotes_skonto_enabled": {
-      "label": "Allow early-payment discount (Skonto) on quotes"
+      "label": "Autoriser l'escompte sur les devis"
     },
     "crm_invoices_qr_enabled": {
-      "label": "Render payment QR on invoice PDFs"
+      "label": "Afficher le QR de paiement sur les factures PDF"
     },
     "crm_invoice_round_total": {
-      "label": "Reconcile sub-cent rounding to a clean total (adds a \"Rundung\" row when per-line rounding drifts from qty × rate)"
+      "label": "Arrondir le total au centime près"
     },
     "crm_invoices_reminders_enabled": {
-      "label": "Send automatic reminders for overdue invoices"
+      "label": "Envoyer des relances automatiques pour les factures échues"
     },
     "crm_invoices_late_fee_enabled": {
       "label": "Add a late fee on every reminder after the first"

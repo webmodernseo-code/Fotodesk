@@ -8,9 +8,7 @@
  */
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Workflow as WorkflowIcon } from 'lucide-react';
 import { Card, Loading, Input } from '../../../components/common';
 import { SettingsSaveBar } from '../../../components/admin/SettingsSaveBar';
 import { settingsService } from '../../../services/settings.service';
@@ -108,22 +106,13 @@ export const CrmSettingsPage: React.FC = () => {
   // disabled. The dashboard-overview tile section depends on quotes
   // OR bills (the per-tile checkboxes inside govern quote-pipeline +
   // invoice-pipeline + revenue tiles, all of which are CRM-money).
-  const showQuotes = !!flags.quotes;
   const showInvoices = !!flags.bills;
-  // When the workflow engine is live, reminder TIMING is owned by the Invoice
-  // dunning flow — show a pointer instead of the legacy schedule controls. When
-  // it's off, the legacy reminder ladder still runs, so keep its controls.
   const workflowsLive = !!flags.workflows;
-  const showContracts = !!flags.contracts;
-  const showDashboardOverview = !!(flags.quotes || flags.bills);
+  const showDashboardOverview = !!flags.bills;
   const showDocuments = !!flags.documents;
-  const anySection = showQuotes || showInvoices || showContracts || showDashboardOverview || showDocuments;
-  // The subtitle names what this tab configures on this install: a
-  // documents-only install has no quotes or invoices to fine-tune.
+  const anySection = showInvoices || showDashboardOverview || showDocuments;
   const subtitleAreas = [
-    showQuotes && t('crmSettings.areas.quotes', 'quotes'),
     showInvoices && t('crmSettings.areas.invoices', 'invoices'),
-    showContracts && t('crmSettings.areas.contracts', 'contracts'),
     showDocuments && t('crmSettings.areas.documents', 'customer documents'),
   ].filter((a): a is string => !!a);
   // Joined with a translated "and" rather than Intl.ListFormat: a partial
@@ -236,59 +225,6 @@ export const CrmSettingsPage: React.FC = () => {
         </Card>
       )}
 
-      {showQuotes && (
-      <Card>
-        <h3 className="font-semibold text-heading mb-3">{t('crmSettings.section.quotes', 'Quotes')}</h3>
-        {checkbox('crm_quotes_pdf_attachment_enabled', 'Attach quote PDF to email')}
-        {checkbox('crm_quotes_skonto_enabled', 'Allow early-payment discount (Skonto) on quotes')}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
-          <Input type="number" min={1} max={120}
-            label={t('crmSettings.crm_quotes_accept_window_minutes.label', 'Accept window (minutes)') as string}
-            value={values.crm_quotes_accept_window_minutes ?? 15}
-            onChange={(e) => setVal('crm_quotes_accept_window_minutes', Number(e.target.value))} />
-          <Input type="number" min={1} max={365}
-            label={t('crmSettings.crm_quotes_default_valid_days.label', 'Default validity (days)') as string}
-            value={values.crm_quotes_default_valid_days ?? 30}
-            onChange={(e) => setVal('crm_quotes_default_valid_days', Number(e.target.value))} />
-          <Input
-            label={t('crmSettings.crm_quotes_number_format.label', 'Quote number format') as string}
-            value={values.crm_quotes_number_format ?? ''}
-            onChange={(e) => setVal('crm_quotes_number_format', e.target.value)} />
-        </div>
-
-        {/* Terms of Service step (migration 104). When required, the
-            public quote response page shows a checkbox the customer
-            must tick before Accept fires. The text snapshot is
-            recorded on the quote at acceptance time for audit. */}
-        <div className="mt-4 pt-4 border-t border-line">
-          <h4 className="font-semibold text-heading mb-2 text-sm">
-            {t('crmSettings.section.quotesTos', 'Terms of Service / AGB step')}
-          </h4>
-          {checkbox('crm_quotes_tos_required', 'Require customers to tick "I accept the Terms of Service" before accepting')}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
-            <Input
-              label={t('crmSettings.crm_quotes_tos_url.label', 'Terms of Service URL (optional)') as string}
-              placeholder="https://example.com/terms"
-              value={values.crm_quotes_tos_url ?? ''}
-              onChange={(e) => setVal('crm_quotes_tos_url', e.target.value)} />
-          </div>
-          <div className="mt-3">
-            <label className="block text-sm font-medium text-body mb-1">
-              {t('crmSettings.crm_quotes_tos_text.label', 'Inline Terms text shown on the quote page')}
-            </label>
-            <textarea
-              rows={6}
-              className="w-full rounded-md border border-line-strong bg-panel text-heading px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-accent-dark"
-              value={values.crm_quotes_tos_text ?? ''}
-              onChange={(e) => setVal('crm_quotes_tos_text', e.target.value)}
-              placeholder={t('crmSettings.crm_quotes_tos_text.placeholder',
-                'Paste the contract terms here. Plain text. Leave empty to only show the checkbox + URL.') as string}
-            />
-          </div>
-        </div>
-      </Card>
-      )}
-
       {showInvoices && (
       <Card>
         <h3 className="font-semibold text-heading mb-3">{t('crmSettings.section.invoices', 'Invoices')}</h3>
@@ -336,30 +272,9 @@ export const CrmSettingsPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Reminder TIMING: owned by the Invoice dunning workflow when the
-            engine is live (callout); otherwise the legacy schedule controls. The
-            late-fee math below is configured here in both cases — it's the fee
-            the dunning path applies, not part of the schedule. */}
-        {workflowsLive ? (
-          <div className="mt-2 rounded-lg border border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/20 p-3 text-sm text-blue-800 dark:text-blue-200 flex items-start gap-2">
-            <WorkflowIcon className="w-4 h-4 mt-0.5 shrink-0" />
-            <div>
-              <p className="font-medium">{t('crmSettings.dunningMoved.title', 'Reminder schedule is now in Workflows')}</p>
-              <p className="mt-1">
-                {t('crmSettings.dunningMoved.body', 'When and how often overdue reminders go out is configured in the “Invoice dunning” workflow. Late-fee amounts below still apply.')}{' '}
-                <Link to="/admin/automation/workflows" className="underline font-medium">{t('crmSettings.dunningMoved.link', 'Open Workflows')}</Link>
-              </p>
-            </div>
-          </div>
-        ) : (
-          checkbox('crm_invoices_reminders_enabled', 'Send automatic reminders for overdue invoices')
-        )}
+        {!workflowsLive && checkbox('crm_invoices_reminders_enabled', 'Send automatic reminders for overdue invoices')}
 
         {checkbox('crm_invoices_late_fee_enabled', 'Add a late fee (Mahngebühr) on every reminder after the first')}
-        <div className="mt-2 rounded-lg border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 p-3 text-sm text-amber-800 dark:text-amber-200">
-          <p className="font-medium">{t('crmSettings.lateFeeAgb.title', 'Late fees must be itemised in your terms (AGB)')}</p>
-          <p className="mt-1">{t('crmSettings.lateFeeAgb.body', 'Vertragliche Pflicht: Sätze wie „Es werden Mahnspesen erhoben“ reichen nicht aus. In den AGB muss die konkrete Gebühr klar beziffert sein (z.B. „CHF 20 ab der 2. Mahnung“). Mit dem Treuhänder prüfen.')}</p>
-        </div>
         {checkbox('crm_invoices_late_fee_vat_enabled', 'Charge VAT on late fees (Switzerland — leave off for DE/AT; no effect if your organisation has no VAT rate)')}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
           {!workflowsLive && (
@@ -508,92 +423,6 @@ export const CrmSettingsPage: React.FC = () => {
           </div>
         </div>
 
-      </Card>
-      )}
-
-      {showContracts && (
-      /* Contracts (migration 130). Mirrors the Quotes / Invoices block
-         shape: 3 behaviour toggles, then a 2-column input grid, then
-         the number-format input with helper text. */
-      <Card>
-        <h3 className="font-semibold text-heading mb-3">{t('crmSettings.section.contracts', 'Contracts')}</h3>
-        {/* Three of these four toggles use `!== false` semantics on
-            the backend — a missing app_settings row behaves as if
-            checked. `checkboxDefaultOn` mirrors that so the UI tells
-            the truth on installs whose DB never received the seed
-            rows. `require_drawn_signature` uses `=== true` (default
-            off) so it stays on the plain `checkbox`. */}
-        {checkboxDefaultOn('crm_contracts_pdf_attachment_enabled', 'Attach contract PDF to email')}
-        {checkbox('crm_contracts_require_drawn_signature', 'Require drawn signature (typed name alone is not enough)')}
-        {checkboxDefaultOn('crm_contracts_allow_pdf_upload', 'Allow customer to upload a wet-signed PDF')}
-        {checkboxDefaultOn('crm_contracts_store_ip', "Store signer's IP address (recommended — corroborating evidence in civil disputes)")}
-        <p className="text-xs text-neutral-500 mt-1 ml-6">
-          {t('crmSettings.crm_contracts_store_ip.help',
-            "When off, the customer's and admin's IP at signing time is NOT recorded into the contract row or the public sign-page audit confirmation. Per GDPR data-minimisation principle some operators prefer this — but IP is corroborating identity evidence if the contract is challenged, so we recommend keeping it on.")}
-        </p>
-        {checkboxDefaultOn('crm_contracts_notify_each_signature', 'Email me every time a signer signs (not only when everyone has)')}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
-          <Input type="number" min={1} max={365}
-            label={t('crmSettings.crm_contracts_default_valid_days.label', 'Signing window (days)') as string}
-            value={values.crm_contracts_default_valid_days ?? 30}
-            onChange={(e) => setVal('crm_contracts_default_valid_days', Number(e.target.value))} />
-          <div>
-            <Input
-              label={t('crmSettings.crm_contracts_reminder_days.label', 'Signing reminders (days after the last link)') as string}
-              value={values.crm_contracts_reminder_days ?? '3,7'}
-              onChange={(e) => setVal('crm_contracts_reminder_days', e.target.value)}
-              placeholder="3,7"
-            />
-            <p className="text-xs text-neutral-500 mt-1">
-              {t('crmSettings.crm_contracts_reminder_days.help', 'Comma-separated, e.g. 3,7: a reminder with a new link 3 days after the last one, then 7 days after that. Leave empty for no reminders.')}
-            </p>
-          </div>
-          <Input type="number" min={1} max={10000}
-            label={t('crmSettings.crm_contracts_alert_unknown_tokens_per_ip.label', 'Alert after unknown signing links per client and hour') as string}
-            value={values.crm_contracts_alert_unknown_tokens_per_ip ?? 20}
-            onChange={(e) => setVal('crm_contracts_alert_unknown_tokens_per_ip', Number(e.target.value))} />
-          <Input type="number" min={1} max={100000}
-            label={t('crmSettings.crm_contracts_alert_unknown_tokens_per_hour.label', 'Alert after unknown signing links per hour, all visitors together') as string}
-            value={values.crm_contracts_alert_unknown_tokens_per_hour ?? 200}
-            onChange={(e) => setVal('crm_contracts_alert_unknown_tokens_per_hour', Number(e.target.value))} />
-          <Input type="number" min={1} max={10000}
-            label={t('crmSettings.crm_contracts_alert_otp_failures_per_contract.label', 'Alert after wrong codes per contract and hour') as string}
-            value={values.crm_contracts_alert_otp_failures_per_contract ?? 10}
-            onChange={(e) => setVal('crm_contracts_alert_otp_failures_per_contract', Number(e.target.value))} />
-          <Input
-            label={t('crmSettings.crm_contracts_number_format.label', 'Contract number format') as string}
-            value={values.crm_contracts_number_format ?? ''}
-            onChange={(e) => setVal('crm_contracts_number_format', e.target.value)}
-            placeholder="C-{YEAR}-{SEQ:04d}"
-          />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
-          {(['de', 'en'] as const).map((locale) => (
-            <div key={locale}>
-              <label htmlFor={`crm-legal-notice-${locale}`} className="block text-sm font-medium text-body mb-1">
-                {locale === 'de'
-                  ? t('crmSettings.crm_contracts_legal_notice.labelDe', 'Legal notice on signed contracts (German)')
-                  : t('crmSettings.crm_contracts_legal_notice.labelEn', 'Legal notice on signed contracts (English)')}
-              </label>
-              <textarea
-                id={`crm-legal-notice-${locale}`}
-                rows={4}
-                maxLength={2000}
-                className="w-full px-3 py-2 rounded-md border border-line-strong bg-panel text-heading text-sm"
-                value={(values.crm_contracts_legal_notice && values.crm_contracts_legal_notice[locale]) || ''}
-                placeholder={t('crmSettings.crm_contracts_legal_notice.placeholder', 'Empty: the standard notice (simple electronic signature, not for contracts that need written form).') as string}
-                onChange={(e) => setVal('crm_contracts_legal_notice', { ...(values.crm_contracts_legal_notice || {}), [locale]: e.target.value })}
-              />
-            </div>
-          ))}
-        </div>
-        <p className="text-xs text-neutral-500 mt-1">
-          {t('crmSettings.crm_contracts_legal_notice.help', 'Frozen into each contract when it is sent, shown on the signing page and printed on the signing certificate. Changing it affects only contracts sent afterwards.')}
-        </p>
-        <p className="text-xs text-neutral-500 mt-2">
-          {t('crmSettings.crm_contracts_number_format.help',
-            'Supported tokens: {YEAR}, {MONTH}, {SEQ:04d}. Example: LBM-C-{YEAR}-{SEQ:04d} → LBM-C-2026-0001.')}
-        </p>
       </Card>
       )}
 

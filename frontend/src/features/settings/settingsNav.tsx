@@ -1,34 +1,18 @@
 import { useTranslation } from 'react-i18next';
 import {
-  ToggleRight,
   Sliders,
-  CalendarPlus,
-  Activity,
   Lock,
   Shield,
-  Image as ImageIcon,
   Search,
-  Tags,
   Download as DownloadIcon,
-  Tag,
-  BarChart3,
-  Flag,
-  Code,
-  KeyRound,
-  Webhook,
   Mail,
   Palette,
   FileText,
   HardDrive,
   Briefcase,
   Receipt,
-  ScrollText,
-  Landmark,
-  Smartphone,
-  MonitorPlay,
+  Webhook,
   Send as SendIcon,
-  Users,
-  HeartPulse,
   type LucideIcon,
 } from 'lucide-react';
 import { useFeatureFlags } from '../../contexts/FeatureFlagsContext';
@@ -116,7 +100,7 @@ export const ALL_SETTINGS_TABS: SettingsTab[] = [
   'slideshow',
 ];
 
-export const DEFAULT_SETTINGS_TAB: SettingsTab = 'features';
+export const DEFAULT_SETTINGS_TAB: SettingsTab = 'businessProfile';
 
 export function isValidSettingsTab(value: string | null): value is SettingsTab {
   return value !== null && (ALL_SETTINGS_TABS as string[]).includes(value);
@@ -217,7 +201,7 @@ type Flags = ReturnType<typeof useFeatureFlags>['flags'];
 // is off, so admins don't navigate to a tab for a feature they can't use.
 export function settingsTabGatedOff(flags: Flags): Partial<Record<SettingsTab, boolean>> {
   return {
-    crm: !(flags.quotes || flags.bills || flags.contracts || flags.documents),
+    crm: !(flags.bills || flags.documents),
     contracts: !flags.contracts,
     accounting: !flags.accounting,
     whatsapp: !flags.whatsapp,
@@ -239,111 +223,50 @@ export function useSettingsNavGroups(): SettingsNavGroup[] {
 
   const groups: SettingsNavGroup[] = [
     {
-      label: t('settings.groups.general', 'General'),
+      label: t('settings.groups.essentials', 'Paramètres essentiels'),
       items: [
-        { key: 'features',   label: t('settings.features.title',   'Features'),       icon: ToggleRight },
-        { key: 'general',    label: t('settings.general.title'),                       icon: Sliders },
-        { key: 'events',     label: t('settings.events.title',     'Event Creation'),  icon: CalendarPlus },
-        { key: 'eventTypes', label: t('settings.eventTypes.title', 'Event Types'),     icon: Tag },
+        { key: 'general', label: t('settings.general.title', 'Général'), icon: Sliders },
+        { key: 'security', label: t('settings.security.title', 'Sécurité'), icon: Lock },
+        { key: 'branding', label: t('settings.branding.title', 'Marque'), icon: Palette },
       ],
     },
     {
-      // People & access — Users was a top-level sidebar entry until the
-      // navigation cleanup. It is configuration, not a workspace, so it
-      // belongs here; the entry hides entirely when `userManagement` is off,
-      // exactly as the sidebar entry did.
-      label: t('settings.groups.people', 'People & access'),
+      label: t('settings.groups.studio', 'Studio & Entreprise'),
       items: [
-        ...(flags.userManagement
-          ? [{ key: 'users' as const, label: t('navigation.users', 'Users'), icon: Users }]
+        { key: 'businessProfile', label: t('settings.businessProfile.title', 'Profil du studio'), icon: Briefcase },
+        { key: 'email', label: t('settings.email.title', 'Configuration e-mail'), icon: Mail },
+        ...(flags.bills || flags.documents
+          ? [{ key: 'crm' as const, label: t('settings.crm.title', 'Facturation & Documents'), icon: Receipt }]
           : []),
       ],
     },
     {
-      label: t('settings.groups.appearance', 'Content & Appearance'),
+      label: t('settings.groups.galleries', 'Galeries & Téléchargements'),
       items: [
-        { key: 'branding',   label: t('settings.branding.title',   'Branding'),    icon: Palette },
-        { key: 'categories', label: t('settings.categories.title'),                 icon: Tags },
-        { key: 'thumbnails', label: t('settings.thumbnails.title', 'Thumbnails'),  icon: ImageIcon },
-        { key: 'downloads',  label: t('settings.downloads.title',  'Download resolutions'), icon: DownloadIcon },
-        { key: 'styling',    label: t('settings.styling.title',    'Custom CSS'),  icon: Code },
-        { key: 'cms',        label: t('settings.cms.title',        'CMS Pages'),   icon: FileText },
-        ...(flags.slideshow
-          ? [{ key: 'slideshow' as const, label: t('settings.slideshow.title', 'Slideshow'), icon: MonitorPlay }]
-          : []),
-      ],
-    },
-    {
-      label: t('settings.groups.communication', 'Communication'),
-      items: [
-        { key: 'email',      label: t('settings.email.title',      'Email Settings'), icon: Mail },
-        { key: 'moderation', label: t('settings.moderation.title', 'Moderation'),     icon: Flag },
+        { key: 'imageSecurity', label: t('settings.imageSecurity.title', 'Protection des images'), icon: Shield },
+        { key: 'downloads',     label: t('settings.downloads.title', 'Téléchargements & Résolutions'), icon: DownloadIcon },
         ...(flags.transfers
           ? [{
             key: 'transfers' as const,
-            label: t('settings.transfers.title', 'PicTransfer'),
+            label: t('settings.transfers.title', 'Transferts clients'),
             icon: SendIcon,
-            description: t('settings.transfers.description', 'Which file types clients may send you, and how large.'),
+            description: t('settings.transfers.description', 'Types et tailles de fichiers autorisés.'),
           }]
           : []),
       ],
     },
     {
-      label: t('settings.groups.privacySecurity', 'Privacy & Security'),
+      label: t('settings.groups.siteLegal', 'Visibilité & Pages légales'),
       items: [
-        { key: 'security',      label: t('settings.security.title'),                       icon: Lock },
-        { key: 'sso',           label: t('settings.sso.title',           'Single Sign-On'),   icon: KeyRound },
-        { key: 'imageSecurity', label: t('settings.imageSecurity.title', 'Image Protection'), icon: Shield },
-        { key: 'seo',           label: t('settings.seo.title',           'SEO & Robots'),     icon: Search },
+        { key: 'seo', label: t('settings.seo.title', 'SEO & Robots'), icon: Search },
+        { key: 'cms', label: t('settings.cms.title', 'Pages légales & CGV'), icon: FileText },
       ],
     },
     {
-      label: t('settings.groups.integrations', 'Integrations'),
+      label: t('settings.groups.system', 'Sauvegardes'),
       items: [
-        { key: 'apiTokens', label: t('settings.apiTokens.title', 'API Tokens'), icon: KeyRound },
-        { key: 'webhooks',  label: t('settings.webhooks.title',  'Webhooks'),   icon: Webhook },
-      ],
-    },
-    {
-      // CRM group. businessProfile is always relevant (the issuer block
-      // feeds every PDF, gallery hero, footer, etc — even with zero
-      // CRM features). The remaining items hide when their matching
-      // master flag is off.
-      label: t('settings.groups.crm', 'CRM-Settings'),
-      items: [
-        { key: 'businessProfile', label: t('settings.businessProfile.title', 'Business profile'), icon: Briefcase },
-        ...(flags.quotes || flags.bills || flags.contracts || flags.documents
-          ? [{ key: 'crm' as const,               label: t('settings.crm.title',               'CRM behaviour'),   icon: Receipt }]
-          : []),
-        ...(flags.contracts
-          ? [{ key: 'contracts' as const,         label: t('settings.contracts.title',         'Contracts'),       icon: ScrollText }]
-          : []),
-        ...(flags.accounting
-          ? [{ key: 'accounting' as const,        label: t('settings.accounting.title',        'Accounting'),      icon: Landmark }]
-          : []),
-        ...(flags.whatsapp
-          ? [{ key: 'whatsapp' as const,          label: t('settings.whatsapp.title',          'WhatsApp'),        icon: Smartphone }]
-          : []),
-      ],
-    },
-    {
-      label: t('settings.groups.system', 'System'),
-      items: [
-        // Status and Health sat in this group under two names for the same
-        // idea ("System Status" and "System health"), one of them a top-level
-        // sidebar entry. They answer different questions, so they keep both
-        // tabs and say which is which.
-        {
-          key: 'status', label: t('settings.systemStatus.title'), icon: Activity,
-          description: t('settings.systemStatus.description', 'Services, queues, storage and version — what this instance is running right now.'),
-        },
-        {
-          key: 'health', label: t('settings.health.title', 'Health'), icon: HeartPulse,
-          description: t('settings.health.description', 'Background failures that need attention — stuck emails, failed checks and cleanup.'),
-        },
-        { key: 'analytics', label: t('settings.analytics.title'),              icon: BarChart3 },
-        { key: 'usage',     label: t('productUsage.title'),                    icon: Shield },
-        { key: 'backup',    label: t('settings.backup.title', 'Backup'),       icon: HardDrive },
+        { key: 'backup', label: t('settings.backup.title', 'Sauvegardes & Exports'), icon: HardDrive },
+        { key: 'webhooks', label: t('settings.webhooks.title', 'Webhooks'), icon: Webhook },
       ],
     },
   ];
