@@ -297,6 +297,7 @@ router.get('/', [
     groupMatch: req.query.groupMatch || 'any',
     ungrouped,
     status: req.query.status || 'all',
+    studioId: req.studioId || req.admin?.studioId || 1,
   });
   const groupsByCustomer = await customerGroupsService.groupsForCustomers(customers.map((c) => c.id));
   res.json({
@@ -334,7 +335,7 @@ router.get('/invitations', [
   adminAuth,
   requirePermission('customers.view'),
 ], handleAsync(async (req, res) => {
-  const invitations = await customerAccountsService.getPendingInvitations();
+  const invitations = await customerAccountsService.getPendingInvitations(req.studioId);
   res.json({ invitations: invitations.map(transformInvitation) });
 }));
 
@@ -371,6 +372,7 @@ router.post('/invite', [
   const invitation = await customerAccountsService.createInvitation({
     email: req.body.email,
     invitedById: req.admin.id,
+    studioId: req.studioId,
     prefill: req.body.prefill,
   });
   // Echo the token in the response ONLY in non-production. This lets
@@ -409,7 +411,8 @@ router.delete('/invitations/:id', [
   validateRequest(req);
   await customerAccountsService.cancelInvitation(
     parseInt(req.params.id, 10),
-    req.admin.id
+    req.admin.id,
+    req.studioId
   );
   successResponse(res, { message: 'Invitation cancelled' });
 }));
@@ -481,6 +484,7 @@ router.post('/', [
     email: req.body.email,
     prefill: req.body.prefill,
     createdByAdminId: req.admin.id,
+    studioId: req.studioId,
     withinTransaction: groupIds.length > 0
       ? async (trx, customerId) => { change = await customerGroupsService.replaceCustomerGroups(trx, customerId, groupIds); }
       : null,
@@ -509,7 +513,7 @@ router.post('/:id/send-invite', [
 ], handleAsync(async (req, res) => {
   validateRequest(req);
   const customerId = parseInt(req.params.id, 10);
-  const customer = await customerAccountsService.getCustomerById(customerId);
+  const customer = await customerAccountsService.getCustomerById(customerId, req.studioId);
   if (customer.password_hash) {
     return res.status(409).json({
       error: 'Customer already has portal access — no invitation needed.',
@@ -540,6 +544,7 @@ router.post('/:id/send-invite', [
   const invitation = await customerAccountsService.createInvitation({
     email: customer.email,
     invitedById: req.admin.id,
+    studioId: req.studioId,
     prefill,
   });
   const payload = {
@@ -731,6 +736,7 @@ router.post('/:id/password-reset', [
   const result = await customerAccountsService.createPasswordReset({
     customerId: parseInt(req.params.id, 10),
     requestedByAdminId: req.admin.id,
+    studioId: req.studioId,
   });
   successResponse(res, { email: result.email, expiresAt: result.expiresAt });
 }));
@@ -1066,8 +1072,7 @@ function parseNotify(value) {
 async function loadDocumentCustomer(req) {
   validateRequest(req);
   const customerId = parseInt(req.params.id, 10);
-  const customer = await db('customer_accounts').where({ id: customerId }).first('id');
-  if (!customer) throw new NotFoundError('Customer', customerId);
+  await customerAccountsService.getCustomerById(customerId, req.studioId);
   return customerId;
 }
 

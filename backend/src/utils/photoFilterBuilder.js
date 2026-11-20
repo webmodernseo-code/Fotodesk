@@ -262,7 +262,7 @@ class PhotoFilterBuilder {
       rating: 'photos.average_rating',
       likes: 'photos.like_count',
       favorites: 'photos.favorite_count',
-      date: 'photos.created_at',
+      date: 'photos.uploaded_at',
       filename: 'photos.filename'
     };
 

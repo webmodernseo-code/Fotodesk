@@ -251,6 +251,7 @@ async function createTransfer(input, admin) {
     title: String(title || '').slice(0, 255),
     message: message || null,
     created_by: adminId || null,
+    studio_id: admin?.studioId ? Number(admin.studioId) : 1,
     // For a request this single deadline IS the upload deadline — there is no
     // second `upload_expires_at` to drift out of sync with it.
     expires_at: expiresAt,
@@ -288,6 +289,9 @@ async function listTransfers({ search = '', admin } = {}) {
   // Otherwise the list — which used to carry each transfer's download token —
   // handed every admin a public link to everyone else's originals.
   if (admin && admin.roleName !== 'super_admin') {
+    if (admin.studioId) {
+      query = query.where('studio_id', Number(admin.studioId));
+    }
     query = query.where((q) => q.whereNull('created_by').orWhere('created_by', admin.id));
   }
   if (search) {
@@ -436,9 +440,9 @@ async function getTransfer(id) {
   };
 }
 
-/** Minimal row for the ownership guard: { id, created_by } or undefined. */
+/** Minimal row for the ownership guard: { id, created_by, studio_id } or undefined. */
 async function getTransferOwner(id) {
-  return db('transfers').where({ id }).whereNull('deleted_at').first('id', 'created_by');
+  return db('transfers').where({ id }).whereNull('deleted_at').first('id', 'created_by', 'studio_id');
 }
 
 async function updateTransfer(id, fields) {

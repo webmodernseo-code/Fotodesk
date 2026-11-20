@@ -211,6 +211,9 @@ async function requireTransferOwnership(req, res, next) {
     if (!Number.isInteger(id) || id < 1) return res.status(400).json({ error: 'Invalid id' });
     const owner = await transferService.getTransferOwner(id);
     if (!owner) return res.status(404).json({ error: 'Transfer not found' });
+    if (req.studioId && owner.studio_id && Number(owner.studio_id) !== Number(req.studioId)) {
+      return res.status(404).json({ error: 'Transfer not found' });
+    }
     if (owner.created_by != null && owner.created_by !== req.admin.id) {
       return res.status(404).json({ error: 'Transfer not found' });
     }
