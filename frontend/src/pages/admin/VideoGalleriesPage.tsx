@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { fotodeskService } from '../../services/fotodesk.service';
 import {
   CheckCircle2,
-  ChevronLeft,
   ChevronRight,
   Clock,
   Copy,
@@ -11,7 +10,6 @@ import {
   Film,
   Grid,
   List,
-  Lock,
   MessageSquare,
   MoreHorizontal,
   Pause,
@@ -74,174 +72,7 @@ const COVER_IMAGES = [
   'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=1000&q=80',
 ];
 
-const INITIAL_GALLERIES: VideoGallery[] = [
-  {
-    id: 'vg-1',
-    name: 'Event Highlights',
-    client: 'Daniel Smith',
-    clientEmail: 'daniel.smith@example.com',
-    project: 'Corporate Event',
-    description: 'Temps forts filmés lors de la conférence annuelle et du cocktail.',
-    coverImage: COVER_IMAGES[2],
-    status: 'shared',
-    createdAt: '2 juin 2025',
-    sortOrder: 3,
-    allowDownloads: true,
-    downloadValidityDays: 14,
-    requireAccessCode: true,
-    accessCode: 'DANIEL25',
-    videos: [
-      {
-        id: 'v-101',
-        title: 'Keynote Highlights',
-        durationMin: 18,
-        durationLabel: '18:00',
-        date: '2 juin 2025',
-        thumbnail: COVER_IMAGES[2],
-        status: 'ready',
-        comments: [],
-      },
-      {
-        id: 'v-102',
-        title: 'Networking & Interviews',
-        durationMin: 22,
-        durationLabel: '22:00',
-        date: '2 juin 2025',
-        thumbnail: COVER_IMAGES[3],
-        status: 'ready',
-        comments: [],
-      },
-      {
-        id: 'v-103',
-        title: 'Aftermovie Teaser',
-        durationMin: 15,
-        durationLabel: '15:00',
-        date: '3 juin 2025',
-        thumbnail: COVER_IMAGES[2],
-        status: 'ready',
-        comments: [],
-      },
-    ],
-  },
-  {
-    id: 'vg-2',
-    name: 'Brand Film Collection',
-    client: 'Emily Carter',
-    clientEmail: 'emily.carter@example.com',
-    project: 'Brand Photography',
-    description: 'Films de marque et portraits vidéo en studio.',
-    coverImage: COVER_IMAGES[3],
-    status: 'active',
-    createdAt: '28 mai 2025',
-    sortOrder: 2,
-    allowDownloads: true,
-    downloadValidityDays: 30,
-    requireAccessCode: false,
-    accessCode: 'EMILY25',
-    videos: [
-      {
-        id: 'v-201',
-        title: 'Studio Manifesto',
-        durationMin: 35,
-        durationLabel: '35:00',
-        date: '28 mai 2025',
-        thumbnail: COVER_IMAGES[3],
-        status: 'ready',
-        comments: [],
-      },
-      {
-        id: 'v-202',
-        title: 'Behind the Scenes',
-        durationMin: 30,
-        durationLabel: '30:00',
-        date: '29 mai 2025',
-        thumbnail: COVER_IMAGES[2],
-        status: 'ready',
-        comments: [],
-      },
-    ],
-  },
-  {
-    id: 'vg-3',
-    name: 'Wedding Film Collection',
-    client: 'Sarah Johnson',
-    clientEmail: 'sarah.johnson@example.com',
-    project: 'Sarah & Michael Wedding',
-    description: 'La collection complète du film de mariage, de la cérémonie à la soirée.',
-    coverImage: COVER_IMAGES[0],
-    status: 'shared',
-    createdAt: '18 mai 2025',
-    sortOrder: 1,
-    allowDownloads: true,
-    downloadValidityDays: 14,
-    requireAccessCode: true,
-    accessCode: 'SARAH25',
-    videos: [
-      {
-        id: 'v-301',
-        title: 'Ceremony Film',
-        durationMin: 28,
-        durationLabel: '28:00',
-        date: '20 mai 2025',
-        thumbnail: COVER_IMAGES[1],
-        status: 'ready',
-        comments: [
-          {
-            id: 'c-1',
-            author: 'Michael Reed',
-            timestampSec: 158,
-            timestampLabel: '02:38',
-            text: 'Pourrait-on raccourcir légèrement cette séquence ?',
-            createdAt: '8 juin 2025 · 15:20',
-          },
-        ],
-      },
-      {
-        id: 'v-302',
-        title: 'Reception Highlights',
-        durationMin: 30,
-        durationLabel: '30:00',
-        date: '21 mai 2025',
-        thumbnail: COVER_IMAGES[0],
-        status: 'ready',
-        comments: [],
-      },
-      {
-        id: 'v-303',
-        title: 'Wedding Feature Film',
-        durationMin: 62,
-        durationLabel: '62:00',
-        date: '20 mai 2025',
-        thumbnail: COVER_IMAGES[0],
-        status: 'ready',
-        comments: [
-          {
-            id: 'c-2',
-            author: 'Sarah Johnson',
-            timestampSec: 222,
-            timestampLabel: '03:42',
-            text: 'Pouvez-vous revoir cette transition ?',
-            createdAt: '8 juin 2025 · 15:20',
-          },
-          {
-            id: 'c-3',
-            author: 'Sarah Johnson',
-            timestampSec: 438,
-            timestampLabel: '07:18',
-            text: "J'adore ce moment, gardons-le tel quel !",
-            createdAt: '8 juin 2025 · 15:25',
-          },
-        ],
-      },
-    ],
-  },
-];
-
-const MOCK_UPLOAD_PRESETS = [
-  { name: 'cinematic-trailer.mp4', durationMin: 24, thumbnail: COVER_IMAGES[1] },
-  { name: 'client-interview.mp4', durationMin: 18, thumbnail: COVER_IMAGES[2] },
-  { name: 'extended-archive-film.mp4', durationMin: 280, thumbnail: COVER_IMAGES[3] },
-];
+const INITIAL_GALLERIES: VideoGallery[] = [];
 
 const formatSecToMMSS = (sec: number) => {
   const m = Math.floor(sec / 60);
@@ -296,7 +127,7 @@ export const VideoGalleriesPage: React.FC = () => {
     fotodeskService.videoGalleries
       .list()
       .then((res) => {
-        if (!active || !Array.isArray(res?.galleries) || res.galleries.length === 0) return;
+        if (!active || !Array.isArray(res?.galleries)) return;
         const mapped: VideoGallery[] = res.galleries.map((g: any, idx: number) => ({
           id: String(g.id),
           name: g.title,
@@ -539,18 +370,6 @@ export const VideoGalleriesPage: React.FC = () => {
     );
     setSettingsOpen(false);
     showToast('Paramètres de la galerie vidéo enregistrés.');
-  };
-
-  const handleAddQueuedPreset = (preset: (typeof MOCK_UPLOAD_PRESETS)[number]) => {
-    setQueuedUploads((prev) => [
-      ...prev,
-      {
-        id: `q-${Date.now()}-${Math.random()}`,
-        name: preset.name,
-        durationMin: preset.durationMin,
-        thumbnail: preset.thumbnail,
-      },
-    ]);
   };
 
   const queuedTotalMin = queuedUploads.reduce((s, q) => s + q.durationMin, 0);
@@ -1171,16 +990,6 @@ export const VideoGalleriesPage: React.FC = () => {
                   >
                     Parcourir les fichiers
                   </button>
-                  {MOCK_UPLOAD_PRESETS.slice(0, 2).map((p) => (
-                    <button
-                      key={p.name}
-                      type="button"
-                      onClick={() => handleAddQueuedPreset(p)}
-                      className="text-xs px-2.5 py-1.5 rounded-lg bg-panel border border-line hover:bg-subtle text-soft"
-                    >
-                      + {p.name} ({p.durationMin} min)
-                    </button>
-                  ))}
                 </div>
               </div>
 

@@ -403,32 +403,11 @@ export const SuperAdminSubscriptionsSection: React.FC<Props> = ({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-line/60">
-                    {[
-                      { num: 'INV-2026-001', period: 'Novembre 2026', date: '12 nov. 2026', amount: '€9,90' },
-                      { num: 'INV-2026-002', period: 'Octobre 2026', date: '12 oct. 2026', amount: '€9,90' },
-                      { num: 'INV-2026-003', period: 'Septembre 2026', date: '12 sept. 2026', amount: '€9,90' },
-                    ].map((inv) => (
-                      <tr key={inv.num} className="hover:bg-subtle/40">
-                        <td className="py-3 px-5 font-semibold text-heading">{inv.num}</td>
-                        <td className="py-3 px-4 text-soft">{inv.period}</td>
-                        <td className="py-3 px-4 text-soft">{inv.date}</td>
-                        <td className="py-3 px-4 font-semibold text-heading">{inv.amount}</td>
-                        <td className="py-3 px-4 text-soft">Visa •••• 4242</td>
-                        <td className="py-3 px-4">
-                          <span className="badge-success">Payé</span>
-                        </td>
-                        <td className="py-3 px-5 text-right">
-                          <button
-                            type="button"
-                            onClick={() => showToast(`Reçu ${inv.num} prêt pour le téléchargement.`)}
-                            className="inline-flex items-center gap-1 text-heading font-medium hover:underline"
-                          >
-                            <Download className="w-3.5 h-3.5" />
-                            Télécharger
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                    <tr>
+                      <td colSpan={7} className="py-6 px-5 text-center text-xs text-muted">
+                        Aucune facture d&apos;abonnement enregistrée pour ce studio.
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
@@ -706,3 +685,4 @@ export const SuperAdminSubscriptionsSection: React.FC<Props> = ({
     </div>
   );
 };
+
