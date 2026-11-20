@@ -152,7 +152,7 @@ export const TransfersTab: React.FC = () => {
             <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
             <span>
               {t('settings.transfers.acceptAllWarning',
-                'Uploaded files are stored and delivered as opaque downloads. PicPeak never opens, renders or scans them, and they are never served as web content — but it also cannot tell you whether one is safe. Check anything you open or pass on.')}
+                'Uploaded files are stored and delivered as opaque downloads. FotoDesk never opens, renders or scans them, and they are never served as web content — but it also cannot tell you whether one is safe. Check anything you open or pass on.')}
             </span>
           </p>
         )}

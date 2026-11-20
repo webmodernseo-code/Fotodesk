@@ -2002,7 +2002,7 @@
       "title": "Types d'événements"
     },
     "cms": {
-      "title": "Pages CMS"
+      "title": "Pages légales & CGV"
     },
     "email": {
       "title": "Paramètres e-mail"
@@ -2420,7 +2420,7 @@
       }
     },
     "downloads": {
-      "title": "Résolutions de téléchargement",
+      "title": "Téléchargements",
       "intro": "La taille standard est celle fournie par défaut pour chaque galerie. Chaque galerie peut la personnaliser.",
       "standard": "Résolution standard",
       "original": "Original (taille réelle)",
@@ -2686,22 +2686,22 @@
       ]
     },
     "transfers": {
-      "title": "PicTransfer",
-      "description": "Which file types clients may send you, and how large.",
-      "uploadsTitle": "What clients may send you",
-      "uploadsIntro": "Applies to file requests and to files you attach to a transfer. It does not change what may be uploaded to a gallery.",
-      "acceptAll": "Accept all file types",
-      "acceptAllHint": "Any file a client picks is accepted. The size limit, file count and link expiry still apply.",
-      "acceptAllWarning": "Uploaded files are stored and delivered as opaque downloads. FotoDesk never opens, renders or scans them, and they are never served as web content — but it also cannot tell you whether one is safe. Check anything you open or pass on.",
-      "allowedTypes": "Allowed file types",
-      "addType": "Add type",
-      "allowedTypesHint": "A file is accepted when its type matches and its extension is one of the listed ones. Leave the extensions empty to match on the type alone.",
-      "noTypes": "No types listed. Add at least one, or turn on \"Accept all file types\".",
-      "mime": "File type",
+      "title": "Transferts clients",
+      "description": "Types et tailles de fichiers que vos clients peuvent vous envoyer.",
+      "uploadsTitle": "Ce que vos clients peuvent vous envoyer",
+      "uploadsIntro": "S'applique aux demandes de fichiers et aux pièces jointes de transfert. Ne modifie pas l'import de photos en galerie.",
+      "acceptAll": "Accepter tous les types de fichiers",
+      "acceptAllHint": "Tout fichier sélectionné par un client est accepté. La limite de taille, le nombre de fichiers et l'expiration du lien restent appliqués.",
+      "acceptAllWarning": "Les fichiers envoyés sont stockés et remis en téléchargement brut. FotoDesk ne les ouvre ni ne les analyse : vérifiez toujours les fichiers avant de les ouvrir.",
+      "allowedTypes": "Types de fichiers autorisés",
+      "addType": "Ajouter un type",
+      "allowedTypesHint": "Un fichier est accepté si son type MIME correspond et si son extension figure dans la liste.",
+      "noTypes": "Aucun type listé. Ajoutez-en au moins un, ou activez « Accepter tous les types de fichiers ».",
+      "mime": "Type de fichier (MIME)",
       "extensions": "Extensions",
-      "maxSize": "Maximum file size (MB)",
-      "maxSizeHint": "Applies per file, not per upload.",
-      "readOnly": "Only admins who can edit settings can change what clients may send."
+      "maxSize": "Taille maximale par fichier (Mo)",
+      "maxSizeHint": "S'applique à chaque fichier individuellement.",
+      "readOnly": "Seuls les administrateurs autorisés peuvent modifier les transferts."
     }
   },
   "analytics": {
@@ -4408,8 +4408,8 @@
         "redoShort": "Redo"
       }
     },
-    "showInFooter": "Show in gallery footer",
-    "showInFooterHelp": "When off, this page is hidden from the public gallery footer. The page itself remains accessible at its direct URL."
+    "showInFooter": "Afficher dans le pied de page des galeries",
+    "showInFooterHelp": "Lorsque cette option est désactivée, cette page est masquée du pied de page des galeries publiques tout en restant accessible via son lien direct."
   },
   "eventTypes": {
     "title": "Types d'événements",
