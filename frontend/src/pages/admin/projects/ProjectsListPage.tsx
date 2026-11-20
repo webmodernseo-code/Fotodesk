@@ -145,7 +145,7 @@ export const ProjectsListPage: React.FC = () => {
     onError: (err: any) => {
       toast.error(
         err?.response?.data?.error ||
-          t('projects.saveError', 'Impossible de mettre à jour le projet.'),
+        t('projects.saveError', 'Impossible de mettre à jour le projet.'),
       );
     },
   });
@@ -294,11 +294,10 @@ export const ProjectsListPage: React.FC = () => {
                     {project.name}
                   </Link>
                   <span
-                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium ${
-                      project.status === 'archived'
+                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium ${project.status === 'archived'
                         ? 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300'
                         : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300'
-                    }`}
+                      }`}
                   >
                     {project.status === 'archived'
                       ? t('projects.status.archived', 'Archivé')
