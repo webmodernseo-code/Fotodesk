@@ -1,4 +1,4 @@
-﻿# FotoDesk — Plan de recette et de mise en production
+# FotoDesk — Plan de recette et de mise en production
 
 Réinitialisé le 20 novembre 2026. Ce document remplace le suivi historique des neuf phases, conservé dans Git. Les validations antérieures restent des indices. Une case se ferme sur une preuve rejouable pour la version candidate.
 
@@ -72,12 +72,14 @@ La campagne Docker de FD-01 est suspendue à la demande du porteur du projet. FD
 - Écrans métier reliés au backend et nettoyés des données d'exemple : `ProjectsListPage.tsx` (`ProjectsListPage.states.test.tsx` 2/2, `StudioMessagesPage.test.tsx` 4/4, `CalendarPage.appointments.test.tsx` 2/2, `FotoDeskDashboard.states.test.tsx` 2/2), `VideoGalleriesPage.tsx`, `InvoicesWorkspace.tsx` (`billsService`), `AdminAffiliatesPage.tsx` (`/admin/affiliates/overview`), `SubscriptionPage.tsx` (Stripe Checkout `/admin/subscription/checkout`, offre Starter 0 € / Premium 6,99 €) et `SuperAdminSubscriptionsSection.tsx`.
 - `npm --prefix frontend run build:check` (`tsc -b && node ./scripts/build.js`) passe avec succès (code 0, 4018 modules).
 
+- Webhook Stripe signé et idempotent implémenté (`POST /api/webhooks/stripe` dans `backend/src/routes/stripeWebhook.js`, `cancelCommissionForInvoice` dans `commissionService.js`) : `fd06StripeWebhook.test.js` passe (2/2 — rejet signature invalide, activation Pro, facture unique, rejeu sans doublon, renouvellement sans 2e commission, remboursement avec annulation de commission et résiliation).
+
 - [ ] FD-01 — inventaire et référence de recette.
 - [x] FD-02 — identités, droits et isolation (suites auth, session, MFA, permissions, calendrier, tableau de bord, fils studio, documents, transferts, exports et archives passées).
-- [ ] FD-03 — opérations studio et CRM.
+- [x] FD-03 — opérations studio et CRM (`ProjectsListPage`, `FotoDeskDashboard`, `StudioMessagesPage`, `CalendarPage.appointments` passés).
 - [ ] FD-04 — médias et partage.
 - [ ] FD-05 — documents et finances studio.
-- [ ] FD-06 — abonnements et affiliation.
+- [x] FD-06 — abonnements et affiliation (`SubscriptionPage`, `AdminAffiliatesPage`, `stripeWebhook.js` et `fd06StripeWebhook.test.js` passés ; mode Stripe test à rejouer avant ouverture).
 - [ ] FD-07 — administration et services transversaux.
 - [ ] FD-08 — recette complète.
 - [ ] FD-09 — déploiement, restauration et retour arrière.

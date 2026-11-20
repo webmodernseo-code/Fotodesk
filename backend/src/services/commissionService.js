@@ -49,7 +49,7 @@ async function processFirstProPaymentCommission({
       commission_minor: commissionMinor,
       status: 'pending',
       created_at: new Date(),
-    });
+    }).returning('id');
 
     const id = typeof inserted === 'object' ? inserted.id : inserted;
     return await db('affiliate_commissions').where({ id }).first();
@@ -59,8 +59,25 @@ async function processFirstProPaymentCommission({
   }
 }
 
+/**
+ * Cancels pending/approved commission when the underlying subscription invoice is refunded.
+ */
+async function cancelCommissionForInvoice(subscriptionInvoiceId) {
+  if (!subscriptionInvoiceId) return 0;
+  try {
+    return await db('affiliate_commissions')
+      .where({ subscription_invoice_id: Number(subscriptionInvoiceId) })
+      .whereIn('status', ['pending', 'approved'])
+      .update({ status: 'cancelled' });
+  } catch (error) {
+    logger.error('cancelCommissionForInvoice error:', error);
+    return 0;
+  }
+}
+
 module.exports = {
   COMMISSION_RATE,
   processFirstProPaymentCommission,
+  cancelCommissionForInvoice,
 };
 

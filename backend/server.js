@@ -470,11 +470,12 @@ function buildPublicSiteDocument(payload) {
 </html>`;
 }
 
-async function handlePublicSiteRequest(req, res, next) {
+async function handlePublicSiteRequest(req, res, next, { fallbackToApp = false } = {}) {
   try {
     const payload = await getPublicSitePayload();
 
     if (!payload.enabled) {
+      if (fallbackToApp) return next();
       res.redirect(302, '/admin/login');
       return;
     }
@@ -566,6 +567,9 @@ app.use(createAuthRateLimitGate(rateLimitService.getAuthLimiter));
 // body is already parsed, so the scoped parser must run first.
 // fallbackLimitBytes mirrors the 2mb parser right below: a body that fits it
 // never triggers the identity check.
+// Stripe webhook requires the unparsed raw body for HMAC signature verification.
+app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), require('./src/routes/stripeWebhook'));
+
 app.use(['/api/admin', '/api/v1'], createLargeJsonBody({ limit: '50mb', fallbackLimitBytes: 2 * 1024 * 1024 }));
 app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: true, limit: '2mb' }));
@@ -944,12 +948,15 @@ app.use('/api/admin/customers', noStoreCache, require('./src/routes/adminCustome
 // data from being served after logout. The CRM-area route-flag
 // gate was reverted upstream and lives in the UI now.
 app.use('/api/customer/auth', noStoreCache, require('./src/routes/customerAuth'));
+app.use(['/api/customer/quotes', '/api/customer/contracts'], noStoreCache, (_req, res) => {
+  res.status(404).json({ error: 'Not found' });
+});
 app.use('/api/customer', noStoreCache, require('./src/routes/customer'));
 app.use('/api/affiliate', noStoreCache, require('./src/routes/affiliate'));
 app.use('/api/superadmin', noStoreCache, require('./src/routes/masterAdmin'));
 
 // --- CRM (#TBD) -------------------------------------------------------
-// Quotes / Invoices / Contracts / Calendar / Tax report / Deals lineage.
+// Invoices / Calendar / Tax report / Deals lineage.
 // Business profile (issuer block for PDFs) lives at
 // /api/admin/business-profile, gated by the existing settings.manage
 // permission rather than a CRM-specific one. The public endpoints
@@ -958,16 +965,7 @@ app.use('/api/admin/business-profile', require('./src/routes/adminBusinessProfil
 // PDF theme for quotes, invoices and contracts (#1445) — same settings
 // permissions as the business profile's PDF settings.
 app.use('/api/admin/pdf-themes', require('./src/routes/adminPdfThemes'));
-app.use('/api/admin/quotes',     require('./src/routes/adminQuotes'));
-// Quote catalogue + templates (#1451). Own prefix so its collection paths
-// never collide with /api/admin/quotes/:id.
-app.use('/api/admin/quote-catalog', require('./src/routes/adminQuoteCatalog'));
 app.use('/api/admin/invoices',   require('./src/routes/adminInvoices'));
-app.use('/api/admin/contracts',  require('./src/routes/adminContracts'));
-// Contract templates (#1445) — own prefix, behind the contracts flag.
-app.use('/api/admin/contract-templates', require('./src/routes/adminContractTemplates'));
-// The attachment library for contract templates and contracts (#1445).
-app.use('/api/admin/document-attachments', require('./src/routes/adminDocumentAttachments'));
 app.use('/api/admin/projects',   require('./src/routes/adminProjects'));
 app.use('/api/admin/calendar',   require('./src/routes/adminCalendar'));
 app.use('/api/admin/studio-threads', require('./src/routes/adminStudioThreads'));
@@ -980,17 +978,12 @@ app.use('/api/admin/ledger',     require('./src/routes/adminLedger'));
 // accounting flag (management stays under /ledger).
 app.use('/api/admin/vat-codes',  require('./src/routes/adminVatCodes'));
 app.use('/api/admin/system-health', require('./src/routes/adminSystemHealth'));
-app.use('/api/admin/dev',        require('./src/routes/adminDev'));
 app.use('/api/admin/transfers',  require('./src/routes/adminTransfers'));
 // Newsletter campaigns (#1264). Flag-gated inside the router.
 app.use('/api/admin/newsletters', require('./src/routes/adminNewsletters'));
-app.use('/api/public/quotes',  require('./src/routes/publicQuotes'));
 app.use('/api/public/calendar', require('./src/routes/publicCalendarFeed'));
 app.use('/api/public/video-galleries', require('./src/routes/publicVideoGalleries'));
 app.use('/api/public/invoices', require('./src/routes/publicInvoices'));
-app.use('/api/public/contracts', require('./src/routes/publicContracts'));
-// Signing with a link per signer and an emailed code (#1446).
-app.use('/api/public/contract-signing', require('./src/routes/publicContractSigning'));
 // PicTransfer (#997): recipient download + client upload, token-authenticated.
 app.use('/api/public/transfer', require('./src/routes/publicTransfer'));
 app.use('/api/public/transfer-upload', require('./src/routes/publicTransferUpload'));
@@ -1085,7 +1078,7 @@ try {
     }));
 
     // Landing page handler or SPA fallback
-    app.get('/', handlePublicSiteRequest, (req, res) => {
+    app.get('/', (req, res, next) => handlePublicSiteRequest(req, res, next, { fallbackToApp: true }), (req, res) => {
       sendSpa(res);
     });
 
@@ -1262,12 +1255,6 @@ async function startServerInternal() {
     }
     // Reminder ladder for open document requests (#1444).
     require('./src/services/customerDocumentRequestReminderService').startDocumentRequestReminders();
-    // Contract signing sweep (#1446): expire contracts whose time to sign has
-    // run out, and remove signing codes and sessions a month after they end.
-    require('./src/services/contract/expiry').startContractSigningSweep();
-    // Enumeration and replay signals on the public signing routes (#1446):
-    // flush the counts, check the thresholds, alert once per kind per hour.
-    require('./src/services/contract/signingSignals').startSigningSignals();
     // Custom-resolution download archives (#858) are disposable renditions —
     // sweep them once their TTL passes so .download-cache doesn't grow forever.
     // Best-effort, as before the scheduler refactor: a transient DB error on
