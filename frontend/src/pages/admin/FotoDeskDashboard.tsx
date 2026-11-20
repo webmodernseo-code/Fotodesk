@@ -1,11 +1,11 @@
-import React, { useId, useMemo } from "react";
+import React, { useMemo } from "react";
 import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Activity, ArrowRight, ArrowUpRight,
-  CalendarDays, Download, Eye,
+  Activity, ArrowRight, 
+  CalendarDays, Download, 
   ExternalLink, HardDrive, Image as ImageIcon,
-  MoreHorizontal, Plus, Settings2, Palette, Cloud, Globe, Video,
+  Briefcase, ChevronRight, MoreHorizontal, Plus, Receipt, Settings2, Palette, Cloud, Globe, Users, Video,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { adminService } from "../../services/admin.service";
@@ -29,27 +29,6 @@ export type DashboardProps = {
   onOpenActivity?: () => void;
   standalone?: boolean;
 };
-
-function Sparkline({ tone }: { tone: MetricTone }) {
-  const gradientId = useId();
-  const line = tone === "amber"
-    ? "M2 55 C18 56 22 40 34 42 S53 47 64 28 S84 33 96 18 S116 21 126 3"
-    : tone === "blue"
-    ? "M2 40 C17 28 22 51 36 43 S55 14 73 26 S96 31 106 13 S119 15 126 3"
-    : "M2 56 C19 52 25 36 39 40 S58 34 70 25 S91 31 103 15 S117 9 126 4";
-  return (
-    <svg className="fd-sparkline" viewBox="0 0 128 64" preserveAspectRatio="none" role="img" aria-label="Tendance croissante">
-      <defs>
-        <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="var(--spark)" stopOpacity=".28" />
-          <stop offset="100%" stopColor="var(--spark)" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <path d={`${line} L126 64 L2 64 Z`} fill={`url(#${gradientId})`} />
-      <path d={line} fill="none" stroke="var(--spark)" strokeWidth="2.4" strokeLinecap="round" />
-    </svg>
-  );
-}
 
 function PhotoQuotaRing({ percent }: { percent: number }) {
   const r = 20;
@@ -511,6 +490,66 @@ export const FotoDeskDashboard: React.FC<DashboardProps> = ({
               onClick={item.to ? () => navigate(item.to) : undefined}
             />
           ))}
+        </section>
+
+        {/* Actions rapides */}
+        <section className="mb-6" aria-label="Actions rapides">
+          <div className="mb-3">
+            <h2 className={`text-base font-bold tracking-tight ${isDark ? "text-white" : "text-gray-900"}`}>
+              Actions rapides
+            </h2>
+            <p className={`text-xs mt-0.5 ${isDark ? "text-neutral-400" : "text-gray-500"}`}>
+              Démarrez vos flux de travail les plus fréquents.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            {[
+              { label: "Ajouter un client", icon: Users, to: "/admin/clients/accounts" },
+              { label: "Créer un projet", icon: Briefcase, to: "/admin/clients/projects" },
+              { label: "Créer une galerie photo", icon: ImageIcon, to: "/admin/events/new" },
+              { label: "Créer une galerie vidéo", icon: Video, to: "/admin/video-galleries" },
+              { label: "Créer une facture", icon: Receipt, to: "/admin/factures/new" },
+            ].map((action) => {
+              const ActionIcon = action.icon;
+              return (
+                <button
+                  key={action.to}
+                  type="button"
+                  onClick={() => navigate(action.to)}
+                  className={`group flex items-center justify-between gap-3 px-3.5 py-3 rounded-xl border text-left transition-all cursor-pointer ${
+                    isDark
+                      ? "bg-[#141416] border-white/[0.08] hover:border-emerald-500/40 hover:bg-[#191A1E]"
+                      : "bg-white border-gray-200 hover:border-gray-300 shadow-2xs hover:shadow-xs"
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span
+                      className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+                        isDark
+                          ? "bg-white/[0.06] text-neutral-300 group-hover:bg-emerald-500/15 group-hover:text-emerald-400"
+                          : "bg-gray-100 text-gray-600 group-hover:bg-emerald-50 group-hover:text-emerald-600"
+                      }`}
+                    >
+                      <ActionIcon size={17} strokeWidth={1.8} />
+                    </span>
+                    <span
+                      className={`text-xs font-semibold leading-snug line-clamp-2 ${
+                        isDark ? "text-neutral-100" : "text-gray-900"
+                      }`}
+                    >
+                      {action.label}
+                    </span>
+                  </div>
+                  <ChevronRight
+                    size={15}
+                    className={`shrink-0 transition-transform group-hover:translate-x-0.5 ${
+                      isDark ? "text-neutral-500 group-hover:text-neutral-300" : "text-gray-400 group-hover:text-gray-600"
+                    }`}
+                  />
+                </button>
+              );
+            })}
+          </div>
         </section>
 
         {/* 2 Bottom Panels */}
