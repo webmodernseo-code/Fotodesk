@@ -110,8 +110,8 @@ export const fotodeskService = {
       const res = await api.get('/admin/subscription');
       return res.data;
     },
-    async upgrade(planId: 'pro_monthly' | 'pro_yearly') {
-      const res = await api.post('/admin/subscription/upgrade', { planId });
+    async createCheckout(planId: 'pro_monthly') {
+      const res = await api.post('/admin/subscription/checkout', { planId });
       return res.data;
     },
   },
