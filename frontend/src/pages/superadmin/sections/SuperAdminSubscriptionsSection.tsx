@@ -8,7 +8,6 @@ import {
   ChevronLeft,
   ChevronRight,
   CreditCard,
-  Download,
   Search,
 } from 'lucide-react';
 
@@ -166,12 +165,7 @@ export const SuperAdminSubscriptionsSection: React.FC<Props> = ({
   const [statusFilter, setStatusFilter] = useState<'all' | SubStatus>('all');
   const [cycleFilter, setCycleFilter] = useState<'all' | BillingCycle>('all');
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'studio'>('newest');
-  const [toast, setToast] = useState<string | null>(null);
-
-  const showToast = (msg: string) => {
-    setToast(msg);
-    window.setTimeout(() => setToast(null), 3500);
-  };
+  const [toast] = useState<string | null>(null);
 
   const selectedSub = useMemo(
     () => INITIAL_SUBS.find((s) => s.id === selectedId) ?? null,

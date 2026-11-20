@@ -67,12 +67,11 @@ export const ProjectsListPage: React.FC = () => {
       }),
   });
 
-  const { data: customersData } = useQuery({
+  const { data: customers = [] } = useQuery({
     queryKey: ['admin-customers-picker'],
-    queryFn: () => customerAdminService.list({ limit: 100 }),
+    queryFn: () => customerAdminService.list(),
     staleTime: 60_000,
   });
-  const customers = customersData?.customers ?? [];
 
   // Create / Edit Modal state
   const [editorOpen, setEditorOpen] = useState(false);
@@ -421,7 +420,7 @@ export const ProjectsListPage: React.FC = () => {
                   <option value="">{t('projects.noCustomer', 'Aucun client associé')}</option>
                   {customers.map((c) => (
                     <option key={c.id} value={String(c.id)}>
-                      {c.display_name || c.email} ({c.email})
+                      {c.displayName || c.email} ({c.email})
                     </option>
                   ))}
                 </select>

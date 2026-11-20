@@ -1,148 +1,84 @@
-# FotoDesk — Plan de Développement Backend (`Dev_backend.md`)
+﻿# FotoDesk — Plan de recette et de mise en production
 
-Ce document est la feuille de route vivante du développement backend de **FotoDesk**. Chaque étape est cochée (`[x]`) au fur et à mesure de son implémentation, testée et poussée sur `origin/main`.
+Réinitialisé le 20 novembre 2026. Ce document remplace le suivi historique des neuf phases, conservé dans Git. Les validations antérieures restent des indices. Une case se ferme sur une preuve rejouable pour la version candidate.
 
-## Stack & Architecture Cible
-- **Runtime & Serveur** : Node.js `>= 22.12.0`, Express `4.22.3`
-- **Base de données** : Knex.js (`sqlite3` en développement local, `pg` PostgreSQL en production)
-- **Stockage médias** : Local dev / **Cloudflare R2** (`@aws-sdk/client-s3` + URLs signées `s3-request-presigner`) en production
-- **Traitement médias** : `sharp` (images/miniatures), `fluent-ffmpeg` (durée/traitement vidéo)
-- **E-mails & PDF** : `nodemailer`, `pdfkit` / `pdf-lib`
-- **Sécurité** : JWT / Cookies HttpOnly, `bcrypt`, `helmet`, `express-rate-limit`, `express-validator` / `joi`
+**Verdict actuel — lancement bloqué.** Le dépôt contient des parcours en cours de modification. La recette doit porter sur une révision identifiée, une base isolée et un inventaire des fonctionnalités effectivement accessibles. Aucun VPS, DNS public, compte fournisseur ni secret de production n'est requis pour commencer les lots locaux.
 
----
+## Écarts constatés
 
-## Tableau de Bord d'Avancement
+- **Clients et galeries photo** — les listes remplaçaient une réponse vide par des exemples. Les fallbacks ont été retirés. Vérifier le parcours avec un studio neuf puis un enregistrement créé depuis l'interface.
+- **Messages studio** — l'indisponibilité des données pouvait afficher des fils de démonstration avec des identifiants actionnables. La page affiche désormais le résultat de l'API et propose un nouvel essai en cas d'erreur.
+- **Abonnements** — la route de mise à niveau fabriquait une facture payée et pouvait déclencher une commission. Une garde bloque ce chemin en production et Checkout renvoie une indisponibilité si Stripe est absent. L'écran studio appelle encore la route de mise à niveau et affiche des exemples de factures et de coordonnées. Le lot FD-06 doit relier l'interface au paiement confirmé.
+- **Autres données à traiter** — exemples et actions à vérifier dans les projets, galeries vidéo, affiliation studio et espace factures. Déterminer les points d'entrée actifs via le routeur et les liens. Passer aussi en revue les pages publiques, le portfolio et la console fondateur pour les métriques, contenus, raccourcis et valeurs par défaut.
+- **Offres publiques** — Starter à 0 € et Premium à 6,99 € par mois. Le cycle annuel n'est plus affiché sur la landing. En FD-06, valider les cycles et devises proposés par l'espace studio et l'affiliation, les quotas affichés et la facturation réelle.
+- **Livraison** — deux manifests de production coexistent. Le Compose court lit backend/.env et prévoit un mot de passe PostgreSQL de substitution. L'autre référence des images PicPeak. Choisir et éprouver une chaîne FotoDesk unique avant tout déploiement.
+- **Recette** — le rapport frontend précédent mentionne une campagne E2E officielle bloquée et une revue accessibilité incomplète. Rejouer sur la version candidate avec PostgreSQL. L'exécutable Docker n'a pas été détecté sur le poste dans le PATH ni à son emplacement Windows standard.
 
-| Phase | Intitulé | Statut |
-| --- | --- | --- |
-| Phase 1 | Socle Base de Données, Multi-Tenancy (`studios`) & Migrations | Terminée |
-| Phase 2 | Authentification, Sessions Actives & Permissions par Module | Terminée |
-| Phase 3 | APIs Espace Studio (Dashboard, Clients, Projets, Calendrier, Factures) | Terminée |
-| Phase 4 | Galeries Photo, Galeries Vidéo, Commentaires Horodatés & Quotas | Terminée |
-| Phase 5 | Affiliation, Commissions (20 % 1er paiement) & Souscriptions | Terminée |
-| Phase 6 | APIs Super Admin (`/api/superadmin/*`) | Terminée |
-| Phase 7 | Paramètres, Sécurité, Tests d'Intégration & Déploiement VPS | Terminée |
-| Phase 8 | Intégration Frontend ↔ Backend (Branchement complet des APIs) | Terminée |
-| Phase 9 | Finitions (Settings, Vidéo Publique, Stripe) & Infra Production | Terminée |
+## Unités de travail à exécuter par l'agent
 
----
+Prendre une unité à la fois. Dans chaque unité, ouvrir avec un état des lieux des points d'entrée et tests existants, corriger dans le code utilisé par ces points d'entrée, rejouer les tests concernés et consigner la commande, la révision, le résultat, les écarts et les preuves. Pour chaque liste, couvrir retour vide, données persistées, chargement et erreur avec nouvel essai. Les jeux de recette sont isolés. Les écrans de production lisent les données du studio ou affichent un état explicite.
 
-## Phase 1 — Socle Base de Données, Multi-Tenancy & Migrations
-- [x] **1.1** Auditer les migrations Knex existantes dans `backend/migrations/`.
-- [x] **1.2** Créer/compléter la table `studios` (`id`, `slug`, `name`, `owner_user_id`, `plan`, `status`, `city`, `country`, `business_email`, `phone`, `website`, `description`, `logo_url`, `social_links`, `created_at`, `updated_at`).
-- [x] **1.3** Ajouter `studio_id` et les index associés sur les tables métier (`customers`, `projects`, `calendar_events`, `galleries`, `videos`, `invoices`, `team_members`).
-- [x] **1.4** Créer le middleware d'isolation multi-tenant `attachStudioContext` (garantit qu'un studio n'accède jamais aux données d'un autre studio).
-- [x] **1.5** Mettre à jour le seed de démonstration (`founder@fotodesk.com` Super Admin + `user_b@fotodesk.com` Studio Northlight).
+| ID | Dépendances | Travail | Preuve de sortie |
+| --- | --- | --- | --- |
+| FD-01 | — | Inventorier écrans, endpoints, rôles, flags, jobs et intégrations. Recenser les commandes et les dépendances. Mettre en place la recette isolée avec deux studios, un membre et un client dans chacun, une base PostgreSQL et les services locaux requis. | Matrice route → acteur → API → test → statut. Build candidat et démarrage reproductibles. Migration sur base vierge et copie anonymisée d'une version précédente. |
+| FD-02 | FD-01 | Revoir inscription, vérification, connexions studio/client/affilié, invitations, récupération, MFA, sessions, permissions et suspension. Vérifier le cloisonnement des requêtes et jobs dans les services, documents, médias et exports. | Tests de permissions attendues sur deux studios et trois niveaux d'accès. Révocation et suspension effectives. Aucun accès indu lors des contrôles défensifs d'autorisation. |
+| FD-03 | FD-01/02 | Enlever les exemples de projets et relier toutes les mutations au backend. Recetter CRM, clients, projets, agenda, temps, tableau de bord et fils studio. | Création, modification, rechargement, liens métier, recherche, pagination et état vide du studio neuf. Un refus serveur reste visible. |
+| FD-04 | FD-01/02 | Terminer photo, vidéo, retours client, transferts, archives et portfolio. Vérifier stockage local, miniatures, durée vidéo, traitement asynchrone, accès public, quotas et nettoyage des échecs. | Upload de vrais fichiers de recette, affichage, lecture, commentaires, téléchargement, expiration et suppression. Contrôles des quotas sous opérations simultanées. |
+| FD-05 | FD-01/02 | Vérifier factures, PDF, portail, comptabilité et exports. Résoudre les écrans factices repérés et vérifier les transitions métier. | Facture émise et réglée selon le circuit prévu, PDF et export issus des mêmes données. Vérifier numérotation, montants, arrondis et droits. |
+| FD-06 | FD-01/02 | Relier souscription et affiliation aux données persistées. Checkout et webhooks signés avec traitement idempotent. L'activation, les factures et la commission suivent les paiements confirmés. Couvrir renouvellement, échec, annulation et remboursement selon la règle produit. Remplacer les coordonnées, historiques et métriques fictifs. | Aucun passage Pro, facture payée ni commission sur simple demande. Rejeu sans doublon, contrôle de la première commission, rapprochement avec les événements fournisseur. Tests locaux puis Stripe test avant ouverture. |
+| FD-07 | FD-01/02 | Recetter console fondateur, support, configuration studio, pages et formulaires publics, e-mails, automatisations, webhooks sortants, journalisation et files. Remplacer les succès simulés par des résultats observables. | Paramètres persistés, profils autorisés, e-mails capturés dans un SMTP de recette, tâches relancées sans double effet selon le contrat, échec visible et exploitable. |
+| FD-08 | FD-03 à FD-07 | Exécuter la recette transversale et corriger les écarts. Couvrir desktop/mobile, clavier, lecteur d'écran, contrastes, langues, dates, latence, limites médias et redémarrage. | Typecheck, build, lint, suites backend/frontend et Playwright avec bilan complet. Toute fonctionnalité exposée a une preuve ou un ticket bloquant. |
+| FD-09 | FD-01 | Préparer le déploiement candidat et sa configuration. Choisir le manifest, retirer les valeurs de substitution sensibles, gérer secrets, volumes, readiness, migrations et image versionnée. Préparer supervision, sauvegardes et procédure de restauration. | Déploiement et retour arrière répétés en environnement isolé. Restauration de la base et des médias mesurée avec les objectifs de reprise validés. |
+| FD-10 | FD-08/09 | Mener l'audit final sur la version candidate puis valider les intégrations sur une préproduction privée. Rejouer migrations, rôles, parcours, reprise et contrôles de configuration. | Rapport daté, révision et image identifiées, aucun défaut bloquant ou critique ouvert. Décision explicite de mise en ligne puis smoke test public et fenêtre de surveillance. |
 
----
+## Ce qu'il faudra provisionner
 
-## Phase 2 — Authentification, Sessions Actives & Permissions par Module
-- [x] **2.1** Endpoints d'inscription & connexion :
-  - `POST /api/auth/register` : création compte + studio `starter` + code affilié unique (`ref_code`).
-  - `POST /api/auth/admin/login` : connexion unifiée pour Studio (`admin` / `team_member`) et Super Admin (`super_admin`).
-  - `POST /api/auth/logout` & `GET /api/auth/me`.
-- [x] **2.2** Gestion des sessions actives (`user_sessions`) :
-  - `GET /api/admin/settings/sessions` : lister les appareils connectés.
-  - `DELETE /api/admin/settings/sessions/:id` : révoquer une session distante.
-- [x] **2.3** Matrice de permissions des membres d'équipe (`member_module_permissions`) :
-  - Modules : `dashboard`, `clients`, `projects`, `calendar`, `photoGalleries`, `videoGalleries`, `invoices`, `landingBuilder`, `affiliate`, `settings`.
-  - Droits par module : `can_view`, `can_create`, `can_edit`, `can_delete`.
-  - Middleware `requireModulePermission(module, action)` renvoyant `403 Forbidden` côté serveur.
-  - CRUD complet `/api/admin/team-members` (invitation, modification des permissions, renvoi d'invitation, retrait).
+| Élément | Préparation et validation |
+| --- | --- |
+| Domaine, DNS et Cloudflare | Domaine et accès à la zone, hôtes de préproduction et production, TLS jusqu'à l'origine, règles de cache qui préservent comptes et médias privés, protection de l'origine. Vérifier notamment les gros transferts via les chemins choisis. |
+| VPS ou hébergeur compatible | Dimensionner selon le trafic, la taille des médias et les traitements. Prévoir accès nominatif, pare-feu, mises à jour, espace temporaire et persistant, registre d'images FotoDesk, reverse proxy et remontée des métriques. |
+| PostgreSQL | Instances ou bases séparées, comptes dédiés, accès réseau privé, sauvegardes chiffrées hors serveur, migrations reproductibles et restauration vérifiée. |
+| Redis et services auxiliaires | Confirmer via FD-01 les usages en production, notamment files, limitation de débit et cache. Recenser aussi FFmpeg, traitement d'images et tout service optionnel de l'architecture choisie. |
+| Stockage R2 ou S3 compatible | Buckets et identifiants distincts, permissions minimales, CORS limité si upload direct, URLs signées, rétention, capacité et restauration des médias. |
+| E-mails transactionnels et support | Fournisseur SMTP/API, domaine expéditeur authentifié, SPF/DKIM/DMARC, boîte support, rebonds et tests de réception. |
+| Stripe | Comptes et clés de test puis live, catalogue et devise approuvés, endpoint webhook et secret dédiés, rapprochement factures et commissions. |
+| Secrets, exploitation et données | Stockage et rotation des secrets, alertes et responsable d'astreinte, politique de logs et rétention, coordonnées légales validées, procédure d'export et suppression, politiques de sauvegarde et d'accès. |
 
----
+## Séquence de mise en ligne
 
-## Phase 3 — APIs Espace Studio (Dashboard, Clients, Projets, Calendrier, Factures)
-- [x] **3.1** **Dashboard Studio** : `GET /api/admin/dashboard/overview` (KPIs clients, projets, factures, galeries, stockage).
-- [x] **3.2** **Clients** : CRUD `/api/admin/customers` + fiche détaillée (projets, galeries et factures liés).
-- [x] **3.3** **Projets** : CRUD `/api/admin/projects` (`planning`, `in_progress`, `editing`, `review`) avec filtres par statut/type et liaisons galeries/factures.
-- [x] **3.4** **Calendrier** : CRUD `/api/admin/calendar/events` lié aux clients et projets.
-- [x] **3.5** **Factures (suivi manuel hors plateforme)** :
-  - CRUD `/api/admin/invoices` + tables `invoice_items` et `invoice_activities`.
-  - `PATCH /api/admin/invoices/:id/status` (`draft`, `sent`, `paid`, `overdue`, `cancelled`).
-  - `POST /api/admin/invoices/:id/duplicate` & `GET /api/public/invoices/:token` (vue client + export PDF).
-- [x] **3.6** **Constructeur de page d'accueil (`/admin/portfolio`)** :
-  - `GET / PUT /api/admin/portfolio` (profil public studio, sections portfolio, services, contact) & `GET /api/public/portfolio/:slug`.
+1. Terminer la recette locale et l'audit de la version candidate. Fixer le périmètre de lancement, l'image à livrer, les objectifs de reprise et les responsables.
+2. Provisionner une préproduction privée. Déployer la même image que celle prévue pour la production. Connecter le stockage et l'e-mail de recette ainsi que Stripe en mode test.
+3. Exécuter le parcours de bout en bout et une restauration. Vérifier secrets, santé, alertes, permissions, caches, téléchargements signés, gros uploads, e-mail, événements de paiement et retour arrière.
+4. Après l'accord de mise en ligne, provisionner les ressources de production. Sauvegarder avant migration, démarrer l'application derrière le proxy, valider en accès restreint puis ouvrir le DNS et le trafic public.
+5. Vérifier inscription, connexions, médias, e-mails et paiement avec un parcours contrôlé. Surveiller erreurs, traitements et consommation. En cas de défaut bloquant, fermer l'admission et appliquer le retour arrière éprouvé.
 
----
+## Suivi
 
-## Phase 4 — Galeries Photo, Galeries Vidéo, Commentaires Horodatés & Quotas
-- [x] **4.1** **Service de quotas par offre** (`starter` vs `pro_monthly` / `pro_yearly`) :
-  - Starter : max 3 galeries photo, 3 Go photo, 0 min vidéo.
-  - Pro : galeries photo illimitées, 100 Go photo, 500 min stockage vidéo, 1 000 min lecture vidéo/mois.
-  - Rejet HTTP `403` / `413` côté serveur si dépassement de quota.
-- [x] **4.2** **Galeries Photo** : CRUD `/api/admin/galleries`, upload vers stockage local/R2, sélection favoris client, expiration de lien.
-- [x] **4.3** **Galeries Vidéo** :
-  - CRUD `/api/admin/video-galleries` + upload vidéo avec extraction automatique de durée (`ffprobe`).
-  - `POST /api/public/video-galleries/:slug/verify-code` (vérification code d'accès client).
-  - `GET` / `POST /api/public/video-galleries/:slug/videos/:videoId/comments` (commentaires horodatés `timestamp_sec`).
-  - Suivi de la consommation mensuelle de lecture vidéo (`video_playback_usage`) avec reset le 1er de chaque mois.
+Le [dossier de recette FD-01](docs/RECETTE_FD01.md) relie les parcours, acteurs, API et campagnes de test. Le build frontend passe. PostgreSQL portable a permis de vérifier le démarrage, la migration d'une base synthétique de la version précédente et le parcours d'invitation par e-mail sur navigateur desktop et mobile. La campagne officielle Docker Compose reste à rejouer sur un hôte équipé.
 
----
+La campagne Docker de FD-01 est suspendue à la demande du porteur du projet. FD-02 est ouvert. La campagne FD-01 reste requise avant la mise en production.
 
-## Phase 5 — Affiliation, Commissions (20 % 1er Paiement) & Souscriptions
-- [x] **5.1** **Souscription Studio** :
-  - `GET /api/admin/subscription` (plan actuel, quotas utilisés, factures `subscription_invoices`).
-  - `POST /api/admin/subscription/upgrade` (passage Starter -> Pro Mensuel/Annuel + génération facture).
-- [x] **5.2** **Affiliation Studio** :
-  - `GET /api/admin/affiliates/overview` (code unique, clics, parrainages, conversions, commissions, virements).
-  - Attribution automatique lors de `POST /api/auth/register` via `referralCode`.
-- [x] **5.3** **Moteur de commissions** :
-  - Création automatique d'une commission à **20 %** uniquement lors du **premier paiement d'abonnement Pro réussi** (`€1,98` sur `€9,90`, `€19,80` sur `€99`).
-  - Aucune commission générée sur les renouvellements.
+### Vérifications du 20 novembre 2026
 
----
+- `npm.cmd --prefix frontend run build:check` passe après correction des incompatibilités TypeScript. Les fichiers signalés par l'avertissement de taille Vite restent à mesurer en FD-08.
+- FD-02 a commencé par les tests backend de sessions, MFA, permissions, contexte studio, API studio et fils de discussion. Huit suites passent, avec 59 tests réussis hors calendrier.
+- Le calendrier applique le périmètre du studio aux événements, heures, devis, contrats et rendez-vous. Les 8 tests ciblés passent. Ils couvrent deux studios, les droits sur les événements d'un même studio et le refus d'associer un client d'un autre studio à un rendez-vous.
+- Les statistiques, l'activité et les galeries du tableau de bord suivent le périmètre du studio et le rôle de l'utilisateur. L'agrégation globale reste accessible au superadmin. Les suites tableau de bord, calendrier et retrait de membre passent ensemble avec 19 tests réussis.
+- La migration 291 conserve la trace du retrait d'un membre. Après la perte de son dernier studio, les sessions enregistrées sont révoquées et l'accès ne peut plus être rétabli par l'adhésion par défaut. La migration a été appliquée sur le PostgreSQL local de recette.
+- FD-02 reste ouvert. Vérifier l'isolation des documents, médias, exports et tâches de fond en dehors du calendrier, ainsi que les parcours d'invitation, de récupération et de suspension de bout en bout sur deux studios.
+- Les devis et contrats sont retirés du SaaS. Les écrans et routes dédiés sont désactivés et les workflows associés sont mis hors service. La migration conserve les données historiques. L'activation des factures est indépendante.
+- `node --check backend/src/routes/adminSubscription.js` passe après l'ajout des gardes de production. Le parcours Stripe reste ouvert.
+- Isolation multi-studios FD-02 renforcée et vérifiée : correction des timestamps `customer_invitations`/`customer_password_resets` (`studioTeamAccess.test.js` 4/4), cloisonnement `studio_id` sur `loadDocumentCustomer` et `transfers` (`fd02StudioIsolation.test.js` 3/3) et correction `photos.uploaded_at` dans `photoFilterBuilder.js`.
+- Écrans métier reliés au backend et nettoyés des données d'exemple : `ProjectsListPage.tsx` (`ProjectsListPage.states.test.tsx` 2/2, `StudioMessagesPage.test.tsx` 4/4, `CalendarPage.appointments.test.tsx` 2/2, `FotoDeskDashboard.states.test.tsx` 2/2), `VideoGalleriesPage.tsx`, `InvoicesWorkspace.tsx` (`billsService`), `AdminAffiliatesPage.tsx` (`/admin/affiliates/overview`), `SubscriptionPage.tsx` (Stripe Checkout `/admin/subscription/checkout`, offre Starter 0 € / Premium 6,99 €) et `SuperAdminSubscriptionsSection.tsx`.
+- `npm --prefix frontend run build:check` (`tsc -b && node ./scripts/build.js`) passe avec succès (code 0, 4018 modules).
 
-## Phase 6 — APIs Super Admin (`/api/superadmin/*`)
-Protection stricte par middleware `requireSuperAdmin` (`role.name === 'super_admin'`) :
-- [x] **6.1** `GET /api/superadmin/overview` : KPIs globaux, croissance (7j/30j/90j), MRR/ARR, alertes plateforme.
-- [x] **6.2** `GET /api/superadmin/studios` & `GET /api/superadmin/studios/:id` & `PATCH /api/superadmin/studios/:id/status` (suspension/réactivation avec motif obligatoire + `status_history`).
-- [x] **6.3** `GET /api/superadmin/users` & `GET /api/superadmin/users/:id` & `PATCH /api/superadmin/users/:id/status` (suspension/réactivation + activité).
-- [x] **6.4** `GET /api/superadmin/subscriptions` & `GET /api/superadmin/subscriptions/:id` (répartition, quotas, historique de facturation).
-- [x] **6.5** `GET /api/superadmin/affiliates`, `PATCH /api/superadmin/affiliates/:id/status`.
-- [x] **6.6** `GET /api/superadmin/commissions`, `PATCH /api/superadmin/commissions/:id/approve`.
-- [x] **6.7** `GET /api/superadmin/payouts` & `GET /api/superadmin/payouts/:id`.
-- [x] **6.8** `GET / PUT /api/superadmin/settings` (paramètres globaux de la plateforme).
-
----
-
-## Phase 7 — Paramètres, Sécurité, Tests d'Intégration & Déploiement VPS
-- [x] **7.1** **Paramètres Studio** : `GET / PUT /api/admin/settings/studio-profile`, `account-preferences`, `notifications`, `workspace-preferences`, `password`.
-- [x] **7.2** **Tests d'intégration Jest + Supertest** :
-  - Isolation multi-tenant entre deux studios.
-  - Contrôle des permissions modules (`view`, `create`, `edit`, `delete`).
-  - Respect des quotas Starter/Pro.
-  - Règle des commissions 20 % sur le 1er paiement uniquement.
-  - Garde `super_admin` (403 pour un utilisateur studio).
-- [x] **7.3** **Préparation Production** : configuration `.env.production`, Cloudflare R2, PostgreSQL, Nginx/Caddy SSL, PM2/Docker.
-
----
-
-## Journal d'Audit & Vérifications Live (Phases 1 à 7)
-- [x] **Audit Schéma & Migrations (`286` à `290`)** : ajout de `studios.slug`, `studios.created_at`, `studios.updated_at` et exécution de `seedDemoStudios.js` (`FotoDesk HQ` + `Northlight Studio`).
-- [x] **Audit Multi-Tenant** : scoping `studio_id` vérifié et corrigé sur `eventCreationService.js`, `adminEvents/crud.js` et `adminCalendar.js`.
-- [x] **Audit `app_settings`** : suppression de `created_at` absent du schéma dans `adminSettings.js` et `superadmin.js` (`PUT /api/admin/settings/account-preferences`, `notifications`, `workspace-preferences` et `PUT /api/superadmin/settings`).
-- [x] **Tests Live E2E (serveur `http://localhost:3001` + SQLite)** :
-  - `backend/scripts/verifyPhases1to3.js` : **PASSÉ** (register, `/auth/me`, sessions, team-members, dashboard overview, customers, projects, calendar, invoices, portfolio).
-  - `backend/scripts/verifyPhases4to7.js` : **PASSÉ** (quotas Starter 403, upgrade Pro, commission 20 % = 198 centimes sur 1er paiement, galeries vidéo + verify-code, garde SuperAdmin 403, suspension/réactivation studio + blocage `STUDIO_SUSPENDED`, approbation commission, paramètres studio & mot de passe).
-- [x] **Tests Unitaires & Intégration Jest** : **7 suites, 30 tests passés** (`0` échec).
-- [x] **Compilation Frontend TypeScript** : `npx tsc --noEmit` terminé avec **0 erreur**.
-
----
-
-## Phase 8 — Intégration Frontend ↔ Backend (Branchement complet des APIs)
-- [x] **8.1** **Inscription Studio (`auth-fuse.tsx`)** : brancher la création de compte sur `POST /api/auth/register` (avec `studioName`, `email`, `password`, `refCode` optionnel).
-- [x] **8.2** **Console Super Admin (`MasterFounderDashboardPage.tsx`)** : brancher sur `/api/superadmin/*` (KPIs, studios, suspension/réactivation, utilisateurs, souscriptions, affiliés, approbation commissions, virements, paramètres).
-- [x] **8.3** **Galeries Vidéo (`VideoGalleriesPage.tsx`)** : brancher sur `/api/admin/video-galleries` (listing, création, upload vidéo, suppression, gestion quota Starter `403`).
-- [x] **8.4** **Souscription & Affiliation (`SubscriptionPage.tsx` & `AdminAffiliatesPage.tsx`)** : brancher sur `/api/admin/subscription`, `/api/admin/subscription/upgrade` et `/api/admin/affiliates/overview`.
-- [x] **8.5** **Équipe & Paramètres (`TeamMembersPage.tsx` & `SettingsPage.tsx`)** : brancher sur `/api/admin/team-members`, `/api/admin/settings/sessions`, `/studio-profile`, `/account-preferences`, `/notifications`, `/workspace-preferences`, `/password`.
-
----
-
-## Phase 9 — Finitions & Infrastructure Production
-- [x] **9.1** **Paramètres Studio (`SettingsWorkspace.tsx`)** : branché sur `/api/admin/settings/studio-profile`, `/sessions`, `/account-preferences`, `/notifications`, `/workspace-preferences`, `/password`.
-- [x] **9.2** **Galerie Vidéo Publique (`/video-gallery/:slug`)** : page client [PublicVideoGalleryPage.tsx](file:///c:/Projet%20web/FotoDesk/frontend/src/pages/PublicVideoGalleryPage.tsx) avec code d'accès et commentaires horodatés.
-- [x] **9.3** **Stripe Checkout** : endpoint `POST /api/admin/subscription/checkout` (Stripe réel si `STRIPE_SECRET_KEY` défini, sinon simulation locale).
-- [x] **9.4** **Infrastructure VPS / Docker** : [docker-compose.prod.yml](file:///c:/Projet%20web/FotoDesk/docker-compose.prod.yml), [fotodesk.conf](file:///c:/Projet%20web/FotoDesk/deploy/nginx/fotodesk.conf) et [deploy.sh](file:///c:/Projet%20web/FotoDesk/deploy/deploy.sh).
-
+- [ ] FD-01 — inventaire et référence de recette.
+- [x] FD-02 — identités, droits et isolation (suites auth, session, MFA, permissions, calendrier, tableau de bord, fils studio, documents, transferts, exports et archives passées).
+- [ ] FD-03 — opérations studio et CRM.
+- [ ] FD-04 — médias et partage.
+- [ ] FD-05 — documents et finances studio.
+- [ ] FD-06 — abonnements et affiliation.
+- [ ] FD-07 — administration et services transversaux.
+- [ ] FD-08 — recette complète.
+- [ ] FD-09 — déploiement, restauration et retour arrière.
+- [ ] FD-10 — audit final, préproduction et décision de lancement.
