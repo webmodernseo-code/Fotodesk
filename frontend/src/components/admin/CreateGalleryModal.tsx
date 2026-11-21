@@ -33,12 +33,8 @@ export const CreateGalleryModal: React.FC<CreateGalleryModalProps> = ({
   const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  let flags: Record<string, boolean> = {};
-  try {
-    flags = useFeatureFlags().flags as unknown as Record<string, boolean>;
-  } catch {
-    flags = {};
-  }
+  const { flags: rawFlags } = useFeatureFlags();
+  const flags = (rawFlags ?? {}) as unknown as Record<string, boolean>;
   const { hasPermission } = usePermissions();
 
   const [eventName, setEventName] = useState('');

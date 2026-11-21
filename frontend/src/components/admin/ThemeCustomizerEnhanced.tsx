@@ -269,7 +269,7 @@ export const ThemeCustomizerEnhanced: React.FC<ThemeCustomizerEnhancedProps> = (
               onClick={() => setSectionTab(tab.key)}
               className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
                 isActive
-                  ? 'bg-white text-neutral-950 border border-neutral-200/80 shadow-2xs dark:bg-neutral-800 dark:text-white dark:border-white/10'
+                  ? 'bg-panel text-neutral-950 border border-neutral-200/80 shadow-2xs dark:text-white dark:border-white/10'
                   : 'text-muted hover:text-heading hover:bg-hover/70 border border-transparent'
               }`}
             >

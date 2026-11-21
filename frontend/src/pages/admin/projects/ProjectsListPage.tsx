@@ -295,7 +295,7 @@ export const ProjectsListPage: React.FC = () => {
                   </Link>
                   <span
                     className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium ${project.status === 'archived'
-                        ? 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300'
+                        ? 'bg-subtle text-body'
                         : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300'
                       }`}
                   >

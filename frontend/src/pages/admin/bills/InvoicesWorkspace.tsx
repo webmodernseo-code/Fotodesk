@@ -51,13 +51,13 @@ function statusBadge(inv: InvoiceSummary): { label: string; cls: string } {
   if (inv.kind === 'storno') {
     return {
       label: 'Avoir',
-      cls: 'bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300',
+      cls: 'bg-subtle text-body',
     };
   }
   if (isDraftInvoice(inv)) {
     return {
       label: 'Brouillon',
-      cls: 'bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300',
+      cls: 'bg-subtle text-body',
     };
   }
   switch (inv.status) {
@@ -89,12 +89,12 @@ function statusBadge(inv: InvoiceSummary): { label: string; cls: string } {
     case 'cancelled':
       return {
         label: 'Annulée',
-        cls: 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400',
+        cls: 'bg-subtle text-muted',
       };
     default:
       return {
         label: inv.status,
-        cls: 'bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300',
+        cls: 'bg-subtle text-body',
       };
   }
 }

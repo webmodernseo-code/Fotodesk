@@ -117,7 +117,7 @@ export const SettingsBusinessProfilePage: React.FC = () => {
               onClick={() => setActiveTab(tab.key)}
               className={`inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-semibold transition-all cursor-pointer ${
                 isActive
-                  ? 'bg-white text-neutral-950 border border-neutral-200/80 shadow-xs dark:bg-neutral-800 dark:text-white dark:border-white/10'
+                  ? 'bg-panel text-neutral-950 border border-neutral-200/80 shadow-xs dark:text-white dark:border-white/10'
                   : 'text-muted hover:text-heading hover:bg-hover/70 border border-transparent'
               }`}
             >
@@ -563,83 +563,6 @@ const BusinessHoursEditor: React.FC<{
   );
 };
 
-/**
- * Dedicated PDF letterhead logo uploader. Accepts PNG / JPEG / SVG;
- * the backend rasterises SVG to PNG via sharp so vector uploads work
- * in print. Stores the relative path on business_profile.logo_path.
- */
-interface PdfLogoUploaderProps {
-  profile: BusinessProfile;
-  setProfile: (next: BusinessProfile) => void;
-}
-const PdfLogoUploader: React.FC<PdfLogoUploaderProps> = ({ profile, setProfile }) => {
-  const { t } = useTranslation();
-  const qc = useQueryClient();
-  const [uploading, setUploading] = useState(false);
-  const inputRef = React.useRef<HTMLInputElement>(null);
-
-  const onPick = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    try {
-      const { logoPath } = await businessProfileService.uploadLogo(file);
-      setProfile({ ...profile, logoPath });
-      qc.invalidateQueries({ queryKey: ['business-profile'] });
-      toast.success(t('businessProfile.logoUploadedToast', 'PDF logo uploaded.'));
-    } catch (err: any) {
-      toast.error(err?.response?.data?.error || 'Upload failed');
-    } finally {
-      setUploading(false);
-      if (inputRef.current) inputRef.current.value = '';
-    }
-  };
-
-  const onClear = async () => {
-    if (!window.confirm(t('businessProfile.logoConfirmClear', 'Remove the PDF logo? The renderer will fall back to the Branding logo if one is set.'))) return;
-    setUploading(true);
-    try {
-      await businessProfileService.clearLogo();
-      setProfile({ ...profile, logoPath: '' });
-      qc.invalidateQueries({ queryKey: ['business-profile'] });
-      toast.success(t('businessProfile.logoClearedToast', 'PDF logo removed.'));
-    } catch (err: any) {
-      toast.error(err?.response?.data?.error || 'Clear failed');
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  return (
-    <div>
-      <label className="block text-sm font-medium text-body mb-1">
-        {t('businessProfile.field.pdfLogoUpload', 'PDF letterhead logo (PNG, JPEG, or SVG)')}
-      </label>
-      <div className="flex items-center gap-3 flex-wrap">
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/png,image/jpeg,image/svg+xml"
-          onChange={onPick}
-          disabled={uploading}
-          className="text-sm file:mr-3 file:rounded-md file:border-0 file:bg-primary-600 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white hover:file:bg-primary-700 disabled:opacity-60"
-        />
-        {profile.logoPath && (
-          <>
-            <span className="text-xs text-neutral-500 font-mono break-all">{profile.logoPath}</span>
-            <Button variant="outline" size="sm" onClick={onClear} disabled={uploading}>
-              {t('common.remove', 'Remove')}
-            </Button>
-          </>
-        )}
-      </div>
-      <p className="text-xs text-neutral-500 mt-1">
-        {t('businessProfile.field.pdfLogoUploadHelp',
-          'Used on every quote and invoice PDF. SVG is accepted and rasterised to PNG automatically. When empty, the renderer falls back to the global Branding logo.')}
-      </p>
-    </div>
-  );
-};
 
 interface BankAccountsSectionProps { accounts: BankAccount[] }
 
