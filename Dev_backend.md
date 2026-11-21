@@ -88,4 +88,13 @@ La campagne Docker de FD-01 est suspendue à la demande du porteur du projet. FD
 - [x] FD-07 — administration et services transversaux (console fondateur, paramètres studio, pages publiques/CMS, e-mails, files d'attente, automatisations et webhooks sortants vérifiés).
 - [x] FD-08 — recette complète (`build:check` 0 erreur, `eslint` frontend 0 erreur, `vitest` 1510/1600 passés ; écarts résiduels `lint:design-system`, `eslint` backend et E2E Playwright consignés).
 - [x] FD-09 — déploiement, restauration et retour arrière (`docker-compose.prod.yml` durci, `deploy/deploy.sh` avec pré-sauvegarde & rollback, suites env/backup/intégrité passées ; rejeu Docker sur hôte équipé requis).
-- [ ] FD-10 — audit final, préproduction et décision de lancement.
+- [x] FD-10 — audit final, préproduction et décision de lancement (bilan daté consigné ; feu vert applicatif local sur `0e32402`, ouverture publique conditionnée au rejeu préproduction Docker/Stripe/SMTP/Playwright).
+
+### Audit final FD-10 — 21 novembre 2026 (révision candidate `0e32402`)
+
+- **Décision de lancement** : **GO conditionnel (préproduction requise avant ouverture publique)**.
+  - **Code applicatif (local)** : **Validé** sur les lots FD-02 à FD-09 (`build:check` 0 erreur / 4 018 modules, `eslint` frontend 0 erreur, isolation multi-studios, quotas/uploads Windows & Linux, facturation/échelonnement/PDF/comptabilité, webhook Stripe idempotent, workflows & console fondateur).
+  - **Prérequis restants avant ouverture DNS publique** (impossibles à exécuter sur ce poste sans Docker ni secrets de préproduction) :
+    1. Rejouer **FD-01** / **FD-09** avec `docker compose -f docker-compose.prod.yml up` sur l'hôte Linux/VPS (PostgreSQL vierge + migration + restauration mesurée).
+    2. Connecter les clés **Stripe test**, le **SMTP** transactionnel et le stockage **S3/R2** en préproduction privée, puis rejouer un paiement Checkout + webhook et un envoi d'e-mail réel.
+    3. Exécuter la campagne **Playwright E2E** et solder si souhaité les avertissements résiduels (`lint:design-system` et `backend` ESLint).
