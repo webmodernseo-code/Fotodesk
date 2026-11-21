@@ -130,7 +130,7 @@ describe('admin workflows API', () => {
 
   test('refuses to enable a flow that uses an unregistered action', async () => {
     const create = await request(app).post('/api/admin/workflows').set(auth(token)).send({
-      name: 'Stub flow', trigger_type: 'quote.accepted', enabled: false,
+      name: 'Stub flow', trigger_type: 'invoice.sent', enabled: false,
       nodes: [{ node_key: 't', type: 'trigger' }, { node_key: 'a', type: 'action', config: { action: 'totally_not_a_real_action' } }],
       edges: [{ from_node: 't', to_node: 'a' }],
     });
@@ -142,7 +142,7 @@ describe('admin workflows API', () => {
 
   test('allows enabling a flow using the now-implemented booking invoice actions', async () => {
     const create = await request(app).post('/api/admin/workflows').set(auth(token)).send({
-      name: 'Invoice-only booking', trigger_type: 'quote.accepted', enabled: false,
+      name: 'Invoice-only booking', trigger_type: 'invoice.sent', enabled: false,
       nodes: [
         { node_key: 't', type: 'trigger' },
         { node_key: 'p', type: 'action', config: { action: 'prepare_invoice' } },
