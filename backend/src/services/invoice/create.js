@@ -293,6 +293,7 @@ async function createInvoice(payload, adminId, trx = db) {
     // force a specific value), source quote, source contract,
     // otherwise fresh mint.
     deal_uuid: await resolveDealUuid(trx, payload),
+    studio_id: Number(payload.studioId) || (customer && customer.studio_id ? Number(customer.studio_id) : 1),
     created_by_admin_id: adminId,
     created_at: new Date(),
     updated_at: new Date(),
@@ -336,7 +337,7 @@ async function createInvoice(payload, adminId, trx = db) {
  * code should reach for the clearer `spawnInstallmentInvoices`.
  */
 async function spawnInstallmentInvoices({ trx, eventId, quoteId, customer, currency, language,
-  lineItems, totals, installments, eventDate, adminId,
+  lineItems, totals, installments, eventDate, adminId, studioId,
   ccPdfEmail, netDays,
   eventName, eventTimeStart, eventTimeEnd,
   paymentNetDaysTemplateId, paymentTimingTemplateId,
@@ -478,6 +479,7 @@ async function spawnInstallmentInvoices({ trx, eventId, quoteId, customer, curre
       // caller didn't pass one — shouldn't happen on a migrated
       // install but keeps the column non-null.
       deal_uuid: dealUuid || crypto.randomUUID(),
+      studio_id: Number(studioId) || (customer && customer.studio_id ? Number(customer.studio_id) : 1),
       created_by_admin_id: adminId,
       created_at: new Date(),
       updated_at: new Date(),
