@@ -203,12 +203,13 @@ async function headroom(trx, stat, bytes, limits, files = 0) {
   const other = await sum(trx('public_upload_requests').where({ active: 1 }));
   const promoting = getStorage().kind() === 'local'
     ? await sum(trx('public_upload_objects').whereIn('state', ['promoting', 'uncertain'])) : { bytes: 0, files: 0 };
+  const hasInodeStats = stat.files === undefined ? Number(stat.ffree) > 0 : Number(stat.files) > 0;
   const freeFiles = Number(stat.ffree);
   // Local promotion temporarily needs both copies. S3 needs staging space.
   const copies = getStorage().kind() === 'local' ? 2 : 1;
   const floor = Math.max(limits.headroomBytes, Math.ceil(total * limits.headroomPercent / 100));
   if (!Number.isSafeInteger(free) || !Number.isSafeInteger(total) || total <= 0 || free - copies * (bytes + other.bytes + promoting.bytes) < floor
-    || !Number.isSafeInteger(freeFiles) || freeFiles - copies * (files + other.files + promoting.files) - other.count - 1 < limits.headroomFiles) {
+    || (hasInodeStats && (!Number.isSafeInteger(freeFiles) || freeFiles - copies * (files + other.files + promoting.files) - other.count - 1 < limits.headroomFiles))) {
     throw refusal('UPLOAD_STORAGE_LOW', 507);
   }
 }

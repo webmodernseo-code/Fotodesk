@@ -73,11 +73,12 @@ La campagne Docker de FD-01 est suspendue à la demande du porteur du projet. FD
 - `npm --prefix frontend run build:check` (`tsc -b && node ./scripts/build.js`) passe avec succès (code 0, 4018 modules).
 
 - Webhook Stripe signé et idempotent implémenté (`POST /api/webhooks/stripe` dans `backend/src/routes/stripeWebhook.js`, `cancelCommissionForInvoice` dans `commissionService.js`) : `fd06StripeWebhook.test.js` passe (2/2 — rejet signature invalide, activation Pro, facture unique, rejeu sans doublon, renouvellement sans 2e commission, remboursement avec annulation de commission et résiliation).
+- Recette FD-04 (médias & partage) : correction Windows NTFS sur `publicUploadQuota.js` (`stat.files === 0 && stat.ffree === 0` ne bloque plus en HTTP 507), garde `hasTable('studios')` dans `studioQuotaService.js`, nettoyage des données fictives/Unsplash et isolement `studioId` dans `backend/src/routes/portfolios.js`, correction mock `.returning()` dans `phase4And5QuotasAndCommissions.test.js`. Suites passées : `adminPhotos.reference.test.js`, `adminThumbnails.regenerate.test.js`, `transferDownloadCapRace.test.js`, `transferUploadDirCleanup.test.js`, `phase4And5QuotasAndCommissions.test.js` (5 suites, 31/31), ainsi que `photoProcessor.processPhoto.test.js`, `videoRenditionService.test.js`, `videoRenditionQueue.test.js`, `galleryVideoWebCopy.test.js`, `galleryProtectedVideoUrls.test.js`, `galleryFeedbackVisibility.test.js`, `feedbackAbuseLimits.test.js`, `adminArchivesQuery.test.js`, `transferService.gating.test.js` et `transferCreateGuards.test.js`.
 
 - [ ] FD-01 — inventaire et référence de recette.
 - [x] FD-02 — identités, droits et isolation (suites auth, session, MFA, permissions, calendrier, tableau de bord, fils studio, documents, transferts, exports et archives passées).
 - [x] FD-03 — opérations studio et CRM (`ProjectsListPage`, `FotoDeskDashboard`, `StudioMessagesPage`, `CalendarPage.appointments` passés).
-- [ ] FD-04 — médias et partage.
+- [x] FD-04 — médias et partage (upload photos, miniatures, rendus vidéo, retours client, transferts, archives, portfolio isolé par studio et quotas vérifiés).
 - [ ] FD-05 — documents et finances studio.
 - [x] FD-06 — abonnements et affiliation (`SubscriptionPage`, `AdminAffiliatesPage`, `stripeWebhook.js` et `fd06StripeWebhook.test.js` passés ; mode Stripe test à rejouer avant ouverture).
 - [ ] FD-07 — administration et services transversaux.

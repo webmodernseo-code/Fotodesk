@@ -92,7 +92,7 @@ describe('Phase 4 & 5 Quotas and Affiliate Commissions', () => {
       .mockResolvedValueOnce({ id: 5, referral_code: 'FD-PARTNER', is_active: true }) // affiliate_accounts
       .mockResolvedValueOnce(null) // no existing commission for studio 22
       .mockResolvedValueOnce({ id: 77, commission_minor: 198, commission_rate: 0.2, status: 'pending' }); // inserted row
-    mockInsert.mockResolvedValueOnce([77]);
+    mockInsert.mockReturnValueOnce({ returning: jest.fn().mockResolvedValueOnce([77]) });
 
     const comm = await commissionService.processFirstProPaymentCommission({
       studioId: 22,
