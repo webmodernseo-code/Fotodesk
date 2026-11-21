@@ -5,6 +5,96 @@ All notable changes to PicPeak will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.168.0-beta.0](https://github.com/webmodernseo-code/Fotodesk/compare/v3.167.5-beta.0...v3.168.0-beta.0) (2026-11-21)
+
+
+### Features
+
+* **affiliate:** redesign Affiliate Program with 5 tabs and add fallback mock data across tabs ([98d2383](https://github.com/webmodernseo-code/Fotodesk/commit/98d238324b180bf0af98dfc281cc019b5babb26f))
+* **auth:** add confirm email field with no-paste security to sign up form ([7426453](https://github.com/webmodernseo-code/Fotodesk/commit/74264530cac667224390f858c77e691500b7269a))
+* **auth:** add strong password indicator with visual gauge and live criteria checklist to sign up ([782cbb5](https://github.com/webmodernseo-code/Fotodesk/commit/782cbb586bfb0c98dd7a2eefc437ed04f24c7b83))
+* **auth:** apply semantic colors and inline error banner on login/signup ([0effe7f](https://github.com/webmodernseo-code/Fotodesk/commit/0effe7fdeede1d8ea5bfd8e8639d162bb3586579))
+* **auth:** full dark mode and signature khaki green branding across login and signup surfaces ([4237bf6](https://github.com/webmodernseo-code/Fotodesk/commit/4237bf6fb5f75c6192301f402219ce44e0337170))
+* **backend:** phase 1 multi-tenancy schema, studioContext middleware and tests ([d67bd29](https://github.com/webmodernseo-code/Fotodesk/commit/d67bd296ca4f7fce9048dc03a6be78c22ca4102b))
+* **backend:** phase 2 auth register/me, active sessions and module permissions ([5fe4126](https://github.com/webmodernseo-code/Fotodesk/commit/5fe412638e2f4cd423c9674af252eae66b3a7501))
+* **backend:** phase 3 studio dashboard overview, calendar/project scoping, invoice status & public view ([a760cb9](https://github.com/webmodernseo-code/Fotodesk/commit/a760cb9a09feebc471a508a830bf03f1a49758ff))
+* **backend:** phase 4 & 5 quotas, photo/video galleries, timestamp comments, subscriptions & 20% affiliate commissions ([906bb0c](https://github.com/webmodernseo-code/Fotodesk/commit/906bb0c34205dcb72e7075950e4426e930520396))
+* **backend:** phase 6 & 7 superadmin APIs, studio settings, production env & integration tests ([efcf0ae](https://github.com/webmodernseo-code/Fotodesk/commit/efcf0aed5b889d26f28bc92132c0f10e2f1dd839))
+* **branding:** replace green tones with official landing page accent color (#C89561) across dark mode auth surfaces ([396b909](https://github.com/webmodernseo-code/Fotodesk/commit/396b909dfb0e230425b7f940e6bf34d6d95b1e80))
+* **calendar:** add Google Calendar .ics feed sync with official SVG logo ([2454b1d](https://github.com/webmodernseo-code/Fotodesk/commit/2454b1d90b439605be6a6a13074444085ac1bdf4))
+* **calendar:** display connected Google Calendar events (OAuth 2.0 + private iCal) inside FotoDesk SaaS ([7da564c](https://github.com/webmodernseo-code/Fotodesk/commit/7da564cfc95473a66ec369de23767d96a61f5531))
+* **calendar:** open Google Calendar OAuth in popup window with automatic sync ([417b629](https://github.com/webmodernseo-code/Fotodesk/commit/417b62927379ecf37c4c2cfde3785c3332764028))
+* **calendar:** redesign calendar with Month/Week/Day views, filters, day panel and event modals ([78f1122](https://github.com/webmodernseo-code/Fotodesk/commit/78f11225ebbb3276f1d3961a004051bc5bca0593))
+* **clients:** redesign clients list, modals and profile to match FotoDesk design system ([07cd0ec](https://github.com/webmodernseo-code/Fotodesk/commit/07cd0ec9b98f0b75db8fdf39b8d2d9237615aaea))
+* complete rebranding to FotoDesk across frontend, backend, logos and locales ([a13e254](https://github.com/webmodernseo-code/Fotodesk/commit/a13e2543e6a647f3b6eebe40c1d21d302082b0da))
+* **dashboard:** add quick actions section to FotoDeskDashboard ([435fa72](https://github.com/webmodernseo-code/Fotodesk/commit/435fa72dab2e9a2e5db4c567d216bb1adb312036))
+* **dashboard:** keep photo gallery, video gallery and storage KPIs on original layout ([d4c6f52](https://github.com/webmodernseo-code/Fotodesk/commit/d4c6f52eee36640bf1d43f3406e3036addad1c2d))
+* **design-system:** align tokens, shadows, typography and primitives with Figma ([52f2959](https://github.com/webmodernseo-code/Fotodesk/commit/52f29599917bfb605fcdfc0e0caa2a181d525c90))
+* **design:** add FotoDesk semantic color tokens and classes without altering site accent ([64504dd](https://github.com/webmodernseo-code/Fotodesk/commit/64504dd787fead67adfb3f62bbec04a60eab5965))
+* **design:** apply semantic badges and banners in SettingsWorkspace and AdminAffiliatesPage ([6c75b24](https://github.com/webmodernseo-code/Fotodesk/commit/6c75b243b3aa36b801505d91a1396fbcdd9fd40c))
+* **fd03:** wire ProjectsListPage to projectsService API and remove mock projects ([72752a2](https://github.com/webmodernseo-code/Fotodesk/commit/72752a211ff353d404af01441fa7ae1ee6ddb854))
+* **fd05:** wire InvoicesWorkspace to billsService API and remove sample invoices ([f33f9af](https://github.com/webmodernseo-code/Fotodesk/commit/f33f9af27c8094debb92f4a41288e0d3766094a9))
+* **fd06:** add signed idempotent Stripe webhook, refund commission cancellation, and integration tests ([da98f7f](https://github.com/webmodernseo-code/Fotodesk/commit/da98f7f2ae02e68b675896dd193b51bdbba41473))
+* **fd06:** wire AdminAffiliatesPage to /admin/affiliates/overview and add PostgreSQL returning('id') ([5f36d76](https://github.com/webmodernseo-code/Fotodesk/commit/5f36d765dfdccba156cdac635cf4593259c968b2))
+* **fd06:** wire SubscriptionPage to Stripe checkout and remove mock invoices/annual plan ([797c399](https://github.com/webmodernseo-code/Fotodesk/commit/797c399c4655e0bb9b041a3b810ac77035846f8c))
+* **galleries:** add 2-column gallery cards grid, view switcher and CreateGalleryModal ([8678962](https://github.com/webmodernseo-code/Fotodesk/commit/86789622149d56c9daaac1e6828bfc2b04f088c8))
+* **galleries:** align Photo Galleries list & detail header/KPIs with mockups ([22beb65](https://github.com/webmodernseo-code/Fotodesk/commit/22beb65dc01472b2f62be080170794be9c99c168))
+* integrate auth-fuse AuthUI component for login and register with shadcn UI structure ([fa59628](https://github.com/webmodernseo-code/Fotodesk/commit/fa5962841b7dd6fe25e2c51456b97380e73b2c8c))
+* **invoices:** add InvoicesWorkspace flow and remove Payments from sidebar ([bc0bc05](https://github.com/webmodernseo-code/Fotodesk/commit/bc0bc05c63502a3b4cded61fbc167b2f598252b6))
+* migrate to official picpeak engine with integrated fotodesk landing page ([9360b89](https://github.com/webmodernseo-code/Fotodesk/commit/9360b894b01c95aa8b8ab76e290036d3137e53bb))
+* **nav:** restructure admin sidebar into Workspace, Galleries and Business ([9b0d6c4](https://github.com/webmodernseo-code/Fotodesk/commit/9b0d6c48431aaedf07421c3c1834d38792088015))
+* **phase8:** wire frontend pages to backend APIs, align superadmin overview payload & update Dev_backend.md ([90df24c](https://github.com/webmodernseo-code/Fotodesk/commit/90df24c85c68828e5d2b9c45f548d9aa46df844c))
+* **phase9:** wire SettingsWorkspace, add PublicVideoGalleryPage, Stripe checkout & VPS/Docker deploy configs ([5d644b5](https://github.com/webmodernseo-code/Fotodesk/commit/5d644b5f6dcfcf33044bf585c389235e551954c4))
+* **projects:** add ProjectsListPage flow and remove Quotes/Contracts from sidebar ([3c50ddc](https://github.com/webmodernseo-code/Fotodesk/commit/3c50ddc847950dd7b892f226921f721b1b14e624))
+* **settings:** add SettingsWorkspace matching mockups with 7 sections ([175b496](https://github.com/webmodernseo-code/Fotodesk/commit/175b4963fae795e99b577b08a4bc1049cb8ed220))
+* **studio:** redesign Projects Flow and Calendar Flow to match Figma ([88af9f3](https://github.com/webmodernseo-code/Fotodesk/commit/88af9f3488a7f608afa7d386bfd2d08dcdd1d5d2))
+* **subscription:** add Subscription & Billing page with 6 tabs and sidebar entry ([e0b77fd](https://github.com/webmodernseo-code/Fotodesk/commit/e0b77fdf1307e27106612c4a38ed52f34cb7d653))
+* **superadmin:** add Affiliates, Commissions, Payouts and Platform Settings sections ([f843874](https://github.com/webmodernseo-code/Fotodesk/commit/f843874530b7291f1b0a235a422e57272fd7a555))
+* **superadmin:** add Overview, Studios, Users and Subscriptions sections ([1fc1092](https://github.com/webmodernseo-code/Fotodesk/commit/1fc1092f96297480a41659cc3f993bace9e3526c))
+* **superadmin:** add Revenue Overview chart, Notifications popover, collapsible sidebar and Cmd+K ([166411c](https://github.com/webmodernseo-code/Fotodesk/commit/166411cb75ca4153536a5f1714c4221fd6736d5d))
+* **superadmin:** add Studio Details, Suspend Studio modal, and 5-tab Platform Settings ([fc5fc07](https://github.com/webmodernseo-code/Fotodesk/commit/fc5fc07f2401fa9f61cc34d1d57d3b5328f91e61))
+* **superadmin:** isolate /superadmin/login, fix submit button visibility, align sidebar with base design system ([e9f5d44](https://github.com/webmodernseo-code/Fotodesk/commit/e9f5d44805ea111d93f76ae6735dca43579c6124))
+* **superadmin:** redesign MasterFounderDashboardPage and admin sidebar to match Figma 63:199429 ([4f54167](https://github.com/webmodernseo-code/Fotodesk/commit/4f541673ff22c648bc2bf5887e01cbe0e3bf8f6d))
+* **team-members:** add TeamMembersPage with permission matrix and detail view ([c354d1f](https://github.com/webmodernseo-code/Fotodesk/commit/c354d1ffd2cb99ab3695cb9e6e1c1e6dd3486e1a))
+* **ui:** align dark mode support and premium icon styling across dashboards ([6ad9c72](https://github.com/webmodernseo-code/Fotodesk/commit/6ad9c72e7e5b44c4f20ff988905b85f750f0a459))
+* **video-galleries:** add VideoGalleriesPage with player, timestamp comments, upload quota and client preview ([fea736b](https://github.com/webmodernseo-code/Fotodesk/commit/fea736b4d6f3504deeb7f559f97b46f672058247))
+
+
+### Bug Fixes
+
+* **auth:** remove stray showReferralInput state from SignInForm ([1ba4661](https://github.com/webmodernseo-code/Fotodesk/commit/1ba466160b58e0dff6f0865f4aec6149a0747617))
+* **auth:** restore primary submit button styling and redirect super_admin to /superadmin ([ebb0276](https://github.com/webmodernseo-code/Fotodesk/commit/ebb0276fd16b3536441b1e2e13b4822131385b12))
+* **auth:** use ISO timestamps and whereTimestamp for customer invitations and password resets ([d3bbdd8](https://github.com/webmodernseo-code/Fotodesk/commit/d3bbdd85341c8c998c5d0a0dbdfb3e2d4634a373))
+* **backend:** enforce multi-tenant studio_id isolation on events creation/listing and calendar appointments ([17146ea](https://github.com/webmodernseo-code/Fotodesk/commit/17146eab8e566df1244e898f1a29e2b067ff0e1b))
+* **backend:** remove non-existent created_at on app_settings inserts + add live E2E verification phases 4-7 and update Dev_backend.md ([c0fd35f](https://github.com/webmodernseo-code/Fotodesk/commit/c0fd35f6bbeaa2954986e19b876ba47b90cf0034))
+* **calendar:** declare range state before Google Calendar useQuery ([ea0460f](https://github.com/webmodernseo-code/Fotodesk/commit/ea0460f169230f994b4c11f3b58b63f8daebbd14))
+* **clients:** use customers.create/edit/delete permissions for client actions ([6ac4455](https://github.com/webmodernseo-code/Fotodesk/commit/6ac44553faec5f4b300c1ea9814c810f096a641c))
+* **dashboard,db:** keep demo metrics fallback without AI slop + add studios slug/timestamps migrations & demo seed ([98f94e9](https://github.com/webmodernseo-code/Fotodesk/commit/98f94e91ab982ce9bf2a1d62f2daf0f6cb9aa686))
+* **dashboard:** guard date formatting against invalid timestamps and surface error details ([1c2064c](https://github.com/webmodernseo-code/Fotodesk/commit/1c2064c1b9dcd2a9f68fe18855ddec7f173f09c8))
+* **fd-04:** resolve Windows NTFS upload headroom 507, clean portfolio defaults, verify media & sharing suites ([e858252](https://github.com/webmodernseo-code/Fotodesk/commit/e8582525df8c58bcd2de97bd9f1e3138fcfb9452))
+* **fd-05:** fix studioId reference in spawnInstallmentInvoices and verify billing/PDF/accounting suites ([65c0401](https://github.com/webmodernseo-code/Fotodesk/commit/65c0401bdf299f120c7981eb83a8b4085af4a0be))
+* **fd02:** enforce studio isolation on customer documents and transfers, fix photoFilterBuilder date column ([936f9bf](https://github.com/webmodernseo-code/Fotodesk/commit/936f9bf5f70b7f9f9c620a71459935ce40c52c74))
+* **settings:** remove stray closing div causing JSX parse error ([ed614ee](https://github.com/webmodernseo-code/Fotodesk/commit/ed614eeacd122ee2ce70292fa487a0b522e33443))
+* **superadmin:** resolve TypeScript types for LucideIcon and AffiliatePayoutRequest ([8da601f](https://github.com/webmodernseo-code/Fotodesk/commit/8da601ff369b4734d7ba65a17e68b08cedf4ed5c))
+* **ui:** ensure .btn-primary has native padding/radius and keep ⌘K single-line ([4a31314](https://github.com/webmodernseo-code/Fotodesk/commit/4a313149cbf75e1d970f2707604dd7970b6ac962))
+* **ui:** match neutral semantic active pill styling (bg-subtle, border-line, text-heading) in AdminSidebar ([d791487](https://github.com/webmodernseo-code/Fotodesk/commit/d79148773144088014ef3f9e2015f918bdc9dba0))
+* **ui:** prevent filter button top clipping on hover and simplify header profile ([7254c97](https://github.com/webmodernseo-code/Fotodesk/commit/7254c97ab78dfcb2ffd4ed29308ed88d1b7223bf))
+* **ui:** restore visible active link pill styling in AdminSidebar ([121f77b](https://github.com/webmodernseo-code/Fotodesk/commit/121f77bfccde2139390ee564703f163e5097b7ea))
+* **ui:** use semantic badge classes (badge-success, badge-warning, badge-info) in Badge and AdminAffiliatesPage ([a4e8469](https://github.com/webmodernseo-code/Fotodesk/commit/a4e846947671957111847ac5912be9e73ceeab9e))
+
+
+### Reverts
+
+* **dashboard:** restore original FotoDeskDashboard.tsx layout ([b9ad595](https://github.com/webmodernseo-code/Fotodesk/commit/b9ad595a23e87f23bd36928c914e0ea7481087da))
+* undo Figma design system and dashboard changes ([2d6fc3e](https://github.com/webmodernseo-code/Fotodesk/commit/2d6fc3e578a5b6c4c80c489341c092fdd84cfd4a))
+
+
+### Documentation
+
+* **backend:** add Dev_backend.md A-to-Z roadmap and progress tracker ([3e21a0f](https://github.com/webmodernseo-code/Fotodesk/commit/3e21a0f9cb68ffbdf74cd90e2ab357ed24bac7e8))
+* **backend:** include landing page builder (/admin/portfolio) in Dev_backend.md ([cf64685](https://github.com/webmodernseo-code/Fotodesk/commit/cf64685e221a7612bdf4761dee63c900fe79be34))
+* **fd-10:** record final audit and conditional go decision on 0e32402 ([090e700](https://github.com/webmodernseo-code/Fotodesk/commit/090e7000b4a6d4d38dae104232517ad01e5cfec9))
+
 ## [3.167.5-beta.0](https://github.com/PicPeak/picpeak/compare/v3.167.4-beta.0...v3.167.5-beta.0) (2026-10-08)
 
 
